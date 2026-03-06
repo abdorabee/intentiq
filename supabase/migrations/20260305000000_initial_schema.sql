@@ -1,6 +1,7 @@
 -- ─── Users ────────────────────────────────────────────────────────────────────
+-- id is a Clerk user ID (e.g. "user_2abc..."), not a Supabase auth UUID
 create table if not exists public.users (
-  id                uuid primary key references auth.users(id) on delete cascade,
+  id                text primary key,
   email             text not null,
   stripe_customer_id text,
   plan              text not null default 'free'
@@ -17,7 +18,7 @@ create policy "users: own row" on public.users
 -- ─── API Keys ─────────────────────────────────────────────────────────────────
 create table if not exists public.api_keys (
   id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references public.users(id) on delete cascade,
+  user_id    text not null references public.users(id) on delete cascade,
   key_hash   text not null unique,
   label      text not null default 'Default',
   last_used  timestamptz,
@@ -32,7 +33,7 @@ create policy "api_keys: own rows" on public.api_keys
 -- ─── Scores ───────────────────────────────────────────────────────────────────
 create table if not exists public.scores (
   id                 uuid primary key default gen_random_uuid(),
-  user_id            uuid not null references public.users(id) on delete cascade,
+  user_id            text not null references public.users(id) on delete cascade,
   domain             text not null,
   company_name       text not null,
   score              integer not null,
@@ -54,7 +55,7 @@ create policy "scores: own rows" on public.scores
 -- ─── Watchlist ────────────────────────────────────────────────────────────────
 create table if not exists public.watchlist (
   id           uuid primary key default gen_random_uuid(),
-  user_id      uuid not null references public.users(id) on delete cascade,
+  user_id      text not null references public.users(id) on delete cascade,
   domain       text not null,
   company_name text not null,
   last_scored  timestamptz,
@@ -73,7 +74,7 @@ create policy "watchlist: own rows" on public.watchlist
 -- ─── Credits Log ──────────────────────────────────────────────────────────────
 create table if not exists public.credits_log (
   id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references public.users(id) on delete cascade,
+  user_id    text not null references public.users(id) on delete cascade,
   amount     integer not null,
   type       text not null check (type in ('debit','credit')),
   reason     text not null,
@@ -87,7 +88,7 @@ create policy "credits_log: own rows" on public.credits_log
 -- ─── Bulk Jobs ────────────────────────────────────────────────────────────────
 create table if not exists public.bulk_jobs (
   id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references public.users(id) on delete cascade,
+  user_id     text not null references public.users(id) on delete cascade,
   status      text not null default 'queued'
                 check (status in ('queued','processing','completed','failed')),
   total       integer not null,
@@ -104,7 +105,7 @@ create policy "bulk_jobs: own rows" on public.bulk_jobs
   for all using (auth.uid() = user_id);
 
 -- ─── Credit deduction RPC ─────────────────────────────────────────────────────
-create or replace function public.deduct_credit(p_user_id uuid)
+create or replace function public.deduct_credit(p_user_id text)
 returns void language plpgsql security definer as $$
 begin
   update public.users
@@ -116,20 +117,5 @@ begin
 end;
 $$;
 
--- ─── Auto-create user profile on signup ──────────────────────────────────────
-create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer as $$
-begin
-  insert into public.users (id, email, product_category)
-  values (
-    new.id,
-    new.email,
-    new.raw_user_meta_data->>'product_category'
-  );
-  return new;
-end;
-$$;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
+-- User provisioning is handled in app/(dashboard)/layout.tsx via upsert on
+-- first login. No Supabase auth trigger needed with Clerk.

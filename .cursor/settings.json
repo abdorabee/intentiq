@@ -1,0 +1,13 @@
+{
+  "plugins": {
+    "clerk": {
+      "enabled": true
+    },
+    "supabase": {
+      "enabled": true
+    },
+    "notion-workspace": {
+      "enabled": true
+    }
+  }
+}

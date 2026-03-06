@@ -1,16 +1,17 @@
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { auth } from "@clerk/nextjs/server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import QuickScore from "@/components/dashboard/quick-score";
 
 export default async function DashboardPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId } = await auth();
+  const admin = createSupabaseAdmin();
 
   const [{ data: profile }, { data: recentScores }, { data: hotLeads }] = await Promise.all([
-    supabase.from("users").select("credits_remaining, plan").eq("id", user!.id).single(),
-    supabase.from("scores").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(10),
-    supabase.from("watchlist").select("*").eq("user_id", user!.id).eq("is_active", true).gte("score", 75).order("score", { ascending: false }),
+    admin.from("users").select("credits_remaining, plan").eq("id", userId!).single(),
+    admin.from("scores").select("*").eq("user_id", userId!).order("created_at", { ascending: false }).limit(10),
+    admin.from("watchlist").select("*").eq("user_id", userId!).eq("is_active", true).gte("score", 75).order("score", { ascending: false }),
   ]);
 
   return (

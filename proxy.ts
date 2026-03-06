@@ -1,48 +1,24 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 
-export async function proxy(req: NextRequest) {
-  let res = NextResponse.next({ request: { headers: req.headers } });
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/login(.*)",
+  "/signup(.*)",
+  "/api/v1/(.*)",
+  "/api/billing/webhook",
+]);
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
-          res = NextResponse.next({ request: { headers: req.headers } });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const { pathname } = req.nextUrl;
-
-  // Protected dashboard paths
-  const dashboardPaths = ["/dashboard", "/score", "/watchlist", "/bulk", "/api-keys", "/billing"];
-  if (dashboardPaths.some((p) => pathname.startsWith(p))) {
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+const clerk = clerkMiddleware(async (auth, req) => {
+  if (!isPublicRoute(req)) {
+    await auth.protect();
   }
+});
 
-  // Redirect logged-in users away from auth pages
-  if ((pathname === "/login" || pathname === "/signup") && user) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
-  return res;
+export async function proxy(req: NextRequest, ev: NextFetchEvent) {
+  return clerk(req, ev);
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

@@ -1,4 +1,5 @@
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { auth } from "@clerk/nextjs/server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +14,12 @@ const PLANS = [
 ];
 
 export default async function BillingPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
+  const { userId } = await auth();
+  const admin = createSupabaseAdmin();
+  const { data: profile } = await admin
     .from("users")
     .select("plan, credits_remaining")
-    .eq("id", user!.id)
+    .eq("id", userId!)
     .single();
 
   const plan = profile?.plan ?? "free";
