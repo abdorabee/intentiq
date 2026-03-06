@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createSupabaseServerClient, createSupabaseAdmin } from "@/lib/supabase";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-02-25.clover" });
 
@@ -12,9 +13,9 @@ const CREDIT_PACKS: Record<string, { credits: number; price_cents: number }> = {
 };
 
 export async function POST(req: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const clerkUser = await currentUser();
 
   const formData = await req.formData();
   const amount = formData.get("amount") as string;
@@ -28,17 +29,17 @@ export async function POST(req: NextRequest) {
   const { data: profile } = await admin
     .from("users")
     .select("stripe_customer_id, email")
-    .eq("id", user.id)
+    .eq("id", userId)
     .single();
 
   let customerId = profile?.stripe_customer_id;
   if (!customerId) {
     const customer = await stripe.customers.create({
-      email: profile?.email ?? user.email,
-      metadata: { supabase_user_id: user.id },
+      email: profile?.email ?? clerkUser?.emailAddresses[0]?.emailAddress,
+      metadata: { supabase_user_id: userId },
     });
     customerId = customer.id;
-    await admin.from("users").update({ stripe_customer_id: customerId }).eq("id", user.id);
+    await admin.from("users").update({ stripe_customer_id: customerId }).eq("id", userId);
   }
 
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
     }],
     success_url: `${origin}/billing?topup=true`,
     cancel_url: `${origin}/billing`,
-    metadata: { supabase_user_id: user.id, credits: String(pack.credits), type: "topup" },
+    metadata: { supabase_user_id: userId, credits: String(pack.credits), type: "topup" },
   });
 
   return NextResponse.redirect(session.url!, 303);

@@ -1,16 +1,17 @@
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { auth } from "@clerk/nextjs/server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default async function WatchlistPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId } = await auth();
+  const admin = createSupabaseAdmin();
 
-  const { data: watchlist } = await supabase
+  const { data: watchlist } = await admin
     .from("watchlist")
     .select("*")
-    .eq("user_id", user!.id)
+    .eq("user_id", userId!)
     .eq("is_active", true)
     .order("score", { ascending: false });
 
