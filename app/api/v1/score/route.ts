@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
   }
 
   const lookupDomain = domain ?? `${company?.toLowerCase().replace(/\s+/g, "")}.com`;
-  const lookupCompany = company ?? domain!;
+  const lookupCompany = company ?? domainToCompanyName(domain!);
 
   // ── Cache check ──────────────────────────────────────────────────────────────
   const cacheKey = scoreCacheKey(lookupDomain);
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
   const partial = computeIntentScore(lookupCompany, lookupDomain, signals);
 
   // ── AI Reasoning ─────────────────────────────────────────────────────────────
-  const { ai_summary, recommended_action } = await generateReasoning(
+  const { ai_summary, recommended_action, buying_stage, urgency, key_triggers } = await generateReasoning(
     lookupCompany,
     partial.intent_score,
     partial.score_band,
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
     productCategory
   );
 
-  const result: IntentScore = { ...partial, ai_summary, recommended_action };
+  const result: IntentScore = { ...partial, ai_summary, recommended_action, buying_stage, urgency, key_triggers };
 
   // ── Cache + persist ──────────────────────────────────────────────────────────
   await cacheSet(cacheKey, result, SCORE_TTL_SECONDS);
@@ -131,4 +131,12 @@ export async function GET(req: NextRequest) {
 async function hashKey(key: string): Promise<string> {
   const { createHash } = await import("crypto");
   return createHash("sha256").update(key).digest("hex");
+}
+
+// "stripe.com" → "Stripe", "linear.app" → "Linear"
+function domainToCompanyName(domain: string): string {
+  const hostname = domain.replace(/^https?:\/\//, "").split("/")[0];
+  const parts = hostname.split(".");
+  const name = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  return name.charAt(0).toUpperCase() + name.slice(1);
 }

@@ -34,6 +34,13 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 
+# Signal sources (only needed when MOCK_SIGNALS=false)
+EXPLORIUM_API_KEY=         # explorium.ai — company funding enrichment (2-step: match + enrich)
+GNEWS_API_KEY=             # gnews.io — free tier, 100 req/day
+BUILTWITH_API_KEY=         # api.builtwith.com — free tier, tech stack
+OPEN_PAGE_RANK_API_KEY=    # domcop.com/openpagerank — free, 100 req/day
+APIFY_API_KEY=             # apify.com — $5 free credit, LinkedIn jobs
+
 # Dev mode — use mock signals instead of real API calls
 MOCK_SIGNALS=true
 ```

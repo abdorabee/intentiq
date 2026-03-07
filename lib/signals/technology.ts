@@ -46,15 +46,20 @@ export async function fetchTechnologySignal(domain: string): Promise<SignalResul
       const firstDetectedMs = (tech.FirstDetected ?? 0) * 1000;
       const lastDetectedMs = (tech.LastDetected ?? 0) * 1000;
 
-      // Newly added tool (first detected in last 90 days) = +15
+      // Newly adopted tool (first detected in last 90 days) = +15
       if (now - firstDetectedMs < NINETY_DAYS_MS) {
         score += 15;
         details.push(`New: ${tech.Name}`);
       }
-      // Tool recently removed (last detected > 90 days ago, but was recent before) = +10
+      // Tool removed (migration signal) = +10
       else if (now - lastDetectedMs > NINETY_DAYS_MS && firstDetectedMs > 0) {
         score += 10;
         details.push(`Removed: ${tech.Name} (migration signal)`);
+      }
+      // Active tool in use (stable stack) = +5 baseline per tool, max 2
+      else if (lastDetectedMs > 0 && details.filter((d) => d.startsWith("Active:")).length < 2) {
+        score += 5;
+        details.push(`Active: ${tech.Name}`);
       }
     }
 

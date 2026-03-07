@@ -1,22 +1,22 @@
 import type { SignalResult } from "@/lib/types";
 
-interface CrunchbaseOrg {
-  properties?: {
-    last_funding_type?: string;
-    last_funding_at?: string;
-    total_funding_usd?: number;
-    num_employees_enum?: string;
-  };
+// Explorium API — 2-step: match domain → business_id, then enrich
+// Docs: https://developers.explorium.ai
+// Auth header: api_key
+interface ExploriumMatchResponse {
+  matched_businesses?: Array<{ business_id?: string }>;
 }
 
-function employeeGrowthScore(employeeEnum: string | undefined): number {
-  // Crunchbase enum: c_00001_00010, c_00011_00050, ..., c_10001_max
-  // Simple heuristic: larger bands = more growth potential
-  if (!employeeEnum) return 0;
-  if (employeeEnum.includes("10001")) return 5;
-  if (employeeEnum.includes("5001")) return 4;
-  if (employeeEnum.includes("1001")) return 3;
-  return 0;
+interface ExploriumFundingFields {
+  known_funding_total_value?: number;
+  last_funding_round_date?: string;   // YYYY-MM-DD
+  last_funding_round_type?: string;
+  number_of_funding_rounds?: number;
+}
+
+// Explorium may return fields at top level or nested under a "data" key
+interface ExploriumFundingResponse extends ExploriumFundingFields {
+  data?: ExploriumFundingFields;
 }
 
 function daysSince(isoDate: string | undefined): number {
@@ -26,33 +26,65 @@ function daysSince(isoDate: string | undefined): number {
 
 export async function fetchFundingSignal(domain: string): Promise<SignalResult> {
   try {
-    const url = `https://api.crunchbase.com/api/v4/entities/organizations/${domain}?user_key=${process.env.CRUNCHBASE_API_KEY}&field_ids=last_funding_type,last_funding_at,total_funding_usd,num_employees_enum`;
-    const res = await fetch(url, { next: { revalidate: 86400 } });
+    const headers = {
+      "api_key": process.env.EXPLORIUM_API_KEY ?? "",
+      "Content-Type": "application/json",
+    };
 
-    if (!res.ok) throw new Error(`Crunchbase ${res.status}`);
+    // Derive clean company name for better match accuracy
+    const hostname = domain.replace(/^https?:\/\//, "").split("/")[0];
+    const parts = hostname.split(".");
+    const companyName = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
 
-    const data = (await res.json()) as CrunchbaseOrg;
-    const props = data.properties ?? {};
+    // Step 1: resolve domain → business_id (name improves match accuracy)
+    const matchRes = await fetch("https://api.explorium.ai/v1/businesses/match", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ businesses_to_match: [{ domain, name: companyName }] }),
+      next: { revalidate: 86400 },
+    });
+    if (!matchRes.ok) throw new Error(`Explorium match ${matchRes.status}`);
+
+    const matchData = (await matchRes.json()) as ExploriumMatchResponse;
+    const businessId = matchData.matched_businesses?.[0]?.business_id;
+    if (!businessId) return { score: 0, max: 25, detail: "Company not found" };
+
+    // Step 2: fetch funding enrichment
+    const fundingRes = await fetch("https://api.explorium.ai/v1/businesses/funding_and_acquisition/enrich", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ business_id: businessId }),
+      next: { revalidate: 86400 },
+    });
+    if (!fundingRes.ok) throw new Error(`Explorium funding ${fundingRes.status}`);
+
+    const raw = (await fundingRes.json()) as ExploriumFundingResponse;
+    // Unwrap nested "data" key if present
+    const funding: ExploriumFundingFields = raw.data ?? raw;
 
     let score = 0;
     const details: string[] = [];
 
-    // Recent funding (last 90 days) = +20
-    const age = daysSince(props.last_funding_at);
+    // Recent funding by date
+    const age = daysSince(funding.last_funding_round_date);
+    const roundType = funding.last_funding_round_type ?? "Funding";
     if (age <= 90) {
       score += 20;
-      details.push(
-        `${props.last_funding_type ?? "Funding"} closed ${age}d ago`
-      );
+      details.push(`${roundType} closed ${age}d ago`);
     } else if (age <= 365) {
       score += 10;
-      details.push(`${props.last_funding_type ?? "Funding"} within last year`);
+      details.push(`${roundType} within last year`);
+    } else if (funding.known_funding_total_value) {
+      score += 5;
+      details.push(`$${(funding.known_funding_total_value / 1_000_000).toFixed(0)}M total raised`);
     }
 
-    // Employee growth proxy
-    const growthPts = employeeGrowthScore(props.num_employees_enum);
-    score += growthPts;
-    if (growthPts > 0) details.push("Large/growing headcount");
+    // Bonus for multiple rounds (signals active fundraising history)
+    const rounds = funding.number_of_funding_rounds ?? 0;
+    if (rounds >= 3) {
+      score += 5;
+      details.push(`${rounds} funding rounds`);
+    }
 
     return {
       score: Math.min(score, 25),
@@ -60,7 +92,6 @@ export async function fetchFundingSignal(domain: string): Promise<SignalResult> 
       detail: details.join("; ") || "No recent funding activity detected",
     };
   } catch {
-    // Graceful degradation
     return { score: 0, max: 25, detail: "Funding data unavailable" };
   }
 }

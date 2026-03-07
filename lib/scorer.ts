@@ -10,8 +10,8 @@ const WEIGHTS = {
 } as const;
 
 function getScoreBand(score: number): ScoreBand {
-  if (score >= 75) return "HOT";
-  if (score >= 50) return "WARM";
+  if (score >= 65) return "HOT";
+  if (score >= 40) return "WARM";
   return "COLD";
 }
 
@@ -27,7 +27,7 @@ export function computeIntentScore(
   company: string,
   domain: string,
   signals: SignalSet
-): Omit<IntentScore, "ai_summary" | "recommended_action"> {
+): Omit<IntentScore, "ai_summary" | "recommended_action" | "buying_stage" | "urgency" | "key_triggers"> {
   // Weighted sum (0–100)
   const rawScore = (Object.keys(WEIGHTS) as Array<keyof typeof WEIGHTS>).reduce(
     (acc, key) => {

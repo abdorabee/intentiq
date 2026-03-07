@@ -24,29 +24,33 @@ const NEGATIVE_TRIGGERS: Array<{ keywords: string[]; pts: number; label: string 
 ];
 
 function scoreArticles(articles: GNewsArticle[]): { score: number; details: string[] } {
-  let score = 0;
+  let totalScore = 0;
   const details: string[] = [];
 
   for (const article of articles) {
     const text = `${article.title} ${article.description ?? ""}`.toLowerCase();
+    let articleScore = 0;
 
+    // Score ALL matching positive triggers (no break — one article can carry multiple signals)
     for (const trigger of POSITIVE_TRIGGERS) {
       if (trigger.keywords.some((kw) => text.includes(kw))) {
-        score += trigger.pts;
+        articleScore += trigger.pts;
         details.push(trigger.label);
-        break;
       }
     }
+    // Score ALL matching negative triggers
     for (const trigger of NEGATIVE_TRIGGERS) {
       if (trigger.keywords.some((kw) => text.includes(kw))) {
-        score += trigger.pts;
+        articleScore += trigger.pts;
         details.push(trigger.label);
-        break;
       }
     }
+
+    // Cap per-article contribution to prevent one article from dominating
+    totalScore += Math.max(-12, Math.min(articleScore, 12));
   }
 
-  return { score: Math.max(0, Math.min(score, 20)), details: [...new Set(details)] };
+  return { score: Math.max(0, Math.min(totalScore, 20)), details: [...new Set(details)] };
 }
 
 export async function fetchNewsSignal(company: string): Promise<SignalResult> {
