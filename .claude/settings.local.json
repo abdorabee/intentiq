@@ -3,7 +3,13 @@
     "allow": [
       "Bash(npm install @clerk/nextjs)",
       "WebFetch(domain:developers.explorium.ai)",
-      "WebFetch(domain:openrouter.ai)"
+      "WebFetch(domain:openrouter.ai)",
+      "WebSearch",
+      "WebFetch(domain:www.demandbase.com)",
+      "WebFetch(domain:www.sona.com)",
+      "WebFetch(domain:6sense.com)",
+      "WebFetch(domain:www.usergems.com)",
+      "WebFetch(domain:bombora.com)"
     ]
   }
 }

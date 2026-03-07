@@ -7,11 +7,16 @@ interface ExploriumMatchResponse {
   matched_businesses?: Array<{ business_id?: string }>;
 }
 
-interface ExploriumFundingResponse {
+interface ExploriumFundingFields {
   known_funding_total_value?: number;
   last_funding_round_date?: string;   // YYYY-MM-DD
   last_funding_round_type?: string;
   number_of_funding_rounds?: number;
+}
+
+// Explorium may return fields at top level or nested under a "data" key
+interface ExploriumFundingResponse extends ExploriumFundingFields {
+  data?: ExploriumFundingFields;
 }
 
 function daysSince(isoDate: string | undefined): number {
@@ -26,11 +31,16 @@ export async function fetchFundingSignal(domain: string): Promise<SignalResult> 
       "Content-Type": "application/json",
     };
 
-    // Step 1: resolve domain → business_id
+    // Derive clean company name for better match accuracy
+    const hostname = domain.replace(/^https?:\/\//, "").split("/")[0];
+    const parts = hostname.split(".");
+    const companyName = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+
+    // Step 1: resolve domain → business_id (name improves match accuracy)
     const matchRes = await fetch("https://api.explorium.ai/v1/businesses/match", {
       method: "POST",
       headers,
-      body: JSON.stringify({ businesses_to_match: [{ domain }] }),
+      body: JSON.stringify({ businesses_to_match: [{ domain, name: companyName }] }),
       next: { revalidate: 86400 },
     });
     if (!matchRes.ok) throw new Error(`Explorium match ${matchRes.status}`);
@@ -48,7 +58,9 @@ export async function fetchFundingSignal(domain: string): Promise<SignalResult> 
     });
     if (!fundingRes.ok) throw new Error(`Explorium funding ${fundingRes.status}`);
 
-    const funding = (await fundingRes.json()) as ExploriumFundingResponse;
+    const raw = (await fundingRes.json()) as ExploriumFundingResponse;
+    // Unwrap nested "data" key if present
+    const funding: ExploriumFundingFields = raw.data ?? raw;
 
     let score = 0;
     const details: string[] = [];

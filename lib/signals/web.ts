@@ -33,21 +33,23 @@ export async function fetchWebSignal(domain: string): Promise<SignalResult> {
     let score: number;
     let detail: string;
 
-    if (opr >= 7) {
-      score = 15;
-      detail = `High authority domain (OPR: ${opr}/10)`;
-    } else if (opr >= 5) {
+    // Inverted-U curve: rewards growing mid-market (OPR 3-5) over large enterprises.
+    // Mid-market companies are the most active B2B tool buyers.
+    if (opr >= 8) {
+      score = 7;
+      detail = `Large enterprise domain (OPR: ${opr}/10) — longer sales cycles expected`;
+    } else if (opr >= 6) {
       score = 10;
-      detail = `Moderate authority domain (OPR: ${opr}/10)`;
+      detail = `Established domain (OPR: ${opr}/10)`;
     } else if (opr >= 3) {
-      score = 5;
-      detail = `Growing domain authority (OPR: ${opr}/10)`;
+      score = 13;
+      detail = `Growing mid-market domain (OPR: ${opr}/10) — active buying profile`;
     } else if (opr >= 1) {
-      score = 2;
-      detail = `Low authority domain (OPR: ${opr}/10)`;
+      score = 6;
+      detail = `Early-stage domain (OPR: ${opr}/10)`;
     } else {
-      score = 0;
-      detail = "New or unindexed domain";
+      score = 3;
+      detail = "New domain — limited web presence";
     }
 
     if (globalRank && globalRank <= 100_000) {

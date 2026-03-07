@@ -18,6 +18,8 @@ export interface SignalSet {
 // ─── Score Types ──────────────────────────────────────────────────────────────
 
 export type ScoreBand = "HOT" | "WARM" | "COLD";
+export type BuyingStage = "awareness" | "consideration" | "decision";
+export type UrgencyLevel = "act-now" | "this-week" | "this-month" | "nurture";
 
 export interface IntentScore {
   company: string;
@@ -28,6 +30,9 @@ export interface IntentScore {
   signals: SignalSet;
   ai_summary: string;
   recommended_action: string;
+  buying_stage: BuyingStage;
+  urgency: UrgencyLevel;
+  key_triggers: string[];
   score_decay_date: string;
 }
 
