@@ -1,13 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { SignalSet, ScoreBand } from "@/lib/types";
 
-// Lazy-init so missing API key doesn't crash the server on startup
-let _client: Anthropic | null = null;
-function getClient(): Anthropic | null {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  return _client;
-}
+// OpenRouter — OpenAI-compatible API, free models available
+// Docs: https://openrouter.ai/docs
+// Free model: nvidia/nemotron-3-nano-30b-a3b:free
 
 interface ReasoningResult {
   ai_summary: string;
@@ -34,29 +29,43 @@ Our product category: ${productCategory}
 Respond in strict JSON only (no markdown, no code block):
 { "ai_summary": "...", "recommended_action": "..." }`;
 
-  const anthropic = getClient();
+  const apiKey = process.env.OPENROUTER_API_KEY;
 
-  // Fallback when ANTHROPIC_API_KEY is not set (dev mode)
-  if (!anthropic) {
+  // Fallback when OPENROUTER_API_KEY is not set (dev mode)
+  if (!apiKey) {
     const topSignal = Object.entries(signals)
       .filter(([k]) => k !== "latestSignalDate")
-      .sort(([, a], [, b]) => (b as {score:number}).score - (a as {score:number}).score)[0];
-    const [sigName, sigData] = topSignal as [string, {score:number; detail:string}];
+      .sort(([, a], [, b]) => (b as { score: number }).score - (a as { score: number }).score)[0];
+    const [sigName, sigData] = topSignal as [string, { score: number; detail: string }];
     return {
-      ai_summary: `[Mock AI] ${company} scores ${score}/100 (${band}). Strongest signal: ${sigName} — "${sigData.detail}". Add ANTHROPIC_API_KEY to .env.local for real analysis.`,
+      ai_summary: `[Mock AI] ${company} scores ${score}/100 (${band}). Strongest signal: ${sigName} — "${sigData.detail}". Add OPENROUTER_API_KEY to .env.local for real analysis.`,
       recommended_action: `[Mock] Reference their ${sigName} activity in your opening message.`,
     };
   }
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 300,
-    system:
-      "You are an expert B2B sales analyst. Be specific, concise, and actionable. Always respond with valid JSON only.",
-    messages: [{ role: "user", content: prompt }],
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "nvidia/nemotron-3-nano-30b-a3b:free",
+      max_tokens: 300,
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert B2B sales analyst. Be specific, concise, and actionable. Always respond with valid JSON only.",
+        },
+        { role: "user", content: prompt },
+      ],
+    }),
   });
 
-  const text = message.content[0].type === "text" ? message.content[0].text : "";
+  if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
+
+  const data = (await res.json()) as { choices: Array<{ message: { content: string } }> };
+  const text = data.choices[0]?.message?.content ?? "";
 
   try {
     const parsed = JSON.parse(text) as ReasoningResult;

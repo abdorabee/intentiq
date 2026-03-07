@@ -1,62 +1,61 @@
 import type { SignalResult } from "@/lib/types";
 
-interface SimilarWebVisits {
-  visits?: number;
-}
-
-interface SimilarWebResponse {
-  visits?: SimilarWebVisits[];
+// Open PageRank API (free — 100 req/day)
+// Sign up at: https://www.domcop.com/openpagerank/
+interface OPRResponse {
+  response?: Array<{
+    page_rank_integer?: number;
+    rank?: string;
+    status_code?: number;
+  }>;
 }
 
 export async function fetchWebSignal(domain: string): Promise<SignalResult> {
   try {
-    const startDate = getMonthOffset(-2); // 2 months ago
-    const endDate = getMonthOffset(-1);   // last complete month
-    const url = `https://api.similarweb.com/v1/website/${domain}/traffic-and-engagement/visits?api_key=${process.env.SIMILARWEB_API_KEY}&start_date=${startDate}&end_date=${endDate}&granularity=monthly&main_domain_only=false&format=json`;
+    const url = `https://openpagerank.com/api/v1.0/getPageRank?domains[]=${domain}`;
+    const res = await fetch(url, {
+      headers: { "API-OPR": process.env.OPEN_PAGE_RANK_API_KEY ?? "" },
+      next: { revalidate: 86400 },
+    });
 
-    const res = await fetch(url, { next: { revalidate: 86400 } });
-    if (!res.ok) throw new Error(`SimilarWeb ${res.status}`);
+    if (!res.ok) throw new Error(`OpenPageRank ${res.status}`);
 
-    const data = (await res.json()) as SimilarWebResponse;
-    const visits = data.visits ?? [];
+    const data = (await res.json()) as OPRResponse;
+    const result = data.response?.[0];
 
-    if (visits.length < 2) {
-      return { score: 5, max: 15, detail: "Limited web traffic data available" };
+    if (!result || result.status_code !== 200) {
+      return { score: 0, max: 15, detail: "Domain not indexed" };
     }
 
-    const prev = visits[visits.length - 2]?.visits ?? 0;
-    const curr = visits[visits.length - 1]?.visits ?? 0;
+    const opr = result.page_rank_integer ?? 0;
+    const globalRank = result.rank ? parseInt(result.rank) : null;
 
-    if (prev === 0) {
-      return { score: 0, max: 15, detail: "Insufficient traffic history" };
-    }
-
-    const growthPct = ((curr - prev) / prev) * 100;
     let score: number;
     let detail: string;
 
-    if (growthPct >= 20) {
+    if (opr >= 7) {
       score = 15;
-      detail = `Traffic up ${Math.round(growthPct)}% MoM — strong growth signal`;
-    } else if (growthPct >= 5) {
-      score = 8;
-      detail = `Traffic up ${Math.round(growthPct)}% MoM — moderate growth`;
-    } else if (growthPct >= -5) {
-      score = 4;
-      detail = "Traffic stable MoM";
+      detail = `High authority domain (OPR: ${opr}/10)`;
+    } else if (opr >= 5) {
+      score = 10;
+      detail = `Moderate authority domain (OPR: ${opr}/10)`;
+    } else if (opr >= 3) {
+      score = 5;
+      detail = `Growing domain authority (OPR: ${opr}/10)`;
+    } else if (opr >= 1) {
+      score = 2;
+      detail = `Low authority domain (OPR: ${opr}/10)`;
     } else {
       score = 0;
-      detail = `Traffic down ${Math.round(Math.abs(growthPct))}% MoM`;
+      detail = "New or unindexed domain";
+    }
+
+    if (globalRank && globalRank <= 100_000) {
+      detail += ` — top 100K globally`;
     }
 
     return { score, max: 15, detail };
   } catch {
-    return { score: 0, max: 15, detail: "Web traffic data unavailable" };
+    return { score: 0, max: 15, detail: "Web authority data unavailable" };
   }
-}
-
-function getMonthOffset(offset: number): string {
-  const d = new Date();
-  d.setMonth(d.getMonth() + offset);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }

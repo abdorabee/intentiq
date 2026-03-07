@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install @clerk/nextjs)"
+      "Bash(npm install @clerk/nextjs)",
+      "WebFetch(domain:developers.explorium.ai)",
+      "WebFetch(domain:openrouter.ai)"
     ]
   }
 }
