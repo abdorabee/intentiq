@@ -23,7 +23,8 @@ export default async function DashboardPage() {
 
       {/* Stats row */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="border-subtle shadow-none overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-indigo-500 to-violet-500" />
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Credits Remaining</CardTitle>
           </CardHeader>
@@ -33,7 +34,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-subtle shadow-none overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-green-400 to-emerald-500" />
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">HOT Leads</CardTitle>
           </CardHeader>
@@ -43,7 +45,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-subtle shadow-none overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-blue-400 to-indigo-500" />
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Scores Run</CardTitle>
           </CardHeader>
@@ -55,7 +58,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick Score */}
-      <Card>
+      <Card className="border-subtle shadow-none">
         <CardHeader>
           <CardTitle>Quick Score</CardTitle>
         </CardHeader>
@@ -66,19 +69,19 @@ export default async function DashboardPage() {
 
       {/* HOT Leads Banner */}
       {(hotLeads?.length ?? 0) > 0 && (
-        <Card className="border-green-500">
+        <Card className="border-green-400 shadow-none bg-green-50/30">
           <CardHeader>
             <CardTitle className="text-green-600">HOT Leads — Act Now</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {hotLeads!.map((lead) => (
-                <div key={lead.id} className="flex items-center justify-between rounded-md border p-3">
+                <div key={lead.id} className="flex items-center justify-between rounded-full border border-subtle px-4 py-2.5 bg-white">
                   <div>
                     <p className="font-medium">{lead.company_name}</p>
                     <p className="text-sm text-muted-foreground">{lead.domain}</p>
                   </div>
-                  <Badge className="bg-green-500 text-white">{lead.score}</Badge>
+                  <Badge className="bg-green-100 text-green-700 border-green-200 rounded-full">{lead.score}</Badge>
                 </div>
               ))}
             </div>
@@ -87,7 +90,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Recent Scores */}
-      <Card>
+      <Card className="border-subtle shadow-none">
         <CardHeader>
           <CardTitle>Recent Scores</CardTitle>
         </CardHeader>
@@ -97,12 +100,16 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {recentScores.map((s) => (
-                <div key={s.id} className="flex items-center justify-between rounded-md border p-3">
+                <div key={s.id} className="flex items-center justify-between rounded-full border border-subtle px-4 py-2.5 bg-white">
                   <div>
                     <p className="font-medium">{s.company_name}</p>
                     <p className="text-xs text-muted-foreground">{s.domain}</p>
                   </div>
-                  <Badge variant={s.score_band === "HOT" ? "default" : s.score_band === "WARM" ? "secondary" : "outline"}>
+                  <Badge className={
+                    s.score_band === "HOT"  ? "bg-green-100 text-green-700 border-green-200 rounded-full" :
+                    s.score_band === "WARM" ? "bg-amber-100 text-amber-700 border-amber-200 rounded-full" :
+                                              "bg-gray-100 text-gray-600 border-gray-200 rounded-full"
+                  }>
                     {s.score_band} · {s.score}
                   </Badge>
                 </div>

@@ -33,6 +33,9 @@ export interface IntentScore {
   buying_stage: BuyingStage;
   urgency: UrgencyLevel;
   key_triggers: string[];
+  why_now: string;
+  email_subject: string;
+  talk_track: string;
   score_decay_date: string;
 }
 
@@ -97,6 +100,12 @@ export interface DbScore {
   signals: SignalSet;
   ai_summary: string;
   recommended_action: string;
+  buying_stage: BuyingStage | null;
+  urgency: UrgencyLevel | null;
+  key_triggers: string[] | null;
+  why_now: string | null;
+  email_subject: string | null;
+  talk_track: string | null;
   expires_at: string;
   created_at: string;
 }

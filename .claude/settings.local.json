@@ -9,7 +9,8 @@
       "WebFetch(domain:www.sona.com)",
       "WebFetch(domain:6sense.com)",
       "WebFetch(domain:www.usergems.com)",
-      "WebFetch(domain:bombora.com)"
+      "WebFetch(domain:bombora.com)",
+      "Bash(xargs ls -la)"
     ]
   }
 }
