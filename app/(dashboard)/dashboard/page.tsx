@@ -17,50 +17,50 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back. Here&apos;s your lead intelligence overview.</p>
+        <h1 className="text-3xl font-bold text-slate-100">Dashboard</h1>
+        <p className="text-slate-400 mt-1">Welcome back. Here&apos;s your lead intelligence overview.</p>
       </div>
 
       {/* Stats row */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-subtle shadow-none overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-indigo-500 to-violet-500" />
+        <Card className="border-white/[0.08] overflow-hidden">
+          <div className="h-px bg-gradient-to-r from-indigo-500 via-violet-500 to-transparent" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Credits Remaining</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Credits Remaining</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{profile?.credits_remaining ?? 0}</div>
-            <p className="text-xs text-muted-foreground capitalize">{profile?.plan ?? "free"} plan</p>
+            <div className="text-2xl font-bold text-slate-100">{profile?.credits_remaining ?? 0}</div>
+            <p className="text-xs text-slate-500 capitalize mt-0.5">{profile?.plan ?? "free"} plan</p>
           </CardContent>
         </Card>
 
-        <Card className="border-subtle shadow-none overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-green-400 to-emerald-500" />
+        <Card className="border-white/[0.08] overflow-hidden">
+          <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">HOT Leads</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">HOT Leads</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{hotLeads?.length ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Score 75+ in watchlist</p>
+            <div className="text-2xl font-bold text-emerald-400">{hotLeads?.length ?? 0}</div>
+            <p className="text-xs text-slate-500 mt-0.5">Score 75+ in watchlist</p>
           </CardContent>
         </Card>
 
-        <Card className="border-subtle shadow-none overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-blue-400 to-indigo-500" />
+        <Card className="border-white/[0.08] overflow-hidden">
+          <div className="h-px bg-gradient-to-r from-blue-500 via-indigo-400 to-transparent" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Scores Run</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Scores Run</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{recentScores?.length ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Last 10 shown</p>
+            <div className="text-2xl font-bold text-slate-100">{recentScores?.length ?? 0}</div>
+            <p className="text-xs text-slate-500 mt-0.5">Last 10 shown</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Score */}
-      <Card className="border-subtle shadow-none">
+      <Card className="border-white/[0.08]">
         <CardHeader>
-          <CardTitle>Quick Score</CardTitle>
+          <CardTitle className="text-slate-100">Quick Score</CardTitle>
         </CardHeader>
         <CardContent>
           <QuickScore />
@@ -69,19 +69,28 @@ export default async function DashboardPage() {
 
       {/* HOT Leads Banner */}
       {(hotLeads?.length ?? 0) > 0 && (
-        <Card className="border-green-400 shadow-none bg-green-50/30">
+        <Card className="border-emerald-500/25 glow-emerald overflow-hidden">
+          <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
           <CardHeader>
-            <CardTitle className="text-green-600">HOT Leads — Act Now</CardTitle>
+            <CardTitle className="text-emerald-400 flex items-center gap-2">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              HOT Leads — Act Now
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {hotLeads!.map((lead) => (
-                <div key={lead.id} className="flex items-center justify-between rounded-full border border-subtle px-4 py-2.5 bg-white">
+                <div
+                  key={lead.id}
+                  className="flex items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
+                >
                   <div>
-                    <p className="font-medium">{lead.company_name}</p>
-                    <p className="text-sm text-muted-foreground">{lead.domain}</p>
+                    <p className="font-medium text-slate-200">{lead.company_name}</p>
+                    <p className="text-sm text-slate-500">{lead.domain}</p>
                   </div>
-                  <Badge className="bg-green-100 text-green-700 border-green-200 rounded-full">{lead.score}</Badge>
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
+                    {lead.score}
+                  </Badge>
                 </div>
               ))}
             </div>
@@ -90,25 +99,30 @@ export default async function DashboardPage() {
       )}
 
       {/* Recent Scores */}
-      <Card className="border-subtle shadow-none">
+      <Card className="border-white/[0.08]">
         <CardHeader>
-          <CardTitle>Recent Scores</CardTitle>
+          <CardTitle className="text-slate-100">Recent Scores</CardTitle>
         </CardHeader>
         <CardContent>
           {(!recentScores || recentScores.length === 0) ? (
-            <p className="text-sm text-muted-foreground">No scores yet. Run your first score above.</p>
+            <p className="text-sm text-slate-500">No scores yet. Run your first score above.</p>
           ) : (
             <div className="space-y-2">
               {recentScores.map((s) => (
-                <div key={s.id} className="flex items-center justify-between rounded-full border border-subtle px-4 py-2.5 bg-white">
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
+                >
                   <div>
-                    <p className="font-medium">{s.company_name}</p>
-                    <p className="text-xs text-muted-foreground">{s.domain}</p>
+                    <p className="font-medium text-slate-200">{s.company_name}</p>
+                    <p className="text-xs text-slate-500">{s.domain}</p>
                   </div>
                   <Badge className={
-                    s.score_band === "HOT"  ? "bg-green-100 text-green-700 border-green-200 rounded-full" :
-                    s.score_band === "WARM" ? "bg-amber-100 text-amber-700 border-amber-200 rounded-full" :
-                                              "bg-gray-100 text-gray-600 border-gray-200 rounded-full"
+                    s.score_band === "HOT"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full"
+                      : s.score_band === "WARM"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full"
+                      : "bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded-full"
                   }>
                     {s.score_band} · {s.score}
                   </Badge>

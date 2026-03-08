@@ -9,11 +9,19 @@ import { Progress } from "@/components/ui/progress";
 import type { IntentScore } from "@/lib/types";
 
 const SIGNAL_LABELS = {
-  funding: "Funding & Growth",
-  hiring: "Hiring Signals",
-  news: "News & Trigger Events",
+  funding:    "Funding & Growth",
+  hiring:     "Hiring Signals",
+  news:       "News & Trigger Events",
   technology: "Technology Stack",
-  web: "Web & Digital",
+  web:        "Web & Digital",
+};
+
+const SIGNAL_COLORS: Record<string, string> = {
+  funding:    "from-indigo-500 to-violet-500",
+  hiring:     "from-emerald-500 to-green-400",
+  news:       "from-amber-500 to-orange-400",
+  technology: "from-blue-500 to-cyan-400",
+  web:        "from-pink-500 to-rose-400",
 };
 
 export default function ScoreExplorerPage() {
@@ -42,14 +50,32 @@ export default function ScoreExplorerPage() {
     }
   }
 
-  const bandColor = (band: string) =>
-    band === "HOT" ? "bg-green-500" : band === "WARM" ? "bg-yellow-500" : "bg-gray-400";
+  const bandConfig = (band: string) => {
+    if (band === "HOT")  return {
+      badge: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+      ring:  "from-emerald-400 to-green-500",
+      glow:  "glow-emerald",
+      score: "text-emerald-400",
+    };
+    if (band === "WARM") return {
+      badge: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+      ring:  "from-amber-400 to-orange-500",
+      glow:  "glow-amber",
+      score: "text-amber-400",
+    };
+    return {
+      badge: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
+      ring:  "from-slate-500 to-slate-600",
+      glow:  "",
+      score: "text-slate-300",
+    };
+  };
 
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Score Explorer</h1>
-        <p className="text-muted-foreground">Enter a domain to get a full intent score with signal breakdown.</p>
+        <h1 className="text-3xl font-bold text-slate-100">Score Explorer</h1>
+        <p className="text-slate-400 mt-1">Enter a domain to get a full intent score with signal breakdown.</p>
       </div>
 
       <div className="flex gap-2">
@@ -58,141 +84,154 @@ export default function ScoreExplorerPage() {
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleScore()}
+          className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50"
         />
-        <Button onClick={handleScore} disabled={loading}>
+        <Button
+          onClick={handleScore}
+          disabled={loading}
+          className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 cursor-pointer min-w-[90px]"
+        >
           {loading ? "Scoring…" : "Score"}
         </Button>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
 
-      {result && (
-        <div className="space-y-4">
-          {/* Score dial */}
-          <Card className="border-subtle shadow-none">
-            <CardContent className="flex items-center gap-6 pt-6">
-              <div className={`p-[3px] rounded-full flex-shrink-0 ${
-                result.score_band === "HOT"  ? "bg-gradient-to-br from-green-400 to-emerald-600" :
-                result.score_band === "WARM" ? "bg-gradient-to-br from-amber-400 to-orange-500" :
-                                               "bg-gradient-to-br from-gray-300 to-gray-400"
-              }`}>
-                <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-white">
-                  <span className="text-4xl font-black">{result.intent_score}</span>
-                </div>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">{result.company}</h2>
-                <p className="text-muted-foreground">{result.domain}</p>
-                <Badge className={`mt-1 rounded-full ${
-                  result.score_band === "HOT"  ? "bg-green-100 text-green-700 border-green-200" :
-                  result.score_band === "WARM" ? "bg-amber-100 text-amber-700 border-amber-200" :
-                                                  "bg-gray-100 text-gray-600 border-gray-200"
-                }`}>
-                  {result.score_band}
-                </Badge>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Decays by {new Date(result.score_decay_date).toLocaleDateString()}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Signal breakdown */}
-          <Card className="border-subtle shadow-none">
-            <CardHeader><CardTitle>Signal Breakdown</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              {(Object.keys(SIGNAL_LABELS) as Array<keyof typeof SIGNAL_LABELS>).map((key) => {
-                const sig = result.signals[key];
-                return (
-                  <div key={key}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium">{SIGNAL_LABELS[key]}</span>
-                      <span className="text-muted-foreground">{sig.score}/{sig.max}</span>
-                    </div>
-                    <Progress value={(sig.score / sig.max) * 100} />
-                    <p className="text-xs text-muted-foreground mt-1">{sig.detail}</p>
+      {result && (() => {
+        const cfg = bandConfig(result.score_band);
+        return (
+          <div className="space-y-4">
+            {/* Score dial */}
+            <Card className={`border-white/[0.08] ${cfg.glow}`}>
+              <CardContent className="flex items-center gap-6 pt-6">
+                {/* Gradient ring dial */}
+                <div className={`p-[3px] rounded-full flex-shrink-0 bg-gradient-to-br ${cfg.ring}`}>
+                  <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-[#020617]">
+                    <span className={`text-4xl font-black ${cfg.score}`}>{result.intent_score}</span>
                   </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          {/* AI Analysis */}
-          <Card className="border-subtle shadow-none">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>AI Analysis</CardTitle>
-                <div className="flex gap-2">
-                  {result.buying_stage && (
-                    <span className="text-xs bg-muted px-2 py-1 rounded-full font-medium capitalize">
-                      {result.buying_stage}
-                    </span>
-                  )}
-                  {result.urgency && (
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      result.urgency === "act-now" ? "bg-red-100 text-red-700" :
-                      result.urgency === "this-week" ? "bg-orange-100 text-orange-700" :
-                      result.urgency === "this-month" ? "bg-blue-100 text-blue-700" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {result.urgency}
-                    </span>
-                  )}
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm">{result.ai_summary}</p>
-
-              {result.why_now && (
-                <div className="rounded-md border-l-4 border-orange-400 bg-orange-50 px-3 py-2">
-                  <p className="text-xs font-semibold uppercase text-orange-700 mb-1">Why Now</p>
-                  <p className="text-sm text-orange-900">{result.why_now}</p>
-                </div>
-              )}
-
-              {result.key_triggers && result.key_triggers.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-2">Key Triggers</p>
-                  <div className="flex flex-wrap gap-2">
-                    {result.key_triggers.map((t, i) => (
-                      <span key={i} className="text-xs bg-muted px-2 py-1 rounded-full">{t}</span>
-                    ))}
+                  <h2 className="text-2xl font-bold text-slate-100">{result.company}</h2>
+                  <p className="text-slate-400 text-sm">{result.domain}</p>
+                  <Badge className={`mt-2 rounded-full ${cfg.badge}`}>{result.score_band}</Badge>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Decays by {new Date(result.score_decay_date).toLocaleDateString()}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Signal breakdown */}
+            <Card className="border-white/[0.08]">
+              <CardHeader><CardTitle className="text-slate-100">Signal Breakdown</CardTitle></CardHeader>
+              <CardContent className="space-y-5">
+                {(Object.keys(SIGNAL_LABELS) as Array<keyof typeof SIGNAL_LABELS>).map((key) => {
+                  const sig = result.signals[key];
+                  const pct = (sig.score / sig.max) * 100;
+                  return (
+                    <div key={key}>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-medium text-slate-200">{SIGNAL_LABELS[key]}</span>
+                        <span className="text-slate-500 font-mono text-xs">{sig.score}/{sig.max}</span>
+                      </div>
+                      <div className="relative h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1.5">{sig.detail}</p>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+
+            {/* AI Analysis */}
+            <Card className="border-white/[0.08]">
+              <CardHeader>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <CardTitle className="text-slate-100">AI Analysis</CardTitle>
+                  <div className="flex gap-2">
+                    {result.buying_stage && (
+                      <span className="text-xs bg-white/[0.07] text-slate-300 px-2.5 py-1 rounded-full font-medium capitalize border border-white/[0.08]">
+                        {result.buying_stage}
+                      </span>
+                    )}
+                    {result.urgency && (
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${
+                        result.urgency === "act-now"
+                          ? "bg-red-500/15 text-red-400 border-red-500/30"
+                          : result.urgency === "this-week"
+                          ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
+                          : result.urgency === "this-month"
+                          ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
+                          : "bg-slate-500/15 text-slate-400 border-slate-500/30"
+                      }`}>
+                        {result.urgency}
+                      </span>
+                    )}
                   </div>
                 </div>
-              )}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-slate-300 leading-relaxed">{result.ai_summary}</p>
 
-              <div className="rounded-md bg-muted p-3">
-                <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Recommended Action</p>
-                <p className="text-sm font-medium">{result.recommended_action}</p>
-              </div>
+                {result.why_now && (
+                  <div className="rounded-xl border-l-2 border-amber-500/60 bg-amber-500/10 px-4 py-3 border border-amber-500/15">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-500 mb-1">Why Now</p>
+                    <p className="text-sm text-amber-200/80">{result.why_now}</p>
+                  </div>
+                )}
 
-              {result.email_subject && (
-                <div className="rounded-md border border-subtle px-3 py-2">
-                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Email Subject</p>
-                  <p className="text-sm font-mono">{result.email_subject}</p>
+                {result.key_triggers && result.key_triggers.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
+                    <div className="flex flex-wrap gap-2">
+                      {result.key_triggers.map((t, i) => (
+                        <span
+                          key={i}
+                          className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 rounded-full border border-white/[0.08]"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-xl bg-indigo-500/10 border border-indigo-500/20 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-400 mb-1.5">Recommended Action</p>
+                  <p className="text-sm font-medium text-slate-200">{result.recommended_action}</p>
                 </div>
-              )}
 
-              {result.talk_track && (
-                <div className="rounded-md border border-subtle px-3 py-2">
-                  <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Talk Track</p>
-                  <p className="text-sm italic text-muted-foreground">{result.talk_track}</p>
-                </div>
-              )}
+                {result.email_subject && (
+                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Email Subject</p>
+                    <p className="text-sm font-mono text-slate-300">{result.email_subject}</p>
+                  </div>
+                )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full"
-                onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
-              >
-                Copy JSON
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+                {result.talk_track && (
+                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Talk Track</p>
+                    <p className="text-sm italic text-slate-400">{result.talk_track}</p>
+                  </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer"
+                  onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
+                >
+                  Copy JSON
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
     </div>
   );
 }

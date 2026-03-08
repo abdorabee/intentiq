@@ -14,7 +14,10 @@
       "Read(//c/Users/Softlaptop/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.0.1/.claude/skills/ui-ux-pro-max/**)",
       "Bash(python scripts/search.py \"B2B SaaS dashboard sales intelligence dark glassmorphism\" --design-system -p \"IntentIQ\" -f markdown)",
       "Bash(python scripts/search.py \"glassmorphism dark\" --domain style)",
-      "Bash(python scripts/search.py \"glassmorphism dark liquid\" --domain prompt)"
+      "Bash(python scripts/search.py \"glassmorphism dark liquid\" --domain prompt)",
+      "Bash(python scripts/search.py \"B2B SaaS sales intelligence kanban pipeline dark glassmorphism dashboard 2025\" --design-system -p \"IntentIQ Pipeline Board\" -f markdown)",
+      "Bash(ls /d/projects/intentiq/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(ls /d/projects/intentiq/app/\\\\\\(dashboard\\\\\\)/bulk/)"
     ]
   }
 }
