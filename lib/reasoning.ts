@@ -10,6 +10,9 @@ export interface ReasoningResult {
   buying_stage: BuyingStage;
   urgency: UrgencyLevel;
   key_triggers: string[];
+  why_now: string;
+  email_subject: string;
+  talk_track: string;
 }
 
 function buildPrompt(company: string, score: number, band: ScoreBand, signals: SignalSet, productCategory: string): string {
@@ -28,11 +31,14 @@ SIGNAL BREAKDOWN:
 
 Respond in strict JSON only (no markdown, no code block):
 {
-  "ai_summary": "2 sentences explaining WHY this company scored ${score}/100. Reference specific signal names and their findings. Be analytical, not generic.",
+  "ai_summary": "3 sentences. Explain WHY this company scored ${score}/100, which signals drove the score, and what this signals about their buying readiness. Be analytical and specific — name the signals.",
   "buying_stage": "awareness|consideration|decision",
   "urgency": "act-now|this-week|this-month|nurture",
-  "recommended_action": "ONE specific action for a salesperson. Include a concrete personalized email opener that references a specific signal finding.",
-  "key_triggers": ["top signal finding 1", "top signal finding 2", "top signal finding 3"]
+  "why_now": "1 sentence: what specific recent event or signal makes right now the ideal time to reach out.",
+  "recommended_action": "ONE specific action for a salesperson. Reference a specific signal finding.",
+  "email_subject": "A compelling email subject line under 60 chars that references a specific signal (e.g. recent funding, new hire, or tech adoption).",
+  "talk_track": "2-3 sentence cold call or email opening. Be conversational, reference a specific trigger, and end with a clear question.",
+  "key_triggers": ["most impactful signal finding", "second signal finding", "third signal finding"]
 }`;
 }
 
@@ -57,6 +63,9 @@ export async function generateReasoning(
       buying_stage: score >= 65 ? "decision" : score >= 40 ? "consideration" : "awareness",
       urgency: score >= 65 ? "act-now" : score >= 40 ? "this-week" : "nurture",
       key_triggers: [sigData.detail],
+      why_now: `[Mock] Recent ${sigName} activity signals active buying motion.`,
+      email_subject: `[Mock] Saw your ${sigName} signal — worth a chat?`,
+      talk_track: `[Mock] Hi, I noticed ${company} has recent ${sigName} activity. We help companies in your position accelerate their buying process. Is this something worth 15 minutes?`,
     };
   }
 
@@ -103,5 +112,8 @@ export async function generateReasoning(
     buying_stage: score >= 65 ? "decision" : score >= 40 ? "consideration" : "awareness",
     urgency: score >= 65 ? "act-now" : score >= 40 ? "this-week" : "nurture",
     key_triggers: [],
+    why_now: "Recent signal activity indicates a potential buying window.",
+    email_subject: `${company} — worth a quick chat?`,
+    talk_track: `Hi, I came across ${company} and noticed some buying signals we track. We help companies like yours move faster on decisions like this. Would a 15-minute call make sense?`,
   };
 }

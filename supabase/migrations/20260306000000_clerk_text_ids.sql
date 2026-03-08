@@ -8,6 +8,14 @@
 drop trigger if exists on_auth_user_created on auth.users;
 drop function if exists public.handle_new_user();
 
+-- Drop RLS policies (depend on id/user_id columns)
+drop policy if exists "users: own row" on public.users;
+drop policy if exists "api_keys: own rows" on public.api_keys;
+drop policy if exists "scores: own rows" on public.scores;
+drop policy if exists "watchlist: own rows" on public.watchlist;
+drop policy if exists "credits_log: own rows" on public.credits_log;
+drop policy if exists "bulk_jobs: own rows" on public.bulk_jobs;
+
 -- Drop all FK constraints that reference users.id
 alter table public.api_keys    drop constraint if exists api_keys_user_id_fkey;
 alter table public.scores      drop constraint if exists scores_user_id_fkey;
@@ -56,8 +64,13 @@ begin
 end;
 $$;
 
--- ─── RLS policies ─────────────────────────────────────────────────────────────
--- auth.uid() is always null when using Clerk (no Supabase session). All
--- dashboard/API routes use the service-role admin client which bypasses RLS,
--- so these policies are inert but harmless. They are left in place so that
--- direct Supabase access (e.g. Studio) still shows the intent of row isolation.
+-- ─── Recreate RLS policies ────────────────────────────────────────────────────
+-- auth.uid() is always null when using Clerk. Policies are inert but document
+-- row isolation for direct Supabase access (e.g. Studio).
+
+create policy "users: own row" on public.users for all using (auth.uid()::text = id);
+create policy "api_keys: own rows" on public.api_keys for all using (auth.uid()::text = user_id);
+create policy "scores: own rows" on public.scores for all using (auth.uid()::text = user_id);
+create policy "watchlist: own rows" on public.watchlist for all using (auth.uid()::text = user_id);
+create policy "credits_log: own rows" on public.credits_log for all using (auth.uid()::text = user_id);
+create policy "bulk_jobs: own rows" on public.bulk_jobs for all using (auth.uid()::text = user_id);

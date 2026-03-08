@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardNav />
-      <main className="flex-1 p-6 lg:p-8">{children}</main>
+      <main className="flex-1 p-6 lg:p-10 max-w-5xl">{children}</main>
     </div>
   );
 }

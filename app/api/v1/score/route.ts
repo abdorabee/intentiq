@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { cacheGet, cacheSet, scoreCacheKey, SCORE_TTL_SECONDS } from "@/lib/redis";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { fetchFundingSignal } from "@/lib/signals/funding";
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
   let productCategory = "B2B SaaS";
 
   if (authHeader?.startsWith("Bearer ")) {
+    // API key auth
     const apiKey = authHeader.slice(7);
     const { data: keyRow } = await supabase
       .from("api_keys")
@@ -43,10 +45,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or inactive API key" }, { status: 401 });
     }
     userId = keyRow.user_id;
+  } else {
+    // Clerk session auth (dashboard users)
+    const { userId: clerkId } = await auth();
+    if (clerkId) userId = clerkId;
   }
 
   // ── Credit check ────────────────────────────────────────────────────────────
-  if (userId) {
+  const skipCredits = process.env.DISABLE_CREDIT_CHECK === "true";
+  if (userId && !skipCredits) {
     const { data: user } = await supabase
       .from("users")
       .select("credits_remaining, product_category")
@@ -95,7 +102,7 @@ export async function GET(req: NextRequest) {
   const partial = computeIntentScore(lookupCompany, lookupDomain, signals);
 
   // ── AI Reasoning ─────────────────────────────────────────────────────────────
-  const { ai_summary, recommended_action, buying_stage, urgency, key_triggers } = await generateReasoning(
+  const { ai_summary, recommended_action, buying_stage, urgency, key_triggers, why_now, email_subject, talk_track } = await generateReasoning(
     lookupCompany,
     partial.intent_score,
     partial.score_band,
@@ -103,26 +110,37 @@ export async function GET(req: NextRequest) {
     productCategory
   );
 
-  const result: IntentScore = { ...partial, ai_summary, recommended_action, buying_stage, urgency, key_triggers };
+  const result: IntentScore = { ...partial, ai_summary, recommended_action, buying_stage, urgency, key_triggers, why_now, email_subject, talk_track };
 
   // ── Cache + persist ──────────────────────────────────────────────────────────
   await cacheSet(cacheKey, result, SCORE_TTL_SECONDS);
 
+  console.log("[score] userId:", userId, "domain:", lookupDomain);
+
   if (userId) {
-    await Promise.all([
-      supabase.from("scores").insert({
-        user_id: userId,
-        domain: lookupDomain,
-        company_name: lookupCompany,
-        score: result.intent_score,
-        score_band: result.score_band,
-        signals,
-        ai_summary,
-        recommended_action,
-        expires_at: result.score_decay_date,
-      }),
-      supabase.rpc("deduct_credit", { p_user_id: userId }),
-    ]);
+    const { error: insertError } = await supabase.from("scores").insert({
+      user_id: userId,
+      domain: lookupDomain,
+      company_name: lookupCompany,
+      score: result.intent_score,
+      score_band: result.score_band,
+      signals,
+      ai_summary,
+      recommended_action,
+      buying_stage,
+      urgency,
+      key_triggers,
+      why_now,
+      email_subject,
+      talk_track,
+      expires_at: result.score_decay_date,
+    });
+    if (insertError) console.error("[score] insert error:", insertError);
+
+    if (!skipCredits) {
+      const { error: creditError } = await supabase.rpc("deduct_credit", { p_user_id: userId });
+      if (creditError) console.error("[score] deduct_credit error:", creditError);
+    }
   }
 
   return NextResponse.json(result);
