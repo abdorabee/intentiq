@@ -10,7 +10,11 @@
       "WebFetch(domain:6sense.com)",
       "WebFetch(domain:www.usergems.com)",
       "WebFetch(domain:bombora.com)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Read(//c/Users/Softlaptop/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.0.1/.claude/skills/ui-ux-pro-max/**)",
+      "Bash(python scripts/search.py \"B2B SaaS dashboard sales intelligence dark glassmorphism\" --design-system -p \"IntentIQ\" -f markdown)",
+      "Bash(python scripts/search.py \"glassmorphism dark\" --domain style)",
+      "Bash(python scripts/search.py \"glassmorphism dark liquid\" --domain prompt)"
     ]
   }
 }

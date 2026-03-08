@@ -115,8 +115,6 @@ export async function GET(req: NextRequest) {
   // ── Cache + persist ──────────────────────────────────────────────────────────
   await cacheSet(cacheKey, result, SCORE_TTL_SECONDS);
 
-  console.log("[score] userId:", userId, "domain:", lookupDomain);
-
   if (userId) {
     const { error: insertError } = await supabase.from("scores").insert({
       user_id: userId,
