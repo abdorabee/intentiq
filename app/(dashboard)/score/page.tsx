@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Plus, Check, Mail } from "lucide-react";
 import type { IntentScore } from "@/lib/types";
 
 const SIGNAL_LABELS = {
@@ -30,12 +30,22 @@ export default function ScoreExplorerPage() {
   const [result, setResult] = useState<IntentScore | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [watchlistAdded, setWatchlistAdded] = useState(false);
+  const [watchlistAdding, setWatchlistAdding] = useState(false);
+  const [watchlistError, setWatchlistError] = useState<string | null>(null);
+  const [emailCopied, setEmailCopied] = useState(false);
+
+  useEffect(() => {
+    setWatchlistAdded(false);
+    setWatchlistError(null);
+    setEmailCopied(false);
+  }, [result]);
+
   async function handleScore() {
     if (!domain.trim()) return;
     setLoading(true);
     setError(null);
     setResult(null);
-
     try {
       const res = await fetch(`/api/v1/score?domain=${encodeURIComponent(domain.trim())}`);
       if (!res.ok) {
@@ -50,25 +60,38 @@ export default function ScoreExplorerPage() {
     }
   }
 
+  async function handleAddToWatchlist() {
+    if (!result) return;
+    setWatchlistAdding(true);
+    setWatchlistError(null);
+    try {
+      const res = await fetch("/api/dashboard/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: result.domain, company_name: result.company }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to add");
+      setWatchlistAdded(true);
+    } catch (e) {
+      setWatchlistError((e as Error).message);
+    } finally {
+      setWatchlistAdding(false);
+    }
+  }
+
+  function handleCopyEmail() {
+    if (!result) return;
+    const text = [result.email_subject, result.talk_track].filter(Boolean).join("\n\n");
+    navigator.clipboard.writeText(text);
+    setEmailCopied(true);
+    setTimeout(() => setEmailCopied(false), 2000);
+  }
+
   const bandConfig = (band: string) => {
-    if (band === "HOT")  return {
-      badge: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
-      ring:  "from-emerald-400 to-green-500",
-      glow:  "glow-emerald",
-      score: "text-emerald-400",
-    };
-    if (band === "WARM") return {
-      badge: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
-      ring:  "from-amber-400 to-orange-500",
-      glow:  "glow-amber",
-      score: "text-amber-400",
-    };
-    return {
-      badge: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
-      ring:  "from-slate-500 to-slate-600",
-      glow:  "",
-      score: "text-slate-300",
-    };
+    if (band === "HOT")  return { badge: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30", ring: "from-emerald-400 to-green-500", glow: "glow-emerald", score: "text-emerald-400" };
+    if (band === "WARM") return { badge: "bg-amber-500/20 text-amber-400 border border-amber-500/30", ring: "from-amber-400 to-orange-500", glow: "glow-amber", score: "text-amber-400" };
+    return { badge: "bg-slate-500/20 text-slate-400 border border-slate-500/30", ring: "from-slate-500 to-slate-600", glow: "", score: "text-slate-300" };
   };
 
   return (
@@ -103,17 +126,34 @@ export default function ScoreExplorerPage() {
           <div className="space-y-4">
             {/* Score dial */}
             <Card className={`border-white/[0.08] ${cfg.glow}`}>
-              <CardContent className="flex items-center gap-6 pt-6">
-                {/* Gradient ring dial */}
+              <CardContent className="flex items-center gap-6 pt-6 flex-wrap">
                 <div className={`p-[3px] rounded-full flex-shrink-0 bg-gradient-to-br ${cfg.ring}`}>
                   <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-[#020617]">
                     <span className={`text-4xl font-black ${cfg.score}`}>{result.intent_score}</span>
                   </div>
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <h2 className="text-2xl font-bold text-slate-100">{result.company}</h2>
                   <p className="text-slate-400 text-sm">{result.domain}</p>
-                  <Badge className={`mt-2 rounded-full ${cfg.badge}`}>{result.score_band}</Badge>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <Badge className={`rounded-full ${cfg.badge}`}>{result.score_band}</Badge>
+                    <Button
+                      size="sm"
+                      onClick={handleAddToWatchlist}
+                      disabled={watchlistAdding || watchlistAdded}
+                      className={`rounded-full gap-1.5 cursor-pointer h-7 text-xs ${
+                        watchlistAdded
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                          : "bg-white/[0.06] border border-white/[0.10] text-slate-300 hover:bg-white/[0.12] hover:text-slate-100"
+                      }`}
+                    >
+                      {watchlistAdded
+                        ? <><Check className="h-3 w-3" />Watching</>
+                        : <><Plus className="h-3 w-3" />{watchlistAdding ? "Adding…" : "Watch"}</>
+                      }
+                    </Button>
+                  </div>
+                  {watchlistError && <p className="text-xs text-red-400 mt-1">{watchlistError}</p>}
                   <p className="mt-2 text-xs text-slate-500">
                     Decays by {new Date(result.score_decay_date).toLocaleDateString()}
                   </p>
@@ -160,13 +200,10 @@ export default function ScoreExplorerPage() {
                     )}
                     {result.urgency && (
                       <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${
-                        result.urgency === "act-now"
-                          ? "bg-red-500/15 text-red-400 border-red-500/30"
-                          : result.urgency === "this-week"
-                          ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
-                          : result.urgency === "this-month"
-                          ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
-                          : "bg-slate-500/15 text-slate-400 border-slate-500/30"
+                        result.urgency === "act-now"    ? "bg-red-500/15 text-red-400 border-red-500/30"
+                        : result.urgency === "this-week"  ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
+                        : result.urgency === "this-month" ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
+                        :                                   "bg-slate-500/15 text-slate-400 border-slate-500/30"
                       }`}>
                         {result.urgency}
                       </span>
@@ -189,12 +226,7 @@ export default function ScoreExplorerPage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
                     <div className="flex flex-wrap gap-2">
                       {result.key_triggers.map((t, i) => (
-                        <span
-                          key={i}
-                          className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 rounded-full border border-white/[0.08]"
-                        >
-                          {t}
-                        </span>
+                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 rounded-full border border-white/[0.08]">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -219,14 +251,25 @@ export default function ScoreExplorerPage() {
                   </div>
                 )}
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer"
-                  onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
-                >
-                  Copy JSON
-                </Button>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    onClick={handleCopyEmail}
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    {emailCopied ? "Copied!" : "Copy Email"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer"
+                    onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
+                  >
+                    Copy JSON
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

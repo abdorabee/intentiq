@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Copy, Check, Key } from "lucide-react";
 
 interface ApiKey {
   id: string;
@@ -19,6 +20,7 @@ export default function ApiKeysPage() {
   const [newLabel, setNewLabel] = useState("");
   const [generating, setGenerating] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch("/api/user/api-keys").then((r) => r.json()).then((d) => setKeys(d.keys ?? []));
@@ -36,11 +38,19 @@ export default function ApiKeysPage() {
     setKeys((prev) => [data.record, ...prev]);
     setNewLabel("");
     setGenerating(false);
+    setCopied(false);
   }
 
   async function revokeKey(id: string) {
     await fetch(`/api/user/api-keys?id=${id}`, { method: "DELETE" });
     setKeys((prev) => prev.map((k) => (k.id === id ? { ...k, is_active: false } : k)));
+  }
+
+  function handleCopyKey() {
+    if (!newKey) return;
+    navigator.clipboard.writeText(newKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   const curlSnippet = newKey
@@ -50,54 +60,97 @@ export default function ApiKeysPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">API Keys</h1>
-        <p className="text-muted-foreground">Generate and manage keys for programmatic access.</p>
+        <h1 className="text-3xl font-bold text-slate-100">API Keys</h1>
+        <p className="text-slate-400 mt-1">Generate and manage keys for programmatic access.</p>
       </div>
 
+      {/* Newly generated key reveal */}
       {newKey && (
-        <Card className="border-green-500">
-          <CardHeader><CardTitle className="text-green-600">New Key Generated — Copy Now</CardTitle></CardHeader>
-          <CardContent>
-            <code className="block rounded bg-muted p-3 text-sm break-all">{newKey}</code>
-            <p className="mt-2 text-xs text-muted-foreground">This key will not be shown again.</p>
+        <Card className="border-emerald-500/30 overflow-hidden">
+          <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
+          <CardHeader>
+            <CardTitle className="text-emerald-400 flex items-center gap-2">
+              <Key className="h-4 w-4" />
+              New Key Generated — Copy Now
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2">
+              <code className="flex-1 block rounded-xl bg-white/[0.05] border border-white/[0.08] px-4 py-3 text-sm text-slate-300 break-all font-mono">
+                {newKey}
+              </code>
+              <Button
+                size="sm"
+                onClick={handleCopyKey}
+                className={`shrink-0 rounded-full gap-1.5 cursor-pointer h-9 px-3 ${
+                  copied
+                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                    : "bg-white/[0.08] border border-white/[0.12] text-slate-300 hover:bg-white/[0.12]"
+                }`}
+              >
+                {copied ? <><Check className="h-3.5 w-3.5" />Copied!</> : <><Copy className="h-3.5 w-3.5" />Copy</>}
+              </Button>
+            </div>
+            <p className="text-xs text-slate-500">This key will not be shown again.</p>
           </CardContent>
         </Card>
       )}
 
-      <Card>
-        <CardHeader><CardTitle>Generate New Key</CardTitle></CardHeader>
+      {/* Generate form */}
+      <Card className="border-white/[0.08]">
+        <CardHeader><CardTitle className="text-slate-100">Generate New Key</CardTitle></CardHeader>
         <CardContent className="flex gap-2">
           <Input
             placeholder="Label (e.g. Production)"
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && generateKey()}
+            className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50"
           />
-          <Button onClick={generateKey} disabled={generating}>
+          <Button
+            onClick={generateKey}
+            disabled={generating}
+            className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 cursor-pointer shrink-0"
+          >
             {generating ? "Generating…" : "Generate"}
           </Button>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><CardTitle>Your Keys</CardTitle></CardHeader>
+      {/* Keys list */}
+      <Card className="border-white/[0.08]">
+        <CardHeader><CardTitle className="text-slate-100">Your Keys</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           {keys.length === 0 && (
-            <p className="text-sm text-muted-foreground">No API keys yet.</p>
+            <p className="text-sm text-slate-500">No API keys yet.</p>
           )}
           {keys.map((k) => (
-            <div key={k.id} className="flex items-center justify-between rounded-md border p-3">
-              <div>
-                <p className="font-medium">{k.label}</p>
-                <p className="text-xs text-muted-foreground">
+            <div
+              key={k.id}
+              className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 hover:bg-white/[0.06] transition-colors gap-4"
+            >
+              <div className="min-w-0">
+                <p className="font-medium text-slate-200">{k.label}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Created: {new Date(k.created_at).toLocaleDateString()}
+                  {" · "}
                   Last used: {k.last_used ? new Date(k.last_used).toLocaleDateString() : "Never"}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={k.is_active ? "default" : "outline"}>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge className={k.is_active
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full"
+                  : "bg-slate-500/20 text-slate-500 border border-slate-500/30 rounded-full"
+                }>
                   {k.is_active ? "Active" : "Revoked"}
                 </Badge>
                 {k.is_active && (
-                  <Button variant="destructive" size="sm" onClick={() => revokeKey(k.id)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => revokeKey(k.id)}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-full cursor-pointer h-7 text-xs"
+                  >
                     Revoke
                   </Button>
                 )}
@@ -107,10 +160,13 @@ export default function ApiKeysPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><CardTitle>Quick Start</CardTitle></CardHeader>
+      {/* Quick start */}
+      <Card className="border-white/[0.08]">
+        <CardHeader><CardTitle className="text-slate-100">Quick Start</CardTitle></CardHeader>
         <CardContent>
-          <pre className="rounded-md bg-muted p-4 text-sm overflow-x-auto">{curlSnippet}</pre>
+          <pre className="rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-300 p-4 text-sm overflow-x-auto">
+            {curlSnippet}
+          </pre>
         </CardContent>
       </Card>
     </div>

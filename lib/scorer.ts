@@ -10,8 +10,8 @@ const WEIGHTS = {
 } as const;
 
 function getScoreBand(score: number): ScoreBand {
-  if (score >= 65) return "HOT";
-  if (score >= 40) return "WARM";
+  if (score >= 75) return "HOT";
+  if (score >= 50) return "WARM";
   return "COLD";
 }
 

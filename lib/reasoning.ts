@@ -60,8 +60,8 @@ export async function generateReasoning(
     return {
       ai_summary: `[Mock AI] ${company} scores ${score}/100 (${band}). Strongest signal: ${sigName} — "${sigData.detail}". Add OPENROUTER_API_KEY to .env.local for real analysis.`,
       recommended_action: `[Mock] Reference their ${sigName} activity in your opening message.`,
-      buying_stage: score >= 65 ? "decision" : score >= 40 ? "consideration" : "awareness",
-      urgency: score >= 65 ? "act-now" : score >= 40 ? "this-week" : "nurture",
+      buying_stage: score >= 75 ? "decision" : score >= 50 ? "consideration" : "awareness",
+      urgency: score >= 75 ? "act-now" : score >= 50 ? "this-week" : "nurture",
       key_triggers: [sigData.detail],
       why_now: `[Mock] Recent ${sigName} activity signals active buying motion.`,
       email_subject: `[Mock] Saw your ${sigName} signal — worth a chat?`,
@@ -109,8 +109,8 @@ export async function generateReasoning(
   return {
     ai_summary: `${company} shows ${band.toLowerCase()} purchase intent with a score of ${score}/100.`,
     recommended_action: "Review the signal breakdown and reach out with a personalized message referencing their recent activity.",
-    buying_stage: score >= 65 ? "decision" : score >= 40 ? "consideration" : "awareness",
-    urgency: score >= 65 ? "act-now" : score >= 40 ? "this-week" : "nurture",
+    buying_stage: score >= 75 ? "decision" : score >= 50 ? "consideration" : "awareness",
+    urgency: score >= 75 ? "act-now" : score >= 50 ? "this-week" : "nurture",
     key_triggers: [],
     why_now: "Recent signal activity indicates a potential buying window.",
     email_subject: `${company} — worth a quick chat?`,

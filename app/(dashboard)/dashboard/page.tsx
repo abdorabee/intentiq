@@ -1,18 +1,29 @@
 import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Zap } from "lucide-react";
 import QuickScore from "@/components/dashboard/quick-score";
 
 export default async function DashboardPage() {
   const { userId } = await auth();
   const admin = createSupabaseAdmin();
 
-  const [{ data: profile }, { data: recentScores }, { data: hotLeads }] = await Promise.all([
+  const [
+    { data: profile },
+    { data: recentScores },
+    { data: hotLeads },
+    { count: totalScores },
+  ] = await Promise.all([
     admin.from("users").select("credits_remaining, plan").eq("id", userId!).single(),
     admin.from("scores").select("*").eq("user_id", userId!).order("created_at", { ascending: false }).limit(10),
     admin.from("watchlist").select("*").eq("user_id", userId!).eq("is_active", true).gte("score", 75).order("score", { ascending: false }),
+    admin.from("scores").select("*", { count: "exact", head: true }).eq("user_id", userId!),
   ]);
+
+  const isNewUser = !recentScores || recentScores.length === 0;
 
   return (
     <div className="space-y-6">
@@ -20,6 +31,29 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold text-slate-100">Dashboard</h1>
         <p className="text-slate-400 mt-1">Welcome back. Here&apos;s your lead intelligence overview.</p>
       </div>
+
+      {/* Onboarding — shown only when user has never scored */}
+      {isNewUser && (
+        <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6 flex items-start gap-5">
+          <div className="h-10 w-10 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+            <Zap className="h-5 w-5 text-indigo-400" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-slate-100 mb-1">Welcome to IntentIQ</p>
+            <p className="text-sm text-slate-400 mb-4">
+              Score your first company to see purchase intent signals, AI analysis, and sales actions — all in one view.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <Button asChild size="sm" className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 rounded-full cursor-pointer">
+                <Link href="/score">Score a Company</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] rounded-full cursor-pointer">
+                <Link href="/api-keys">Get API Key</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats row */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -51,8 +85,8 @@ export default async function DashboardPage() {
             <CardTitle className="text-sm font-medium text-slate-400">Scores Run</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-100">{recentScores?.length ?? 0}</div>
-            <p className="text-xs text-slate-500 mt-0.5">Last 10 shown</p>
+            <div className="text-2xl font-bold text-slate-100">{totalScores ?? 0}</div>
+            <p className="text-xs text-slate-500 mt-0.5">Total scored companies</p>
           </CardContent>
         </Card>
       </div>
@@ -72,10 +106,18 @@ export default async function DashboardPage() {
         <Card className="border-emerald-500/25 glow-emerald overflow-hidden">
           <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
           <CardHeader>
-            <CardTitle className="text-emerald-400 flex items-center gap-2">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              HOT Leads — Act Now
-            </CardTitle>
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-emerald-400 flex items-center gap-2">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                HOT Leads — Act Now
+              </CardTitle>
+              <Link
+                href="/pipeline"
+                className="text-xs text-emerald-400/70 hover:text-emerald-400 transition-colors whitespace-nowrap"
+              >
+                View Pipeline →
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -104,11 +146,11 @@ export default async function DashboardPage() {
           <CardTitle className="text-slate-100">Recent Scores</CardTitle>
         </CardHeader>
         <CardContent>
-          {(!recentScores || recentScores.length === 0) ? (
+          {isNewUser ? (
             <p className="text-sm text-slate-500">No scores yet. Run your first score above.</p>
           ) : (
             <div className="space-y-2">
-              {recentScores.map((s) => (
+              {recentScores!.map((s) => (
                 <div
                   key={s.id}
                   className="flex items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"

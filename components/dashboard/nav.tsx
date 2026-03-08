@@ -9,6 +9,7 @@ import {
   Target,
   History,
   Eye,
+  Columns3,
   Upload,
   Key,
   CreditCard,
@@ -16,10 +17,11 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/dashboard",  label: "Dashboard",      icon: LayoutDashboard },
+  { href: "/dashboard",  label: "Dashboard",       icon: LayoutDashboard },
   { href: "/score",      label: "Score Explorer",  icon: Target },
   { href: "/history",    label: "Score History",   icon: History },
   { href: "/watchlist",  label: "Watchlist",       icon: Eye },
+  { href: "/pipeline",   label: "Pipeline Board",  icon: Columns3 },
   { href: "/bulk",       label: "Bulk Scorer",     icon: Upload },
   { href: "/api-keys",   label: "API Keys",        icon: Key },
   { href: "/billing",    label: "Billing",         icon: CreditCard },
