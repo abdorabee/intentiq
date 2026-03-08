@@ -115,27 +115,32 @@ export async function GET(req: NextRequest) {
   // ── Cache + persist ──────────────────────────────────────────────────────────
   await cacheSet(cacheKey, result, SCORE_TTL_SECONDS);
 
+  console.log("[score] userId:", userId, "domain:", lookupDomain);
+
   if (userId) {
-    await Promise.all([
-      supabase.from("scores").insert({
-        user_id: userId,
-        domain: lookupDomain,
-        company_name: lookupCompany,
-        score: result.intent_score,
-        score_band: result.score_band,
-        signals,
-        ai_summary,
-        recommended_action,
-        buying_stage,
-        urgency,
-        key_triggers,
-        why_now,
-        email_subject,
-        talk_track,
-        expires_at: result.score_decay_date,
-      }),
-      ...(skipCredits ? [] : [supabase.rpc("deduct_credit", { p_user_id: userId })]),
-    ]);
+    const { error: insertError } = await supabase.from("scores").insert({
+      user_id: userId,
+      domain: lookupDomain,
+      company_name: lookupCompany,
+      score: result.intent_score,
+      score_band: result.score_band,
+      signals,
+      ai_summary,
+      recommended_action,
+      buying_stage,
+      urgency,
+      key_triggers,
+      why_now,
+      email_subject,
+      talk_track,
+      expires_at: result.score_decay_date,
+    });
+    if (insertError) console.error("[score] insert error:", insertError);
+
+    if (!skipCredits) {
+      const { error: creditError } = await supabase.rpc("deduct_credit", { p_user_id: userId });
+      if (creditError) console.error("[score] deduct_credit error:", creditError);
+    }
   }
 
   return NextResponse.json(result);
