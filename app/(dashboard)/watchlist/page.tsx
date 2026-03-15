@@ -175,52 +175,54 @@ export default function WatchlistPage() {
               )}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-white/[0.06] hover:bg-transparent">
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Company</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Domain</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Score</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Band</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Last Scored</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((item) => (
-                  <TableRow
-                    key={item.id}
-                    className="border-white/[0.04] hover:bg-white/[0.03] transition-colors"
-                  >
-                    <TableCell className="font-medium text-slate-200">{item.company_name}</TableCell>
-                    <TableCell className="text-slate-500 text-sm">{item.domain}</TableCell>
-                    <TableCell className="font-bold text-slate-100">{item.score ?? "—"}</TableCell>
-                    <TableCell>
-                      {item.score_band ? (
-                        <Badge className={`text-xs ${bandClass(item.score_band)}`}>
-                          {item.score_band}
-                        </Badge>
-                      ) : (
-                        <span className="text-slate-600 text-xs">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-slate-500 text-sm">
-                      {item.last_scored ? new Date(item.last_scored).toLocaleDateString() : "Never"}
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => handleRemove(item.domain)}
-                        disabled={removing === item.domain}
-                        className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-40"
-                        aria-label={`Remove ${item.company_name}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/[0.06] hover:bg-transparent">
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Company</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Domain</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Score</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Band</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Last Scored</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide w-10" />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      className="border-white/[0.04] hover:bg-white/[0.03] transition-colors"
+                    >
+                      <TableCell className="font-medium text-slate-200">{item.company_name}</TableCell>
+                      <TableCell className="text-slate-500 text-sm">{item.domain}</TableCell>
+                      <TableCell className="font-bold text-slate-100">{item.score ?? "—"}</TableCell>
+                      <TableCell>
+                        {item.score_band ? (
+                          <Badge className={`text-xs ${bandClass(item.score_band)}`}>
+                            {item.score_band}
+                          </Badge>
+                        ) : (
+                          <span className="text-slate-600 text-xs">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-slate-500 text-sm">
+                        {item.last_scored ? new Date(item.last_scored).toLocaleDateString() : "Never"}
+                      </TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() => handleRemove(item.domain)}
+                          disabled={removing === item.domain}
+                          className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-40"
+                          aria-label={`Remove ${item.company_name}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

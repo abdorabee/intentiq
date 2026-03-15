@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@clerk/nextjs";
@@ -14,6 +15,8 @@ import {
   Key,
   CreditCard,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -29,14 +32,10 @@ const NAV_ITEMS = [
 
 export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemaining?: number }) {
   const pathname = usePathname();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  return (
-    <aside className="hidden lg:flex w-60 flex-col border-r border-white/[0.06] bg-black/80 p-4 space-y-1 sticky top-0 h-screen">
-      <div className="mb-6 px-3 pt-2">
-        <span className="text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
-        <p className="text-slate-600 text-[10px] tracking-[0.15em] mt-1">v1.0</p>
-      </div>
-
+  const navContent = (mobile?: boolean) => (
+    <>
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const active = pathname === item.href;
@@ -44,6 +43,7 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
           <Link
             key={item.href}
             href={item.href}
+            onClick={mobile ? () => setDrawerOpen(false) : undefined}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] transition-all duration-200 cursor-pointer border",
               active
@@ -58,29 +58,98 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
           </Link>
         );
       })}
+    </>
+  );
 
-      <div className="mt-auto pt-4 border-t border-white/[0.07] space-y-2">
-        {/* Credits indicator */}
-        <div className={`px-3 py-2.5 border ${creditsRemaining < 5 ? "border-amber-500/30 bg-amber-500/5" : "border-white/[0.06] bg-white/[0.02]"}`}>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600 mb-0.5">Credits</p>
-          <div className="flex items-center justify-between">
-            <span className={`text-sm font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-200"}`}>
-              {creditsRemaining}
-              {creditsRemaining < 5 && <span className="ml-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5">Low</span>}
-            </span>
-            <Link href="/billing" className="text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors tracking-[0.1em]">
-              Top up →
-            </Link>
+  const creditsBlock = (
+    <div className={`px-3 py-2.5 border ${creditsRemaining < 5 ? "border-amber-500/30 bg-amber-500/5" : "border-white/[0.06] bg-white/[0.02]"}`}>
+      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600 mb-0.5">Credits</p>
+      <div className="flex items-center justify-between">
+        <span className={`text-sm font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-200"}`}>
+          {creditsRemaining}
+          {creditsRemaining < 5 && <span className="ml-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5">Low</span>}
+        </span>
+        <Link href="/billing" className="text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors tracking-[0.1em]">
+          Top up →
+        </Link>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="fixed top-0 left-0 right-0 z-30 flex lg:hidden items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-black/90 backdrop-blur-sm">
+        <span className="text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-400"}`}>
+            {creditsRemaining} cr
+          </span>
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="p-1 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile drawer overlay */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setDrawerOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="absolute top-0 right-0 bottom-0 w-64 bg-black border-l border-white/[0.06] p-4 space-y-1 overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="p-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {navContent(true)}
+
+            <div className="pt-4 border-t border-white/[0.07] space-y-2 mt-4">
+              {creditsBlock}
+              <SignOutButton redirectUrl="/">
+                <button className="flex w-full items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer">
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  Sign out
+                </button>
+              </SignOutButton>
+            </div>
           </div>
         </div>
+      )}
 
-        <SignOutButton redirectUrl="/">
-          <button className="flex w-full items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer">
-            <LogOut className="h-4 w-4 shrink-0" />
-            Sign out
-          </button>
-        </SignOutButton>
-      </div>
-    </aside>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-60 flex-col border-r border-white/[0.06] bg-black/80 p-4 space-y-1 sticky top-0 h-screen">
+        <div className="mb-6 px-3 pt-2">
+          <span className="text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
+          <p className="text-slate-600 text-[10px] tracking-[0.15em] mt-1">v1.0</p>
+        </div>
+
+        {navContent()}
+
+        <div className="mt-auto pt-4 border-t border-white/[0.07] space-y-2">
+          {creditsBlock}
+          <SignOutButton redirectUrl="/">
+            <button className="flex w-full items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer">
+              <LogOut className="h-4 w-4 shrink-0" />
+              Sign out
+            </button>
+          </SignOutButton>
+        </div>
+      </aside>
+    </>
   );
 }

@@ -60,17 +60,19 @@ export default function HeroSection() {
           muted
           loop
           playsInline
+          preload="auto"
           poster="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80"
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
           aria-hidden="true"
         >
-          <source src="/videos/hero-bg.mp4" type="video/mp4" />
+          <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4" />
         </video>
       )}
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/60 to-black" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+      <div className="absolute inset-0 hero-glow" />
 
       {/* Content */}
       <div className="relative z-10 max-w-3xl text-center space-y-8">
@@ -96,7 +98,7 @@ export default function HeroSection() {
           and a specific action — in under 3 seconds. No setup. No contract. From $49/mo.
         </p>
 
-        <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center">
+        <div ref={ctaRef} className="flex flex-wrap gap-4 justify-center w-full">
           <BracketButton href="/signup" size="lg">
             Start Free
           </BracketButton>

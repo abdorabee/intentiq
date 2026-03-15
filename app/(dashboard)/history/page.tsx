@@ -122,77 +122,79 @@ export default function ScoreHistoryPage() {
               {query ? "No results match your search." : "No scores yet. Use the Score Explorer to score your first company."}
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-white/[0.06] hover:bg-transparent">
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Company</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Score</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Band</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Stage</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Urgency</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Key Triggers</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">AI Summary</TableHead>
-                  <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Scored</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((row) => (
-                  <TableRow key={row.id} className="border-white/[0.04] hover:bg-white/[0.03] transition-colors">
-                    <TableCell>
-                      <div className="font-medium text-slate-200">{row.company_name}</div>
-                      <div className="text-xs text-slate-500">{row.domain}</div>
-                    </TableCell>
-
-                    <TableCell>
-                      <span className={`text-2xl font-black ${bandScoreClass(row.score_band)}`}>
-                        {row.score}
-                      </span>
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge className={`text-xs ${bandClass(row.score_band)}`}>
-                        {row.score_band}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                      <span className="text-sm text-slate-400">{stageLabel(row.buying_stage)}</span>
-                    </TableCell>
-
-                    <TableCell>
-                      {row.urgency && (
-                        <span className={`text-xs font-medium px-2 py-1 ${urgencyClass(row.urgency)}`}>
-                          {row.urgency}
-                        </span>
-                      )}
-                    </TableCell>
-
-                    <TableCell className="max-w-[200px]">
-                      <div className="flex flex-wrap gap-1">
-                        {(row.key_triggers ?? []).slice(0, 2).map((t, i) => (
-                          <span key={i} className="text-xs bg-white/[0.06] text-slate-400 border border-white/[0.08] px-2 py-0.5 truncate max-w-[180px]">
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="max-w-[260px]">
-                      <p className="text-xs text-slate-500 line-clamp-2">{row.ai_summary}</p>
-                    </TableCell>
-
-                    <TableCell className="text-sm text-slate-500 whitespace-nowrap">
-                      {new Date(row.created_at).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/[0.06] hover:bg-transparent">
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Company</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Score</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Band</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Stage</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Urgency</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Key Triggers</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">AI Summary</TableHead>
+                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Scored</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((row) => (
+                    <TableRow key={row.id} className="border-white/[0.04] hover:bg-white/[0.03] transition-colors">
+                      <TableCell>
+                        <div className="font-medium text-slate-200">{row.company_name}</div>
+                        <div className="text-xs text-slate-500">{row.domain}</div>
+                      </TableCell>
+
+                      <TableCell>
+                        <span className={`text-2xl font-black ${bandScoreClass(row.score_band)}`}>
+                          {row.score}
+                        </span>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge className={`text-xs ${bandClass(row.score_band)}`}>
+                          {row.score_band}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <span className="text-sm text-slate-400">{stageLabel(row.buying_stage)}</span>
+                      </TableCell>
+
+                      <TableCell>
+                        {row.urgency && (
+                          <span className={`text-xs font-medium px-2 py-1 ${urgencyClass(row.urgency)}`}>
+                            {row.urgency}
+                          </span>
+                        )}
+                      </TableCell>
+
+                      <TableCell className="max-w-[200px]">
+                        <div className="flex flex-wrap gap-1">
+                          {(row.key_triggers ?? []).slice(0, 2).map((t, i) => (
+                            <span key={i} className="text-xs bg-white/[0.06] text-slate-400 border border-white/[0.08] px-2 py-0.5 truncate max-w-[180px]">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="max-w-[260px]">
+                        <p className="text-xs text-slate-500 line-clamp-2">{row.ai_summary}</p>
+                      </TableCell>
+
+                      <TableCell className="text-sm text-slate-500 whitespace-nowrap">
+                        {new Date(row.created_at).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

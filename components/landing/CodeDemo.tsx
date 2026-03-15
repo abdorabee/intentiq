@@ -52,7 +52,7 @@ export default function CodeDemo() {
   const codeLines = CODE_EXAMPLES[activeTab].split("\n");
 
   return (
-    <section ref={sectionRef} id="api" className="py-24 md:py-32 bg-black">
+    <section ref={sectionRef} id="api" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #060618 0%, #050514 30%, #050514 70%, #060616 100%)" }}>
       <div className="max-w-3xl mx-auto px-6 space-y-8">
         <div className="space-y-4">
           <SectionLabel text="API" />
@@ -76,7 +76,7 @@ export default function CodeDemo() {
           </div>
 
           {/* Tab bar */}
-          <div className="flex border-b border-cyan-500/10 bg-black/50">
+          <div className="flex border-b border-cyan-500/10 bg-black/50 overflow-x-auto flex-nowrap">
             {tabs.map((tab) => (
               <button
                 key={tab.key}

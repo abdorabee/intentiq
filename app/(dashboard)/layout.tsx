@@ -38,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="relative flex min-h-screen">
         <DashboardNav creditsRemaining={creditsRemaining} />
-        <main className="flex-1 p-6 lg:p-10 max-w-5xl">{children}</main>
+        <main className="flex-1 p-4 pt-16 lg:p-10 lg:pt-10 max-w-5xl">{children}</main>
       </div>
     </div>
   );

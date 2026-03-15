@@ -60,7 +60,7 @@ export default function PricingSection() {
   }, { scope: sectionRef });
 
   return (
-    <section ref={sectionRef} id="pricing" className="py-24 md:py-32 bg-black">
+    <section ref={sectionRef} id="pricing" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #080818 0%, #06061a 50%, #000000 100%)" }}>
       <div className="max-w-5xl mx-auto px-6 space-y-16">
         {/* Header */}
         <div className="space-y-4">
@@ -74,7 +74,7 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Cards */}
-        <div ref={cardsRef} className="grid gap-4 md:grid-cols-5">
+        <div ref={cardsRef} className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {PRICING.map((p) => (
             <div
               key={p.plan}

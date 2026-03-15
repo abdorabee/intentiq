@@ -95,9 +95,9 @@ export default function Loader({ onEnter }: LoaderProps) {
       />
 
       {/* Content */}
-      <div className="relative z-10 max-w-xl w-full px-8">
+      <div className="relative z-10 max-w-xl w-full px-4 sm:px-8">
         {/* Loading indicator */}
-        <div className="space-y-1 mb-12">
+        <div className="space-y-1 mb-12 overflow-hidden">
           <p className="text-cyan-500/60 text-xs tracking-[0.3em]">[[</p>
           <p className="text-cyan-400 text-sm tracking-[0.2em] ml-4">[loading]</p>
           <p className="text-cyan-500/60 text-xs tracking-[0.3em] ml-8">]]]</p>
