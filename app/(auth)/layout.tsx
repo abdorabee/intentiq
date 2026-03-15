@@ -1,11 +1,11 @@
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-[#020617] overflow-hidden">
+    <div className="relative flex min-h-screen items-center justify-center bg-[#040814] overflow-hidden">
       {/* Ambient orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute -top-60 -left-40 w-[700px] h-[700px] rounded-full bg-indigo-600/20 blur-[140px] animate-orb" />
-        <div className="absolute -top-20 right-0 w-[500px] h-[500px] rounded-full bg-violet-600/15 blur-[120px] animate-orb-slow" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-indigo-900/25 blur-[130px] animate-orb-med" />
+        <div className="absolute -top-60 -left-40 w-[700px] h-[700px] rounded-full bg-cyan-500/15 blur-[140px] animate-orb" />
+        <div className="absolute -top-20 right-0 w-[500px] h-[500px] rounded-full bg-teal-500/10 blur-[120px] animate-orb-slow" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-sky-600/12 blur-[130px] animate-orb-med" />
       </div>
 
       <div className="relative w-full max-w-md px-4">

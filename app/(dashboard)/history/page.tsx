@@ -98,7 +98,7 @@ export default function ScoreHistoryPage() {
                 placeholder="Search company or domain…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-52 bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50 text-sm h-8"
+                className="w-52 bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50 text-sm h-8"
               />
               <Button
                 variant="outline"

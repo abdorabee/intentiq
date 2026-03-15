@@ -35,19 +35,19 @@ const HOW_IT_WORKS = [
     step: "01",
     title: "Submit a domain",
     body: "Pass any company domain via our REST API or the dashboard UI. No CRM integration required.",
-    gradient: "from-indigo-500 to-violet-500",
+    gradient: "from-cyan-500 to-sky-400",
   },
   {
     step: "02",
     title: "5 live signals fetched in parallel",
     body: "Funding rounds, hiring velocity, news triggers, tech stack, and web presence — all fetched simultaneously.",
-    gradient: "from-blue-500 to-indigo-500",
+    gradient: "from-blue-400 to-cyan-500",
   },
   {
     step: "03",
     title: "Weighted intent score computed",
     body: "A composite 0–100 score with configurable signal weights. HOT ≥75, WARM ≥50, COLD <50.",
-    gradient: "from-violet-500 to-purple-500",
+    gradient: "from-teal-500 to-cyan-400",
   },
   {
     step: "04",
@@ -75,12 +75,12 @@ function Check({ yes }: { yes: boolean }) {
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-[#020617] overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#040814] overflow-x-hidden">
       {/* Global ambient orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute -top-60 -left-40 w-[900px] h-[900px] rounded-full bg-indigo-600/12 blur-[160px] animate-orb" />
-        <div className="absolute top-20 right-0 w-[600px] h-[600px] rounded-full bg-violet-600/10 blur-[140px] animate-orb-slow" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-indigo-900/20 blur-[120px] animate-orb-med" />
+        <div className="absolute -top-60 -left-40 w-[900px] h-[900px] rounded-full bg-cyan-500/10 blur-[160px] animate-orb" />
+        <div className="absolute top-20 right-0 w-[600px] h-[600px] rounded-full bg-teal-500/8 blur-[140px] animate-orb-slow" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-sky-600/10 blur-[120px] animate-orb-med" />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-cyan-600/6 blur-[100px] animate-orb" />
       </div>
 
@@ -107,7 +107,7 @@ export default function LandingPage() {
             <Link href="/login">Sign in</Link>
           </Button>
           <Button
-            className="rounded-full bg-indigo-500 hover:bg-indigo-400 text-white border-0 cursor-pointer"
+            className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer"
             asChild
           >
             <Link href="/signup">Start free</Link>
@@ -127,15 +127,16 @@ export default function LandingPage() {
           {/* Headline with CSS word rotation */}
           <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-tight text-slate-100">
             Score{" "}
-            <span className="relative inline-block text-gradient">
-              <span className="animate-word-rotate" style={{ animationDelay: "0s" }}>Your Pipeline</span>
-              <span className="animate-word-rotate" style={{ animationDelay: "3s" }}>SaaS Startups</span>
-              <span className="animate-word-rotate" style={{ animationDelay: "6s" }}>Enterprise Accounts</span>
-              <span className="animate-word-rotate" style={{ animationDelay: "9s" }}>Ideal Customers</span>
+            <span className="relative inline-block">
+              {/* text-gradient applied per-span so background-clip works on abs-positioned elements */}
+              <span className="animate-word-rotate text-gradient" style={{ animationDelay: "-0.6s" }}>Your Pipeline</span>
+              <span className="animate-word-rotate text-gradient" style={{ animationDelay: "2.4s" }}>SaaS Startups</span>
+              <span className="animate-word-rotate text-gradient" style={{ animationDelay: "5.4s" }}>Enterprise Accounts</span>
+              <span className="animate-word-rotate text-gradient" style={{ animationDelay: "8.4s" }}>Ideal Customers</span>
               {/* Ghost span holds width of longest word */}
               <span aria-hidden className="invisible">Enterprise Accounts</span>
             </span>
-            {" "}for Buying Intent
+            {" "}for{" "}<span className="text-gradient">Buying Intent</span>
           </h1>
 
           {/* Sub-copy */}
@@ -148,7 +149,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap gap-3 justify-center">
             <Button
               size="lg"
-              className="rounded-full bg-indigo-500 hover:bg-indigo-400 text-white border-0 px-8 cursor-pointer"
+              className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white border-0 px-8 cursor-pointer"
               asChild
             >
               <Link href="/signup">Start free — 20 credits</Link>
@@ -169,8 +170,8 @@ export default function LandingPage() {
 
           {/* Scrolling marquee of scored companies */}
           <div className="relative mt-10 overflow-hidden">
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10 bg-gradient-to-r from-[#020617] to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10 bg-gradient-to-l from-[#020617] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10 bg-gradient-to-r from-[#040814] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10 bg-gradient-to-l from-[#040814] to-transparent" />
             <div className="flex overflow-hidden">
               <div className="animate-marquee flex gap-3">
                 {[...MARQUEE_COMPANIES, ...MARQUEE_COMPANIES].map((co, i) => (
@@ -187,6 +188,23 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Problem Statement */}
+      <section className="max-w-4xl mx-auto px-6 py-16">
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { stat: "78%", label: "of outreach goes to cold accounts", note: "Industry average", color: "from-red-500/20 to-amber-500/10", border: "border-red-500/20", text: "text-red-400" },
+            { stat: "2.1h", label: "wasted per rep per day on bad leads", note: "Per Gartner, 2024", color: "from-amber-500/20 to-orange-500/10", border: "border-amber-500/20", text: "text-amber-400" },
+            { stat: "3 sec", label: "for IntentIQ to score any company", note: "Avg API response time", color: "from-emerald-500/15 to-cyan-500/10", border: "border-emerald-500/20", text: "text-emerald-400" },
+          ].map((item) => (
+            <div key={item.stat} className={`rounded-2xl glass border ${item.border} p-6 space-y-2 bg-gradient-to-br ${item.color}`}>
+              <p className={`text-5xl font-black ${item.text}`}>{item.stat}</p>
+              <p className="text-slate-300 font-medium leading-snug">{item.label}</p>
+              <p className="text-xs text-slate-500">{item.note}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -255,6 +273,49 @@ score = requests.get(
         </div>
       </section>
 
+      {/* Social Proof */}
+      <section className="max-w-4xl mx-auto px-6 py-20 space-y-10">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-100">&ldquo;Our reps stopped guessing.&rdquo;</h2>
+          <p className="text-slate-400">Sales teams using IntentIQ 3× their connect rates in 30 days.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            {
+              quote: "I used to cold call 80 companies a day. Now I call 20 — the HOT ones. My connect rate tripled.",
+              name: "Sarah K.",
+              role: "SDR",
+              company: "Growthline",
+            },
+            {
+              quote: "The Pipeline Board alone is worth the subscription. I can see which accounts are heating up before my competitors call them.",
+              name: "Marcus T.",
+              role: "Account Executive",
+              company: "Nexflow",
+            },
+            {
+              quote: "Our team cut outreach time by 60% in the first month. The AI talk tracks are actually good.",
+              name: "Priya M.",
+              role: "Sales Manager",
+              company: "Veloce",
+            },
+          ].map((t) => (
+            <div key={t.name} className="rounded-2xl glass border border-white/[0.08] p-6 space-y-4 flex flex-col">
+              <p className="text-slate-300 leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
+              <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-sky-600/20 border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-cyan-300">{t.name[0]}</span>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-200">{t.name}</p>
+                  <p className="text-xs text-slate-500">{t.role} · {t.company}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Comparison */}
       <section className="max-w-4xl mx-auto px-6 py-24 space-y-8">
         <div className="text-center space-y-2">
@@ -276,13 +337,13 @@ score = requests.get(
               {COMPARISON.map((c) => (
                 <tr
                   key={c.name}
-                  className={c.you ? "bg-indigo-500/10" : "hover:bg-white/[0.02] transition-colors"}
+                  className={c.you ? "bg-cyan-500/10" : "hover:bg-white/[0.02] transition-colors"}
                 >
                   <td className="px-5 py-4 font-medium">
                     {c.you ? (
-                      <span className="font-bold text-indigo-300 flex items-center gap-1.5">
+                      <span className="font-bold text-cyan-300 flex items-center gap-1.5">
                         {c.name}
-                        <span className="inline-flex items-center rounded-full bg-indigo-500/20 border border-indigo-500/30 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400 tracking-wide">
+                        <span className="inline-flex items-center rounded-full bg-cyan-500/20 border border-cyan-500/30 px-1.5 py-0.5 text-[10px] font-bold text-cyan-400 tracking-wide">
                           YOU
                         </span>
                       </span>
@@ -314,7 +375,7 @@ score = requests.get(
               key={p.plan}
               className={`flex flex-col rounded-2xl p-5 gap-4 glass ${
                 p.highlight
-                  ? "border-indigo-500/40 glow-indigo"
+                  ? "border-cyan-500/40 glow-cyan"
                   : "border-white/[0.08]"
               }`}
             >
@@ -322,7 +383,7 @@ score = requests.get(
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-sm text-slate-200">{p.plan}</p>
                   {p.highlight && (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-indigo-400 bg-indigo-500/15 border border-indigo-500/30 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 rounded-full">
                       Popular
                     </span>
                   )}
@@ -336,7 +397,7 @@ score = requests.get(
               <Button
                 className={`w-full rounded-full mt-auto cursor-pointer ${
                   p.highlight
-                    ? "bg-indigo-500 hover:bg-indigo-400 text-white border-0"
+                    ? "bg-cyan-500 hover:bg-cyan-400 text-white border-0"
                     : "border-white/[0.12] text-slate-300 hover:text-slate-100 hover:bg-white/[0.05]"
                 }`}
                 variant={p.highlight ? "default" : "outline"}

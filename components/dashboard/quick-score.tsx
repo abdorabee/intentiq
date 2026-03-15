@@ -1,10 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { IntentScore } from "@/lib/types";
+
+const QUICK_STEPS = ["Funding", "Hiring", "News", "Tech", "Web", "AI"];
+
+function QuickThinking({ domain }: { domain: string }) {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setActive((s) => (s + 1) % QUICK_STEPS.length), 400);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+      <div className="relative h-8 w-8 flex-shrink-0">
+        <div className="absolute inset-0 rounded-full border border-cyan-500/40 animate-ping opacity-25" />
+        <div className="relative h-8 w-8 rounded-full border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center">
+          <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+        </div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-medium text-slate-300">Analyzing {domain}</p>
+          <span className="flex gap-0.5 items-end">
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="inline-block h-1 w-1 rounded-full bg-cyan-400"
+                style={{ animation: "thinking-dot 1.2s ease-in-out infinite", animationDelay: `${i * 0.2}s` }}
+              />
+            ))}
+          </span>
+        </div>
+        <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+          {QUICK_STEPS.map((label, i) => (
+            <span
+              key={label}
+              className={`text-[10px] px-1.5 py-0.5 rounded-full transition-all duration-300 ${
+                i < active
+                  ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
+                  : i === active
+                  ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
+                  : "bg-white/[0.04] text-slate-600 border border-white/[0.06]"
+              }`}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function QuickScore() {
   const [domain, setDomain] = useState("");
@@ -41,17 +91,18 @@ export default function QuickScore() {
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && score()}
-          className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50 focus:ring-indigo-500/20"
+          className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50 focus:ring-cyan-500/20"
         />
         <Button
           onClick={score}
           disabled={loading}
-          className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 cursor-pointer"
+          className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer"
         >
           {loading ? "Scoring…" : "Score"}
         </Button>
       </div>
       {error && <p className="text-sm text-red-400">{error}</p>}
+      {loading && <QuickThinking domain={domain.trim()} />}
       {result && (() => {
         const cfg = bandConfig(result.score_band);
         return (

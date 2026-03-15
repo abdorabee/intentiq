@@ -56,7 +56,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.478 0.223 264.4);
+  --primary: oklch(0.715 0.143 200);           /* cyan-500 */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -68,7 +68,7 @@
   --border: oklch(0.922 0 0);
   --border-subtle: oklch(0 0 0 / 0.08);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.478 0.223 264.4);
+  --ring: oklch(0.715 0.143 200);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -76,49 +76,49 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.478 0.223 264.4);
+  --sidebar-primary: oklch(0.715 0.143 200);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0 0 0 / 0.08);
-  --sidebar-ring: oklch(0.478 0.223 264.4);
+  --sidebar-ring: oklch(0.715 0.143 200);
 }
 
-/* Dark glassmorphism theme */
+/* Dark glassmorphism theme — Electric Cyan */
 .dark {
   --radius: 0.75rem;
-  --background: oklch(0.082 0.018 261);       /* #020617 slate-950 */
+  --background: oklch(0.075 0.018 228);        /* deep navy-black */
   --foreground: oklch(0.968 0.004 247);        /* #F1F5F9 slate-100 */
-  --card: oklch(0.14 0.015 260 / 0.55);       /* dark glass panel */
+  --card: oklch(0.14 0.015 225 / 0.55);       /* dark glass panel */
   --card-foreground: oklch(0.968 0.004 247);
-  --popover: oklch(0.14 0.015 260 / 0.95);
+  --popover: oklch(0.14 0.015 225 / 0.95);
   --popover-foreground: oklch(0.968 0.004 247);
-  --primary: oklch(0.585 0.223 264.4);         /* indigo-500 ~#6366F1 */
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.22 0.015 260 / 0.6);
+  --primary: oklch(0.715 0.143 200);           /* cyan-500 #06B6D4 */
+  --primary-foreground: oklch(0.08 0.02 220);
+  --secondary: oklch(0.22 0.015 220 / 0.6);
   --secondary-foreground: oklch(0.85 0.01 247);
-  --muted: oklch(0.22 0.01 260 / 0.45);
+  --muted: oklch(0.22 0.01 220 / 0.45);
   --muted-foreground: oklch(0.62 0.012 240);   /* slate-400 */
-  --accent: oklch(0.585 0.223 264.4 / 0.18);
-  --accent-foreground: oklch(0.82 0.08 264);
+  --accent: oklch(0.715 0.143 200 / 0.18);
+  --accent-foreground: oklch(0.88 0.09 200);
   --destructive: oklch(0.65 0.22 27);
   --border: oklch(1 0 0 / 0.08);
   --border-subtle: oklch(1 0 0 / 0.06);
   --input: oklch(1 0 0 / 0.08);
-  --ring: oklch(0.585 0.223 264.4);
-  --chart-1: oklch(0.585 0.223 264.4);         /* indigo */
+  --ring: oklch(0.715 0.143 200);
+  --chart-1: oklch(0.789 0.154 194);           /* cyan-400 */
   --chart-2: oklch(0.55 0.17 162);             /* emerald */
   --chart-3: oklch(0.72 0.18 84);              /* amber */
   --chart-4: oklch(0.62 0.25 303);             /* violet */
   --chart-5: oklch(0.65 0.22 27);              /* red */
-  --sidebar: oklch(0.1 0.015 260 / 0.85);
+  --sidebar: oklch(0.095 0.016 225 / 0.88);
   --sidebar-foreground: oklch(0.85 0.01 247);
-  --sidebar-primary: oklch(0.585 0.223 264.4);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.715 0.143 200);
+  --sidebar-primary-foreground: oklch(0.08 0.02 220);
   --sidebar-accent: oklch(1 0 0 / 0.05);
   --sidebar-accent-foreground: oklch(0.85 0.01 247);
   --sidebar-border: oklch(1 0 0 / 0.07);
-  --sidebar-ring: oklch(0.585 0.223 264.4);
+  --sidebar-ring: oklch(0.715 0.143 200);
 }
 
 @layer base {
@@ -155,13 +155,13 @@
   .glass-nav {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    background: rgba(2, 6, 23, 0.75);
-    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(4, 8, 20, 0.82);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
   }
 
-  /* Subtle glow effects */
-  .glow-indigo {
-    box-shadow: 0 0 40px rgba(99, 102, 241, 0.18), 0 0 80px rgba(99, 102, 241, 0.08);
+  /* Glow effects */
+  .glow-cyan {
+    box-shadow: 0 0 40px rgba(6, 182, 212, 0.22), 0 0 80px rgba(6, 182, 212, 0.08);
   }
   .glow-emerald {
     box-shadow: 0 0 40px rgba(16, 185, 129, 0.2), 0 0 80px rgba(16, 185, 129, 0.08);
@@ -170,9 +170,9 @@
     box-shadow: 0 0 40px rgba(245, 158, 11, 0.2), 0 0 80px rgba(245, 158, 11, 0.08);
   }
 
-  /* Gradient text */
+  /* Gradient text — electric cyan to sky */
   .text-gradient {
-    background: linear-gradient(135deg, #818CF8 0%, #A78BFA 50%, #818CF8 100%);
+    background: linear-gradient(135deg, #67E8F9 0%, #22D3EE 45%, #38BDF8 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -184,6 +184,31 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
+  /* Tabular nums for score displays */
+  .score-display {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.03em;
+  }
+}
+
+/* HOT score ring glow pulse */
+@keyframes score-pulse-hot {
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+  50%       { box-shadow: 0 0 50px rgba(16, 185, 129, 0.55), 0 0 80px rgba(16, 185, 129, 0.18); }
+}
+.animate-score-hot {
+  animation: score-pulse-hot 2.5s ease-in-out infinite;
+}
+
+/* WARM score ring glow */
+@keyframes score-pulse-warm {
+  0%, 100% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.25); }
+  50%       { box-shadow: 0 0 36px rgba(245, 158, 11, 0.45), 0 0 60px rgba(245, 158, 11, 0.12); }
+}
+.animate-score-warm {
+  animation: score-pulse-warm 3s ease-in-out infinite;
 }
 
 /* Ambient orb pulse */
@@ -205,11 +230,11 @@
 
 /* Word rotation */
 @keyframes word-rotate-in {
-  0%   { opacity: 0; transform: translateY(8px); }
+  0%   { opacity: 0; transform: translateY(10px); }
   5%   { opacity: 1; transform: translateY(0); }
-  20%  { opacity: 1; transform: translateY(0); }
-  25%  { opacity: 0; transform: translateY(-8px); }
-  100% { opacity: 0; transform: translateY(-8px); }
+  22%  { opacity: 1; transform: translateY(0); }
+  27%  { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 0; transform: translateY(-10px); }
 }
 
 .animate-word-rotate {
@@ -219,6 +244,12 @@
   top: 0;
   left: 0;
   width: 100%;
+}
+
+/* Thinking dots (Claude-style) */
+@keyframes thinking-dot {
+  0%, 60%, 100% { opacity: 0.2; transform: translateY(0); }
+  30%           { opacity: 1;   transform: translateY(-3px); }
 }
 
 /* Marquee */

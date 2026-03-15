@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Check, Mail } from "lucide-react";
+import { Plus, Check, Mail, Zap } from "lucide-react";
 import type { IntentScore } from "@/lib/types";
 
 const SIGNAL_LABELS = {
@@ -17,12 +17,108 @@ const SIGNAL_LABELS = {
 };
 
 const SIGNAL_COLORS: Record<string, string> = {
-  funding:    "from-indigo-500 to-violet-500",
+  funding:    "from-cyan-500 to-sky-400",
   hiring:     "from-emerald-500 to-green-400",
   news:       "from-amber-500 to-orange-400",
   technology: "from-blue-500 to-cyan-400",
   web:        "from-pink-500 to-rose-400",
 };
+
+const THINKING_STEPS = [
+  "Fetching funding & growth data",
+  "Scanning hiring velocity",
+  "Reading news & trigger events",
+  "Analyzing technology stack",
+  "Measuring web presence",
+  "Computing intent score with AI",
+];
+
+function ThinkingLoader({ domain }: { domain: string }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setStep((s) => (s < THINKING_STEPS.length - 1 ? s + 1 : s));
+    }, 430);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <Card className="border-white/[0.08]">
+      <CardContent className="pt-6 space-y-5">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className="relative h-10 w-10 flex-shrink-0">
+            <div className="absolute inset-0 rounded-full border border-cyan-500/40 animate-ping opacity-30" />
+            <div className="relative h-10 w-10 rounded-full border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center">
+              <Zap className="h-4 w-4 text-cyan-400" />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-200">Analyzing {domain}</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-xs text-slate-500">Thinking</span>
+              <span className="flex gap-0.5 items-end">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="inline-block h-1 w-1 rounded-full bg-cyan-400"
+                    style={{ animation: "thinking-dot 1.2s ease-in-out infinite", animationDelay: `${i * 0.2}s` }}
+                  />
+                ))}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Signal steps */}
+        <div className="space-y-2.5">
+          {THINKING_STEPS.map((label, i) => (
+            <div
+              key={i}
+              className={`flex items-center gap-3 transition-all duration-500 ${i <= step ? "opacity-100" : "opacity-20"}`}
+            >
+              <div className={`h-4 w-4 rounded-full flex-shrink-0 flex items-center justify-center border transition-all duration-300 ${
+                i < step
+                  ? "border-emerald-500/40 bg-emerald-500/15"
+                  : i === step
+                  ? "border-cyan-500/50 bg-cyan-500/15 animate-pulse"
+                  : "border-white/[0.08] bg-white/[0.03]"
+              }`}>
+                {i < step ? (
+                  <svg className="h-2.5 w-2.5 text-emerald-400" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : i === step ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                ) : null}
+              </div>
+              <span className={`text-xs transition-colors duration-300 ${
+                i < step ? "text-slate-500" : i === step ? "text-slate-200 font-medium" : "text-slate-700"
+              }`}>
+                {label}
+              </span>
+              {i === step && (
+                <span className="ml-auto text-[10px] text-cyan-500 font-medium animate-pulse">scanning</span>
+              )}
+              {i < step && (
+                <div className="ml-auto h-px w-10 rounded-full bg-gradient-to-r from-emerald-500/50 to-emerald-400/10" />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-px bg-white/[0.04] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-cyan-500 to-sky-400 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${((step + 1) / THINKING_STEPS.length) * 100}%` }}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function ScoreExplorerPage() {
   const [domain, setDomain] = useState("");
@@ -89,9 +185,9 @@ export default function ScoreExplorerPage() {
   }
 
   const bandConfig = (band: string) => {
-    if (band === "HOT")  return { badge: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30", ring: "from-emerald-400 to-green-500", glow: "glow-emerald", score: "text-emerald-400" };
-    if (band === "WARM") return { badge: "bg-amber-500/20 text-amber-400 border border-amber-500/30", ring: "from-amber-400 to-orange-500", glow: "glow-amber", score: "text-amber-400" };
-    return { badge: "bg-slate-500/20 text-slate-400 border border-slate-500/30", ring: "from-slate-500 to-slate-600", glow: "", score: "text-slate-300" };
+    if (band === "HOT")  return { badge: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30", ring: "from-emerald-400 to-green-500", glow: "glow-emerald", score: "text-emerald-400", pulse: "animate-score-hot" };
+    if (band === "WARM") return { badge: "bg-amber-500/20 text-amber-400 border border-amber-500/30", ring: "from-amber-400 to-orange-500", glow: "glow-amber", score: "text-amber-400", pulse: "animate-score-warm" };
+    return { badge: "bg-slate-500/20 text-slate-400 border border-slate-500/30", ring: "from-slate-600 to-slate-700", glow: "", score: "text-slate-300", pulse: "" };
   };
 
   return (
@@ -107,18 +203,20 @@ export default function ScoreExplorerPage() {
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleScore()}
-          className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50"
+          className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
         />
         <Button
           onClick={handleScore}
           disabled={loading}
-          className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 cursor-pointer min-w-[90px]"
+          className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer min-w-[90px]"
         >
           {loading ? "Scoring…" : "Score"}
         </Button>
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
+
+      {loading && <ThinkingLoader domain={domain.trim()} />}
 
       {result && (() => {
         const cfg = bandConfig(result.score_band);
@@ -127,7 +225,7 @@ export default function ScoreExplorerPage() {
             {/* Score dial */}
             <Card className={`border-white/[0.08] ${cfg.glow}`}>
               <CardContent className="flex items-center gap-6 pt-6 flex-wrap">
-                <div className={`p-[3px] rounded-full flex-shrink-0 bg-gradient-to-br ${cfg.ring}`}>
+                <div className={`p-[3px] rounded-full flex-shrink-0 bg-gradient-to-br ${cfg.ring} ${cfg.pulse}`}>
                   <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-[#020617]">
                     <span className={`text-4xl font-black ${cfg.score}`}>{result.intent_score}</span>
                   </div>
@@ -174,7 +272,7 @@ export default function ScoreExplorerPage() {
                         <span className="font-medium text-slate-200">{SIGNAL_LABELS[key]}</span>
                         <span className="text-slate-500 font-mono text-xs">{sig.score}/{sig.max}</span>
                       </div>
-                      <div className="relative h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="relative h-2.5 rounded-full bg-white/[0.06] overflow-hidden">
                         <div
                           className={`h-full rounded-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`}
                           style={{ width: `${pct}%` }}
@@ -232,8 +330,8 @@ export default function ScoreExplorerPage() {
                   </div>
                 )}
 
-                <div className="rounded-xl bg-indigo-500/10 border border-indigo-500/20 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-400 mb-1.5">Recommended Action</p>
+                <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400 mb-1.5">Recommended Action</p>
                   <p className="text-sm font-medium text-slate-200">{result.recommended_action}</p>
                 </div>
 

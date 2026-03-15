@@ -105,12 +105,12 @@ export default function ApiKeysPage() {
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generateKey()}
-            className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50"
+            className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
           />
           <Button
             onClick={generateKey}
             disabled={generating}
-            className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 cursor-pointer shrink-0"
+            className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer shrink-0"
           >
             {generating ? "Generating…" : "Generate"}
           </Button>

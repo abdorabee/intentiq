@@ -10,7 +10,7 @@ function J({ k, v, indent = 1, comma = true }: {
 }) {
   const pad = "  ".repeat(indent);
   const keyPart = k
-    ? <><span className="text-violet-300">&quot;{k}&quot;</span><span className="text-zinc-500">: </span></>
+    ? <><span className="text-cyan-300/70">&quot;{k}&quot;</span><span className="text-zinc-500">: </span></>
     : null;
   const valNode =
     typeof v === "string"  ? <span className="text-emerald-400">&quot;{v}&quot;</span> :
@@ -52,11 +52,11 @@ function SectionHeading({ id, badge, title, description }: {
 }) {
   return (
     <div id={id} className="space-y-2 pt-2">
-      <div className="inline-flex items-center gap-2 rounded-full border border-subtle bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] glass px-3 py-1 text-xs font-semibold text-slate-500">
         {badge}
       </div>
-      <h2 className="text-2xl font-black tracking-tight">{title}</h2>
-      <p className="text-muted-foreground">{description}</p>
+      <h2 className="text-2xl font-black tracking-tight text-slate-100">{title}</h2>
+      <p className="text-slate-400">{description}</p>
     </div>
   );
 }
@@ -72,12 +72,19 @@ const NAV_SECTIONS = [
 
 export default function DocsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-[#040814] overflow-x-hidden">
+
+      {/* Ambient orbs */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="animate-orb absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-cyan-500/10 blur-[120px]" />
+        <div className="animate-orb-slow absolute top-1/2 -right-60 h-[500px] w-[500px] rounded-full bg-blue-600/8 blur-[100px]" />
+        <div className="animate-orb-med absolute -bottom-40 left-1/3 h-[400px] w-[400px] rounded-full bg-cyan-400/6 blur-[90px]" />
+      </div>
 
       {/* Top nav */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md bg-background/80 border-b border-subtle">
+      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 glass-nav border-b border-white/[0.06]">
         <Link href="/">
-          <span className="text-xl font-black bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
+          <span className="text-xl font-black text-gradient">
             IntentIQ
           </span>
         </Link>
@@ -86,28 +93,28 @@ export default function DocsPage() {
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="rounded-full px-3 py-1.5 text-sm text-slate-400 hover:text-slate-100 transition-colors"
             >
               {s.label}
             </a>
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" className="rounded-full" asChild>
+          <Button variant="ghost" className="rounded-full text-slate-400 hover:text-slate-100" asChild>
             <Link href="/login">Sign in</Link>
           </Button>
-          <Button className="rounded-full bg-indigo-600 hover:bg-indigo-700 text-white" asChild>
+          <Button className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white border-0" asChild>
             <Link href="/api-keys">Get API key</Link>
           </Button>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-16 space-y-20">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 space-y-20">
 
         {/* Page heading */}
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight">API Reference</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-100">API Reference</h1>
+          <p className="text-lg text-slate-400 max-w-2xl">
             RESTful API. Bearer token auth. JSON responses. All endpoints return in under 3 seconds.
           </p>
           {/* Quick endpoint index */}
@@ -119,9 +126,9 @@ export default function DocsPage() {
               { method: "POST", path: "/api/v1/watchlist"    },
               { method: "GET",  path: "/api/v1/prioritize"   },
             ].map((ep) => (
-              <div key={ep.method + ep.path} className="flex items-center gap-2 rounded-full border border-subtle bg-white px-3 py-1.5 text-xs shadow-sm">
-                <span className={`font-bold ${ep.method === "GET" ? "text-emerald-600" : "text-amber-600"}`}>{ep.method}</span>
-                <span className="font-mono text-muted-foreground">{ep.path}</span>
+              <div key={ep.method + ep.path} className="flex items-center gap-2 rounded-full glass border-white/[0.08] px-3 py-1.5 text-xs">
+                <span className={`font-bold ${ep.method === "GET" ? "text-emerald-400" : "text-amber-400"}`}>{ep.method}</span>
+                <span className="font-mono text-slate-400">{ep.path}</span>
               </div>
             ))}
           </div>
@@ -135,7 +142,7 @@ export default function DocsPage() {
             title="Authentication"
             description="All requests require a Bearer token in the Authorization header. Generate keys from the API Keys page in your dashboard."
           />
-          <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+          <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
             <TerminalHeader method="GET" path="/api/v1/score" label="Request" />
             <pre className="bg-zinc-900 text-zinc-200 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
 {`curl https://intentiq.com/api/v1/score \\
@@ -154,9 +161,9 @@ export default function DocsPage() {
               { label: "Key prefix",val: "iq_live_sk_"   },
               { label: "Revoke",    val: "Dashboard → API Keys" },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-subtle bg-white p-4 space-y-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">{item.label}</p>
-                <p className="text-sm font-mono font-medium">{item.val}</p>
+              <div key={item.label} className="rounded-2xl glass border border-white/[0.08] p-4 space-y-1">
+                <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">{item.label}</p>
+                <p className="text-sm font-mono font-medium text-slate-200">{item.val}</p>
               </div>
             ))}
           </div>
@@ -172,27 +179,27 @@ export default function DocsPage() {
           />
 
           {/* Parameters */}
-          <div className="rounded-2xl border border-subtle overflow-hidden">
-            <div className="bg-zinc-50 border-b border-subtle px-5 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Query Parameters</p>
+          <div className="rounded-2xl glass border border-white/[0.08] overflow-hidden">
+            <div className="bg-white/[0.04] border-b border-white/[0.06] px-5 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Query Parameters</p>
             </div>
             <table className="w-full text-sm">
-              <tbody className="divide-y divide-black/[.04]">
+              <tbody className="divide-y divide-white/[0.04]">
                 {[
                   { param: "domain",               req: true,  type: "string",  desc: "Company domain to score (e.g. stripe.com)" },
                   { param: "include_signals",       req: false, type: "boolean", desc: "Include per-signal breakdown in response. Default: true" },
                   { param: "include_talk_track",    req: false, type: "boolean", desc: "Include AI-generated talk track. Default: false" },
                   { param: "include_email_subject", req: false, type: "boolean", desc: "Include suggested email subject line. Default: false" },
                 ].map((row) => (
-                  <tr key={row.param} className="hover:bg-zinc-50/60 transition-colors">
+                  <tr key={row.param} className="hover:bg-white/[0.03] transition-colors">
                     <td className="px-5 py-3 w-48">
-                      <code className="text-xs font-mono text-indigo-600">{row.param}</code>
+                      <code className="text-xs font-mono text-cyan-400">{row.param}</code>
                       {row.req && <span className="ml-2 text-[10px] font-bold text-red-500 uppercase">required</span>}
                     </td>
                     <td className="px-5 py-3 w-20">
-                      <span className="text-xs font-mono text-amber-600">{row.type}</span>
+                      <span className="text-xs font-mono text-amber-400">{row.type}</span>
                     </td>
-                    <td className="px-5 py-3 text-sm text-muted-foreground">{row.desc}</td>
+                    <td className="px-5 py-3 text-sm text-slate-400">{row.desc}</td>
                   </tr>
                 ))}
               </tbody>
@@ -201,7 +208,7 @@ export default function DocsPage() {
 
           {/* Request / Response panels */}
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
               <TerminalHeader method="GET" path="/api/v1/score" label="Request" />
               <pre className="bg-zinc-900 text-zinc-200 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
 {`curl https://intentiq.com/api/v1/score \\
@@ -240,7 +247,7 @@ data = requests.get(
               </div>
             </div>
 
-            <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
               <TerminalHeader status="200" path="OK · 1.24s" label="Response" />
               <div className="bg-zinc-900 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
                 <div className="text-zinc-500">{"{"}</div>
@@ -252,24 +259,24 @@ data = requests.get(
                 <J k="urgency"            v="act-now"                />
                 <J k="ai_summary"         v="Raised $600M 3 weeks ago, hiring aggressively..." />
                 <J k="why_now"            v="Series I closed 21 days ago. Hiring +40% MoM." />
-                <div className="text-zinc-400">{"  "}<span className="text-violet-300">&quot;key_triggers&quot;</span><span className="text-zinc-500">: [</span></div>
+                <div className="text-zinc-400">{"  "}<span className="text-cyan-300/70">&quot;key_triggers&quot;</span><span className="text-zinc-500">: [</span></div>
                 <div className="text-emerald-400 pl-8">&quot;$600M Series I&quot;,</div>
                 <div className="text-emerald-400 pl-8">&quot;47 open eng roles&quot;,</div>
                 <div className="text-emerald-400 pl-8">&quot;Checkout SDK launch&quot;</div>
                 <div className="text-zinc-500">{"  "},</div>
                 <J k="recommended_action" v="Lead with ROI on conversion rates."  />
                 <J k="email_subject"      v="Quick question about Stripe's infra scale" />
-                <div className="text-zinc-400">{"  "}<span className="text-violet-300">&quot;signals&quot;</span><span className="text-zinc-500">: {"{"}</span></div>
+                <div className="text-zinc-400">{"  "}<span className="text-cyan-300/70">&quot;signals&quot;</span><span className="text-zinc-500">: {"{"}</span></div>
                 <div className="text-zinc-500 pl-8">
-                  <span className="text-violet-300/70">&quot;funding&quot;</span>{" → "}<span className="text-amber-400">25</span>/25{"  "}
-                  <span className="text-violet-300/70">&quot;hiring&quot;</span>{" → "}<span className="text-amber-400">18</span>/20
+                  <span className="text-cyan-300/70">&quot;funding&quot;</span>{" → "}<span className="text-amber-400">25</span>/25{"  "}
+                  <span className="text-cyan-300/70">&quot;hiring&quot;</span>{" → "}<span className="text-amber-400">18</span>/20
                 </div>
                 <div className="text-zinc-500 pl-8">
-                  <span className="text-violet-300/70">&quot;news&quot;</span>{"    → "}<span className="text-amber-400">16</span>/20{"  "}
-                  <span className="text-violet-300/70">&quot;technology&quot;</span>{" → "}<span className="text-amber-400">17</span>/20
+                  <span className="text-cyan-300/70">&quot;news&quot;</span>{"    → "}<span className="text-amber-400">16</span>/20{"  "}
+                  <span className="text-cyan-300/70">&quot;technology&quot;</span>{" → "}<span className="text-amber-400">17</span>/20
                 </div>
                 <div className="text-zinc-500 pl-8">
-                  <span className="text-violet-300/70">&quot;web&quot;</span>{"     → "}<span className="text-amber-400">15</span>/15
+                  <span className="text-cyan-300/70">&quot;web&quot;</span>{"     → "}<span className="text-amber-400">15</span>/15
                 </div>
                 <div className="text-zinc-400">{"  "}<span className="text-zinc-500">{"}"}</span></div>
                 <J k="score_decay_date"   v="2026-04-07T00:00:00.000Z" comma={false} />
@@ -300,7 +307,7 @@ data = requests.get(
             description="Submit up to 1,000 domains at once. Credits are deducted upfront. Results are downloadable as CSV once the job completes."
           />
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
               <TerminalHeader method="POST" path="/api/v1/score/bulk" label="Request" />
               <pre className="bg-zinc-900 text-zinc-200 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
 {`curl https://intentiq.com/api/v1/score/bulk \\
@@ -318,7 +325,7 @@ data = requests.get(
 # Max concurrent jobs: 3`}
               </pre>
             </div>
-            <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
               <TerminalHeader status="202" path="Accepted" label="Response" />
               <div className="bg-zinc-900 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
                 <div className="text-zinc-500">{"{"}</div>
@@ -345,7 +352,7 @@ data = requests.get(
             description="Monitor companies over time. Scores are refreshed periodically. HOT leads (≥75) surface to the top of your dashboard."
           />
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
               <TerminalHeader method="POST" path="/api/v1/watchlist" label="Add to watchlist" />
               <pre className="bg-zinc-900 text-zinc-200 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
 {`curl https://intentiq.com/api/v1/watchlist \\
@@ -358,7 +365,7 @@ data = requests.get(
   }'`}
               </pre>
             </div>
-            <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
               <TerminalHeader method="GET" path="/api/v1/watchlist" label="List watchlist" />
               <pre className="bg-zinc-900 text-zinc-200 p-5 text-xs leading-relaxed overflow-x-auto font-mono">
 {`curl https://intentiq.com/api/v1/watchlist \\
@@ -381,31 +388,31 @@ data = requests.get(
             title="Error Codes"
             description="All errors return a JSON body with an error field. HTTP status codes follow REST conventions."
           />
-          <div className="rounded-2xl border border-subtle overflow-hidden">
-            <div className="bg-zinc-50 border-b border-subtle px-5 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">HTTP Status Codes</p>
+          <div className="rounded-2xl glass border border-white/[0.08] overflow-hidden">
+            <div className="bg-white/[0.04] border-b border-white/[0.06] px-5 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">HTTP Status Codes</p>
             </div>
-            <table className="w-full text-sm bg-white">
-              <tbody className="divide-y divide-black/[.04]">
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-white/[0.04]">
                 {[
-                  { code: "400", color: "text-amber-600", title: "Bad Request",       desc: "Missing or invalid domain parameter." },
-                  { code: "401", color: "text-red-600",   title: "Unauthorized",      desc: "Missing, invalid, or revoked API key." },
-                  { code: "402", color: "text-orange-600",title: "Payment Required",  desc: "Insufficient credits. Top up to continue." },
-                  { code: "429", color: "text-violet-600",title: "Too Many Requests", desc: "Rate limit exceeded (60 req/min). Retry after 1 minute." },
-                  { code: "500", color: "text-red-600",   title: "Server Error",      desc: "Unexpected error. Try again or contact support." },
+                  { code: "400", color: "text-amber-400",  title: "Bad Request",       desc: "Missing or invalid domain parameter." },
+                  { code: "401", color: "text-red-400",    title: "Unauthorized",      desc: "Missing, invalid, or revoked API key." },
+                  { code: "402", color: "text-orange-400", title: "Payment Required",  desc: "Insufficient credits. Top up to continue." },
+                  { code: "429", color: "text-violet-400", title: "Too Many Requests", desc: "Rate limit exceeded (60 req/min). Retry after 1 minute." },
+                  { code: "500", color: "text-red-400",    title: "Server Error",      desc: "Unexpected error. Try again or contact support." },
                 ].map((row) => (
-                  <tr key={row.code} className="hover:bg-zinc-50/60 transition-colors">
+                  <tr key={row.code} className="hover:bg-white/[0.03] transition-colors">
                     <td className="px-5 py-3 w-20">
                       <code className={`text-sm font-bold font-mono ${row.color}`}>{row.code}</code>
                     </td>
-                    <td className="px-5 py-3 w-40 font-medium text-sm">{row.title}</td>
-                    <td className="px-5 py-3 text-sm text-muted-foreground">{row.desc}</td>
+                    <td className="px-5 py-3 w-40 font-medium text-sm text-slate-200">{row.title}</td>
+                    <td className="px-5 py-3 text-sm text-slate-400">{row.desc}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="rounded-2xl border border-subtle overflow-hidden shadow-sm">
+          <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
             <TerminalHeader status="402" path="Payment Required" label="Error response" />
             <div className="bg-zinc-900 p-5 text-xs leading-relaxed font-mono">
               <div className="text-zinc-500">{"{"}</div>
@@ -431,15 +438,15 @@ data = requests.get(
               { label: "Bulk max rows",   val: "1,000 / job"      },
               { label: "Watchlist limit", val: "Plan-dependent"   },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-subtle bg-white p-4 space-y-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">{item.label}</p>
-                <p className="text-sm font-mono font-bold">{item.val}</p>
+              <div key={item.label} className="rounded-2xl glass border border-white/[0.08] p-4 space-y-1">
+                <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold">{item.label}</p>
+                <p className="text-sm font-mono font-bold text-slate-100">{item.val}</p>
               </div>
             ))}
           </div>
-          <div className="rounded-2xl border border-subtle bg-indigo-50/40 p-5 text-sm text-muted-foreground">
+          <div className="rounded-2xl glass border border-cyan-500/20 bg-cyan-500/5 p-5 text-sm text-slate-400">
             Rate limit headers are returned on every response:
-            <code className="block mt-2 font-mono text-xs text-indigo-700 bg-indigo-50 rounded-lg px-3 py-2">
+            <code className="block mt-2 font-mono text-xs text-cyan-300 bg-white/[0.06] rounded-lg px-3 py-2">
               X-RateLimit-Limit: 60{"\n"}
               X-RateLimit-Remaining: 58{"\n"}
               X-RateLimit-Reset: 1741392060
@@ -448,14 +455,14 @@ data = requests.get(
         </section>
 
         {/* CTA */}
-        <div className="rounded-2xl border border-subtle bg-white p-8 text-center space-y-4">
-          <h3 className="text-2xl font-black">Ready to integrate?</h3>
-          <p className="text-muted-foreground">Get your API key in 30 seconds. 20 free credits included.</p>
+        <div className="rounded-2xl glass border border-white/[0.08] p-8 text-center space-y-4">
+          <h3 className="text-2xl font-black text-slate-100">Ready to integrate?</h3>
+          <p className="text-slate-400">Get your API key in 30 seconds. 20 free credits included.</p>
           <div className="flex gap-3 justify-center">
-            <Button className="rounded-full bg-indigo-600 hover:bg-indigo-700 text-white px-8" asChild>
+            <Button className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white border-0 px-8" asChild>
               <Link href="/signup">Get API key</Link>
             </Button>
-            <Button variant="outline" className="rounded-full px-8" asChild>
+            <Button variant="outline" className="rounded-full px-8 border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]" asChild>
               <Link href="/">Back to home</Link>
             </Button>
           </div>
@@ -464,13 +471,13 @@ data = requests.get(
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-subtle py-10 mt-10">
+      <footer className="relative z-10 border-t border-white/[0.06] py-10 mt-10">
         <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <span className="font-black bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
+          <span className="font-black text-gradient">
             IntentIQ
           </span>
-          <p className="text-sm text-muted-foreground">API v1 · © {new Date().getFullYear()} IntentIQ</p>
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <p className="text-sm text-slate-500">API v1 · © {new Date().getFullYear()} IntentIQ</p>
+          <Link href="/" className="text-sm text-slate-500 hover:text-slate-200 transition-colors">
             ← Back to home
           </Link>
         </div>

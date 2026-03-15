@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
     supabase.from("watchlist").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
   ]);
 
-  const limit = PLAN_WATCHLIST_LIMIT[user?.plan ?? "free"];
+  const plan = (user?.plan ?? "free") as keyof typeof PLAN_WATCHLIST_LIMIT;
+  const limit = PLAN_WATCHLIST_LIMIT[plan];
   if (limit !== null && (count ?? 0) >= limit) {
     return NextResponse.json({ error: `Watchlist limit (${limit}) reached for your plan` }, { status: 403 });
   }

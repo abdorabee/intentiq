@@ -108,19 +108,19 @@ export default function WatchlistPage() {
               value={addDomain}
               onChange={(e) => setAddDomain(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 min-w-[160px] bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50"
+              className="flex-1 min-w-[160px] bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
             />
             <Input
               placeholder="Company name (optional)"
               value={addCompany}
               onChange={(e) => setAddCompany(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 min-w-[160px] bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-indigo-500/50"
+              className="flex-1 min-w-[160px] bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
             />
             <Button
               onClick={handleAdd}
               disabled={adding || !addDomain.trim()}
-              className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 rounded-full gap-1.5 cursor-pointer"
+              className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 rounded-full gap-1.5 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               {adding ? "Adding…" : "Add to Watchlist"}

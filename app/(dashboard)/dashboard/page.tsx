@@ -34,9 +34,9 @@ export default async function DashboardPage() {
 
       {/* Onboarding — shown only when user has never scored */}
       {isNewUser && (
-        <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6 flex items-start gap-5">
-          <div className="h-10 w-10 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-            <Zap className="h-5 w-5 text-indigo-400" />
+        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-6 flex items-start gap-5">
+          <div className="h-10 w-10 rounded-xl bg-cyan-500/15 flex items-center justify-center flex-shrink-0">
+            <Zap className="h-5 w-5 text-cyan-400" />
           </div>
           <div className="flex-1">
             <p className="font-semibold text-slate-100 mb-1">Welcome to IntentIQ</p>
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
               Score your first company to see purchase intent signals, AI analysis, and sales actions — all in one view.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <Button asChild size="sm" className="bg-indigo-500 hover:bg-indigo-400 text-white border-0 rounded-full cursor-pointer">
+              <Button asChild size="sm" className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 rounded-full cursor-pointer">
                 <Link href="/score">Score a Company</Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] rounded-full cursor-pointer">
@@ -55,32 +55,56 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Quick Score — primary action, always first */}
+      <Card className="border-white/[0.08]">
+        <CardHeader>
+          <CardTitle className="text-slate-100">Quick Score</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <QuickScore />
+        </CardContent>
+      </Card>
+
       {/* Stats row */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-white/[0.08] overflow-hidden">
-          <div className="h-px bg-gradient-to-r from-indigo-500 via-violet-500 to-transparent" />
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Credits Remaining</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-100">{profile?.credits_remaining ?? 0}</div>
-            <p className="text-xs text-slate-500 capitalize mt-0.5">{profile?.plan ?? "free"} plan</p>
-          </CardContent>
-        </Card>
+        {(() => {
+          const credits = profile?.credits_remaining ?? 0;
+          const lowCredits = credits < 5;
+          return (
+            <Card className={`overflow-hidden ${lowCredits ? "border-amber-500/30" : "border-white/[0.08]"}`}>
+              <div className={`h-px bg-gradient-to-r ${lowCredits ? "from-amber-500 via-orange-400 to-transparent" : "from-cyan-500 via-sky-400 to-transparent"}`} />
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                  Credits Remaining
+                  {lowCredits && <span className="text-[10px] font-bold uppercase tracking-wide text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded-full">Low</span>}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold ${lowCredits ? "text-amber-400" : "text-slate-100"}`}>{credits}</div>
+                <p className="text-xs text-slate-500 capitalize mt-0.5">{profile?.plan ?? "free"} plan</p>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
+        {(() => {
+          const count = hotLeads?.length ?? 0;
+          return (
+            <Card className={`overflow-hidden ${count > 0 ? "border-emerald-500/30 animate-score-hot" : "border-white/[0.08]"}`}>
+              <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400">HOT Leads</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={`font-bold text-emerald-400 ${count > 0 ? "text-3xl" : "text-2xl"}`}>{count}</div>
+                <p className="text-xs text-slate-500 mt-0.5">Score 75+ in watchlist</p>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         <Card className="border-white/[0.08] overflow-hidden">
-          <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">HOT Leads</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-400">{hotLeads?.length ?? 0}</div>
-            <p className="text-xs text-slate-500 mt-0.5">Score 75+ in watchlist</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/[0.08] overflow-hidden">
-          <div className="h-px bg-gradient-to-r from-blue-500 via-indigo-400 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-blue-400 via-cyan-400 to-transparent" />
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Scores Run</CardTitle>
           </CardHeader>
@@ -90,16 +114,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Score */}
-      <Card className="border-white/[0.08]">
-        <CardHeader>
-          <CardTitle className="text-slate-100">Quick Score</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <QuickScore />
-        </CardContent>
-      </Card>
 
       {/* HOT Leads Banner */}
       {(hotLeads?.length ?? 0) > 0 && (

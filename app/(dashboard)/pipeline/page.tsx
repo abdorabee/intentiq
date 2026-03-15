@@ -312,7 +312,7 @@ export default function PipelinePage() {
           </div>
           <Link
             href="/watchlist"
-            className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
           >
             Go to Watchlist →
           </Link>
@@ -389,7 +389,7 @@ export default function PipelinePage() {
                 {/* Actions */}
                 <div className="flex gap-2 flex-wrap pt-1">
                   <Button
-                    className="flex-1 bg-indigo-500 hover:bg-indigo-400 text-white border-0 rounded-full gap-1.5 cursor-pointer"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-400 text-white border-0 rounded-full gap-1.5 cursor-pointer"
                     onClick={handleCopyDialogEmail}
                     disabled={!selected.email_subject && !selected.talk_track}
                   >
