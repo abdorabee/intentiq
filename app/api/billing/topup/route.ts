@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-02-25.clover" });
+import { getStripe } from "@/lib/stripe";
 
 // Credit packs: amount → { credits, price_cents }
 const CREDIT_PACKS: Record<string, { credits: number; price_cents: number }> = {
@@ -34,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   let customerId = profile?.stripe_customer_id;
   if (!customerId) {
-    const customer = await stripe.customers.create({
+    const customer = await getStripe().customers.create({
       email: profile?.email ?? clerkUser?.emailAddresses[0]?.emailAddress,
       metadata: { supabase_user_id: userId },
     });
@@ -43,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "payment",
     line_items: [{
