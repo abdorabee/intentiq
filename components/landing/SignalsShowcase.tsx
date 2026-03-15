@@ -36,7 +36,7 @@ export default function SignalsShowcase() {
 
     // Background color shift on scroll
     gsap.to(sectionRef.current, {
-      backgroundImage: "linear-gradient(to bottom, #0a0a2e, #1a0a2e, #2e0a1a)",
+      backgroundImage: "linear-gradient(to bottom, #000810, #000c18, #000e1c)",
       ease: "none",
       scrollTrigger: {
         trigger: sectionRef.current,
