@@ -28,14 +28,15 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">Dashboard</h1>
-        <p className="text-slate-400 mt-1">Welcome back. Here&apos;s your lead intelligence overview.</p>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[DASHBOARD]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Overview</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Welcome back. Here&apos;s your lead intelligence overview.</p>
       </div>
 
       {/* Onboarding — shown only when user has never scored */}
       {isNewUser && (
-        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-6 flex items-start gap-5">
-          <div className="h-10 w-10 rounded-xl bg-cyan-500/15 flex items-center justify-center flex-shrink-0">
+        <div className="border border-cyan-500/20 bg-cyan-500/5 p-6 flex items-start gap-5">
+          <div className="h-10 w-10 bg-cyan-500/15 flex items-center justify-center flex-shrink-0">
             <Zap className="h-5 w-5 text-cyan-400" />
           </div>
           <div className="flex-1">
@@ -44,10 +45,10 @@ export default async function DashboardPage() {
               Score your first company to see purchase intent signals, AI analysis, and sales actions — all in one view.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <Button asChild size="sm" className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 rounded-full cursor-pointer">
+              <Button asChild size="sm" className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer">
                 <Link href="/score">Score a Company</Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] rounded-full cursor-pointer">
+              <Button asChild variant="outline" size="sm" className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer">
                 <Link href="/api-keys">Get API Key</Link>
               </Button>
             </div>
@@ -76,7 +77,7 @@ export default async function DashboardPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
                   Credits Remaining
-                  {lowCredits && <span className="text-[10px] font-bold uppercase tracking-wide text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded-full">Low</span>}
+                  {lowCredits && <span className="text-[10px] font-bold uppercase tracking-wide text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5">Low</span>}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -138,13 +139,13 @@ export default async function DashboardPage() {
               {hotLeads!.map((lead) => (
                 <div
                   key={lead.id}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
+                  className="flex items-center justify-between border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div>
                     <p className="font-medium text-slate-200">{lead.company_name}</p>
                     <p className="text-sm text-slate-500">{lead.domain}</p>
                   </div>
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                     {lead.score}
                   </Badge>
                 </div>
@@ -167,7 +168,7 @@ export default async function DashboardPage() {
               {recentScores!.map((s) => (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
+                  className="flex items-center justify-between border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div>
                     <p className="font-medium text-slate-200">{s.company_name}</p>
@@ -175,10 +176,10 @@ export default async function DashboardPage() {
                   </div>
                   <Badge className={
                     s.score_band === "HOT"
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                       : s.score_band === "WARM"
-                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full"
-                      : "bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded-full"
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      : "bg-slate-500/20 text-slate-400 border border-slate-500/30"
                   }>
                     {s.score_band} · {s.score}
                   </Badge>

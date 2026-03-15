@@ -17,7 +17,12 @@
       "Bash(python scripts/search.py \"glassmorphism dark liquid\" --domain prompt)",
       "Bash(python scripts/search.py \"B2B SaaS sales intelligence kanban pipeline dark glassmorphism dashboard 2025\" --design-system -p \"IntentIQ Pipeline Board\" -f markdown)",
       "Bash(ls /d/projects/intentiq/app/\\\\\\(dashboard\\\\\\)/)",
-      "Bash(ls /d/projects/intentiq/app/\\\\\\(dashboard\\\\\\)/bulk/)"
+      "Bash(ls /d/projects/intentiq/app/\\\\\\(dashboard\\\\\\)/bulk/)",
+      "Bash(find /d/projects/intentiq/.claude/worktrees/recursing-mcnulty -type f -name tailwind.config.* -o -name next.config.* -o -name postcss.config.*)",
+      "WebFetch(domain:www.theycallmegiulio.com)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }

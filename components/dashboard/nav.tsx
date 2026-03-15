@@ -31,9 +31,10 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex w-60 flex-col glass-nav p-4 space-y-1 sticky top-0 h-screen">
+    <aside className="hidden lg:flex w-60 flex-col border-r border-white/[0.06] bg-black/80 p-4 space-y-1 sticky top-0 h-screen">
       <div className="mb-6 px-3 pt-2">
-        <span className="text-xl font-black text-gradient">IntentIQ</span>
+        <span className="text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
+        <p className="text-slate-600 text-[10px] tracking-[0.15em] mt-1">v1.0</p>
       </div>
 
       {NAV_ITEMS.map((item) => {
@@ -44,14 +45,14 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 cursor-pointer",
+              "flex items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] transition-all duration-200 cursor-pointer border",
               active
-                ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/25 glow-cyan"
-                : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.05] border border-transparent"
+                ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
+                : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.03] border-transparent"
             )}
           >
             <Icon
-              className={cn("h-4 w-4 shrink-0", active ? "text-cyan-400" : "text-slate-500")}
+              className={cn("h-4 w-4 shrink-0", active ? "text-cyan-400" : "text-slate-600")}
             />
             {item.label}
           </Link>
@@ -60,21 +61,21 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
 
       <div className="mt-auto pt-4 border-t border-white/[0.07] space-y-2">
         {/* Credits indicator */}
-        <div className={`px-3 py-2.5 rounded-xl glass border ${creditsRemaining < 5 ? "border-amber-500/30 bg-amber-500/5" : "border-white/[0.06]"}`}>
-          <p className="text-[10px] uppercase tracking-wide text-slate-600 mb-0.5">Credits</p>
+        <div className={`px-3 py-2.5 border ${creditsRemaining < 5 ? "border-amber-500/30 bg-amber-500/5" : "border-white/[0.06] bg-white/[0.02]"}`}>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600 mb-0.5">Credits</p>
           <div className="flex items-center justify-between">
             <span className={`text-sm font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-200"}`}>
               {creditsRemaining}
-              {creditsRemaining < 5 && <span className="ml-1.5 text-[10px] font-bold uppercase tracking-wide text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded-full">Low</span>}
+              {creditsRemaining < 5 && <span className="ml-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5">Low</span>}
             </span>
-            <Link href="/billing" className="text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors">
+            <Link href="/billing" className="text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors tracking-[0.1em]">
               Top up →
             </Link>
           </div>
         </div>
 
         <SignOutButton redirectUrl="/">
-          <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer">
+          <button className="flex w-full items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer">
             <LogOut className="h-4 w-4 shrink-0" />
             Sign out
           </button>

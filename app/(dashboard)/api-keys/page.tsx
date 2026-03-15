@@ -60,8 +60,9 @@ export default function ApiKeysPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">API Keys</h1>
-        <p className="text-slate-400 mt-1">Generate and manage keys for programmatic access.</p>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[API KEYS]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Manage Keys</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Generate and manage keys for programmatic access.</p>
       </div>
 
       {/* Newly generated key reveal */}
@@ -76,13 +77,13 @@ export default function ApiKeysPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
-              <code className="flex-1 block rounded-xl bg-white/[0.05] border border-white/[0.08] px-4 py-3 text-sm text-slate-300 break-all font-mono">
+              <code className="flex-1 block bg-white/[0.05] border border-white/[0.08] px-4 py-3 text-sm text-slate-300 break-all font-mono">
                 {newKey}
               </code>
               <Button
                 size="sm"
                 onClick={handleCopyKey}
-                className={`shrink-0 rounded-full gap-1.5 cursor-pointer h-9 px-3 ${
+                className={`shrink-0 gap-1.5 cursor-pointer h-9 px-3 ${
                   copied
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
                     : "bg-white/[0.08] border border-white/[0.12] text-slate-300 hover:bg-white/[0.12]"
@@ -127,7 +128,7 @@ export default function ApiKeysPage() {
           {keys.map((k) => (
             <div
               key={k.id}
-              className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 hover:bg-white/[0.06] transition-colors gap-4"
+              className="flex items-center justify-between border border-white/[0.08] bg-white/[0.03] px-4 py-3 hover:bg-white/[0.06] transition-colors gap-4"
             >
               <div className="min-w-0">
                 <p className="font-medium text-slate-200">{k.label}</p>
@@ -139,8 +140,8 @@ export default function ApiKeysPage() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge className={k.is_active
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full"
-                  : "bg-slate-500/20 text-slate-500 border border-slate-500/30 rounded-full"
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                  : "bg-slate-500/20 text-slate-500 border border-slate-500/30"
                 }>
                   {k.is_active ? "Active" : "Revoked"}
                 </Badge>
@@ -149,7 +150,7 @@ export default function ApiKeysPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => revokeKey(k.id)}
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-full cursor-pointer h-7 text-xs"
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer h-7 text-xs"
                   >
                     Revoke
                   </Button>
@@ -164,7 +165,7 @@ export default function ApiKeysPage() {
       <Card className="border-white/[0.08]">
         <CardHeader><CardTitle className="text-slate-100">Quick Start</CardTitle></CardHeader>
         <CardContent>
-          <pre className="rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-300 p-4 text-sm overflow-x-auto">
+          <pre className="bg-white/[0.05] border border-white/[0.08] text-slate-300 p-4 text-sm overflow-x-auto">
             {curlSnippet}
           </pre>
         </CardContent>

@@ -83,8 +83,9 @@ export default function ScoreHistoryPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">Score History</h1>
-        <p className="text-slate-400 mt-1">All companies you&apos;ve scored — most recent first.</p>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[HISTORY]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Score History</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">All companies you&apos;ve scored — most recent first.</p>
       </div>
 
       <Card className="border-white/[0.08]">
@@ -105,7 +106,7 @@ export default function ScoreHistoryPage() {
                 size="sm"
                 onClick={exportCSV}
                 disabled={filtered.length === 0}
-                className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] rounded-full gap-1.5 cursor-pointer h-8"
+                className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] gap-1.5 cursor-pointer h-8"
               >
                 <Download className="h-3.5 w-3.5" />
                 Export CSV
@@ -149,7 +150,7 @@ export default function ScoreHistoryPage() {
                     </TableCell>
 
                     <TableCell>
-                      <Badge className={`rounded-full text-xs ${bandClass(row.score_band)}`}>
+                      <Badge className={`text-xs ${bandClass(row.score_band)}`}>
                         {row.score_band}
                       </Badge>
                     </TableCell>
@@ -160,7 +161,7 @@ export default function ScoreHistoryPage() {
 
                     <TableCell>
                       {row.urgency && (
-                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${urgencyClass(row.urgency)}`}>
+                        <span className={`text-xs font-medium px-2 py-1 ${urgencyClass(row.urgency)}`}>
                           {row.urgency}
                         </span>
                       )}
@@ -169,7 +170,7 @@ export default function ScoreHistoryPage() {
                     <TableCell className="max-w-[200px]">
                       <div className="flex flex-wrap gap-1">
                         {(row.key_triggers ?? []).slice(0, 2).map((t, i) => (
-                          <span key={i} className="text-xs bg-white/[0.06] text-slate-400 border border-white/[0.08] px-2 py-0.5 rounded-full truncate max-w-[180px]">
+                          <span key={i} className="text-xs bg-white/[0.06] text-slate-400 border border-white/[0.08] px-2 py-0.5 truncate max-w-[180px]">
                             {t}
                           </span>
                         ))}

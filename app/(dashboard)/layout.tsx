@@ -26,13 +26,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const creditsRemaining = profile?.credits_remaining ?? 0;
 
   return (
-    <div className="relative min-h-screen bg-[#040814] overflow-hidden">
-      {/* Ambient background orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute -top-60 -left-40 w-[800px] h-[800px] rounded-full bg-cyan-500/12 blur-[150px] animate-orb" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal-500/8 blur-[130px] animate-orb-slow" />
-        <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full bg-sky-600/10 blur-[120px] animate-orb-med" />
-        <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] rounded-full bg-cyan-400/6 blur-[100px] animate-orb" />
+    <div className="relative min-h-screen bg-black overflow-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
+      {/* Subtle wireframe grid background */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden>
+        <div className="absolute inset-0" style={{
+          backgroundImage: "linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }} />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.08)_0%,transparent_50%)]" />
       </div>
 
       <div className="relative flex min-h-screen">

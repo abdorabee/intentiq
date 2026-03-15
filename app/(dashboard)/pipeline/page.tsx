@@ -106,7 +106,7 @@ function CompanyCard({
   return (
     <div
       onClick={() => onSelect(company)}
-      className="rounded-xl border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] p-4 space-y-3 cursor-pointer transition-all duration-200 hover:border-white/[0.12]"
+      className="border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] p-4 space-y-3 cursor-pointer transition-all duration-200 hover:border-white/[0.12]"
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
@@ -121,7 +121,7 @@ function CompanyCard({
       <div className="flex items-center gap-2 flex-wrap">
         <TrendBadge trend={company.trend} />
         {company.urgency && (
-          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${urgencyConfig(company.urgency)}`}>
+          <span className={`text-[10px] px-2 py-0.5 border font-medium ${urgencyConfig(company.urgency)}`}>
             {company.urgency}
           </span>
         )}
@@ -141,7 +141,7 @@ function CompanyCard({
           variant="outline"
           onClick={handleCopyEmail}
           disabled={!company.email_subject && !company.talk_track}
-          className="flex-1 h-7 text-xs rounded-full border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
+          className="flex-1 h-7 text-xs border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
         >
           {emailCopied ? <><Check className="h-3 w-3" />Copied!</> : <><Mail className="h-3 w-3" />Email</>}
         </Button>
@@ -150,7 +150,7 @@ function CompanyCard({
           variant="outline"
           onClick={(e) => { e.stopPropagation(); onRescore(company.domain); }}
           disabled={isRescoring}
-          className="flex-1 h-7 text-xs rounded-full border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
+          className="flex-1 h-7 text-xs border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
         >
           <RefreshCw className={`h-3 w-3 ${isRescoring ? "animate-spin" : ""}`} />
           {isRescoring ? "Scoring…" : "Re-score"}
@@ -177,7 +177,7 @@ function PipelineColumn({
   return (
     <div className="flex flex-col gap-3 min-w-0">
       {/* Column header */}
-      <div className={`rounded-xl border px-4 py-3 flex items-center justify-between ${cfg.headerClass}`}>
+      <div className={`border px-4 py-3 flex items-center justify-between ${cfg.headerClass}`}>
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${cfg.dotClass} ${band === "HOT" ? "animate-pulse" : ""}`} />
           <span className={`font-bold text-sm ${cfg.titleClass}`}>{cfg.label}</span>
@@ -189,7 +189,7 @@ function PipelineColumn({
       {/* Cards */}
       <div className="space-y-2">
         {companies.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/[0.06] px-4 py-8 text-center">
+          <div className="border border-dashed border-white/[0.06] px-4 py-8 text-center">
             <p className="text-xs text-slate-600">No {band} companies</p>
           </div>
         ) : (
@@ -293,8 +293,9 @@ export default function PipelinePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">Pipeline Board</h1>
-        <p className="text-slate-400 mt-1">
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[PIPELINE]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Pipeline Board</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">
           Live kanban view of your watchlist — sorted by intent signal strength.
         </p>
       </div>
@@ -307,7 +308,7 @@ export default function PipelinePage() {
         <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
           <Columns3 className="h-14 w-14 text-slate-700" />
           <div>
-            <p className="text-slate-400 font-medium">Your pipeline board is empty.</p>
+            <p className="text-slate-500 text-sm tracking-[0.05em] font-medium">Your pipeline board is empty.</p>
             <p className="text-slate-600 text-sm mt-1">Add companies to your watchlist to see them here.</p>
           </div>
           <Link
@@ -334,7 +335,7 @@ export default function PipelinePage() {
                 <div className="flex items-center justify-between gap-3 flex-wrap pr-6">
                   <DialogTitle className="text-slate-100 text-lg">{selected.company_name}</DialogTitle>
                   <div className="flex items-center gap-2">
-                    <Badge className={`rounded-full ${selectedCfg.badgeClass}`}>{selected.score_band ?? "COLD"}</Badge>
+                    <Badge className={`${selectedCfg.badgeClass}`}>{selected.score_band ?? "COLD"}</Badge>
                     <span className={`text-2xl font-black ${selectedCfg.scoreClass}`}>{selected.score ?? "—"}</span>
                   </div>
                 </div>
@@ -342,7 +343,7 @@ export default function PipelinePage() {
                   <span>{selected.domain}</span>
                   <TrendBadge trend={selected.trend} />
                   {selected.urgency && (
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${urgencyConfig(selected.urgency)}`}>
+                    <span className={`text-[10px] px-2 py-0.5 border font-medium ${urgencyConfig(selected.urgency)}`}>
                       {selected.urgency}
                     </span>
                   )}
@@ -352,7 +353,7 @@ export default function PipelinePage() {
               <div className="space-y-4 mt-2">
                 {/* AI Summary */}
                 {selected.ai_summary && (
-                  <div className="rounded-xl bg-white/[0.04] border border-white/[0.07] px-4 py-3">
+                  <div className="bg-white/[0.04] border border-white/[0.07] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">AI Analysis</p>
                     <p className="text-sm text-slate-300 leading-relaxed">{selected.ai_summary}</p>
                   </div>
@@ -364,7 +365,7 @@ export default function PipelinePage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
                     <div className="flex flex-wrap gap-2">
                       {selected.key_triggers.map((t, i) => (
-                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 rounded-full border border-white/[0.08]">{t}</span>
+                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 border border-white/[0.08]">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -372,7 +373,7 @@ export default function PipelinePage() {
 
                 {/* Email Subject */}
                 {selected.email_subject && (
-                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Email Subject</p>
                     <p className="text-sm font-mono text-slate-300">{selected.email_subject}</p>
                   </div>
@@ -380,7 +381,7 @@ export default function PipelinePage() {
 
                 {/* Talk Track */}
                 {selected.talk_track && (
-                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Talk Track</p>
                     <p className="text-sm italic text-slate-400">{selected.talk_track}</p>
                   </div>
@@ -389,7 +390,7 @@ export default function PipelinePage() {
                 {/* Actions */}
                 <div className="flex gap-2 flex-wrap pt-1">
                   <Button
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-400 text-white border-0 rounded-full gap-1.5 cursor-pointer"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-400 text-white border-0 gap-1.5 cursor-pointer"
                     onClick={handleCopyDialogEmail}
                     disabled={!selected.email_subject && !selected.talk_track}
                   >
@@ -397,7 +398,7 @@ export default function PipelinePage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="rounded-full border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    className="border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.05] cursor-pointer gap-1.5"
                     asChild
                   >
                     <a

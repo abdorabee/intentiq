@@ -92,8 +92,9 @@ export default function WatchlistPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">Watchlist</h1>
-        <p className="text-slate-400 mt-1">Companies you&apos;re monitoring — re-scored weekly.</p>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[WATCHLIST]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Monitored Companies</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Companies you&apos;re monitoring — re-scored weekly.</p>
       </div>
 
       {/* Add Company Form */}
@@ -120,7 +121,7 @@ export default function WatchlistPage() {
             <Button
               onClick={handleAdd}
               disabled={adding || !addDomain.trim()}
-              className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 rounded-full gap-1.5 cursor-pointer"
+              className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 gap-1.5 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               {adding ? "Adding…" : "Add to Watchlist"}
@@ -196,7 +197,7 @@ export default function WatchlistPage() {
                     <TableCell className="font-bold text-slate-100">{item.score ?? "—"}</TableCell>
                     <TableCell>
                       {item.score_band ? (
-                        <Badge className={`rounded-full text-xs ${bandClass(item.score_band)}`}>
+                        <Badge className={`text-xs ${bandClass(item.score_band)}`}>
                           {item.score_band}
                         </Badge>
                       ) : (
@@ -210,7 +211,7 @@ export default function WatchlistPage() {
                       <button
                         onClick={() => handleRemove(item.domain)}
                         disabled={removing === item.domain}
-                        className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-40"
+                        className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-40"
                         aria-label={`Remove ${item.company_name}`}
                       >
                         <Trash2 className="h-4 w-4" />

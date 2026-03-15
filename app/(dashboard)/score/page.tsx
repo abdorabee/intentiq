@@ -109,9 +109,9 @@ function ThinkingLoader({ domain }: { domain: string }) {
         </div>
 
         {/* Progress bar */}
-        <div className="h-px bg-white/[0.04] rounded-full overflow-hidden">
+        <div className="h-px bg-white/[0.04] overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-sky-400 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-gradient-to-r from-cyan-500 to-sky-400 transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / THINKING_STEPS.length) * 100}%` }}
           />
         </div>
@@ -193,8 +193,9 @@ export default function ScoreExplorerPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">Score Explorer</h1>
-        <p className="text-slate-400 mt-1">Enter a domain to get a full intent score with signal breakdown.</p>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[SCORE]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Score Explorer</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Enter a domain to get a full intent score with signal breakdown.</p>
       </div>
 
       <div className="flex gap-2">
@@ -234,12 +235,12 @@ export default function ScoreExplorerPage() {
                   <h2 className="text-2xl font-bold text-slate-100">{result.company}</h2>
                   <p className="text-slate-400 text-sm">{result.domain}</p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <Badge className={`rounded-full ${cfg.badge}`}>{result.score_band}</Badge>
+                    <Badge className={`${cfg.badge}`}>{result.score_band}</Badge>
                     <Button
                       size="sm"
                       onClick={handleAddToWatchlist}
                       disabled={watchlistAdding || watchlistAdded}
-                      className={`rounded-full gap-1.5 cursor-pointer h-7 text-xs ${
+                      className={`gap-1.5 cursor-pointer h-7 text-xs ${
                         watchlistAdded
                           ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
                           : "bg-white/[0.06] border border-white/[0.10] text-slate-300 hover:bg-white/[0.12] hover:text-slate-100"
@@ -272,9 +273,9 @@ export default function ScoreExplorerPage() {
                         <span className="font-medium text-slate-200">{SIGNAL_LABELS[key]}</span>
                         <span className="text-slate-500 font-mono text-xs">{sig.score}/{sig.max}</span>
                       </div>
-                      <div className="relative h-2.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="relative h-2.5 bg-white/[0.06] overflow-hidden">
                         <div
-                          className={`h-full rounded-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`}
+                          className={`h-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -292,12 +293,12 @@ export default function ScoreExplorerPage() {
                   <CardTitle className="text-slate-100">AI Analysis</CardTitle>
                   <div className="flex gap-2">
                     {result.buying_stage && (
-                      <span className="text-xs bg-white/[0.07] text-slate-300 px-2.5 py-1 rounded-full font-medium capitalize border border-white/[0.08]">
+                      <span className="text-xs bg-white/[0.07] text-slate-300 px-2.5 py-1 font-medium capitalize border border-white/[0.08]">
                         {result.buying_stage}
                       </span>
                     )}
                     {result.urgency && (
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${
+                      <span className={`text-xs px-2.5 py-1 font-medium border ${
                         result.urgency === "act-now"    ? "bg-red-500/15 text-red-400 border-red-500/30"
                         : result.urgency === "this-week"  ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
                         : result.urgency === "this-month" ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
@@ -313,7 +314,7 @@ export default function ScoreExplorerPage() {
                 <p className="text-sm text-slate-300 leading-relaxed">{result.ai_summary}</p>
 
                 {result.why_now && (
-                  <div className="rounded-xl border-l-2 border-amber-500/60 bg-amber-500/10 px-4 py-3 border border-amber-500/15">
+                  <div className="border-l-2 border-amber-500/60 bg-amber-500/10 px-4 py-3 border border-amber-500/15">
                     <p className="text-xs font-semibold uppercase tracking-wide text-amber-500 mb-1">Why Now</p>
                     <p className="text-sm text-amber-200/80">{result.why_now}</p>
                   </div>
@@ -324,26 +325,26 @@ export default function ScoreExplorerPage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
                     <div className="flex flex-wrap gap-2">
                       {result.key_triggers.map((t, i) => (
-                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 rounded-full border border-white/[0.08]">{t}</span>
+                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 border border-white/[0.08]">{t}</span>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4">
+                <div className="bg-cyan-500/10 border border-cyan-500/20 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400 mb-1.5">Recommended Action</p>
                   <p className="text-sm font-medium text-slate-200">{result.recommended_action}</p>
                 </div>
 
                 {result.email_subject && (
-                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Email Subject</p>
                     <p className="text-sm font-mono text-slate-300">{result.email_subject}</p>
                   </div>
                 )}
 
                 {result.talk_track && (
-                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Talk Track</p>
                     <p className="text-sm italic text-slate-400">{result.talk_track}</p>
                   </div>
@@ -353,7 +354,7 @@ export default function ScoreExplorerPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-full border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer gap-1.5"
                     onClick={handleCopyEmail}
                   >
                     <Mail className="h-3.5 w-3.5" />
@@ -362,7 +363,7 @@ export default function ScoreExplorerPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-full border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer"
+                    className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer"
                     onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
                   >
                     Copy JSON

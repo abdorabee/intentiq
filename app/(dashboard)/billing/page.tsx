@@ -30,8 +30,9 @@ export default async function BillingPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">Billing</h1>
-        <p className="text-slate-400">Manage your subscription and credits.</p>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[BILLING]</span>
+        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Plans & Credits</h1>
+        <p className="text-slate-500 text-sm tracking-[0.05em]">Manage your subscription and credits.</p>
       </div>
 
       {/* Current Plan */}
@@ -83,7 +84,7 @@ export default async function BillingPage() {
         <CardContent>
           <p className="text-sm text-slate-400 mb-4">$0.08 per credit. No subscription required.</p>
           <form action="/api/billing/topup" method="POST" className="flex gap-2">
-            <select name="amount" className="rounded-xl border border-white/[0.08] bg-white/[0.05] text-slate-200 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500/50">
+            <select name="amount" className="border border-white/[0.08] bg-white/[0.05] text-slate-200 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500/50">
               <option value="100" className="bg-[#0d1a2e]">100 credits — $8</option>
               <option value="500" className="bg-[#0d1a2e]">500 credits — $40</option>
               <option value="1000" className="bg-[#0d1a2e]">1,000 credits — $80</option>

@@ -263,3 +263,117 @@
   display: flex;
   width: max-content;
 }
+
+/* ─── Giulio-style utilities ─────────────────────────────── */
+
+/* Scanline hover overlay */
+.scanline-hover {
+  position: relative;
+  overflow: hidden;
+}
+.scanline-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(6, 182, 212, 0.04) 2px,
+    rgba(6, 182, 212, 0.04) 4px
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.scanline-hover:hover::after {
+  opacity: 1;
+  animation: scanline-scroll 0.5s linear infinite;
+}
+
+@keyframes scanline-scroll {
+  from { background-position: 0 0; }
+  to { background-position: 0 4px; }
+}
+
+/* CRT flicker (subtle) */
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+}
+
+.crt-flicker {
+  animation: crt-flicker 4s linear infinite;
+}
+
+/* Wireframe grid background */
+.wireframe-grid {
+  background-color: #000;
+  background-image:
+    linear-gradient(rgba(6, 182, 212, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Bracket corner decorations */
+.bracket-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(6, 182, 212, 0.6);
+  transition: all 0.3s ease;
+}
+.bracket-corner.tl { top: -4px; left: -4px; border-top: 2px solid; border-left: 2px solid; }
+.bracket-corner.tr { top: -4px; right: -4px; border-top: 2px solid; border-right: 2px solid; }
+.bracket-corner.bl { bottom: -4px; left: -4px; border-bottom: 2px solid; border-left: 2px solid; }
+.bracket-corner.br { bottom: -4px; right: -4px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* Bracket corners expand on hover */
+.group:hover .bracket-corner.tl { top: -6px; left: -6px; }
+.group:hover .bracket-corner.tr { top: -6px; right: -6px; }
+.group:hover .bracket-corner.bl { bottom: -6px; left: -6px; }
+.group:hover .bracket-corner.br { bottom: -6px; right: -6px; }
+.group:hover .bracket-corner { border-color: rgba(6, 182, 212, 0.9); }
+
+/* Neon text glow */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 30px rgba(6, 182, 212, 0.2);
+}
+
+/* Typing cursor blink */
+@keyframes cursor-blink {
+  0%, 50% { border-right-color: rgba(6, 182, 212, 0.8); }
+  51%, 100% { border-right-color: transparent; }
+}
+
+.typing-cursor {
+  border-right: 2px solid rgba(6, 182, 212, 0.8);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* Loading percentage counter glow */
+@keyframes counter-glow {
+  0%, 100% { text-shadow: 0 0 5px rgba(6, 182, 212, 0.3); }
+  50% { text-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 40px rgba(6, 182, 212, 0.2); }
+}
+
+.counter-glow {
+  animation: counter-glow 2s ease-in-out infinite;
+}
+
+/* Reduced motion: disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  .scanline-hover::after,
+  .crt-flicker,
+  .counter-glow,
+  .typing-cursor,
+  .animate-orb,
+  .animate-orb-slow,
+  .animate-orb-med,
+  .animate-marquee,
+  .animate-word-rotate {
+    animation: none !important;
+  }
+}
