@@ -22,7 +22,11 @@
       "WebFetch(domain:www.theycallmegiulio.com)",
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(find /d/projects/intentiq/.claude/worktrees/recursing-mcnulty/public -type f \\\\\\(-iname *.mp4 -o -iname *.webm -o -iname *.mov -o -iname *.gif -o -iname *.jpg -o -iname *.png -o -iname *.svg -o -iname *.glb -o -iname *.gltf \\\\\\))",
+      "Bash(grep -r video /d/projects/intentiq/.claude/worktrees/recursing-mcnulty/components/landing --include=*.tsx -i)",
+      "Bash(wait)",
+      "Bash(grep -r \"theycallmegiulio\\\\|humanoid\\\\|figure\\\\|avatar\" /d/projects/intentiq/.claude/worktrees/recursing-mcnulty --include=*.md --include=*.txt)"
     ]
   }
 }
