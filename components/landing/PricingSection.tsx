@@ -60,7 +60,7 @@ export default function PricingSection() {
   }, { scope: sectionRef });
 
   return (
-    <section ref={sectionRef} id="pricing" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #080818 0%, #06061a 50%, #000000 100%)" }}>
+    <section ref={sectionRef} id="pricing" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #000c18 0%, #000810 50%, #000000 100%)" }}>
       <div className="max-w-5xl mx-auto px-6 space-y-16">
         {/* Header */}
         <div className="space-y-4">

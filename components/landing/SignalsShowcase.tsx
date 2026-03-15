@@ -52,7 +52,7 @@ export default function SignalsShowcase() {
       ref={sectionRef}
       id="signals"
       className="relative py-24 md:py-32"
-      style={{ background: "linear-gradient(to bottom, #000000 0%, #080820 30%, #080820 70%, #060618 100%)" }}
+      style={{ background: "linear-gradient(to bottom, #000000 0%, #000810 50%, #000c18 100%)" }}
     >
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12 space-y-4">

@@ -31,7 +31,19 @@
       "Bash(npx next:*)",
       "Bash(netstat -ano)",
       "Bash(taskkill //PID 25948 //F)",
-      "Bash(curl -sI \"https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4\")"
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4\")",
+      "Bash(wmic process:*)",
+      "WebFetch(domain:www.pexels.com)",
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/8721926/8721926-uhd_2560_1440_25fps.mp4\")",
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/6963744/6963744-uhd_2560_1440_25fps.mp4\")",
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/5854603/5854603-uhd_2560_1440_25fps.mp4\")",
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/8566657/8566657-uhd_2560_1440_25fps.mp4\")",
+      "Bash(curl -sI -H \"Referer: https://www.pexels.com/\" \"https://videos.pexels.com/video-files/8721926/8721926-hd_1920_1080_25fps.mp4\")",
+      "Bash(for res:*)",
+      "Bash(do echo:*)",
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/854323/854323-$res.mp4\")",
+      "Bash(done)",
+      "Bash(curl -sI \"https://videos.pexels.com/video-files/854323/854323-hd_1920_1080_25fps.mp4\")"
     ]
   }
 }

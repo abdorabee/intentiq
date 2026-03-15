@@ -52,7 +52,7 @@ export default function CodeDemo() {
   const codeLines = CODE_EXAMPLES[activeTab].split("\n");
 
   return (
-    <section ref={sectionRef} id="api" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #060618 0%, #050514 30%, #050514 70%, #060616 100%)" }}>
+    <section ref={sectionRef} id="api" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #000c18 0%, #000e1c 50%, #000c18 100%)" }}>
       <div className="max-w-3xl mx-auto px-6 space-y-8">
         <div className="space-y-4">
           <SectionLabel text="API" />

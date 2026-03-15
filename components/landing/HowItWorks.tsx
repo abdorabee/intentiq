@@ -54,7 +54,7 @@ export default function HowItWorks() {
   }, { scope: sectionRef });
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #060616 0%, #070718 30%, #070718 70%, #080818 100%)" }}>
+    <section ref={sectionRef} className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #000c18 0%, #000e1c 50%, #000c18 100%)" }}>
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12 space-y-4">
           <SectionLabel text="PROCESS" />
