@@ -1,0 +1,424 @@
+import { createSupabaseAdmin } from "@/lib/supabase";
+import { scoreCompany } from "@/lib/score-service";
+import type { DbUser, PipelineStage } from "@/lib/types";
+
+// ─── OpenRouter Tool Definitions (OpenAI-compatible format) ──────────────────
+
+export interface OpenRouterTool {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+export const COPILOT_TOOLS: OpenRouterTool[] = [
+  {
+    type: "function",
+    function: {
+      name: "score_company",
+      description: "Score a company's purchase intent by domain. Costs 1 credit in addition to the chat message cost.",
+      parameters: {
+        type: "object",
+        properties: {
+          domain: { type: "string", description: "Company domain (e.g. stripe.com)" },
+          company_name: { type: "string", description: "Company name (optional, inferred from domain if not provided)" },
+        },
+        required: ["domain"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "add_to_watchlist",
+      description: "Add a company to the user's watchlist for ongoing monitoring.",
+      parameters: {
+        type: "object",
+        properties: {
+          domain: { type: "string", description: "Company domain" },
+          company_name: { type: "string", description: "Company name" },
+        },
+        required: ["domain", "company_name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "remove_from_watchlist",
+      description: "Remove a company from the user's watchlist.",
+      parameters: {
+        type: "object",
+        properties: {
+          domain: { type: "string", description: "Company domain to remove" },
+        },
+        required: ["domain"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_pipeline_summary",
+      description: "Get a summary of the user's intent pipeline with counts per stage and top companies in each stage.",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_company_details",
+      description: "Get detailed score, signals, and AI analysis for a specific company the user has previously scored.",
+      parameters: {
+        type: "object",
+        properties: {
+          domain: { type: "string", description: "Company domain to look up" },
+        },
+        required: ["domain"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_scored_companies",
+      description: "Search the user's scored companies by name or domain keyword.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Search query (company name or domain)" },
+        },
+        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "draft_outreach_email",
+      description: "Fetch a company's intent data so you can draft a personalized outreach email. Returns the company's signals and AI analysis for you to compose the email.",
+      parameters: {
+        type: "object",
+        properties: {
+          domain: { type: "string", description: "Company domain" },
+          tone: { type: "string", enum: ["formal", "casual", "executive"], description: "Desired email tone" },
+          angle: { type: "string", description: "Specific angle or trigger to emphasize in the email" },
+        },
+        required: ["domain"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_pipeline_stage",
+      description: "Manually move a company to a different pipeline stage (e.g. mark as 'engaged' after outreach or 'converted' after closing).",
+      parameters: {
+        type: "object",
+        properties: {
+          domain: { type: "string", description: "Company domain" },
+          stage: { type: "string", enum: ["cold", "warming", "hot", "engaged", "converted"], description: "New pipeline stage" },
+        },
+        required: ["domain", "stage"],
+      },
+    },
+  },
+];
+
+// ─── Tool Executor ───────────────────────────────────────────────────────────
+
+export async function executeTool(
+  name: string,
+  args: Record<string, unknown>,
+  userId: string,
+  productCategory: string
+): Promise<unknown> {
+  const supabase = createSupabaseAdmin();
+
+  switch (name) {
+    case "score_company": {
+      const result = await scoreCompany({
+        domain: args.domain as string,
+        userId,
+        companyName: args.company_name as string | undefined,
+        productCategory,
+      });
+      return {
+        company: result.company,
+        domain: result.domain,
+        intent_score: result.intent_score,
+        score_band: result.score_band,
+        ai_summary: result.ai_summary,
+        recommended_action: result.recommended_action,
+        buying_stage: result.buying_stage,
+        urgency: result.urgency,
+        key_triggers: result.key_triggers,
+        why_now: result.why_now,
+      };
+    }
+
+    case "add_to_watchlist": {
+      const { error } = await supabase.from("watchlist").upsert(
+        {
+          user_id: userId,
+          domain: (args.domain as string).toLowerCase().trim(),
+          company_name: args.company_name as string,
+          is_active: true,
+          pipeline_stage: "cold",
+          stage_changed_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,domain" }
+      );
+      if (error) return { success: false, error: error.message };
+      return { success: true, domain: args.domain, message: `Added ${args.company_name} to watchlist` };
+    }
+
+    case "remove_from_watchlist": {
+      const { error } = await supabase
+        .from("watchlist")
+        .update({ is_active: false })
+        .eq("user_id", userId)
+        .eq("domain", (args.domain as string).toLowerCase().trim());
+      if (error) return { success: false, error: error.message };
+      return { success: true, domain: args.domain, message: `Removed from watchlist` };
+    }
+
+    case "get_pipeline_summary": {
+      const { data: watchlist } = await supabase
+        .from("watchlist")
+        .select("domain, company_name, score, score_band, pipeline_stage, last_scored")
+        .eq("user_id", userId)
+        .eq("is_active", true)
+        .order("score", { ascending: false });
+
+      if (!watchlist || watchlist.length === 0) {
+        return { total: 0, stages: {}, message: "No companies in pipeline" };
+      }
+
+      const stages: Record<string, Array<{ domain: string; company_name: string; score: number | null }>> = {};
+      for (const w of watchlist) {
+        const stage = w.pipeline_stage ?? "cold";
+        if (!stages[stage]) stages[stage] = [];
+        stages[stage].push({ domain: w.domain, company_name: w.company_name, score: w.score });
+      }
+
+      const counts: Record<string, number> = {};
+      for (const [stage, companies] of Object.entries(stages)) {
+        counts[stage] = companies.length;
+      }
+
+      return { total: watchlist.length, counts, top_per_stage: stages };
+    }
+
+    case "get_company_details": {
+      const domain = (args.domain as string).toLowerCase().trim();
+      const { data: score } = await supabase
+        .from("scores")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("domain", domain)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!score) return { error: `No score found for ${domain}. You can score it using the score_company tool.` };
+
+      return {
+        company: score.company_name,
+        domain: score.domain,
+        score: score.score,
+        score_band: score.score_band,
+        signals: score.signals,
+        ai_summary: score.ai_summary,
+        recommended_action: score.recommended_action,
+        buying_stage: score.buying_stage,
+        urgency: score.urgency,
+        key_triggers: score.key_triggers,
+        why_now: score.why_now,
+        email_subject: score.email_subject,
+        talk_track: score.talk_track,
+        scored_at: score.created_at,
+      };
+    }
+
+    case "search_scored_companies": {
+      const query = args.query as string;
+      const { data: scores } = await supabase
+        .from("scores")
+        .select("domain, company_name, score, score_band, created_at")
+        .eq("user_id", userId)
+        .or(`domain.ilike.%${query}%,company_name.ilike.%${query}%`)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (!scores || scores.length === 0) return { results: [], message: `No scored companies matching "${query}"` };
+
+      // Deduplicate by domain (latest score only)
+      const seen = new Set<string>();
+      const unique = scores.filter((s) => {
+        if (seen.has(s.domain)) return false;
+        seen.add(s.domain);
+        return true;
+      });
+
+      return { results: unique };
+    }
+
+    case "draft_outreach_email": {
+      const domain = (args.domain as string).toLowerCase().trim();
+      const { data: score } = await supabase
+        .from("scores")
+        .select("company_name, score, score_band, signals, ai_summary, key_triggers, email_subject, talk_track, urgency")
+        .eq("user_id", userId)
+        .eq("domain", domain)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!score) return { error: `No score found for ${domain}. Score it first using score_company.` };
+
+      return {
+        company: score.company_name,
+        domain,
+        score: score.score,
+        score_band: score.score_band,
+        signals: score.signals,
+        key_triggers: score.key_triggers,
+        existing_email_subject: score.email_subject,
+        existing_talk_track: score.talk_track,
+        ai_summary: score.ai_summary,
+        urgency: score.urgency,
+        requested_tone: args.tone ?? "casual",
+        requested_angle: args.angle ?? null,
+        instruction: "Use the above data to draft a personalized outreach email. Reference specific signals and triggers. Match the requested tone.",
+      };
+    }
+
+    case "update_pipeline_stage": {
+      const domain = (args.domain as string).toLowerCase().trim();
+      const stage = args.stage as PipelineStage;
+      const { error } = await supabase
+        .from("watchlist")
+        .update({ pipeline_stage: stage, stage_changed_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("domain", domain)
+        .eq("is_active", true);
+
+      if (error) return { success: false, error: error.message };
+      return { success: true, domain, stage, message: `Moved ${domain} to "${stage}" stage` };
+    }
+
+    default:
+      return { error: `Unknown tool: ${name}` };
+  }
+}
+
+// ─── System Prompt Builder ───────────────────────────────────────────────────
+
+interface CopilotContext {
+  recentScores: Array<{ domain: string; company_name: string; score: number; score_band: string }>;
+  watchlist: Array<{ domain: string; company_name: string; score: number | null; pipeline_stage: string }>;
+}
+
+export async function buildCopilotContext(userId: string): Promise<CopilotContext> {
+  const supabase = createSupabaseAdmin();
+
+  const [scoresResult, watchlistResult] = await Promise.all([
+    supabase
+      .from("scores")
+      .select("domain, company_name, score, score_band")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("watchlist")
+      .select("domain, company_name, score, pipeline_stage")
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .order("score", { ascending: false }),
+  ]);
+
+  // Deduplicate scores by domain
+  const seen = new Set<string>();
+  const recentScores = (scoresResult.data ?? []).filter((s) => {
+    if (seen.has(s.domain)) return false;
+    seen.add(s.domain);
+    return true;
+  }).slice(0, 20);
+
+  return {
+    recentScores,
+    watchlist: watchlistResult.data ?? [],
+  };
+}
+
+export function buildCopilotSystemPrompt(user: DbUser, context: CopilotContext): string {
+  const roleInstructions = user.role === "manager" || user.role === "admin"
+    ? `ROLE: Sales Manager/Leader
+BEHAVIOR:
+- Focus on strategic pipeline analysis, trend identification, and team coaching insights
+- When asked about pipeline health, provide aggregate metrics and patterns
+- Identify companies that need attention or follow-up based on score trends
+- Suggest team-level strategies based on pipeline composition
+- Highlight risks (many cold leads, no hot leads) and opportunities (score jumps, new triggers)`
+    : `ROLE: ${user.role === "ae" ? "Account Executive" : "Sales Development Rep"}
+BEHAVIOR:
+- Focus on tactical output: company briefs, outreach angles, lead prioritization, objection handling
+- When asked about a company, lead with actionable intelligence
+- Draft emails and talk tracks that reference specific signal data
+- Prioritize leads based on intent score, urgency, and buying stage
+- Help prepare for calls with specific talking points from signal data`;
+
+  const scoreSummary = context.recentScores.length > 0
+    ? context.recentScores.map((s) => `  - ${s.company_name} (${s.domain}): ${s.score}/100 [${s.score_band}]`).join("\n")
+    : "  No companies scored yet.";
+
+  const watchlistSummary = context.watchlist.length > 0
+    ? context.watchlist.map((w) => `  - ${w.company_name} (${w.domain}): score=${w.score ?? "unscored"}, stage=${w.pipeline_stage}`).join("\n")
+    : "  Watchlist is empty.";
+
+  const hotLeads = context.watchlist.filter((w) => w.score !== null && w.score >= 75);
+  const hotSection = hotLeads.length > 0
+    ? `\nHOT LEADS REQUIRING ACTION:\n${hotLeads.map((h) => `  - ${h.company_name} (${h.domain}): ${h.score}/100`).join("\n")}`
+    : "";
+
+  const stageCounts: Record<string, number> = {};
+  for (const w of context.watchlist) {
+    const stage = w.pipeline_stage ?? "cold";
+    stageCounts[stage] = (stageCounts[stage] ?? 0) + 1;
+  }
+  const pipelineSummary = Object.entries(stageCounts).map(([s, c]) => `${s}: ${c}`).join(", ") || "empty";
+
+  return `You are IntentIQ Copilot, an AI sales intelligence assistant. You help sales teams understand and act on purchase intent signals.
+
+You have access to tools that let you score companies, manage watchlists, query pipeline data, and draft outreach. Use these tools proactively when the user's request would benefit from real data.
+
+USER CONTEXT:
+- Name/ID: ${user.id}
+- Plan: ${user.plan} | Credits: ${user.credits_remaining}
+- Product category: ${user.product_category ?? "B2B SaaS"}
+
+${roleInstructions}
+
+RECENTLY SCORED COMPANIES (last 20 unique):
+${scoreSummary}
+
+WATCHLIST (${context.watchlist.length} companies):
+${watchlistSummary}
+
+PIPELINE STAGES: ${pipelineSummary}
+${hotSection}
+
+GUIDELINES:
+- Always cite specific data from scores and signals. Never fabricate company data.
+- When you don't have data about a company, offer to score it (costs 1 credit).
+- Be concise and direct — sales reps value speed over verbose explanations.
+- When drafting emails, reference specific signals (funding rounds, hires, news events).
+- Scoring a company costs 1 credit. The user currently has ${user.credits_remaining} credits.
+- If the user asks about a company not in their data, search first, then offer to score.`;
+}

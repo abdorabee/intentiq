@@ -66,6 +66,9 @@ export interface WatchlistEntry {
   score: number;
   score_band: ScoreBand;
   is_active: boolean;
+  pipeline_stage: PipelineStage;
+  stage_changed_at: string;
+  previous_score: number | null;
 }
 
 // ─── DB Row Types ─────────────────────────────────────────────────────────────
@@ -77,6 +80,7 @@ export interface DbUser {
   plan: "free" | "starter" | "growth" | "pro" | "agency";
   credits_remaining: number;
   product_category: string | null;
+  role: UserRole;
   created_at: string;
 }
 
@@ -129,6 +133,32 @@ export interface DbCreditLog {
   reason: string;
   created_at: string;
 }
+
+// ─── Pipeline & Chat Types ───────────────────────────────────────────────────
+
+export type PipelineStage = "cold" | "warming" | "hot" | "engaged" | "converted";
+export type UserRole = "sdr" | "ae" | "manager" | "admin";
+
+export interface DbChatSession {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbChatMessage {
+  id: string;
+  session_id: string;
+  role: "user" | "assistant" | "tool";
+  content: string;
+  tool_calls: unknown | null;
+  tool_result: unknown | null;
+  tokens_used: number;
+  created_at: string;
+}
+
+export const CHAT_CREDIT_COST = 0.25;
 
 // ─── Plan Config ──────────────────────────────────────────────────────────────
 

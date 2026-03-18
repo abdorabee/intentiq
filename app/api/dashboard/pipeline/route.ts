@@ -15,6 +15,7 @@ export interface PipelineCompany {
   ai_summary: string | null;
   key_triggers: string[] | null;
   urgency: string | null;
+  pipeline_stage: string;
 }
 
 export async function GET() {
@@ -75,6 +76,7 @@ export async function GET() {
       ai_summary: latest?.ai_summary ?? null,
       key_triggers: latest?.key_triggers ?? null,
       urgency: latest?.urgency ?? null,
+      pipeline_stage: w.pipeline_stage ?? "cold",
     };
   });
 

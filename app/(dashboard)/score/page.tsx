@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Check, Mail, Zap } from "lucide-react";
 import type { IntentScore } from "@/lib/types";
+import {
+  SignalRadarChart,
+  SignalDonut,
+  BuyingJourney,
+  UrgencyMeter,
+  KeyTriggersVisual,
+} from "@/components/score/reasoning-visuals";
 
 const SIGNAL_LABELS = {
   funding:    "Funding & Growth",
@@ -193,8 +200,8 @@ export default function ScoreExplorerPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[SCORE]</span>
-        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Score Explorer</h1>
+        <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.25em] uppercase">[SCORE]</span>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Score Explorer</h1>
         <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Enter a domain to get a full intent score with signal breakdown.</p>
       </div>
 
@@ -204,7 +211,7 @@ export default function ScoreExplorerPage() {
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleScore()}
-          className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+          className="bg-slate-50 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500/50"
         />
         <Button
           onClick={handleScore}
@@ -224,15 +231,15 @@ export default function ScoreExplorerPage() {
         return (
           <div className="space-y-4">
             {/* Score dial */}
-            <Card className={`border-white/[0.08] ${cfg.glow}`}>
+            <Card className={`border-slate-200 dark:border-white/[0.08] ${cfg.glow}`}>
               <CardContent className="flex items-center gap-6 pt-6 flex-wrap">
                 <div className={`p-[3px] rounded-full flex-shrink-0 bg-gradient-to-br ${cfg.ring} ${cfg.pulse}`}>
-                  <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-[#020617]">
+                  <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-white dark:bg-[#020617]">
                     <span className={`text-4xl font-black ${cfg.score}`}>{result.intent_score}</span>
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-bold text-slate-100">{result.company}</h2>
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{result.company}</h2>
                   <p className="text-slate-400 text-sm">{result.domain}</p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <Badge className={`${cfg.badge}`}>{result.score_band}</Badge>
@@ -260,101 +267,107 @@ export default function ScoreExplorerPage() {
               </CardContent>
             </Card>
 
-            {/* Signal breakdown */}
-            <Card className="border-white/[0.08]">
-              <CardHeader><CardTitle className="text-slate-100">Signal Breakdown</CardTitle></CardHeader>
-              <CardContent className="space-y-5">
-                {(Object.keys(SIGNAL_LABELS) as Array<keyof typeof SIGNAL_LABELS>).map((key) => {
-                  const sig = result.signals[key];
-                  const pct = (sig.score / sig.max) * 100;
-                  return (
-                    <div key={key}>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-medium text-slate-200">{SIGNAL_LABELS[key]}</span>
-                        <span className="text-slate-500 font-mono text-xs">{sig.score}/{sig.max}</span>
+            {/* Signal breakdown — visual */}
+            <Card className="border-slate-200 dark:border-white/[0.08]">
+              <CardHeader><CardTitle className="text-slate-800 dark:text-slate-100">Signal Breakdown</CardTitle></CardHeader>
+              <CardContent className="space-y-6">
+                {/* Radar + Donut side by side */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-600 mb-2 text-center">Signal Radar</p>
+                    <SignalRadarChart signals={result.signals} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-600 mb-2 text-center">Score Composition</p>
+                    <SignalDonut signals={result.signals} totalScore={result.intent_score} />
+                  </div>
+                </div>
+
+                {/* Traditional bars with details */}
+                <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-white/[0.06]">
+                  {(Object.keys(SIGNAL_LABELS) as Array<keyof typeof SIGNAL_LABELS>).map((key) => {
+                    const sig = result.signals[key];
+                    const pct = (sig.score / sig.max) * 100;
+                    return (
+                      <div key={key}>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">{SIGNAL_LABELS[key]}</span>
+                          <span className="text-slate-400 dark:text-slate-500 font-mono text-xs">{sig.score}/{sig.max}</span>
+                        </div>
+                        <div className="relative h-2.5 bg-slate-200 dark:bg-white/[0.06] overflow-hidden">
+                          <div
+                            className={`h-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1.5">{sig.detail}</p>
                       </div>
-                      <div className="relative h-2.5 bg-white/[0.06] overflow-hidden">
-                        <div
-                          className={`h-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1.5">{sig.detail}</p>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
 
-            {/* AI Analysis */}
-            <Card className="border-white/[0.08]">
+            {/* AI Analysis — visual */}
+            <Card className="border-slate-200 dark:border-white/[0.08]">
               <CardHeader>
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <CardTitle className="text-slate-100">AI Analysis</CardTitle>
-                  <div className="flex gap-2">
-                    {result.buying_stage && (
-                      <span className="text-xs bg-white/[0.07] text-slate-300 px-2.5 py-1 font-medium capitalize border border-white/[0.08]">
-                        {result.buying_stage}
-                      </span>
-                    )}
-                    {result.urgency && (
-                      <span className={`text-xs px-2.5 py-1 font-medium border ${
-                        result.urgency === "act-now"    ? "bg-red-500/15 text-red-400 border-red-500/30"
-                        : result.urgency === "this-week"  ? "bg-orange-500/15 text-orange-400 border-orange-500/30"
-                        : result.urgency === "this-month" ? "bg-blue-500/15 text-blue-400 border-blue-500/30"
-                        :                                   "bg-slate-500/15 text-slate-400 border-slate-500/30"
-                      }`}>
-                        {result.urgency}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <CardTitle className="text-slate-800 dark:text-slate-100">AI Analysis</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-slate-300 leading-relaxed">{result.ai_summary}</p>
+              <CardContent className="space-y-5">
+                {/* Buying Journey + Urgency side by side */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {result.buying_stage && (
+                    <BuyingJourney stage={result.buying_stage} />
+                  )}
+                  {result.urgency && (
+                    <UrgencyMeter urgency={result.urgency} />
+                  )}
+                </div>
 
+                {/* AI Summary */}
+                <div className="border-l-2 border-cyan-500/40 pl-4">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{result.ai_summary}</p>
+                </div>
+
+                {/* Why Now */}
                 {result.why_now && (
                   <div className="border-l-2 border-amber-500/60 bg-amber-500/10 px-4 py-3 border border-amber-500/15">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-500 mb-1">Why Now</p>
-                    <p className="text-sm text-amber-200/80">{result.why_now}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-500 mb-1">Why Now</p>
+                    <p className="text-sm text-amber-800/80 dark:text-amber-200/80">{result.why_now}</p>
                   </div>
                 )}
 
-                {result.key_triggers && result.key_triggers.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
-                    <div className="flex flex-wrap gap-2">
-                      {result.key_triggers.map((t, i) => (
-                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 border border-white/[0.08]">{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Key Triggers — visual cards */}
+                <KeyTriggersVisual triggers={result.key_triggers} />
 
+                {/* Recommended Action */}
                 <div className="bg-cyan-500/10 border border-cyan-500/20 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400 mb-1.5">Recommended Action</p>
-                  <p className="text-sm font-medium text-slate-200">{result.recommended_action}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-cyan-600 dark:text-cyan-400 mb-1.5">Recommended Action</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{result.recommended_action}</p>
                 </div>
 
+                {/* Email Subject */}
                 {result.email_subject && (
-                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Email Subject</p>
-                    <p className="text-sm font-mono text-slate-300">{result.email_subject}</p>
+                  <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-1.5">Email Subject</p>
+                    <p className="text-sm font-mono text-slate-700 dark:text-slate-300">{result.email_subject}</p>
                   </div>
                 )}
 
+                {/* Talk Track */}
                 {result.talk_track && (
-                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Talk Track</p>
-                    <p className="text-sm italic text-slate-400">{result.talk_track}</p>
+                  <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-1.5">Talk Track</p>
+                    <p className="text-sm italic text-slate-500 dark:text-slate-400">{result.talk_track}</p>
                   </div>
                 )}
 
+                {/* Action buttons */}
                 <div className="flex gap-2 flex-wrap">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    className="border-slate-200 dark:border-white/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-1.5"
                     onClick={handleCopyEmail}
                   >
                     <Mail className="h-3.5 w-3.5" />
@@ -363,7 +376,7 @@ export default function ScoreExplorerPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer"
+                    className="border-slate-200 dark:border-white/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer"
                     onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
                   >
                     Copy JSON
