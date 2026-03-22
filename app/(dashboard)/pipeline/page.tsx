@@ -36,10 +36,10 @@ const STAGE_CONFIG: Record<StageKey, {
   cold: {
     label: "COLD",
     desc: "Nurture",
-    headerClass: "border-slate-500/30 bg-white/[0.03]",
+    headerClass: "border-slate-500/30 bg-slate-50 dark:bg-white/[0.03]",
     titleClass: "text-slate-400",
     dotClass: "bg-slate-500",
-    scoreClass: "text-slate-300",
+    scoreClass: "text-slate-600 dark:text-slate-300",
     badgeClass: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
   },
   warming: {
@@ -140,12 +140,21 @@ function CompanyCard({
 
   return (
     <div
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", company.domain);
+        e.dataTransfer.effectAllowed = "move";
+        (e.currentTarget as HTMLElement).style.opacity = "0.5";
+      }}
+      onDragEnd={(e) => {
+        (e.currentTarget as HTMLElement).style.opacity = "1";
+      }}
       onClick={() => onSelect(company)}
-      className="border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] p-4 space-y-3 cursor-pointer transition-all duration-200 hover:border-white/[0.12]"
+      className="border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.06] p-4 space-y-3 cursor-grab transition-all duration-200 hover:border-slate-300 dark:hover:border-white/[0.12] active:cursor-grabbing"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-semibold text-slate-100 text-sm truncate">{company.company_name}</p>
+          <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">{company.company_name}</p>
           <p className="text-xs text-slate-500 truncate">{company.domain}</p>
         </div>
         <span className={`text-xl font-black shrink-0 ${cfg.scoreClass}`}>{company.score ?? "—"}</span>
@@ -166,22 +175,22 @@ function CompanyCard({
         </p>
       )}
 
-      <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+      <div className="flex gap-1.5 pt-1 w-full" onClick={(e) => e.stopPropagation()}>
         <Button
           size="sm"
           variant="outline"
           onClick={handleCopyEmail}
           disabled={!company.email_subject && !company.talk_track}
-          className="flex-1 h-7 text-xs border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
+          className="h-7 text-[10px] px-2 shrink-0 border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.08] cursor-pointer gap-1"
         >
-          {emailCopied ? <><Check className="h-3 w-3" />Copied!</> : <><Mail className="h-3 w-3" />Email</>}
+          {emailCopied ? <><Check className="h-3 w-3" />✓</> : <><Mail className="h-3 w-3" />Email</>}
         </Button>
         {nextStage && stage !== "converted" ? (
           <Button
             size="sm"
             variant="outline"
             onClick={(e) => { e.stopPropagation(); onStageChange(company.domain, nextStage); }}
-            className="flex-1 h-7 text-xs border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
+            className="flex-1 min-w-0 h-7 text-[10px] px-2 border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.08] cursor-pointer gap-1 truncate"
           >
             → {STAGE_CONFIG[nextStage].label}
           </Button>
@@ -191,9 +200,9 @@ function CompanyCard({
             variant="outline"
             onClick={(e) => { e.stopPropagation(); onRescore(company.domain); }}
             disabled={isRescoring}
-            className="flex-1 h-7 text-xs border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.08] cursor-pointer gap-1"
+            className="flex-1 min-w-0 h-7 text-[10px] px-2 border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.08] cursor-pointer gap-1 truncate"
           >
-            <RefreshCw className={`h-3 w-3 ${isRescoring ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3 w-3 shrink-0 ${isRescoring ? "animate-spin" : ""}`} />
             {isRescoring ? "Scoring…" : "Re-score"}
           </Button>
         )}
@@ -217,9 +226,24 @@ function PipelineColumn({
   onStageChange: (domain: string, stage: StageKey) => void;
   rescoring: string | null;
 }) {
+  const [dragOver, setDragOver] = useState(false);
   const cfg = STAGE_CONFIG[stage];
   return (
-    <div className="flex flex-col gap-3 min-w-0">
+    <div
+      className={`flex flex-col gap-3 min-w-0 transition-all duration-200 ${dragOver ? "ring-2 ring-cyan-500/40 rounded-sm" : ""}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+        const domain = e.dataTransfer.getData("text/plain");
+        if (domain) onStageChange(domain, stage);
+      }}
+    >
       <div className={`border px-4 py-3 flex items-center justify-between ${cfg.headerClass}`}>
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${cfg.dotClass} ${stage === "hot" ? "animate-pulse" : ""}`} />
@@ -229,10 +253,10 @@ function PipelineColumn({
         <span className="text-xs font-mono text-slate-500">{companies.length}</span>
       </div>
 
-      <div className="space-y-2">
+      <div className={`space-y-2 min-h-[80px] ${dragOver ? "bg-cyan-500/5" : ""}`}>
         {companies.length === 0 ? (
-          <div className="border border-dashed border-white/[0.06] px-4 py-8 text-center">
-            <p className="text-xs text-slate-600">No {cfg.label.toLowerCase()} companies</p>
+          <div className={`border border-dashed px-4 py-8 text-center ${dragOver ? "border-cyan-500/30" : "border-slate-200 dark:border-white/[0.06]"}`}>
+            <p className="text-xs text-slate-600">{dragOver ? `Drop here → ${cfg.label}` : `No ${cfg.label.toLowerCase()} companies`}</p>
           </div>
         ) : (
           companies.map((c) => (
@@ -363,7 +387,7 @@ export default function PipelinePage() {
     <div className="space-y-6">
       <div>
         <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[PIPELINE]</span>
-        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Intent Pipeline</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Intent Pipeline</h1>
         <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">
           Track companies through intent stages — from cold signals to converted deals.
         </p>
@@ -405,12 +429,12 @@ export default function PipelinePage() {
 
       {/* Detail Dialog */}
       <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setDialogEmailCopied(false); } }}>
-        <DialogContent className="border-white/[0.08] bg-[#0c1122] max-w-lg">
+        <DialogContent className="border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0c1122] max-w-lg">
           {selected && selectedCfg && (
             <>
               <DialogHeader>
                 <div className="flex items-center justify-between gap-3 flex-wrap pr-6">
-                  <DialogTitle className="text-slate-100 text-lg">{selected.company_name}</DialogTitle>
+                  <DialogTitle className="text-slate-800 dark:text-slate-100 text-lg">{selected.company_name}</DialogTitle>
                   <div className="flex items-center gap-2">
                     <Badge className={`${selectedCfg.badgeClass}`}>{selectedCfg.label}</Badge>
                     <span className={`text-2xl font-black ${selectedCfg.scoreClass}`}>{selected.score ?? "—"}</span>
@@ -443,7 +467,7 @@ export default function PipelinePage() {
                             setSelected({ ...selected, pipeline_stage: s });
                           }}
                           className={`text-[10px] px-2.5 py-1 border transition-colors cursor-pointer ${
-                            isActive ? sCfg.badgeClass : "border-white/[0.08] text-slate-600 hover:text-slate-400 hover:border-white/[0.15]"
+                            isActive ? sCfg.badgeClass : "border-slate-200 dark:border-white/[0.08] text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 hover:border-slate-300 dark:hover:border-white/[0.15]"
                           }`}
                         >
                           {sCfg.label}
@@ -454,9 +478,9 @@ export default function PipelinePage() {
                 </div>
 
                 {selected.ai_summary && (
-                  <div className="bg-white/[0.04] border border-white/[0.07] px-4 py-3">
+                  <div className="bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">AI Analysis</p>
-                    <p className="text-sm text-slate-300 leading-relaxed">{selected.ai_summary}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{selected.ai_summary}</p>
                   </div>
                 )}
 
@@ -465,21 +489,21 @@ export default function PipelinePage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
                     <div className="flex flex-wrap gap-2">
                       {selected.key_triggers.map((t, i) => (
-                        <span key={i} className="text-xs bg-white/[0.06] text-slate-300 px-2.5 py-1 border border-white/[0.08]">{t}</span>
+                        <span key={i} className="text-xs bg-slate-100 dark:bg-white/[0.06] text-slate-600 dark:text-slate-300 px-2.5 py-1 border border-slate-200 dark:border-white/[0.08]">{t}</span>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {selected.email_subject && (
-                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Email Subject</p>
-                    <p className="text-sm font-mono text-slate-300">{selected.email_subject}</p>
+                    <p className="text-sm font-mono text-slate-600 dark:text-slate-300">{selected.email_subject}</p>
                   </div>
                 )}
 
                 {selected.talk_track && (
-                  <div className="border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Talk Track</p>
                     <p className="text-sm italic text-slate-400">{selected.talk_track}</p>
                   </div>
@@ -495,11 +519,11 @@ export default function PipelinePage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-white/[0.10] text-slate-400 hover:text-slate-100 hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    className="border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-1.5"
                     asChild
                   >
                     <a
-                      href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(selected.company_name)}`}
+                      href={`https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(selected.company_name)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

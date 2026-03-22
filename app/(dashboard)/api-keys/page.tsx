@@ -61,7 +61,7 @@ export default function ApiKeysPage() {
     <div className="max-w-3xl space-y-6">
       <div>
         <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[API KEYS]</span>
-        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Manage Keys</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Manage Keys</h1>
         <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Generate and manage keys for programmatic access.</p>
       </div>
 
@@ -77,7 +77,7 @@ export default function ApiKeysPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
-              <code className="flex-1 block bg-white/[0.05] border border-white/[0.08] px-4 py-3 text-sm text-slate-300 break-all font-mono">
+              <code className="flex-1 block bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08] px-4 py-3 text-sm text-slate-600 dark:text-slate-300 break-all font-mono">
                 {newKey}
               </code>
               <Button
@@ -86,7 +86,7 @@ export default function ApiKeysPage() {
                 className={`shrink-0 gap-1.5 cursor-pointer h-9 px-3 ${
                   copied
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
-                    : "bg-white/[0.08] border border-white/[0.12] text-slate-300 hover:bg-white/[0.12]"
+                    : "bg-slate-100 dark:bg-white/[0.08] border border-slate-300 dark:border-white/[0.12] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.12]"
                 }`}
               >
                 {copied ? <><Check className="h-3.5 w-3.5" />Copied!</> : <><Copy className="h-3.5 w-3.5" />Copy</>}
@@ -98,15 +98,15 @@ export default function ApiKeysPage() {
       )}
 
       {/* Generate form */}
-      <Card className="border-white/[0.08]">
-        <CardHeader><CardTitle className="text-slate-100">Generate New Key</CardTitle></CardHeader>
+      <Card className="border-slate-200 dark:border-white/[0.08]">
+        <CardHeader><CardTitle className="text-slate-800 dark:text-slate-100">Generate New Key</CardTitle></CardHeader>
         <CardContent className="flex gap-2">
           <Input
             placeholder="Label (e.g. Production)"
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generateKey()}
-            className="bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+            className="bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
           />
           <Button
             onClick={generateKey}
@@ -119,8 +119,8 @@ export default function ApiKeysPage() {
       </Card>
 
       {/* Keys list */}
-      <Card className="border-white/[0.08]">
-        <CardHeader><CardTitle className="text-slate-100">Your Keys</CardTitle></CardHeader>
+      <Card className="border-slate-200 dark:border-white/[0.08]">
+        <CardHeader><CardTitle className="text-slate-800 dark:text-slate-100">Your Keys</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           {keys.length === 0 && (
             <p className="text-sm text-slate-500">No API keys yet.</p>
@@ -128,10 +128,10 @@ export default function ApiKeysPage() {
           {keys.map((k) => (
             <div
               key={k.id}
-              className="flex items-center justify-between border border-white/[0.08] bg-white/[0.03] px-4 py-3 hover:bg-white/[0.06] transition-colors gap-4"
+              className="flex items-center justify-between border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors gap-4"
             >
               <div className="min-w-0">
-                <p className="font-medium text-slate-200">{k.label}</p>
+                <p className="font-medium text-slate-700 dark:text-slate-200">{k.label}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Created: {new Date(k.created_at).toLocaleDateString()}
                   {" · "}
@@ -162,10 +162,10 @@ export default function ApiKeysPage() {
       </Card>
 
       {/* Quick start */}
-      <Card className="border-white/[0.08]">
-        <CardHeader><CardTitle className="text-slate-100">Quick Start</CardTitle></CardHeader>
+      <Card className="border-slate-200 dark:border-white/[0.08]">
+        <CardHeader><CardTitle className="text-slate-800 dark:text-slate-100">Quick Start</CardTitle></CardHeader>
         <CardContent>
-          <pre className="bg-white/[0.05] border border-white/[0.08] text-slate-300 p-4 text-sm overflow-x-auto">
+          <pre className="bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 p-4 text-sm overflow-x-auto">
             {curlSnippet}
           </pre>
         </CardContent>

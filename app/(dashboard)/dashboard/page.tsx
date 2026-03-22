@@ -29,7 +29,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[DASHBOARD]</span>
-        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Overview</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Overview</h1>
         <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Welcome back. Here&apos;s your lead intelligence overview.</p>
       </div>
 
@@ -40,15 +40,15 @@ export default async function DashboardPage() {
             <Zap className="h-5 w-5 text-cyan-400" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-slate-100 mb-1">Welcome to IntentIQ</p>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Welcome to IntentIQ</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
               Score your first company to see purchase intent signals, AI analysis, and sales actions — all in one view.
             </p>
             <div className="flex gap-3 flex-wrap">
               <Button asChild size="sm" className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer">
                 <Link href="/score">Score a Company</Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="border-white/[0.12] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer">
+              <Button asChild variant="outline" size="sm" className="border-slate-300 dark:border-white/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer">
                 <Link href="/api-keys">Get API Key</Link>
               </Button>
             </div>
@@ -57,9 +57,9 @@ export default async function DashboardPage() {
       )}
 
       {/* Quick Score — primary action, always first */}
-      <Card className="border-white/[0.08]">
+      <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader>
-          <CardTitle className="text-slate-100">Quick Score</CardTitle>
+          <CardTitle className="text-slate-800 dark:text-slate-100">Quick Score</CardTitle>
         </CardHeader>
         <CardContent>
           <QuickScore />
@@ -72,16 +72,16 @@ export default async function DashboardPage() {
           const credits = profile?.credits_remaining ?? 0;
           const lowCredits = credits < 5;
           return (
-            <Card className={`overflow-hidden ${lowCredits ? "border-amber-500/30" : "border-white/[0.08]"}`}>
+            <Card className={`overflow-hidden ${lowCredits ? "border-amber-500/30" : "border-slate-200 dark:border-white/[0.08]"}`}>
               <div className={`h-px bg-gradient-to-r ${lowCredits ? "from-amber-500 via-orange-400 to-transparent" : "from-cyan-500 via-sky-400 to-transparent"}`} />
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
                   Credits Remaining
                   {lowCredits && <span className="text-[10px] font-bold uppercase tracking-wide text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5">Low</span>}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${lowCredits ? "text-amber-400" : "text-slate-100"}`}>{credits}</div>
+                <div className={`text-2xl font-bold ${lowCredits ? "text-amber-400" : "text-slate-800 dark:text-slate-100"}`}>{credits}</div>
                 <p className="text-xs text-slate-500 capitalize mt-0.5">{profile?.plan ?? "free"} plan</p>
               </CardContent>
             </Card>
@@ -91,10 +91,10 @@ export default async function DashboardPage() {
         {(() => {
           const count = hotLeads?.length ?? 0;
           return (
-            <Card className={`overflow-hidden ${count > 0 ? "border-emerald-500/30 animate-score-hot" : "border-white/[0.08]"}`}>
+            <Card className={`overflow-hidden ${count > 0 ? "border-emerald-500/30 animate-score-hot" : "border-slate-200 dark:border-white/[0.08]"}`}>
               <div className="h-px bg-gradient-to-r from-emerald-500 via-green-400 to-transparent" />
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-slate-400">HOT Leads</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">HOT Leads</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className={`font-bold text-emerald-400 ${count > 0 ? "text-3xl" : "text-2xl"}`}>{count}</div>
@@ -104,13 +104,13 @@ export default async function DashboardPage() {
           );
         })()}
 
-        <Card className="border-white/[0.08] overflow-hidden">
+        <Card className="border-slate-200 dark:border-white/[0.08] overflow-hidden">
           <div className="h-px bg-gradient-to-r from-blue-400 via-cyan-400 to-transparent" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Scores Run</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Scores Run</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-100">{totalScores ?? 0}</div>
+            <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{totalScores ?? 0}</div>
             <p className="text-xs text-slate-500 mt-0.5">Total scored companies</p>
           </CardContent>
         </Card>
@@ -139,10 +139,10 @@ export default async function DashboardPage() {
               {hotLeads!.map((lead) => (
                 <div
                   key={lead.id}
-                  className="flex items-center justify-between border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
+                  className="flex items-center justify-between border border-slate-200 dark:border-white/[0.06] px-4 py-3 bg-slate-50 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div>
-                    <p className="font-medium text-slate-200">{lead.company_name}</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-200">{lead.company_name}</p>
                     <p className="text-sm text-slate-500">{lead.domain}</p>
                   </div>
                   <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -156,9 +156,9 @@ export default async function DashboardPage() {
       )}
 
       {/* Recent Scores */}
-      <Card className="border-white/[0.08]">
+      <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader>
-          <CardTitle className="text-slate-100">Recent Scores</CardTitle>
+          <CardTitle className="text-slate-800 dark:text-slate-100">Recent Scores</CardTitle>
         </CardHeader>
         <CardContent>
           {isNewUser ? (
@@ -168,10 +168,10 @@ export default async function DashboardPage() {
               {recentScores!.map((s) => (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between border border-white/[0.06] px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer"
+                  className="flex items-center justify-between border border-slate-200 dark:border-white/[0.06] px-4 py-3 bg-slate-50 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   <div>
-                    <p className="font-medium text-slate-200">{s.company_name}</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-200">{s.company_name}</p>
                     <p className="text-xs text-slate-500">{s.domain}</p>
                   </div>
                   <Badge className={

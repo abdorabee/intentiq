@@ -76,7 +76,8 @@ export interface WatchlistEntry {
 export interface DbUser {
   id: string;
   email: string;
-  stripe_customer_id: string | null;
+  lemon_customer_id: string | null;
+  lemon_subscription_id: string | null;
   plan: "free" | "starter" | "growth" | "pro" | "agency";
   credits_remaining: number;
   product_category: string | null;

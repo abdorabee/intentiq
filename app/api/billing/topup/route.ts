@@ -1,61 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
-import { getStripe } from "@/lib/stripe";
+import { auth } from "@clerk/nextjs/server";
+import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
+import { initLemonSqueezy } from "@/lib/lemonsqueezy";
 
-// Credit packs: amount → { credits, price_cents }
-const CREDIT_PACKS: Record<string, { credits: number; price_cents: number }> = {
-  "100":  { credits: 100,  price_cents: 800  },
-  "500":  { credits: 500,  price_cents: 4000 },
-  "1000": { credits: 1000, price_cents: 8000 },
+const CREDIT_PACK_VARIANTS: Record<string, { credits: number; variantId: string }> = {
+  "100":  { credits: 100,  variantId: process.env.LEMON_VARIANT_TOPUP_100  ?? "" },
+  "500":  { credits: 500,  variantId: process.env.LEMON_VARIANT_TOPUP_500  ?? "" },
+  "1000": { credits: 1000, variantId: process.env.LEMON_VARIANT_TOPUP_1000 ?? "" },
 };
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const clerkUser = await currentUser();
 
   const formData = await req.formData();
   const amount = formData.get("amount") as string;
-  const pack = CREDIT_PACKS[amount];
+  const pack = CREDIT_PACK_VARIANTS[amount];
 
   if (!pack) {
     return NextResponse.json({ error: "Invalid credit amount" }, { status: 400 });
   }
-
-  const admin = createSupabaseAdmin();
-  const { data: profile } = await admin
-    .from("users")
-    .select("stripe_customer_id, email")
-    .eq("id", userId)
-    .single();
-
-  let customerId = profile?.stripe_customer_id;
-  if (!customerId) {
-    const customer = await getStripe().customers.create({
-      email: profile?.email ?? clerkUser?.emailAddresses[0]?.emailAddress,
-      metadata: { supabase_user_id: userId },
-    });
-    customerId = customer.id;
-    await admin.from("users").update({ stripe_customer_id: customerId }).eq("id", userId);
+  if (!pack.variantId) {
+    return NextResponse.json({ error: "Payment not configured. Set LEMON_VARIANT_TOPUP_* env vars." }, { status: 503 });
   }
 
+  initLemonSqueezy();
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
-  const session = await getStripe().checkout.sessions.create({
-    customer: customerId,
-    mode: "payment",
-    line_items: [{
-      price_data: {
-        currency: "usd",
-        product_data: { name: `IntentIQ — ${pack.credits} Credits` },
-        unit_amount: pack.price_cents,
+  const storeId = process.env.LEMONSQUEEZY_STORE_ID!;
+
+  const { data: checkout, error } = await createCheckout(storeId, pack.variantId, {
+    checkoutData: {
+      custom: {
+        user_id: userId,
+        credits: String(pack.credits),
+        type: "topup",
       },
-      quantity: 1,
-    }],
-    success_url: `${origin}/billing?topup=true`,
-    cancel_url: `${origin}/billing`,
-    metadata: { supabase_user_id: userId, credits: String(pack.credits), type: "topup" },
+    },
+    productOptions: {
+      redirectUrl: `${origin}/billing?topup=true`,
+    },
   });
 
-  return NextResponse.redirect(session.url!, 303);
+  const checkoutUrl = checkout?.data?.attributes?.url;
+  if (!checkoutUrl || error) {
+    console.error("[billing/topup] failed:", error);
+    return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 });
+  }
+
+  return NextResponse.redirect(checkoutUrl, 303);
 }

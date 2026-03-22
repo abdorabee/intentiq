@@ -9,7 +9,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!userId) redirect("/login");
 
   // Provision user row in Supabase on first login (no-op if already exists)
-  const user = await currentUser();
+  let user;
+  try {
+    user = await currentUser();
+  } catch {
+    // Clerk API may be unreachable or keys misconfigured — continue with null user
+    user = null;
+  }
+
   const admin = createSupabaseAdmin();
   const [, { data: profile }] = await Promise.all([
     admin.from("users").upsert(

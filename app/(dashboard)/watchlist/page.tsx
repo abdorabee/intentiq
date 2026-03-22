@@ -93,14 +93,14 @@ export default function WatchlistPage() {
     <div className="space-y-6">
       <div>
         <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[WATCHLIST]</span>
-        <h1 className="text-2xl font-bold text-white tracking-tight mt-2">Monitored Companies</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Monitored Companies</h1>
         <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Companies you&apos;re monitoring — re-scored weekly.</p>
       </div>
 
       {/* Add Company Form */}
-      <Card className="border-white/[0.08]">
+      <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader className="pb-3">
-          <CardTitle className="text-slate-100 text-base">Add Company</CardTitle>
+          <CardTitle className="text-slate-800 dark:text-slate-100 text-base">Add Company</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2 flex-wrap">
@@ -109,14 +109,14 @@ export default function WatchlistPage() {
               value={addDomain}
               onChange={(e) => setAddDomain(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 min-w-[160px] bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+              className="flex-1 min-w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
             />
             <Input
               placeholder="Company name (optional)"
               value={addCompany}
               onChange={(e) => setAddCompany(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 min-w-[160px] bg-white/[0.05] border-white/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+              className="flex-1 min-w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
             />
             <Button
               onClick={handleAdd}
@@ -137,19 +137,19 @@ export default function WatchlistPage() {
       </Card>
 
       {/* Watchlist Table */}
-      <Card className="border-white/[0.08]">
+      <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader>
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <CardTitle className="text-slate-100">
+            <CardTitle className="text-slate-800 dark:text-slate-100">
               Monitored Companies
             </CardTitle>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FilterTab)}>
-              <TabsList className="bg-white/[0.05] border border-white/[0.08]">
+              <TabsList className="bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08]">
                 {(["ALL", "HOT", "WARM", "COLD"] as FilterTab[]).map((tab) => (
                   <TabsTrigger
                     key={tab}
                     value={tab}
-                    className="text-xs data-[state=active]:bg-white/[0.1] data-[state=active]:text-slate-100 text-slate-500 gap-1.5"
+                    className="text-xs data-[state=active]:bg-slate-200 dark:data-[state=active]:bg-white/[0.1] data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 text-slate-500 gap-1.5"
                   >
                     {tab}
                     <span className="font-mono text-[10px] opacity-60">{counts[tab]}</span>
@@ -178,7 +178,7 @@ export default function WatchlistPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-white/[0.06] hover:bg-transparent">
+                  <TableRow className="border-slate-200 dark:border-white/[0.06] hover:bg-transparent">
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Company</TableHead>
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Domain</TableHead>
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Score</TableHead>
@@ -191,11 +191,11 @@ export default function WatchlistPage() {
                   {filtered.map((item) => (
                     <TableRow
                       key={item.id}
-                      className="border-white/[0.04] hover:bg-white/[0.03] transition-colors"
+                      className="border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors"
                     >
-                      <TableCell className="font-medium text-slate-200">{item.company_name}</TableCell>
+                      <TableCell className="font-medium text-slate-700 dark:text-slate-200">{item.company_name}</TableCell>
                       <TableCell className="text-slate-500 text-sm">{item.domain}</TableCell>
-                      <TableCell className="font-bold text-slate-100">{item.score ?? "—"}</TableCell>
+                      <TableCell className="font-bold text-slate-800 dark:text-slate-100">{item.score ?? "—"}</TableCell>
                       <TableCell>
                         {item.score_band ? (
                           <Badge className={`text-xs ${bandClass(item.score_band)}`}>
