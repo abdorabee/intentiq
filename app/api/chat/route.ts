@@ -5,8 +5,8 @@ import { COPILOT_TOOLS, executeTool, buildCopilotContext, buildCopilotSystemProm
 import { CHAT_CREDIT_COST } from "@/lib/types";
 import type { DbUser } from "@/lib/types";
 
-// OpenRouter model for copilot chat — supports tool calling
 const COPILOT_MODEL = process.env.COPILOT_MODEL ?? "anthropic/claude-sonnet-4";
+const COPILOT_MAX_TOKENS = Number(process.env.COPILOT_MAX_TOKENS) || 1024;
 
 interface OpenRouterMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -44,7 +44,7 @@ async function callOpenRouter(messages: OpenRouterMessage[], systemPrompt: strin
     },
     body: JSON.stringify({
       model: COPILOT_MODEL,
-      max_tokens: 2048,
+      max_tokens: COPILOT_MAX_TOKENS,
       temperature: 0.4,
       messages: [
         { role: "system", content: systemPrompt },
@@ -56,6 +56,11 @@ async function callOpenRouter(messages: OpenRouterMessage[], systemPrompt: strin
 
   if (!res.ok) {
     const text = await res.text();
+    if (res.status === 402) {
+      throw new Error(
+        "The AI service has run out of credits. Please top up your OpenRouter balance or reduce COPILOT_MAX_TOKENS."
+      );
+    }
     throw new Error(`OpenRouter ${res.status}: ${text}`);
   }
 
@@ -214,7 +219,8 @@ export async function POST(req: NextRequest) {
         controller.close();
       } catch (err) {
         console.error("[chat] error:", err);
-        send({ type: "error", message: "An error occurred while processing your request." });
+        const msg = err instanceof Error ? err.message : "An error occurred while processing your request.";
+        send({ type: "error", message: msg });
         controller.close();
       }
     },
