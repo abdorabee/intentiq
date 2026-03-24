@@ -103,8 +103,8 @@ export default function DocsPage() {
           <Button variant="ghost" className="rounded-full text-slate-400 hover:text-slate-100" asChild>
             <Link href="/login">Sign in</Link>
           </Button>
-          <Button className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white border-0" asChild>
-            <Link href="/api-keys">Get API key</Link>
+          <Button disabled className="rounded-full bg-slate-600 text-slate-400 border-0 cursor-not-allowed">
+            API Keys — Coming Soon
           </Button>
         </div>
       </nav>

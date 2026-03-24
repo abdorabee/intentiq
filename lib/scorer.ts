@@ -27,7 +27,7 @@ export function computeIntentScore(
   company: string,
   domain: string,
   signals: SignalSet
-): Omit<IntentScore, "ai_summary" | "recommended_action" | "buying_stage" | "urgency" | "key_triggers" | "why_now" | "email_subject" | "talk_track"> {
+): Omit<IntentScore, "ai_summary" | "recommended_action" | "buying_stage" | "urgency" | "key_triggers" | "why_now" | "email_subject" | "talk_track" | "model_tier"> {
   // Weighted sum (0–100)
   const rawScore = (Object.keys(WEIGHTS) as Array<keyof typeof WEIGHTS>).reduce(
     (acc, key) => {

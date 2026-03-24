@@ -70,13 +70,23 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentSco
   // ── Score ─────────────────────────────────────────────────────────────────
   const partial = computeIntentScore(lookupCompany, lookupDomain, signals);
 
+  // ── Detect first vs re-score ─────────────────────────────────────────────
+  const { data: existingScore } = await supabase
+    .from("scores")
+    .select("id")
+    .eq("domain", lookupDomain)
+    .limit(1)
+    .maybeSingle();
+  const isFirstScore = !existingScore;
+
   // ── AI Reasoning ─────────────────────────────────────────────────────────
   const reasoning = await generateReasoning(
     lookupCompany,
     partial.intent_score,
     partial.score_band,
     signals,
-    productCategory
+    productCategory,
+    isFirstScore
   );
 
   const result: IntentScore = { ...partial, ...reasoning };

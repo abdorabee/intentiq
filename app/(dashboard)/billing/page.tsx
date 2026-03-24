@@ -1,17 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { PLAN_CREDITS } from "@/lib/types";
-
-const PLANS = [
-  { id: "starter", label: "Starter", price: "$49/mo", credits: 500, watchlist: 50 },
-  { id: "growth",  label: "Growth",  price: "$149/mo", credits: 2500, watchlist: 250 },
-  { id: "pro",     label: "Pro",     price: "$299/mo", credits: 8000, watchlist: 1000 },
-  { id: "agency",  label: "Agency",  price: "$499/mo", credits: 25000, watchlist: "Unlimited" },
-];
+import { Clock, Sparkles } from "lucide-react";
 
 export default async function BillingPage() {
   const { userId } = await auth();
@@ -52,56 +45,26 @@ export default async function BillingPage() {
             </div>
             <Progress value={(usedCredits / totalCredits) * 100} className="bg-slate-100 dark:bg-white/[0.06]" />
           </div>
-          {plan !== "free" && (
-            <a
-              href={`https://${process.env.NEXT_PUBLIC_LEMON_STORE_SLUG ?? "app"}.lemonsqueezy.com/billing`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="outline" className="border-slate-200 dark:border-white/[0.10] text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer">
-                Manage Subscription
-              </Button>
-            </a>
-          )}
         </CardContent>
       </Card>
 
-      {/* Upgrade Plans */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {PLANS.filter((p) => p.id !== plan).map((p) => (
-          <Card key={p.id} className="relative border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/[0.14] transition-colors">
-            <CardHeader>
-              <CardTitle className="text-slate-800 dark:text-slate-100">{p.label}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{p.price}</p>
-              <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-1">
-                <li>{p.credits.toLocaleString()} credits/mo</li>
-                <li>{p.watchlist} watchlist companies</li>
-                <li>Full API access</li>
-              </ul>
-              <form action="/api/billing/checkout" method="POST">
-                <input type="hidden" name="plan" value={p.id} />
-                <Button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer">Upgrade to {p.label}</Button>
-              </form>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Pay-as-you-go top-up */}
-      <Card className="border-slate-200 dark:border-white/[0.08]">
-        <CardHeader><CardTitle className="text-slate-800 dark:text-slate-100">Pay-as-you-go Top-up</CardTitle></CardHeader>
-        <CardContent>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">$0.08 per credit. No subscription required.</p>
-          <form action="/api/billing/topup" method="POST" className="flex gap-2">
-            <select name="amount" className="border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.05] text-slate-700 dark:text-slate-200 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500/50">
-              <option value="100" className="bg-white dark:bg-[#0d1a2e]">100 credits — $8</option>
-              <option value="500" className="bg-white dark:bg-[#0d1a2e]">500 credits — $40</option>
-              <option value="1000" className="bg-white dark:bg-[#0d1a2e]">1,000 credits — $80</option>
-            </select>
-            <Button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer">Buy Credits</Button>
-          </form>
+      {/* Coming Soon */}
+      <Card className="border-slate-200 dark:border-white/[0.08] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5" />
+        <CardContent className="relative py-12 flex flex-col items-center text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <Sparkles className="w-7 h-7 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Paid Plans Coming Soon</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-md">
+              We&apos;re finalizing our pricing plans. During the beta, enjoy free access to IntentIQ&apos;s full scoring engine.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 mt-2">
+            <Clock className="w-3.5 h-3.5" />
+            <span>Subscriptions & top-ups will be available here once we launch</span>
+          </div>
         </CardContent>
       </Card>
     </div>
