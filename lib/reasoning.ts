@@ -107,41 +107,69 @@ function buildMockResult(company: string, score: number, band: ScoreBand, signal
   };
 }
 
+const PREMIUM_MODEL = "google/gemini-2.0-flash-001";
+const FREE_MODEL = "google/gemini-2.0-flash-exp:free";
+
 export async function generateReasoning(
   company: string,
   score: number,
   band: ScoreBand,
   signals: SignalSet,
-  productCategory: string
-): Promise<ReasoningResult> {
+  productCategory: string,
+  isFirstScore = true
+): Promise<ReasoningResult & { model_tier: "premium" | "free" }> {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   // Fallback when OPENROUTER_API_KEY is not set (dev mode)
   if (!apiKey) {
-    return buildMockResult(company, score, band, signals);
+    return { ...buildMockResult(company, score, band, signals), model_tier: "free" };
   }
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "nvidia/nemotron-3-nano-30b-a3b:free",
-      max_tokens: 700,
-      temperature: 0.4,
-      messages: [
-        {
-          role: "system",
-          content: "You are IntentIQ's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
-        },
-        { role: "user", content: buildPrompt(company, score, band, signals, productCategory) },
-      ],
-    }),
-  });
+  const model = isFirstScore ? PREMIUM_MODEL : FREE_MODEL;
+  const tier = isFirstScore ? "premium" : "free";
+  console.log(`[reasoning] using ${tier} model (${model}) for ${company}`);
 
-  if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
+  const MAX_RETRIES = 5;
+  let res: Response | undefined;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 700,
+        temperature: 0.4,
+        messages: [
+          {
+            role: "system",
+            content: "You are IntentIQ's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
+          },
+          { role: "user", content: buildPrompt(company, score, band, signals, productCategory) },
+        ],
+      }),
+    });
+
+    if (res.ok) break;
+
+    if (res.status === 429 && attempt < MAX_RETRIES) {
+      const retryAfter = res.headers.get("retry-after");
+      const delay = retryAfter
+        ? parseInt(retryAfter, 10) * 1000
+        : Math.pow(2, attempt + 2) * 1000;
+      console.warn(`[reasoning] 429 for ${company}, retry ${attempt + 1}/${MAX_RETRIES} in ${(delay / 1000).toFixed(0)}s`);
+      await new Promise((r) => setTimeout(r, delay));
+      continue;
+    }
+
+    console.warn(`[reasoning] OpenRouter ${res.status} for ${company} after ${attempt + 1} attempts, using mock`);
+    return { ...buildMockResult(company, score, band, signals), model_tier: "free" };
+  }
+
+  if (!res || !res.ok) return { ...buildMockResult(company, score, band, signals), model_tier: "free" };
 
   const data = (await res.json()) as { choices: Array<{ message: { content: string } }> };
   const text = data.choices[0]?.message?.content ?? "";
@@ -157,8 +185,8 @@ export async function generateReasoning(
     }
   }
 
-  if (parsed) return parsed;
+  if (parsed) return { ...parsed, model_tier: tier };
 
   // If API parsing fails, use the rich mock as fallback rather than a weak hardcoded string
-  return buildMockResult(company, score, band, signals);
+  return { ...buildMockResult(company, score, band, signals), model_tier: "free" };
 }

@@ -37,6 +37,7 @@ export interface IntentScore {
   email_subject: string;
   talk_track: string;
   score_decay_date: string;
+  model_tier: "premium" | "free";
 }
 
 // ─── API Types ────────────────────────────────────────────────────────────────

@@ -48,8 +48,8 @@ export default async function DashboardPage() {
               <Button asChild size="sm" className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer">
                 <Link href="/score">Score a Company</Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="border-slate-300 dark:border-white/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer">
-                <Link href="/api-keys">Get API Key</Link>
+              <Button disabled size="sm" variant="outline" className="border-slate-300/50 dark:border-white/[0.06] text-slate-400 dark:text-slate-600 cursor-not-allowed">
+                API Keys — Coming Soon
               </Button>
             </div>
           </div>
