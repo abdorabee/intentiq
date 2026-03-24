@@ -34,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const creditsRemaining = profile?.credits_remaining ?? 0;
 
   return (
-    <div className="relative min-h-screen bg-white dark:bg-black overflow-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
+    <div className="relative min-h-screen bg-white dark:bg-black overflow-x-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
       {/* Subtle wireframe grid background */}
       <div className="fixed inset-0 pointer-events-none dark:block hidden" aria-hidden>
         <div className="absolute inset-0" style={{
@@ -49,7 +49,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="relative flex min-h-screen">
         <DashboardNav creditsRemaining={creditsRemaining} />
-        <main className="flex-1 p-4 pt-16 lg:p-10 lg:pt-10 max-w-5xl">{children}</main>
+        <main className="flex-1 p-4 pt-16 lg:p-10 lg:pt-10 lg:ml-60 max-w-5xl">{children}</main>
       </div>
       <ChatTrigger creditsRemaining={creditsRemaining} />
     </div>
