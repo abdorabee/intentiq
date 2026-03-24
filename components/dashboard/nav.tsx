@@ -149,7 +149,7 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-60 flex-col border-r border-slate-200 dark:border-white/[0.06] bg-slate-50/80 dark:bg-black/80 p-4 space-y-1 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-60 shrink-0 flex-col border-r border-slate-200 dark:border-white/[0.06] bg-slate-50/80 dark:bg-black/80 p-4 space-y-1 fixed top-0 left-0 h-screen z-20">
         <div className="mb-6 px-3 pt-2">
           <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
           <p className="text-slate-600 text-[10px] tracking-[0.15em] mt-1">v1.0</p>
