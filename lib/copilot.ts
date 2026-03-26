@@ -1,6 +1,6 @@
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { scoreCompany } from "@/lib/score-service";
-import type { DbUser, PipelineStage } from "@/lib/types";
+import type { BusinessProfile, DbUser, PipelineStage } from "@/lib/types";
 
 // ─── OpenRouter Tool Definitions (OpenAI-compatible format) ──────────────────
 
@@ -136,7 +136,8 @@ export async function executeTool(
   name: string,
   args: Record<string, unknown>,
   userId: string,
-  productCategory: string
+  productCategory: string,
+  businessProfile?: BusinessProfile | null
 ): Promise<unknown> {
   const supabase = createSupabaseAdmin();
 
@@ -147,6 +148,7 @@ export async function executeTool(
         userId,
         companyName: args.company_name as string | undefined,
         productCategory,
+        businessProfile,
       });
       return {
         company: result.company,
@@ -401,7 +403,13 @@ You have access to tools that let you score companies, manage watchlists, query 
 USER CONTEXT:
 - Name/ID: ${user.id}
 - Plan: ${user.plan} | Credits: ${user.credits_remaining}
-- Product category: ${user.product_category ?? "B2B SaaS"}
+- Product category: ${user.product_category ?? "B2B SaaS"}${user.business_profile ? `
+- Target Industries: ${user.business_profile.target_industries.join(", ")}
+- Target Company Size: ${user.business_profile.company_size}
+- Primary Buyer: ${user.business_profile.buyer_role}
+- Sales Motion: ${user.business_profile.sales_motion}
+- Deal Size: ${user.business_profile.deal_size}
+- Sales Cycle: ${user.business_profile.sales_cycle}` : ""}
 
 ${roleInstructions}
 

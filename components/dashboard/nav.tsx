@@ -14,6 +14,7 @@ import {
   Upload,
   Key,
   CreditCard,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { href: "/bulk",       label: "Bulk Scorer",     icon: Upload },
   { href: "/api-keys",   label: "API Keys",        icon: Key, comingSoon: true },
   { href: "/billing",    label: "Billing",         icon: CreditCard },
+  { href: "/settings",   label: "Settings",        icon: Settings },
 ];
 
 export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemaining?: number }) {

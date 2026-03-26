@@ -45,10 +45,12 @@ export async function POST(req: NextRequest) {
   const skipCredits = process.env.DISABLE_CREDIT_CHECK === "true";
   const supabase = createSupabaseAdmin();
 
+  let businessProfile: import("@/lib/types").BusinessProfile | null = null;
+
   if (!skipCredits) {
     const { data: user } = await supabase
       .from("users")
-      .select("credits_remaining, product_category")
+      .select("credits_remaining, product_category, business_profile")
       .eq("id", userId)
       .single();
 
@@ -58,6 +60,14 @@ export async function POST(req: NextRequest) {
         { status: 402 }
       );
     }
+    businessProfile = (user.business_profile as import("@/lib/types").BusinessProfile) ?? null;
+  } else {
+    const { data: user } = await supabase
+      .from("users")
+      .select("business_profile")
+      .eq("id", userId)
+      .single();
+    businessProfile = (user?.business_profile as import("@/lib/types").BusinessProfile) ?? null;
   }
 
   // ── Score each company sequentially ────────────────────────────────────────
@@ -84,6 +94,7 @@ export async function POST(req: NextRequest) {
         domain,
         userId,
         companyName,
+        businessProfile,
         skipCredits,
       });
 

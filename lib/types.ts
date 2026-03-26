@@ -72,6 +72,18 @@ export interface WatchlistEntry {
   previous_score: number | null;
 }
 
+// ─── Business Profile ────────────────────────────────────────────────────────
+
+export interface BusinessProfile {
+  product_category: string;
+  target_industries: string[];
+  company_size: string;
+  buyer_role: string;
+  sales_motion: string;
+  deal_size: string;
+  sales_cycle: string;
+}
+
 // ─── DB Row Types ─────────────────────────────────────────────────────────────
 
 export interface DbUser {
@@ -82,6 +94,8 @@ export interface DbUser {
   plan: "free" | "starter" | "growth" | "pro" | "agency";
   credits_remaining: number;
   product_category: string | null;
+  business_profile: BusinessProfile | null;
+  onboarding_completed: boolean;
   role: UserRole;
   created_at: string;
 }

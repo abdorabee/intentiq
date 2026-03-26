@@ -184,7 +184,8 @@ export async function POST(req: NextRequest) {
                 tc.function.name,
                 args,
                 userId,
-                user.product_category ?? "B2B SaaS"
+                user.product_category ?? "B2B SaaS",
+                user.business_profile ?? null
               );
               send({ type: "tool_result", name: tc.function.name, result });
 

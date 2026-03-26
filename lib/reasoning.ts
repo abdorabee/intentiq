@@ -1,4 +1,4 @@
-import type { SignalSet, ScoreBand, BuyingStage, UrgencyLevel } from "@/lib/types";
+import type { SignalSet, ScoreBand, BuyingStage, UrgencyLevel, BusinessProfile } from "@/lib/types";
 
 export interface ReasoningResult {
   ai_summary: string;
@@ -11,11 +11,23 @@ export interface ReasoningResult {
   talk_track: string;
 }
 
-function buildPrompt(company: string, score: number, band: ScoreBand, signals: SignalSet, productCategory: string): string {
+function buildPrompt(company: string, score: number, band: ScoreBand, signals: SignalSet, productCategory: string, businessProfile?: BusinessProfile | null): string {
   const verdict =
     band === "HOT"  ? "actively in a buying window — this is an urgent, high-value opportunity" :
     band === "WARM" ? "showing meaningful buying signals but not yet in active evaluation" :
                      "early-stage or low-signal — likely not in an active buying cycle right now";
+
+  const sellerContext = businessProfile ? `
+ABOUT THE SELLER:
+- Product: ${businessProfile.product_category}
+- Target Industries: ${businessProfile.target_industries.join(", ")}
+- Target Company Size: ${businessProfile.company_size}
+- Primary Buyer: ${businessProfile.buyer_role}
+- Sales Motion: ${businessProfile.sales_motion}
+- Typical Deal: ${businessProfile.deal_size}, cycle: ${businessProfile.sales_cycle}
+
+Use this seller context to tailor your analysis. Focus signals on how they relate to this seller's ideal customer profile. Make recommendations specific to their sales motion and buyer persona.
+` : "";
 
   return `You are IntentIQ's AI sales intelligence engine. Your job is to analyze purchase intent signals and brief a sales rep clearly and specifically — like a sharp analyst who's done deep research on this account before a call.
 
@@ -23,7 +35,7 @@ COMPANY: ${company}
 INTENT SCORE: ${score}/100 — ${band}
 VERDICT: This company is ${verdict}.
 PRODUCT CATEGORY WE SELL: ${productCategory}
-
+${sellerContext}
 SIGNAL DATA (what we actually found):
 - Funding    (25 pts max): ${signals.funding.score}/${signals.funding.max} scored → "${signals.funding.detail}"
 - Hiring     (20 pts max): ${signals.hiring.score}/${signals.hiring.max} scored → "${signals.hiring.detail}"
@@ -116,7 +128,8 @@ export async function generateReasoning(
   band: ScoreBand,
   signals: SignalSet,
   productCategory: string,
-  isFirstScore = true
+  isFirstScore = true,
+  businessProfile?: BusinessProfile | null
 ): Promise<ReasoningResult & { model_tier: "premium" | "free" }> {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
@@ -148,7 +161,7 @@ export async function generateReasoning(
             role: "system",
             content: "You are IntentIQ's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
           },
-          { role: "user", content: buildPrompt(company, score, band, signals, productCategory) },
+          { role: "user", content: buildPrompt(company, score, band, signals, productCategory, businessProfile) },
         ],
       }),
     });

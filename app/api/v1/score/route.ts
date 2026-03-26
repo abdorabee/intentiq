@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
   const supabase = createSupabaseAdmin();
   let userId: string | null = null;
   let productCategory = "B2B SaaS";
+  let businessProfile: Record<string, unknown> | null = null;
 
   if (authHeader?.startsWith("Bearer ")) {
     // API key auth
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
   if (userId && !skipCredits) {
     const { data: user } = await supabase
       .from("users")
-      .select("credits_remaining, product_category")
+      .select("credits_remaining, product_category, business_profile")
       .eq("id", userId)
       .single();
 
@@ -53,6 +54,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
     }
     productCategory = user.product_category ?? productCategory;
+    businessProfile = user.business_profile ?? null;
   }
 
   if (!userId) {
@@ -68,6 +70,7 @@ export async function GET(req: NextRequest) {
       userId,
       companyName: lookupCompany,
       productCategory,
+      businessProfile: businessProfile as import("@/lib/types").BusinessProfile | null,
       skipCredits,
     });
     return NextResponse.json(result);
