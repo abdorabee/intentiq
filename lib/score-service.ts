@@ -9,7 +9,7 @@ import { getMockSignals } from "@/lib/signals/mock";
 import { computeIntentScore } from "@/lib/scorer";
 import { generateReasoning } from "@/lib/reasoning";
 import { updatePipelineStage } from "@/lib/pipeline";
-import type { IntentScore, SignalSet } from "@/lib/types";
+import type { IntentScore, SignalSet, BusinessProfile } from "@/lib/types";
 
 const USE_MOCK = process.env.MOCK_SIGNALS === "true";
 
@@ -26,6 +26,7 @@ export interface ScoreCompanyOptions {
   userId: string;
   companyName?: string;
   productCategory?: string;
+  businessProfile?: BusinessProfile | null;
   skipCredits?: boolean;
 }
 
@@ -34,7 +35,7 @@ export interface ScoreCompanyOptions {
  * Handles: signal fetching, score computation, AI reasoning, caching, DB persistence, and credit deduction.
  */
 export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentScore> {
-  const { domain, userId, companyName, productCategory = "B2B SaaS", skipCredits = false } = opts;
+  const { domain, userId, companyName, productCategory = "B2B SaaS", businessProfile, skipCredits = false } = opts;
   const supabase = createSupabaseAdmin();
 
   const lookupDomain = domain.toLowerCase().trim();
@@ -86,7 +87,8 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentSco
     partial.score_band,
     signals,
     productCategory,
-    isFirstScore
+    isFirstScore,
+    businessProfile
   );
 
   const result: IntentScore = { ...partial, ...reasoning };

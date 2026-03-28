@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { scoreCompany, domainToCompanyName } from "@/lib/score-service";
+import { scorePerson } from "@/lib/person-score-service";
+import type { BusinessProfile } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const domain = searchParams.get("domain")?.toLowerCase().trim();
+  const email = searchParams.get("email")?.trim();
+  const linkedin = searchParams.get("linkedin")?.trim();
+  const name = searchParams.get("name")?.trim();
   const company = searchParams.get("company")?.trim();
+  const title = searchParams.get("title")?.trim();
 
-  if (!domain && !company) {
+  if (!email && !linkedin && !(name && company)) {
     return NextResponse.json(
-      { error: "Provide at least one of: domain, company" },
+      { error: "Provide at least one of: email, linkedin, or name + company" },
       { status: 400 }
     );
   }
@@ -20,10 +24,9 @@ export async function GET(req: NextRequest) {
   const supabase = createSupabaseAdmin();
   let userId: string | null = null;
   let productCategory = "B2B SaaS";
-  let businessProfile: Record<string, unknown> | null = null;
+  let businessProfile: BusinessProfile | null = null;
 
   if (authHeader?.startsWith("Bearer ")) {
-    // API key auth
     const apiKey = authHeader.slice(7);
     const { data: keyRow } = await supabase
       .from("api_keys")
@@ -36,7 +39,6 @@ export async function GET(req: NextRequest) {
     }
     userId = keyRow.user_id;
   } else {
-    // Clerk session auth (dashboard users)
     const { userId: clerkId } = await auth();
     if (clerkId) userId = clerkId;
   }
@@ -54,29 +56,30 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
     }
     productCategory = user.product_category ?? productCategory;
-    businessProfile = user.business_profile ?? null;
+    businessProfile = (user.business_profile as BusinessProfile) ?? null;
   }
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const lookupDomain = domain ?? `${company?.toLowerCase().replace(/\s+/g, "")}.com`;
-  const lookupCompany = company ?? domainToCompanyName(domain!);
-
   try {
-    const result = await scoreCompany({
-      domain: lookupDomain,
+    const result = await scorePerson({
+      email: email || undefined,
+      linkedinUrl: linkedin || undefined,
+      name: name || undefined,
+      organizationName: company || undefined,
+      title: title || undefined,
       userId,
-      companyName: lookupCompany,
       productCategory,
-      businessProfile: businessProfile as import("@/lib/types").BusinessProfile | null,
+      businessProfile,
       skipCredits,
     });
     return NextResponse.json(result);
   } catch (err) {
-    console.error("[score] error:", err);
-    return NextResponse.json({ error: "Scoring failed" }, { status: 500 });
+    console.error("[person-score] error:", err);
+    const message = (err as Error).message ?? "Person scoring failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 

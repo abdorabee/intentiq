@@ -22,6 +22,10 @@ export function scoreCacheKey(domain: string): string {
   return `score:${domain.toLowerCase().trim()}`;
 }
 
+export function personScoreCacheKey(identifier: string): string {
+  return `person_score:${identifier.toLowerCase().trim()}`;
+}
+
 export function rateLimitKey(userId: string): string {
   return `ratelimit:${userId}`;
 }

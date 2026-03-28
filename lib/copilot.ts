@@ -1,6 +1,7 @@
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { scoreCompany } from "@/lib/score-service";
-import type { DbUser, PipelineStage } from "@/lib/types";
+import { scorePerson } from "@/lib/person-score-service";
+import type { BusinessProfile, DbUser, PipelineStage } from "@/lib/types";
 
 // ─── OpenRouter Tool Definitions (OpenAI-compatible format) ──────────────────
 
@@ -116,6 +117,22 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
   {
     type: "function",
     function: {
+      name: "score_person",
+      description: "Score an individual person's purchase intent. Provide at least one of: email, LinkedIn URL, or name + company. Costs 1 credit.",
+      parameters: {
+        type: "object",
+        properties: {
+          email: { type: "string", description: "Person's email address" },
+          linkedin: { type: "string", description: "Person's LinkedIn profile URL" },
+          name: { type: "string", description: "Person's full name (use with company)" },
+          company: { type: "string", description: "Person's company name (use with name)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "update_pipeline_stage",
       description: "Manually move a company to a different pipeline stage (e.g. mark as 'engaged' after outreach or 'converted' after closing).",
       parameters: {
@@ -136,7 +153,8 @@ export async function executeTool(
   name: string,
   args: Record<string, unknown>,
   userId: string,
-  productCategory: string
+  productCategory: string,
+  businessProfile?: BusinessProfile | null
 ): Promise<unknown> {
   const supabase = createSupabaseAdmin();
 
@@ -147,6 +165,7 @@ export async function executeTool(
         userId,
         companyName: args.company_name as string | undefined,
         productCategory,
+        businessProfile,
       });
       return {
         company: result.company,
@@ -159,6 +178,33 @@ export async function executeTool(
         urgency: result.urgency,
         key_triggers: result.key_triggers,
         why_now: result.why_now,
+      };
+    }
+
+    case "score_person": {
+      const result = await scorePerson({
+        email: args.email as string | undefined,
+        linkedinUrl: args.linkedin as string | undefined,
+        name: args.name as string | undefined,
+        organizationName: args.company as string | undefined,
+        userId,
+        productCategory,
+        businessProfile,
+      });
+      return {
+        person_name: result.person_name,
+        person_title: result.person_title,
+        person_company: result.person_company,
+        intent_score: result.intent_score,
+        score_band: result.score_band,
+        ai_summary: result.ai_summary,
+        recommended_action: result.recommended_action,
+        buying_stage: result.buying_stage,
+        urgency: result.urgency,
+        key_triggers: result.key_triggers,
+        why_now: result.why_now,
+        approach_angle: result.approach_angle,
+        connection_hooks: result.connection_hooks,
       };
     }
 
@@ -396,12 +442,18 @@ BEHAVIOR:
 
   return `You are IntentIQ Copilot, an AI sales intelligence assistant. You help sales teams understand and act on purchase intent signals.
 
-You have access to tools that let you score companies, manage watchlists, query pipeline data, and draft outreach. Use these tools proactively when the user's request would benefit from real data.
+You have access to tools that let you score companies, score individual people, manage watchlists, query pipeline data, and draft outreach. Use these tools proactively when the user's request would benefit from real data. When a user asks about a specific person (by name, email, or LinkedIn), use the score_person tool.
 
 USER CONTEXT:
 - Name/ID: ${user.id}
 - Plan: ${user.plan} | Credits: ${user.credits_remaining}
-- Product category: ${user.product_category ?? "B2B SaaS"}
+- Product category: ${user.product_category ?? "B2B SaaS"}${user.business_profile ? `
+- Target Industries: ${user.business_profile.target_industries.join(", ")}
+- Target Company Size: ${user.business_profile.company_size}
+- Primary Buyer: ${user.business_profile.buyer_role}
+- Sales Motion: ${user.business_profile.sales_motion}
+- Deal Size: ${user.business_profile.deal_size}
+- Sales Cycle: ${user.business_profile.sales_cycle}` : ""}
 
 ${roleInstructions}
 

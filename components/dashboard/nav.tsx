@@ -14,6 +14,8 @@ import {
   Upload,
   Key,
   CreditCard,
+  Settings,
+  UserSearch,
   LogOut,
   Menu,
   X,
@@ -26,12 +28,14 @@ import { useTheme } from "@/components/theme-provider";
 const NAV_ITEMS = [
   { href: "/dashboard",  label: "Dashboard",       icon: LayoutDashboard },
   { href: "/score",      label: "Score Explorer",  icon: Target },
+  { href: "/people",     label: "People",          icon: UserSearch, beta: true },
   { href: "/history",    label: "Score History",   icon: History },
   { href: "/watchlist",  label: "Watchlist",       icon: Eye },
   { href: "/pipeline",   label: "Intent Pipeline",  icon: Columns3 },
   { href: "/bulk",       label: "Bulk Scorer",     icon: Upload },
   { href: "/api-keys",   label: "API Keys",        icon: Key, comingSoon: true },
   { href: "/billing",    label: "Billing",         icon: CreditCard },
+  { href: "/settings",   label: "Settings",        icon: Settings },
 ];
 
 export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemaining?: number }) {
@@ -63,6 +67,11 @@ export default function DashboardNav({ creditsRemaining = 0 }: { creditsRemainin
             {item.comingSoon && (
               <span className="ml-auto text-[9px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-600 bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.08] px-1.5 py-0.5">
                 Soon
+              </span>
+            )}
+            {item.beta && (
+              <span className="ml-auto text-[9px] font-bold uppercase tracking-wide text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/30 px-1.5 py-0.5">
+                Beta
               </span>
             )}
           </Link>

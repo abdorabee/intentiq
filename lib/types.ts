@@ -72,6 +72,18 @@ export interface WatchlistEntry {
   previous_score: number | null;
 }
 
+// ─── Business Profile ────────────────────────────────────────────────────────
+
+export interface BusinessProfile {
+  product_category: string;
+  target_industries: string[];
+  company_size: string;
+  buyer_role: string;
+  sales_motion: string;
+  deal_size: string;
+  sales_cycle: string;
+}
+
 // ─── DB Row Types ─────────────────────────────────────────────────────────────
 
 export interface DbUser {
@@ -82,6 +94,8 @@ export interface DbUser {
   plan: "free" | "starter" | "growth" | "pro" | "agency";
   credits_remaining: number;
   product_category: string | null;
+  business_profile: BusinessProfile | null;
+  onboarding_completed: boolean;
   role: UserRole;
   created_at: string;
 }
@@ -161,6 +175,91 @@ export interface DbChatMessage {
 }
 
 export const CHAT_CREDIT_COST = 0.25;
+
+// ─── Person Scoring Types ────────────────────────────────────────────────────
+
+export interface PersonSignalSet {
+  career_change: SignalResult;   // max 30
+  seniority_fit: SignalResult;   // max 20
+  company_intent: SignalResult;  // max 20
+  news_mentions: SignalResult;   // max 15
+  social_presence: SignalResult; // max 15
+  latestSignalDate: string;
+}
+
+export interface PersonIntentScore {
+  person_name: string;
+  person_email: string | null;
+  person_linkedin: string | null;
+  person_title: string | null;
+  person_company: string | null;
+  person_domain: string | null;
+  person_seniority: string | null;
+  intent_score: number;
+  score_band: ScoreBand;
+  last_updated: string;
+  signals: PersonSignalSet;
+  ai_summary: string;
+  recommended_action: string;
+  buying_stage: BuyingStage;
+  urgency: UrgencyLevel;
+  key_triggers: string[];
+  why_now: string;
+  approach_angle: string;
+  connection_hooks: string[];
+  email_subject: string;
+  talk_track: string;
+  score_decay_date: string;
+  model_tier: "premium" | "free";
+}
+
+export interface DbPersonScore {
+  id: string;
+  user_id: string;
+  person_name: string;
+  person_email: string | null;
+  person_linkedin: string | null;
+  person_title: string | null;
+  person_company: string | null;
+  person_domain: string | null;
+  person_seniority: string | null;
+  score: number;
+  score_band: ScoreBand;
+  signals: PersonSignalSet;
+  ai_summary: string;
+  recommended_action: string;
+  buying_stage: BuyingStage | null;
+  urgency: UrgencyLevel | null;
+  key_triggers: string[] | null;
+  why_now: string | null;
+  approach_angle: string | null;
+  connection_hooks: string[] | null;
+  email_subject: string | null;
+  talk_track: string | null;
+  expires_at: string;
+  created_at: string;
+}
+
+export interface ApolloPersonData {
+  first_name: string | null;
+  last_name: string | null;
+  name: string | null;
+  title: string | null;
+  seniority: string | null;
+  department: string | null;
+  email: string | null;
+  phone: string | null;
+  linkedin_url: string | null;
+  organization_name: string | null;
+  organization?: { primary_domain?: string };
+  employment_history: Array<{
+    title: string;
+    organization_name: string;
+    start_date: string | null;
+    end_date: string | null;
+    current: boolean;
+  }>;
+}
 
 // ─── Plan Config ──────────────────────────────────────────────────────────────
 
