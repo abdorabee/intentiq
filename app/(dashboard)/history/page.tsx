@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Download, ChevronLeft, ChevronRight, Copy, Check, X } from "lucide-react";
+import { toCSV, downloadCSV as triggerDownload, csvFilename, formatSignal } from "@/lib/csv";
 import type { DbScore, ScoreBand, BuyingStage, UrgencyLevel, SignalSet } from "@/lib/types";
 
 const bandClass = (band: ScoreBand) => {
@@ -115,24 +116,50 @@ export default function ScoreHistoryPage() {
   }
 
   function exportCSV() {
-    const header = "Company,Domain,Score,Band,Urgency,Stage,Scored At";
-    const csvRows = rows.map((r) =>
-      [
-        `"${r.company_name}"`,
-        r.domain,
-        r.score,
-        r.score_band,
-        r.urgency ?? "",
-        r.buying_stage ?? "",
-        new Date(r.created_at).toISOString(),
-      ].join(",")
-    );
-    const blob = new Blob([[header, ...csvRows].join("\n")], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "intentiq-history.csv";
-    a.click();
-    URL.revokeObjectURL(a.href);
+    const columns = [
+      { key: "company_name",       label: "Company" },
+      { key: "domain",             label: "Domain" },
+      { key: "score",              label: "Intent Score" },
+      { key: "score_band",         label: "Score Band" },
+      { key: "buying_stage",       label: "Buying Stage" },
+      { key: "urgency",            label: "Urgency" },
+      { key: "ai_summary",         label: "AI Summary" },
+      { key: "why_now",            label: "Why Now" },
+      { key: "recommended_action", label: "Recommended Action" },
+      { key: "key_triggers",       label: "Key Triggers" },
+      { key: "email_subject",      label: "Email Subject" },
+      { key: "talk_track",         label: "Talk Track" },
+      { key: "funding_signal",     label: "Funding Signal" },
+      { key: "hiring_signal",      label: "Hiring Signal" },
+      { key: "news_signal",        label: "News Signal" },
+      { key: "technology_signal",   label: "Technology Signal" },
+      { key: "web_signal",         label: "Web Signal" },
+      { key: "scored_at",          label: "Scored At" },
+    ];
+
+    const csvRows = rows.map((r) => ({
+      company_name:       r.company_name,
+      domain:             r.domain,
+      score:              r.score,
+      score_band:         r.score_band,
+      buying_stage:       r.buying_stage ?? "",
+      urgency:            r.urgency ?? "",
+      ai_summary:         r.ai_summary ?? "",
+      why_now:            r.why_now ?? "",
+      recommended_action: r.recommended_action ?? "",
+      key_triggers:       (r.key_triggers ?? []).join("; "),
+      email_subject:      r.email_subject ?? "",
+      talk_track:         r.talk_track ?? "",
+      funding_signal:     r.signals ? formatSignal(r.signals.funding) : "",
+      hiring_signal:      r.signals ? formatSignal(r.signals.hiring) : "",
+      news_signal:        r.signals ? formatSignal(r.signals.news) : "",
+      technology_signal:  r.signals ? formatSignal(r.signals.technology) : "",
+      web_signal:         r.signals ? formatSignal(r.signals.web) : "",
+      scored_at:          new Date(r.created_at).toISOString(),
+    }));
+
+    const content = toCSV(columns, csvRows);
+    triggerDownload(content, csvFilename("intentiq-history"));
   }
 
   return (

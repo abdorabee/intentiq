@@ -76,8 +76,16 @@ export async function POST(req: NextRequest) {
     company_name: string;
     intent_score: number;
     score_band: string;
+    buying_stage: string;
+    urgency: string;
     ai_summary: string;
+    why_now: string;
     recommended_action: string;
+    key_triggers: string[];
+    email_subject: string;
+    talk_track: string;
+    signals: import("@/lib/types").SignalSet;
+    last_updated: string;
   }> = [];
 
   const errors: Array<{ domain: string; error: string }> = [];
@@ -103,8 +111,16 @@ export async function POST(req: NextRequest) {
         company_name: result.company ?? companyName,
         intent_score: result.intent_score,
         score_band: result.score_band,
+        buying_stage: result.buying_stage ?? "",
+        urgency: result.urgency ?? "",
         ai_summary: result.ai_summary ?? "",
+        why_now: result.why_now ?? "",
         recommended_action: result.recommended_action ?? "",
+        key_triggers: result.key_triggers ?? [],
+        email_subject: result.email_subject ?? "",
+        talk_track: result.talk_track ?? "",
+        signals: result.signals,
+        last_updated: result.last_updated ?? new Date().toISOString(),
       });
     } catch (err) {
       console.error(`[bulk-inline] failed to score ${domain}:`, err);

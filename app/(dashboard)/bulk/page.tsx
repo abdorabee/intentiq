@@ -5,14 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Download, Loader2, AlertCircle, X } from "lucide-react";
+import { toCSV, downloadCSV as triggerDownload, csvFilename, formatSignal } from "@/lib/csv";
+import type { SignalSet } from "@/lib/types";
 
 interface BulkResult {
   domain: string;
   company_name: string;
   intent_score: number;
   score_band: string;
+  buying_stage: string;
+  urgency: string;
   ai_summary: string;
+  why_now: string;
   recommended_action: string;
+  key_triggers: string[];
+  email_subject: string;
+  talk_track: string;
+  signals: SignalSet;
+  last_updated: string;
 }
 
 interface BulkResponse {
@@ -99,22 +109,53 @@ export default function BulkScorerPage() {
     }
   }
 
-  function downloadCSV() {
+  function handleDownloadCSV() {
     if (!response?.results.length) return;
-    const headers = ["domain", "company_name", "intent_score", "score_band", "ai_summary", "recommended_action"];
-    const lines = [
-      headers.join(","),
-      ...response.results.map((r) =>
-        headers.map((h) => `"${String(r[h as keyof BulkResult] ?? "").replace(/"/g, '""')}"`).join(",")
-      ),
+
+    const columns = [
+      { key: "company_name",       label: "Company" },
+      { key: "domain",             label: "Domain" },
+      { key: "intent_score",       label: "Intent Score" },
+      { key: "score_band",         label: "Score Band" },
+      { key: "buying_stage",       label: "Buying Stage" },
+      { key: "urgency",            label: "Urgency" },
+      { key: "ai_summary",         label: "AI Summary" },
+      { key: "why_now",            label: "Why Now" },
+      { key: "recommended_action", label: "Recommended Action" },
+      { key: "key_triggers",       label: "Key Triggers" },
+      { key: "email_subject",      label: "Email Subject" },
+      { key: "talk_track",         label: "Talk Track" },
+      { key: "funding_signal",     label: "Funding Signal" },
+      { key: "hiring_signal",      label: "Hiring Signal" },
+      { key: "news_signal",        label: "News Signal" },
+      { key: "technology_signal",   label: "Technology Signal" },
+      { key: "web_signal",         label: "Web Signal" },
+      { key: "scored_at",          label: "Scored At" },
     ];
-    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "intentiq_bulk_scores.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+
+    const rows = response.results.map((r) => ({
+      company_name:       r.company_name,
+      domain:             r.domain,
+      intent_score:       r.intent_score,
+      score_band:         r.score_band,
+      buying_stage:       r.buying_stage,
+      urgency:            r.urgency,
+      ai_summary:         r.ai_summary,
+      why_now:            r.why_now,
+      recommended_action: r.recommended_action,
+      key_triggers:       (r.key_triggers ?? []).join("; "),
+      email_subject:      r.email_subject,
+      talk_track:         r.talk_track,
+      funding_signal:     formatSignal(r.signals?.funding),
+      hiring_signal:      formatSignal(r.signals?.hiring),
+      news_signal:        formatSignal(r.signals?.news),
+      technology_signal:  formatSignal(r.signals?.technology),
+      web_signal:         formatSignal(r.signals?.web),
+      scored_at:          r.last_updated,
+    }));
+
+    const content = toCSV(columns, rows);
+    triggerDownload(content, csvFilename("intentiq-bulk-scores"));
   }
 
   const bandColor = (band: string) => {
@@ -265,7 +306,7 @@ export default function BulkScorerPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={downloadCSV}
+              onClick={handleDownloadCSV}
               className="border-slate-300 dark:border-white/[0.12] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-2"
             >
               <Download className="h-4 w-4" />

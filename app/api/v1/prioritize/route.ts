@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redis, scoreCacheKey } from "@/lib/redis";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { toCSVRaw } from "@/lib/csv";
 import type { IntentScore } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
@@ -38,17 +38,25 @@ export async function POST(req: NextRequest) {
   // Sort by intent score descending
   scored.sort((a, b) => (b.intent_score as number) - (a.intent_score as number));
 
-  // Return enriched CSV
-  const csvOutput = toCSV(scored);
+  // Build dynamic columns from the data keys
+  if (scored.length === 0) {
+    return new NextResponse("", {
+      headers: { "Content-Type": "text/csv", "Content-Disposition": `attachment; filename="intentiq_prioritized.csv"` },
+    });
+  }
+
+  const columns = Object.keys(scored[0]).map((key) => ({ key, label: key }));
+  const csvOutput = toCSVRaw(columns, scored);
+
   return new NextResponse(csvOutput, {
     headers: {
-      "Content-Type": "text/csv",
+      "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="intentiq_prioritized.csv"`,
     },
   });
 }
 
-// ── CSV helpers ───────────────────────────────────────────────────────────────
+// ── CSV parser ───────────────────────────────────────────────────────────────
 
 function parseCSV(text: string): Array<Record<string, string>> {
   const lines = text.trim().split("\n");
@@ -59,14 +67,4 @@ function parseCSV(text: string): Array<Record<string, string>> {
     const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
     return Object.fromEntries(headers.map((h, i) => [h, values[i] ?? ""]));
   });
-}
-
-function toCSV(rows: Array<Record<string, string | number>>): string {
-  if (rows.length === 0) return "";
-  const headers = Object.keys(rows[0]);
-  const lines = [
-    headers.join(","),
-    ...rows.map((r) => headers.map((h) => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(",")),
-  ];
-  return lines.join("\n");
 }
