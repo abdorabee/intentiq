@@ -22,6 +22,7 @@ import {
   Sparkles,
   Sun,
   Moon,
+  Zap,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { href: "/history",    label: "Score History",   icon: History },
   { href: "/watchlist",  label: "Watchlist",       icon: Eye },
   { href: "/pipeline",   label: "Intent Pipeline",  icon: Columns3 },
+  { href: "/autopilot",  label: "Autopilot",       icon: Zap, beta: true },
   { href: "/bulk",       label: "Bulk Scorer",     icon: Upload },
   { href: "/api-keys",   label: "API Keys",        icon: Key, comingSoon: true },
   { href: "/billing",    label: "Billing",         icon: CreditCard },

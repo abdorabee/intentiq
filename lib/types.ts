@@ -286,3 +286,91 @@ export const PLAN_RATE_LIMIT: Record<DbUser["plan"], number> = {
   pro: 100,
   agency: 100,
 };
+
+// ─── Autopilot Types ────────────────────────────────────────────────────────
+
+export type AutopilotSchedule = "daily" | "weekly";
+export type AutopilotSourceType = "watchlist" | "specific_domains";
+export type AutopilotConditionLogic = "any" | "all";
+
+export type AutopilotConditionType =
+  | "score_above"    // params: { threshold: number }
+  | "score_below"    // params: { threshold: number }
+  | "score_change"   // params: { direction: "up" | "down" | "any", min_change: number }
+  | "band_change"    // params: { from?: ScoreBand, to?: ScoreBand }
+  | "signal_spike";  // params: { signal: keyof Omit<SignalSet, "latestSignalDate">, min_ratio: number }
+
+export interface AutopilotCondition {
+  type: AutopilotConditionType;
+  params: Record<string, unknown>;
+}
+
+export type AutopilotActionType =
+  | "email_draft"     // params: { tone?: "formal" | "casual" | "executive" }
+  | "webhook"         // params: { url: string, headers?: Record<string, string> }
+  | "slack"           // params: { webhook_url: string }
+  | "pipeline_stage"  // params: { stage: PipelineStage }
+  | "notification";   // params: {}
+
+export interface AutopilotAction {
+  type: AutopilotActionType;
+  params: Record<string, unknown>;
+}
+
+export interface DbAutopilotWorkflow {
+  id: string;
+  user_id: string;
+  name: string;
+  is_enabled: boolean;
+  source_type: AutopilotSourceType;
+  source_domains: string[] | null;
+  schedule: AutopilotSchedule;
+  next_run_at: string;
+  conditions: AutopilotCondition[];
+  condition_logic: AutopilotConditionLogic;
+  actions: AutopilotAction[];
+  total_runs: number;
+  last_run_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbAutopilotRun {
+  id: string;
+  workflow_id: string;
+  user_id: string;
+  status: "running" | "completed" | "failed" | "partial";
+  companies_checked: number;
+  companies_triggered: number;
+  credits_used: number;
+  error_message: string | null;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export interface DbAutopilotAction {
+  id: string;
+  run_id: string;
+  workflow_id: string;
+  user_id: string;
+  domain: string;
+  company_name: string;
+  trigger_reason: string;
+  old_score: number | null;
+  new_score: number | null;
+  old_band: string | null;
+  new_band: string | null;
+  action_type: AutopilotActionType;
+  action_result: unknown;
+  action_status: "success" | "failed" | "skipped";
+  credits_used: number;
+  created_at: string;
+}
+
+export const PLAN_AUTOPILOT_LIMIT: Record<DbUser["plan"], number | null> = {
+  free: 1,
+  starter: 5,
+  growth: 20,
+  pro: 50,
+  agency: null, // unlimited
+};

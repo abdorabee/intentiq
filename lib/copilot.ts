@@ -145,6 +145,30 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_autopilot_workflows",
+      description: "List the user's Autopilot workflows with their status, schedule, and run counts.",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_autopilot_activity",
+      description: "Get recent Autopilot activity — triggered actions from workflow runs, including which companies were flagged and why.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "number", description: "Max number of recent actions to return (default 20)" },
+        },
+      },
+    },
+  },
 ];
 
 // ─── Tool Executor ───────────────────────────────────────────────────────────
@@ -357,6 +381,47 @@ export async function executeTool(
 
       if (error) return { success: false, error: error.message };
       return { success: true, domain, stage, message: `Moved ${domain} to "${stage}" stage` };
+    }
+
+    case "list_autopilot_workflows": {
+      const { data: workflows } = await supabase
+        .from("autopilot_workflows")
+        .select("id, name, is_enabled, schedule, source_type, total_runs, last_run_at, conditions, actions")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (!workflows || workflows.length === 0) {
+        return { workflows: [], message: "No Autopilot workflows configured. Create one at /autopilot." };
+      }
+
+      return {
+        workflows: workflows.map((w) => ({
+          name: w.name,
+          enabled: w.is_enabled,
+          schedule: w.schedule,
+          source: w.source_type,
+          conditions: (w.conditions as Array<{ type: string }>).length,
+          actions: (w.actions as Array<{ type: string }>).length,
+          total_runs: w.total_runs,
+          last_run: w.last_run_at,
+        })),
+      };
+    }
+
+    case "get_autopilot_activity": {
+      const limit = Math.min((args.limit as number) ?? 20, 50);
+      const { data: actions } = await supabase
+        .from("autopilot_actions")
+        .select("domain, company_name, trigger_reason, old_score, new_score, old_band, new_band, action_type, action_status, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (!actions || actions.length === 0) {
+        return { actions: [], message: "No Autopilot activity yet. Workflows run on their configured schedule." };
+      }
+
+      return { actions };
     }
 
     default:
