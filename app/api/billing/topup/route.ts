@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { polar } from "@/lib/polar";
+import { getPolar } from "@/lib/polar";
 
 const CREDIT_PACK_PRODUCTS: Record<string, { credits: number; productId: string }> = {
   "100":  { credits: 100,  productId: process.env.POLAR_PRODUCT_TOPUP_100  ?? "" },
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
 
   try {
-    const checkout = await polar.checkouts.create({
+    const checkout = await getPolar().checkouts.create({
       products: [pack.productId],
       successUrl: `${origin}/billing?topup=true`,
       metadata: {

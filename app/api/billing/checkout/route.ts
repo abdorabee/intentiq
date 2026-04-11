@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { polar } from "@/lib/polar";
+import { getPolar } from "@/lib/polar";
 
 const PLAN_PRODUCT_IDS: Record<string, string> = {
   starter: process.env.POLAR_PRODUCT_STARTER ?? "",
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
 
   try {
-    const checkout = await polar.checkouts.create({
+    const checkout = await getPolar().checkouts.create({
       products: [PLAN_PRODUCT_IDS[plan]],
       successUrl: `${origin}/billing?success=true`,
       metadata: { user_id: userId, plan },

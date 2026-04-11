@@ -3,10 +3,6 @@ import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks"
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { PLAN_CREDITS } from "@/lib/types";
 
-if (!process.env.POLAR_WEBHOOK_SECRET) {
-  throw new Error("POLAR_WEBHOOK_SECRET environment variable is not set");
-}
-
 // Reverse map: Polar product ID → plan name (for portal-initiated plan changes).
 // Filter out empty-string keys that arise when env vars are unset.
 const PRODUCT_TO_PLAN: Record<string, string> = Object.fromEntries(
@@ -31,6 +27,10 @@ function getMeta(raw: unknown): Record<string, string> {
 }
 
 export async function POST(req: NextRequest) {
+  if (!process.env.POLAR_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 503 });
+  }
+
   const rawBody = await req.text();
 
   // ── Signature verification ───────────────────────────────────────────────────

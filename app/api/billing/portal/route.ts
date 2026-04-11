@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { polar } from "@/lib/polar";
+import { getPolar } from "@/lib/polar";
 
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const session = await polar.customerSessions.create({
+    const session = await getPolar().customerSessions.create({
       customerId: profile.polar_customer_id,
     });
     return NextResponse.redirect(session.customerPortalUrl, 303);

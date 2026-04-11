@@ -1,12 +1,19 @@
 import { Polar } from "@polar-sh/sdk";
 
-if (!process.env.POLAR_ACCESS_TOKEN) {
-  throw new Error("POLAR_ACCESS_TOKEN environment variable is not set");
-}
+let polarClient: Polar | undefined;
 
-// Singleton Polar client — imported wherever the SDK is needed.
-// Set POLAR_SERVER=production in env to switch to live mode.
-export const polar = new Polar({
-  accessToken: process.env.POLAR_ACCESS_TOKEN,
-  server: (process.env.POLAR_SERVER as "sandbox" | "production") ?? "sandbox",
-});
+// Lazy singleton — instantiated on first request so the build worker
+// doesn't throw when POLAR_ACCESS_TOKEN isn't in the build environment.
+export function getPolar(): Polar {
+  const token = process.env.POLAR_ACCESS_TOKEN;
+  if (!token) {
+    throw new Error("POLAR_ACCESS_TOKEN environment variable is not set");
+  }
+  if (!polarClient) {
+    polarClient = new Polar({
+      accessToken: token,
+      server: (process.env.POLAR_SERVER as "sandbox" | "production") ?? "sandbox",
+    });
+  }
+  return polarClient;
+}
