@@ -1,54 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { PLAN_CREDITS } from "@/lib/types";
-import crypto from "crypto";
 
-// Reverse map: variant ID → plan name (for portal-initiated plan changes)
-const VARIANT_TO_PLAN: Record<string, string> = {
-  [process.env.LEMON_VARIANT_STARTER ?? ""]: "starter",
-  [process.env.LEMON_VARIANT_GROWTH  ?? ""]: "growth",
-  [process.env.LEMON_VARIANT_PRO     ?? ""]: "pro",
-  [process.env.LEMON_VARIANT_AGENCY  ?? ""]: "agency",
+// Reverse map: Polar product ID → plan name (for portal-initiated plan changes)
+const PRODUCT_TO_PLAN: Record<string, string> = {
+  [process.env.POLAR_PRODUCT_STARTER ?? ""]: "starter",
+  [process.env.POLAR_PRODUCT_GROWTH  ?? ""]: "growth",
+  [process.env.POLAR_PRODUCT_PRO     ?? ""]: "pro",
+  [process.env.POLAR_PRODUCT_AGENCY  ?? ""]: "agency",
 };
 
-function verifySignature(body: string, signature: string | null): boolean {
-  if (!signature) return false;
-  const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET!;
-  const hmac = crypto.createHmac("sha256", secret);
-  const digest = hmac.update(body).digest("hex");
-  try {
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(req: NextRequest) {
-  const body = await req.text();
-  const signature = req.headers.get("x-signature");
+  const rawBody = await req.text();
 
-  if (!verifySignature(body, signature)) {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  // ── Signature verification ───────────────────────────────────────────────────
+  let event: ReturnType<typeof validateEvent>;
+  try {
+    event = validateEvent(
+      rawBody,
+      Object.fromEntries(req.headers.entries()),
+      process.env.POLAR_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    if (err instanceof WebhookVerificationError) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    }
+    throw err;
   }
 
-  const payload = JSON.parse(body);
-  const eventName: string = payload.meta?.event_name;
-  const customData = payload.meta?.custom_data ?? {};
   const admin = createSupabaseAdmin();
 
-  switch (eventName) {
-    case "order_completed": {
+  // ── Idempotency check ────────────────────────────────────────────────────────
+  // Polar retries failed deliveries — skip if we've already processed this event.
+  const eventId = req.headers.get("webhook-id");
+  if (eventId) {
+    const { data: existing } = await admin
+      .from("processed_webhook_events")
+      .select("id")
+      .eq("id", eventId)
+      .maybeSingle();
+    if (existing) return NextResponse.json({ received: true });
+  }
+
+  // ── Event routing ────────────────────────────────────────────────────────────
+  switch (event.type) {
+    case "order.paid": {
       // One-time credit top-up purchase
-      if (customData.type !== "topup") break;
-      const userId = customData.user_id;
+      const meta = event.data.metadata as Record<string, string> | undefined;
+      if (meta?.type !== "topup") break;
+
+      const userId = meta?.user_id;
       if (!userId) break;
 
-      const credits = parseInt(customData.credits ?? "0");
-      const lemonCustomerId = String(payload.data?.attributes?.customer_id ?? "");
+      const credits = parseInt(meta?.credits ?? "0", 10);
+      if (credits <= 0) break;
 
       await Promise.all([
         admin.rpc("increment_credits", { p_user_id: userId, p_amount: credits }),
-        admin.from("users").update({ lemon_customer_id: lemonCustomerId }).eq("id", userId),
+        admin.from("users")
+          .update({ polar_customer_id: event.data.customerId })
+          .eq("id", userId),
         admin.from("credits_log").insert({
           user_id: userId,
           amount: credits,
@@ -59,39 +71,79 @@ export async function POST(req: NextRequest) {
       break;
     }
 
-    case "subscription_created":
-    case "subscription_updated": {
-      const userId = customData.user_id;
+    case "subscription.created": {
+      const meta = event.data.metadata as Record<string, string> | undefined;
+      const userId = meta?.user_id;
       if (!userId) break;
 
-      // Prefer variant_id mapping (handles portal-initiated changes)
-      const variantId = String(payload.data?.attributes?.variant_id ?? "");
-      const plan = VARIANT_TO_PLAN[variantId] ?? customData.plan;
-      if (!plan || !PLAN_CREDITS[plan as keyof typeof PLAN_CREDITS]) break;
-
-      const lemonCustomerId = String(payload.data?.attributes?.customer_id ?? "");
-      const lemonSubscriptionId = String(payload.data?.id ?? "");
+      const plan = PRODUCT_TO_PLAN[event.data.productId] ?? meta?.plan;
+      if (!plan || !(plan in PLAN_CREDITS)) break;
 
       await admin.from("users").update({
         plan,
         credits_remaining: PLAN_CREDITS[plan as keyof typeof PLAN_CREDITS],
-        lemon_customer_id: lemonCustomerId,
-        lemon_subscription_id: lemonSubscriptionId,
+        polar_customer_id: event.data.customerId,
+        polar_subscription_id: event.data.id,
+        subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
+        subscription_cancel_at_period_end: event.data.cancelAtPeriodEnd ?? false,
       }).eq("id", userId);
       break;
     }
 
-    case "subscription_cancelled": {
-      const userId = customData.user_id;
+    case "subscription.updated": {
+      // Fires for plan changes AND when user schedules a cancellation.
+      // We always update the renewal date and cancel flag.
+      // If cancelAtPeriodEnd=true we skip the plan/credits reset — user keeps
+      // access until the period ends; subscription.canceled will handle downgrade.
+      const meta = event.data.metadata as Record<string, string> | undefined;
+      const userId = meta?.user_id;
+      if (!userId) break;
+
+      if (event.data.cancelAtPeriodEnd === true) {
+        // Only update the cancel flag + renewal date, preserve plan
+        await admin.from("users").update({
+          subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
+          subscription_cancel_at_period_end: true,
+        }).eq("id", userId);
+        break;
+      }
+
+      const plan = PRODUCT_TO_PLAN[event.data.productId] ?? meta?.plan;
+      if (!plan || !(plan in PLAN_CREDITS)) break;
+
+      await admin.from("users").update({
+        plan,
+        credits_remaining: PLAN_CREDITS[plan as keyof typeof PLAN_CREDITS],
+        polar_customer_id: event.data.customerId,
+        polar_subscription_id: event.data.id,
+        subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
+        subscription_cancel_at_period_end: false,
+      }).eq("id", userId);
+      break;
+    }
+
+    case "subscription.canceled": {
+      // Fires when the billing period actually ends — downgrade user to free
+      const meta = event.data.metadata as Record<string, string> | undefined;
+      const userId = meta?.user_id;
       if (!userId) break;
 
       await admin.from("users").update({
         plan: "free",
         credits_remaining: PLAN_CREDITS.free,
-        lemon_subscription_id: null,
+        polar_subscription_id: null,
+        subscription_renews_at: null,
+        subscription_cancel_at_period_end: false,
       }).eq("id", userId);
       break;
     }
+  }
+
+  // ── Mark event as processed ──────────────────────────────────────────────────
+  if (eventId) {
+    await admin
+      .from("processed_webhook_events")
+      .upsert({ id: eventId });
   }
 
   return NextResponse.json({ received: true });
