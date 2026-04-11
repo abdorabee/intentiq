@@ -25,6 +25,11 @@ export const metadata: Metadata = {
   title: "IntentIQ — B2B Lead Intent Scoring",
   description:
     "Know which leads are ready to buy before your competitors do. Composite intent score, AI reasoning, and recommended actions in one API call.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
