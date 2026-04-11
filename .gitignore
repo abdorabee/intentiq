@@ -44,5 +44,6 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 
-# Claude Code local settings (may contain shell history with secrets)
+# Claude Code — local settings and git worktrees (may contain secrets / nested repos)
 .claude/settings.local.json
+.claude/worktrees/
