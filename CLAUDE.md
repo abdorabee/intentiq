@@ -29,22 +29,20 @@ ANTHROPIC_API_KEY=
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 
-# LemonSqueezy (payment gateway)
-LEMONSQUEEZY_API_KEY=              # API key from LS dashboard Settings > API
-LEMONSQUEEZY_STORE_ID=             # Store ID (number) from LS dashboard
-LEMONSQUEEZY_WEBHOOK_SECRET=       # Webhook signing secret
-NEXT_PUBLIC_LEMON_STORE_SLUG=      # Store slug for customer portal link
+# Polar.sh (payment gateway)
+POLAR_ACCESS_TOKEN=                # API key from Polar dashboard Settings > Developers
+POLAR_WEBHOOK_SECRET=              # Webhook signing secret from Polar dashboard
 
-# LemonSqueezy variant IDs (subscriptions)
-LEMON_VARIANT_STARTER=
-LEMON_VARIANT_GROWTH=
-LEMON_VARIANT_PRO=
-LEMON_VARIANT_AGENCY=
+# Polar.sh product IDs (subscriptions) — copy from Polar dashboard Products
+POLAR_PRODUCT_STARTER=
+POLAR_PRODUCT_GROWTH=
+POLAR_PRODUCT_PRO=
+POLAR_PRODUCT_AGENCY=
 
-# LemonSqueezy variant IDs (one-time top-ups)
-LEMON_VARIANT_TOPUP_100=
-LEMON_VARIANT_TOPUP_500=
-LEMON_VARIANT_TOPUP_1000=
+# Polar.sh product IDs (one-time top-ups)
+POLAR_PRODUCT_TOPUP_100=
+POLAR_PRODUCT_TOPUP_500=
+POLAR_PRODUCT_TOPUP_1000=
 
 # Signal sources (only needed when MOCK_SIGNALS=false)
 EXPLORIUM_API_KEY=         # explorium.ai — company funding enrichment (2-step: match + enrich)
@@ -99,7 +97,7 @@ Score decays 15% per month from `latestSignalDate`. Bands: HOT ≥75, WARM ≥50
 - `app/(auth)/` — login, signup pages (unauthenticated layout)
 - `app/(dashboard)/` — dashboard, score, watchlist, bulk, api-keys, billing pages (authenticated layout)
 - `app/api/v1/` — public REST API (score single, bulk score, watchlist, prioritize)
-- `app/api/billing/` — LemonSqueezy checkout, top-up, and webhook handler
+- `app/api/billing/` — Polar.sh checkout, top-up, and webhook handler
 - `app/api/user/` — API key management
 
 ### Auth & Middleware
@@ -108,7 +106,7 @@ Score decays 15% per month from `latestSignalDate`. Bands: HOT ≥75, WARM ≥50
 
 ### Billing Model
 
-Plans: `free | starter | growth | pro | agency`. Credits are reset on subscription change (via LemonSqueezy webhook `subscription_created/subscription_updated`). One-time top-ups increment credits without changing plan (via `order_completed` webhook). Credits are deducted per score request via a Supabase RPC `deduct_credit`. Bulk jobs deduct credits equal to the company count upfront.
+Plans: `free | starter | growth | pro | agency`. Credits are reset on subscription change (via Polar webhook `subscription.created`/`subscription.updated`). One-time top-ups increment credits without changing plan (via `order.paid` webhook). Credits are deducted per score request via a Supabase RPC `deduct_credit`. Bulk jobs deduct credits equal to the company count upfront.
 
 ### Bulk Jobs
 

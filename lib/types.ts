@@ -89,8 +89,10 @@ export interface BusinessProfile {
 export interface DbUser {
   id: string;
   email: string;
-  lemon_customer_id: string | null;
-  lemon_subscription_id: string | null;
+  polar_customer_id: string | null;
+  polar_subscription_id: string | null;
+  subscription_renews_at: string | null;
+  subscription_cancel_at_period_end: boolean;
   plan: "free" | "starter" | "growth" | "pro" | "agency";
   credits_remaining: number;
   product_category: string | null;

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
-import { initLemonSqueezy } from "@/lib/lemonsqueezy";
+import { polar } from "@/lib/polar";
 
-const PLAN_VARIANT_IDS: Record<string, string> = {
-  starter: process.env.LEMON_VARIANT_STARTER ?? "",
-  growth:  process.env.LEMON_VARIANT_GROWTH  ?? "",
-  pro:     process.env.LEMON_VARIANT_PRO     ?? "",
-  agency:  process.env.LEMON_VARIANT_AGENCY  ?? "",
+const PLAN_PRODUCT_IDS: Record<string, string> = {
+  starter: process.env.POLAR_PRODUCT_STARTER ?? "",
+  growth:  process.env.POLAR_PRODUCT_GROWTH  ?? "",
+  pro:     process.env.POLAR_PRODUCT_PRO     ?? "",
+  agency:  process.env.POLAR_PRODUCT_AGENCY  ?? "",
 };
 
 export async function POST(req: NextRequest) {
@@ -17,34 +16,28 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const plan = formData.get("plan") as string;
 
-  if (!(plan in PLAN_VARIANT_IDS)) {
+  if (!(plan in PLAN_PRODUCT_IDS)) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
-  if (!PLAN_VARIANT_IDS[plan]) {
-    return NextResponse.json({ error: "Payment not configured. Set LEMON_VARIANT_* env vars." }, { status: 503 });
+  if (!PLAN_PRODUCT_IDS[plan]) {
+    return NextResponse.json(
+      { error: "Payment not configured. Set POLAR_PRODUCT_* env vars." },
+      { status: 503 }
+    );
   }
 
-  initLemonSqueezy();
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
-  const storeId = process.env.LEMONSQUEEZY_STORE_ID!;
 
-  const { data: checkout, error } = await createCheckout(storeId, PLAN_VARIANT_IDS[plan], {
-    checkoutData: {
-      custom: {
-        user_id: userId,
-        plan,
-      },
-    },
-    productOptions: {
-      redirectUrl: `${origin}/billing?success=true`,
-    },
-  });
+  try {
+    const checkout = await polar.checkouts.create({
+      products: [PLAN_PRODUCT_IDS[plan]],
+      successUrl: `${origin}/billing?success=true`,
+      metadata: { user_id: userId, plan },
+    });
 
-  const checkoutUrl = checkout?.data?.attributes?.url;
-  if (!checkoutUrl || error) {
-    console.error("[billing/checkout] failed:", error);
+    return NextResponse.redirect(checkout.url, 303);
+  } catch (err) {
+    console.error("[billing/checkout] failed:", err);
     return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 });
   }
-
-  return NextResponse.redirect(checkoutUrl, 303);
 }
