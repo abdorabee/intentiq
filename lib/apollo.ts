@@ -1,3 +1,4 @@
+// lib/apollo.ts
 import type { ApolloPersonData } from "@/lib/types";
 
 const USE_MOCK = process.env.MOCK_SIGNALS === "true";
