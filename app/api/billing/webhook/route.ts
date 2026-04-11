@@ -3,13 +3,32 @@ import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks"
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { PLAN_CREDITS } from "@/lib/types";
 
-// Reverse map: Polar product ID → plan name (for portal-initiated plan changes)
-const PRODUCT_TO_PLAN: Record<string, string> = {
-  [process.env.POLAR_PRODUCT_STARTER ?? ""]: "starter",
-  [process.env.POLAR_PRODUCT_GROWTH  ?? ""]: "growth",
-  [process.env.POLAR_PRODUCT_PRO     ?? ""]: "pro",
-  [process.env.POLAR_PRODUCT_AGENCY  ?? ""]: "agency",
-};
+if (!process.env.POLAR_WEBHOOK_SECRET) {
+  throw new Error("POLAR_WEBHOOK_SECRET environment variable is not set");
+}
+
+// Reverse map: Polar product ID → plan name (for portal-initiated plan changes).
+// Filter out empty-string keys that arise when env vars are unset.
+const PRODUCT_TO_PLAN: Record<string, string> = Object.fromEntries(
+  (
+    [
+      [process.env.POLAR_PRODUCT_STARTER, "starter"],
+      [process.env.POLAR_PRODUCT_GROWTH,  "growth"],
+      [process.env.POLAR_PRODUCT_PRO,     "pro"],
+      [process.env.POLAR_PRODUCT_AGENCY,  "agency"],
+    ] as [string | undefined, string][]
+  ).filter(([k]) => k)
+);
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Safely extract string-valued keys from unknown webhook metadata. */
+function getMeta(raw: unknown): Record<string, string> {
+  if (raw == null || typeof raw !== "object" || Array.isArray(raw)) return {};
+  return Object.fromEntries(
+    Object.entries(raw as Record<string, unknown>).filter(([, v]) => typeof v === "string")
+  ) as Record<string, string>;
+}
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -30,33 +49,39 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createSupabaseAdmin();
-
-  // ── Idempotency check ────────────────────────────────────────────────────────
-  // Polar retries failed deliveries — skip if we've already processed this event.
   const eventId = req.headers.get("webhook-id");
+
+  // ── Atomic idempotency check ─────────────────────────────────────────────────
+  // INSERT first — if the same event arrives twice concurrently only one INSERT
+  // wins; the other gets a unique-constraint error (code 23505) and returns early.
   if (eventId) {
-    const { data: existing } = await admin
+    const { error: insertErr } = await admin
       .from("processed_webhook_events")
-      .select("id")
-      .eq("id", eventId)
-      .maybeSingle();
-    if (existing) return NextResponse.json({ received: true });
+      .insert({ id: eventId });
+    if (insertErr) {
+      if (insertErr.code === "23505") {
+        return NextResponse.json({ received: true }); // already processed
+      }
+      // Unexpected DB error — let Polar retry
+      console.error("[billing/webhook] idempotency insert failed:", insertErr);
+      return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    }
   }
 
   // ── Event routing ────────────────────────────────────────────────────────────
   switch (event.type) {
     case "order.paid": {
       // One-time credit top-up purchase
-      const meta = event.data.metadata as Record<string, string> | undefined;
-      if (meta?.type !== "topup") break;
+      const meta = getMeta(event.data.metadata);
+      if (meta.type !== "topup") break;
 
-      const userId = meta?.user_id;
+      const userId = meta.user_id;
       if (!userId) break;
 
-      const credits = parseInt(meta?.credits ?? "0", 10);
+      const credits = parseInt(meta.credits ?? "0", 10);
       if (credits <= 0) break;
 
-      await Promise.all([
+      const [rpcResult] = await Promise.all([
         admin.rpc("increment_credits", { p_user_id: userId, p_amount: credits }),
         admin.from("users")
           .update({ polar_customer_id: event.data.customerId })
@@ -68,18 +93,22 @@ export async function POST(req: NextRequest) {
           reason: `Top-up purchase (${credits} credits)`,
         }),
       ]);
+      if (rpcResult.error) {
+        console.error("[billing/webhook] order.paid credit update failed:", rpcResult.error);
+        return NextResponse.json({ error: "Credit update failed" }, { status: 500 });
+      }
       break;
     }
 
     case "subscription.created": {
-      const meta = event.data.metadata as Record<string, string> | undefined;
-      const userId = meta?.user_id;
+      const meta = getMeta(event.data.metadata);
+      const userId = meta.user_id;
       if (!userId) break;
 
-      const plan = PRODUCT_TO_PLAN[event.data.productId] ?? meta?.plan;
+      const plan = PRODUCT_TO_PLAN[event.data.productId] ?? meta.plan;
       if (!plan || !(plan in PLAN_CREDITS)) break;
 
-      await admin.from("users").update({
+      const { error } = await admin.from("users").update({
         plan,
         credits_remaining: PLAN_CREDITS[plan as keyof typeof PLAN_CREDITS],
         polar_customer_id: event.data.customerId,
@@ -87,31 +116,44 @@ export async function POST(req: NextRequest) {
         subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
         subscription_cancel_at_period_end: event.data.cancelAtPeriodEnd ?? false,
       }).eq("id", userId);
+      if (error) {
+        console.error("[billing/webhook] subscription.created update failed:", error);
+        return NextResponse.json({ error: "User update failed" }, { status: 500 });
+      }
       break;
     }
 
     case "subscription.updated": {
-      // Fires for plan changes AND when user schedules a cancellation.
-      // We always update the renewal date and cancel flag.
-      // If cancelAtPeriodEnd=true we skip the plan/credits reset — user keeps
-      // access until the period ends; subscription.canceled will handle downgrade.
-      const meta = event.data.metadata as Record<string, string> | undefined;
-      const userId = meta?.user_id;
+      // Fires for plan changes, cancellation scheduling, and un-cancellations.
+      const meta = getMeta(event.data.metadata);
+      const userId = meta.user_id;
       if (!userId) break;
 
       if (event.data.cancelAtPeriodEnd === true) {
-        // Only update the cancel flag + renewal date, preserve plan
-        await admin.from("users").update({
+        // User scheduled a cancellation — preserve plan/credits, update status fields only
+        const { error } = await admin.from("users").update({
           subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
           subscription_cancel_at_period_end: true,
+        }).eq("id", userId);
+        if (error) {
+          console.error("[billing/webhook] subscription.updated (cancel) update failed:", error);
+          return NextResponse.json({ error: "User update failed" }, { status: 500 });
+        }
+        break;
+      }
+
+      const plan = PRODUCT_TO_PLAN[event.data.productId] ?? meta.plan;
+      if (!plan || !(plan in PLAN_CREDITS)) {
+        // Unknown plan but subscription is active (e.g. un-cancel with stale metadata).
+        // At minimum clear the cancel flag so the UI reflects active status.
+        await admin.from("users").update({
+          subscription_cancel_at_period_end: false,
+          subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
         }).eq("id", userId);
         break;
       }
 
-      const plan = PRODUCT_TO_PLAN[event.data.productId] ?? meta?.plan;
-      if (!plan || !(plan in PLAN_CREDITS)) break;
-
-      await admin.from("users").update({
+      const { error } = await admin.from("users").update({
         plan,
         credits_remaining: PLAN_CREDITS[plan as keyof typeof PLAN_CREDITS],
         polar_customer_id: event.data.customerId,
@@ -119,31 +161,32 @@ export async function POST(req: NextRequest) {
         subscription_renews_at: event.data.currentPeriodEnd?.toISOString() ?? null,
         subscription_cancel_at_period_end: false,
       }).eq("id", userId);
+      if (error) {
+        console.error("[billing/webhook] subscription.updated update failed:", error);
+        return NextResponse.json({ error: "User update failed" }, { status: 500 });
+      }
       break;
     }
 
     case "subscription.canceled": {
       // Fires when the billing period actually ends — downgrade user to free
-      const meta = event.data.metadata as Record<string, string> | undefined;
-      const userId = meta?.user_id;
+      const meta = getMeta(event.data.metadata);
+      const userId = meta.user_id;
       if (!userId) break;
 
-      await admin.from("users").update({
+      const { error } = await admin.from("users").update({
         plan: "free",
         credits_remaining: PLAN_CREDITS.free,
         polar_subscription_id: null,
         subscription_renews_at: null,
         subscription_cancel_at_period_end: false,
       }).eq("id", userId);
+      if (error) {
+        console.error("[billing/webhook] subscription.canceled update failed:", error);
+        return NextResponse.json({ error: "User update failed" }, { status: 500 });
+      }
       break;
     }
-  }
-
-  // ── Mark event as processed ──────────────────────────────────────────────────
-  if (eventId) {
-    await admin
-      .from("processed_webhook_events")
-      .upsert({ id: eventId });
   }
 
   return NextResponse.json({ received: true });
