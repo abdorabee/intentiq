@@ -19,6 +19,9 @@ import {
   ExternalLink,
   Columns3,
   Check,
+  Flame,
+  Zap,
+  ArrowRight,
 } from "lucide-react";
 import type { PipelineCompany } from "@/app/api/dashboard/pipeline/route";
 
@@ -27,6 +30,7 @@ type StageKey = "cold" | "warming" | "hot" | "engaged" | "converted";
 const STAGE_CONFIG: Record<StageKey, {
   label: string;
   desc: string;
+  action: string;
   headerClass: string;
   titleClass: string;
   dotClass: string;
@@ -36,6 +40,7 @@ const STAGE_CONFIG: Record<StageKey, {
   cold: {
     label: "COLD",
     desc: "Nurture",
+    action: "Send awareness content",
     headerClass: "border-slate-500/30 bg-slate-50 dark:bg-white/[0.03]",
     titleClass: "text-slate-400",
     dotClass: "bg-slate-500",
@@ -45,6 +50,7 @@ const STAGE_CONFIG: Record<StageKey, {
   warming: {
     label: "WARMING",
     desc: "Follow Up",
+    action: "Reference their recent signal",
     headerClass: "border-amber-500/30 bg-amber-500/10",
     titleClass: "text-amber-400",
     dotClass: "bg-amber-400",
@@ -54,6 +60,7 @@ const STAGE_CONFIG: Record<StageKey, {
   hot: {
     label: "HOT",
     desc: "Act Now",
+    action: "Book a call — use trigger in pitch",
     headerClass: "border-emerald-500/30 bg-emerald-500/10",
     titleClass: "text-emerald-400",
     dotClass: "bg-emerald-400",
@@ -63,6 +70,7 @@ const STAGE_CONFIG: Record<StageKey, {
   engaged: {
     label: "ENGAGED",
     desc: "In Outreach",
+    action: "Send proposal or follow up",
     headerClass: "border-cyan-500/30 bg-cyan-500/10",
     titleClass: "text-cyan-400",
     dotClass: "bg-cyan-400",
@@ -72,6 +80,7 @@ const STAGE_CONFIG: Record<StageKey, {
   converted: {
     label: "CONVERTED",
     desc: "Won",
+    action: "Request a referral",
     headerClass: "border-violet-500/30 bg-violet-500/10",
     titleClass: "text-violet-400",
     dotClass: "bg-violet-400",
@@ -244,13 +253,16 @@ function PipelineColumn({
         if (domain) onStageChange(domain, stage);
       }}
     >
-      <div className={`border px-4 py-3 flex items-center justify-between ${cfg.headerClass}`}>
-        <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full ${cfg.dotClass} ${stage === "hot" ? "animate-pulse" : ""}`} />
-          <span className={`font-bold text-sm ${cfg.titleClass}`}>{cfg.label}</span>
-          <span className="text-xs text-slate-500">{cfg.desc}</span>
+      <div className={`border px-4 py-3 ${cfg.headerClass}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${cfg.dotClass} ${stage === "hot" ? "animate-pulse" : ""}`} />
+            <span className={`font-bold text-sm ${cfg.titleClass}`}>{cfg.label}</span>
+            <span className="text-xs text-slate-500">{cfg.desc}</span>
+          </div>
+          <span className="text-xs font-mono text-slate-500">{companies.length}</span>
         </div>
-        <span className="text-xs font-mono text-slate-500">{companies.length}</span>
+        <p className="text-[10px] text-slate-500 dark:text-slate-600 mt-1 pl-4">→ {cfg.action}</p>
       </div>
 
       <div className={`space-y-2 min-h-[80px] ${dragOver ? "bg-cyan-500/5" : ""}`}>
@@ -383,15 +395,49 @@ export default function PipelinePage() {
   const selectedStage = selected ? ((selected.pipeline_stage ?? "cold") as StageKey) : "cold";
   const selectedCfg = selected ? STAGE_CONFIG[selectedStage] : null;
 
+  const hotCount = grouped.hot.length;
+  const warmingCount = grouped.warming.length;
+  const engagedCount = grouped.engaged.length;
+
   return (
     <div className="space-y-6">
       <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[PIPELINE]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Intent Pipeline</h1>
+        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[INTENT HUB]</span>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Intent Hub</h1>
         <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">
-          Track companies through intent stages — from cold signals to converted deals.
+          Track companies through intent stages — each stage tells you exactly what to do next.
         </p>
       </div>
+
+      {/* Alert bar — shown when there is data */}
+      {!loading && companies.length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          {hotCount > 0 && (
+            <div className="flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-4 py-2">
+              <Flame className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+              <span className="text-xs text-emerald-400 font-medium">
+                {hotCount} HOT {hotCount === 1 ? "company" : "companies"} — book a call now
+              </span>
+            </div>
+          )}
+          {warmingCount > 0 && (
+            <div className="flex items-center gap-2 border border-amber-500/30 bg-amber-500/5 px-4 py-2">
+              <Zap className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+              <span className="text-xs text-amber-400 font-medium">
+                {warmingCount} warming — follow up with signal context
+              </span>
+            </div>
+          )}
+          {engagedCount > 0 && (
+            <div className="flex items-center gap-2 border border-cyan-500/30 bg-cyan-500/5 px-4 py-2">
+              <ArrowRight className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
+              <span className="text-xs text-cyan-400 font-medium">
+                {engagedCount} in outreach — send proposal or follow up
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-24">

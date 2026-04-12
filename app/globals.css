@@ -404,6 +404,14 @@
   animation: fade-in 0.3s ease-out both;
 }
 
+/* Smooth grid-rows expand for inline chat artifacts (score cards) */
+.grid-expand {
+  display: grid;
+  transition: grid-template-rows 0.3s ease-out;
+}
+.grid-expand[data-open="true"]  { grid-template-rows: 1fr; }
+.grid-expand[data-open="false"] { grid-template-rows: 0fr; }
+
 /* Reduced motion: disable all custom animations */
 @media (prefers-reduced-motion: reduce) {
   .scanline-hover::after,
