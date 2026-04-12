@@ -1,7 +1,7 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import DashboardNav from "@/components/dashboard/nav";
+import DashboardShell from "@/components/dashboard/dashboard-shell";
 import ChatTrigger from "@/components/chat/chat-trigger";
 import OnboardingGate from "@/components/onboarding-gate";
 
@@ -52,8 +52,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
 
           <div className="relative flex min-h-screen">
-            <DashboardNav creditsRemaining={creditsRemaining} />
-            <main className="flex-1 p-4 pt-16 lg:p-10 lg:pt-10 lg:ml-60 max-w-5xl">{children}</main>
+            <DashboardShell creditsRemaining={creditsRemaining}>
+              {children}
+            </DashboardShell>
           </div>
           <ChatTrigger creditsRemaining={creditsRemaining} />
         </div>

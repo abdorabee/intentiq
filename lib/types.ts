@@ -38,6 +38,10 @@ export interface IntentScore {
   talk_track: string;
   score_decay_date: string;
   model_tier: "premium" | "free";
+  icp_fit_score?: number;       // 0-100, how well the company fits the user's ICP
+  raw_score?: number;           // pre-spread weighted sum (debug)
+  confidence?: number;          // 0-1, based on active signal count × avg freshness
+  score_explanation?: string;   // gpt-4o-mini generated 2-sentence explanation
 }
 
 // ─── API Types ────────────────────────────────────────────────────────────────
@@ -177,6 +181,33 @@ export interface DbChatMessage {
 }
 
 export const CHAT_CREDIT_COST = 0.25;
+
+// ─── Conversation Analysis Types ─────────────────────────────────────────────
+
+export type ConversationSignalType =
+  | "pain_point"
+  | "budget_mention"
+  | "timeline"
+  | "competitor"
+  | "champion"
+  | "objection"
+  | "buying_trigger";
+
+export interface ConversationSignal {
+  type: ConversationSignalType;
+  excerpt: string;        // verbatim quote from conversation
+  confidence: number;     // 0-1
+  company?: string;       // if identifiable from context
+}
+
+export interface ConversationAnalysis {
+  signals: ConversationSignal[];
+  companies: string[];                              // extracted company names
+  overall_intent: "hot" | "warm" | "cold" | "unknown";
+  intent_score: number;                             // 0-100
+  summary: string;                                  // 2-3 sentence analyst take
+  recommended_action: string;                       // what to do next
+}
 
 // ─── Person Scoring Types ────────────────────────────────────────────────────
 

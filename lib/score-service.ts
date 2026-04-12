@@ -6,7 +6,7 @@ import { fetchNewsSignal } from "@/lib/signals/news";
 import { fetchTechnologySignal } from "@/lib/signals/technology";
 import { fetchWebSignal } from "@/lib/signals/web";
 import { getMockSignals } from "@/lib/signals/mock";
-import { computeIntentScore } from "@/lib/scorer";
+import { computeIntentScore, generateScoreExplanation, buildScoredSignals } from "@/lib/scorer";
 import { generateReasoning } from "@/lib/reasoning";
 import { updatePipelineStage } from "@/lib/pipeline";
 import type { IntentScore, SignalSet, BusinessProfile } from "@/lib/types";
@@ -28,6 +28,53 @@ export interface ScoreCompanyOptions {
   productCategory?: string;
   businessProfile?: BusinessProfile | null;
   skipCredits?: boolean;
+}
+
+/**
+ * Compute ICP fit score (0–100) by comparing company signals against the user's business profile.
+ */
+function computeIcpFit(businessProfile: BusinessProfile | null, signals: SignalSet): number {
+  if (!businessProfile) return 0;
+
+  let score = 0;
+
+  // Industry alignment (30 pts) — keyword match in signal details
+  const industryKeywords = businessProfile.target_industries.map((i) =>
+    i.toLowerCase().split("/")[0].split("(")[0].trim()
+  );
+  const signalText = [signals.news.detail, signals.technology.detail, signals.funding.detail]
+    .join(" ")
+    .toLowerCase();
+  const industryMatches = industryKeywords.filter((kw) => signalText.includes(kw)).length;
+  score += industryMatches > 0 ? Math.min(30, 15 + industryMatches * 10) : 10;
+
+  // Company size alignment (25 pts) — inferred from hiring velocity
+  const hiringRatio = signals.hiring.score / signals.hiring.max;
+  const sizeMap: Record<string, { min: number; max: number }> = {
+    "Startups (1-50)": { min: 0, max: 0.3 },
+    "SMB (51-200)": { min: 0.2, max: 0.55 },
+    "Mid-Market (201-1000)": { min: 0.4, max: 0.75 },
+    "Enterprise (1000+)": { min: 0.55, max: 1.0 },
+  };
+  const sizeRange = sizeMap[businessProfile.company_size];
+  score += sizeRange && hiringRatio >= sizeRange.min && hiringRatio <= sizeRange.max ? 25 : 10;
+
+  // Buyer role signal (20 pts) — keywords in hiring detail
+  const roleKeywords: Record<string, string[]> = {
+    "C-Suite / Founders": ["cto", "ceo", "cfo", "chief", "president", "founder"],
+    "VP / Director": ["vp", "vice president", "director", "head of"],
+    "Manager / Team Lead": ["manager", "lead", "team lead", "senior"],
+    "Individual Contributor": ["engineer", "analyst", "specialist", "developer"],
+  };
+  const targetKws = roleKeywords[businessProfile.buyer_role] ?? [];
+  const hiringText = signals.hiring.detail.toLowerCase();
+  score += targetKws.some((kw) => hiringText.includes(kw)) ? 20 : 8;
+
+  // Technology alignment (25 pts) — tech stack score is a proxy for digital maturity
+  const techRatio = signals.technology.score / signals.technology.max;
+  score += Math.round(techRatio * 25);
+
+  return Math.min(100, Math.round(score));
 }
 
 /**
@@ -91,7 +138,24 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentSco
     businessProfile
   );
 
-  const result: IntentScore = { ...partial, ...reasoning };
+  // ── Score explanation (gpt-4o-mini, cached 24h per domain) ───────────────
+  const explanationCacheKey = `score_explanation:${lookupDomain}`;
+  let score_explanation = await cacheGet<string>(explanationCacheKey);
+  if (!score_explanation) {
+    const scoredSignals = buildScoredSignals(signals);
+    score_explanation = await generateScoreExplanation(
+      lookupCompany,
+      partial.intent_score,
+      partial.score_band,
+      scoredSignals
+    );
+    if (score_explanation) {
+      await cacheSet(explanationCacheKey, score_explanation, SCORE_TTL_SECONDS);
+    }
+  }
+
+  const icp_fit_score = computeIcpFit(businessProfile ?? null, signals);
+  const result: IntentScore = { ...partial, ...reasoning, icp_fit_score, score_explanation: score_explanation ?? "" };
 
   // ── Cache + persist ──────────────────────────────────────────────────────
   await cacheSet(cacheKey, result, SCORE_TTL_SECONDS);

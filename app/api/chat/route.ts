@@ -8,9 +8,13 @@ import type { DbUser } from "@/lib/types";
 const COPILOT_MODEL = process.env.COPILOT_MODEL ?? "anthropic/claude-sonnet-4";
 const COPILOT_MAX_TOKENS = Number(process.env.COPILOT_MAX_TOKENS) || 1024;
 
+type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 interface OpenRouterMessage {
   role: "system" | "user" | "assistant" | "tool";
-  content: string | null;
+  content: string | null | ContentBlock[];
   tool_calls?: Array<{
     id: string;
     type: "function";
@@ -72,11 +76,31 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
 
-  const body = await req.json();
-  const { message, session_id } = body as { message: string; session_id?: string };
+  // ── Parse body — support both JSON and multipart (image upload) ─────────────
+  const contentType = req.headers.get("content-type") ?? "";
+  let message: string;
+  let session_id: string | undefined;
+  let imageBase64: string | null = null;
+  let imageMediaType = "image/jpeg";
 
-  if (!message?.trim()) {
-    return new Response(JSON.stringify({ error: "Message is required" }), { status: 400 });
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await req.formData();
+    message = (formData.get("message") as string | null) ?? "";
+    session_id = (formData.get("session_id") as string | null) ?? undefined;
+    const imageFile = formData.get("image") as File | null;
+    if (imageFile && imageFile.size > 0) {
+      const buffer = await imageFile.arrayBuffer();
+      imageBase64 = Buffer.from(buffer).toString("base64");
+      imageMediaType = imageFile.type || "image/jpeg";
+    }
+  } else {
+    const body = await req.json();
+    message = body.message;
+    session_id = body.session_id;
+  }
+
+  if (!message?.trim() && !imageBase64) {
+    return new Response(JSON.stringify({ error: "Message or image is required" }), { status: 400 });
   }
 
   const supabase = createSupabaseAdmin();
@@ -121,11 +145,14 @@ export async function POST(req: NextRequest) {
     content: m.content,
   }));
 
-  // ── Persist user message ─────────────────────────────────────────────────
+  // ── Persist user message (store text only; images are not stored in DB) ────
+  const persistContent = imageBase64
+    ? `[Screenshot] ${message}`.trim()
+    : message;
   await supabase.from("chat_messages").insert({
     session_id: sessionId,
     role: "user",
-    content: message,
+    content: persistContent,
   });
 
   // ── Deduct chat credit ───────────────────────────────────────────────────
@@ -134,6 +161,14 @@ export async function POST(req: NextRequest) {
   // ── Build context ────────────────────────────────────────────────────────
   const context = await buildCopilotContext(userId);
   const systemPrompt = buildCopilotSystemPrompt(user as DbUser, context);
+
+  // ── Build user message content (vision or text) ──────────────────────────
+  const userMessageContent: OpenRouterMessage["content"] = imageBase64
+    ? [
+        { type: "image_url", image_url: { url: `data:${imageMediaType};base64,${imageBase64}` } },
+        { type: "text", text: message || "Analyze this conversation screenshot for buying intent signals." },
+      ]
+    : message;
 
   // ── Stream response ──────────────────────────────────────────────────────
   const encoder = new TextEncoder();
@@ -147,7 +182,7 @@ export async function POST(req: NextRequest) {
       try {
         const messages: OpenRouterMessage[] = [
           ...conversationHistory,
-          { role: "user", content: message },
+          { role: "user", content: userMessageContent },
         ];
 
         let continueLoop = true;

@@ -1,7 +1,7 @@
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { scoreCompany } from "@/lib/score-service";
 import { scorePerson } from "@/lib/person-score-service";
-import type { BusinessProfile, DbUser, PipelineStage } from "@/lib/types";
+import type { BusinessProfile, DbUser, PipelineStage, ConversationAnalysis } from "@/lib/types";
 
 // ─── OpenRouter Tool Definitions (OpenAI-compatible format) ──────────────────
 
@@ -166,6 +166,59 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
         properties: {
           limit: { type: "number", description: "Max number of recent actions to return (default 20)" },
         },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "analyze_conversation",
+      description: "Analyze a sales conversation (from a screenshot or pasted text export) to extract buying intent signals, identify prospect companies, and score purchase intent. Call this tool whenever a user shares a conversation screenshot or pastes chat/email content. You fill in all parameters based on your reading of the conversation.",
+      parameters: {
+        type: "object",
+        properties: {
+          signals: {
+            type: "array",
+            description: "Intent signals you identified in the conversation",
+            items: {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["pain_point", "budget_mention", "timeline", "competitor", "champion", "objection", "buying_trigger"],
+                  description: "Type of intent signal",
+                },
+                excerpt: { type: "string", description: "Verbatim or near-verbatim quote from the conversation supporting this signal" },
+                confidence: { type: "number", description: "Your confidence in this signal, 0.0 to 1.0" },
+                company: { type: "string", description: "Company this signal relates to, if identifiable" },
+              },
+              required: ["type", "excerpt", "confidence"],
+            },
+          },
+          companies: {
+            type: "array",
+            items: { type: "string" },
+            description: "Company names you identified as the buyer or prospect in the conversation",
+          },
+          overall_intent: {
+            type: "string",
+            enum: ["hot", "warm", "cold", "unknown"],
+            description: "Your verdict: hot = strong buying signals, warm = interested but early, cold = mostly objections or passive, unknown = insufficient data",
+          },
+          intent_score: {
+            type: "number",
+            description: "Intent score 0-100. HOT >= 75 (explicit budget + timeline + champion), WARM 50-74 (2+ active signals), COLD < 50 (discovery or objections)",
+          },
+          summary: {
+            type: "string",
+            description: "2-3 sentence sales intelligence summary of what this conversation reveals about the prospect's intent",
+          },
+          recommended_action: {
+            type: "string",
+            description: "The single most important next step the sales rep should take based on this conversation",
+          },
+        },
+        required: ["signals", "companies", "overall_intent", "intent_score", "summary", "recommended_action"],
       },
     },
   },
@@ -424,6 +477,24 @@ export async function executeTool(
       return { actions };
     }
 
+    case "analyze_conversation": {
+      // Claude has already extracted and structured the analysis via vision or text reading.
+      // Deduct 1 credit for the analysis and return the structured result.
+      const { error: creditError } = await supabase.rpc("deduct_credit", { p_user_id: userId });
+      if (creditError) console.error("[copilot] analyze_conversation deduct_credit error:", creditError);
+
+      const analysis: ConversationAnalysis = {
+        signals: (args.signals as ConversationAnalysis["signals"]) ?? [],
+        companies: (args.companies as string[]) ?? [],
+        overall_intent: (args.overall_intent as ConversationAnalysis["overall_intent"]) ?? "unknown",
+        intent_score: Number(args.intent_score) || 0,
+        summary: (args.summary as string) ?? "",
+        recommended_action: (args.recommended_action as string) ?? "",
+      };
+
+      return analysis;
+    }
+
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -531,11 +602,15 @@ ${watchlistSummary}
 PIPELINE STAGES: ${pipelineSummary}
 ${hotSection}
 
+CONVERSATION ANALYSIS:
+When the user shares a screenshot or pastes raw chat/email/Slack content, ALWAYS call the analyze_conversation tool immediately — do not describe what you see first, just call the tool.
+After the tool returns, lead your response with the intent verdict ("This looks like a [HOT/WARM/COLD] prospect") and highlight the 2-3 strongest signals with direct quotes. Always offer to run a full domain score if you identified the company ("Want me to run a full intent score on [Company]?").
+
 GUIDELINES:
 - Always cite specific data from scores and signals. Never fabricate company data.
 - When you don't have data about a company, offer to score it (costs 1 credit).
 - Be concise and direct — sales reps value speed over verbose explanations.
 - When drafting emails, reference specific signals (funding rounds, hires, news events).
-- Scoring a company costs 1 credit. The user currently has ${user.credits_remaining} credits.
+- Scoring a company costs 1 credit. Conversation analysis costs 1 credit. The user currently has ${user.credits_remaining} credits.
 - If the user asks about a company not in their data, search first, then offer to score.`;
 }
