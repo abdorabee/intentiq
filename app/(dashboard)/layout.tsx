@@ -19,22 +19,30 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const admin = createSupabaseAdmin();
-  const [, { data: profile }] = await Promise.all([
-    admin.from("users").upsert(
-      {
-        id: userId,
-        email: user?.emailAddresses[0]?.emailAddress ?? "",
-        plan: "free",
-        credits_remaining: 20,
-        onboarding_completed: true,
-      },
-      { onConflict: "id", ignoreDuplicates: true }
-    ),
-    admin.from("users").select("credits_remaining, onboarding_completed").eq("id", userId).single(),
-  ]);
+
+  // Upsert first — guarantees the row exists before we select it.
+  // Running both concurrently via Promise.all caused a race where the select
+  // returned null for brand-new users, setting onboardingCompleted=false and
+  // triggering an infinite redirect loop to the non-existent /onboarding page.
+  await admin.from("users").upsert(
+    {
+      id: userId,
+      email: user?.emailAddresses[0]?.emailAddress ?? "",
+      plan: "free",
+      credits_remaining: 20,
+      onboarding_completed: true,
+    },
+    { onConflict: "id", ignoreDuplicates: true }
+  );
+
+  const { data: profile } = await admin
+    .from("users")
+    .select("credits_remaining, onboarding_completed")
+    .eq("id", userId)
+    .single();
 
   const creditsRemaining = profile?.credits_remaining ?? 0;
-  const onboardingCompleted = profile?.onboarding_completed ?? false;
+  const onboardingCompleted = profile?.onboarding_completed ?? true;
 
   return (
     <OnboardingGate completed={onboardingCompleted}>
