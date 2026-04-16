@@ -171,8 +171,8 @@ export function ScoreResult({ result }: { result: IntentScore }) {
     <div className="space-y-4">
       {/* Score dial */}
       <Card className={`border-slate-200 dark:border-white/[0.12] ${cfg.glow}`}>
-        <CardContent className="flex items-center gap-6 pt-6 flex-wrap">
-          <div className={`p-[5px] rounded-full flex-shrink-0 bg-gradient-to-br ${cfg.ring} ${cfg.pulse}`}>
+        <CardContent className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-6">
+          <div className={`p-[5px] rounded-full self-center sm:self-auto flex-shrink-0 bg-gradient-to-br ${cfg.ring} ${cfg.pulse}`}>
             <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-white dark:bg-[#020617]">
               <span className={`text-4xl font-black ${cfg.score}`}>{result.intent_score}</span>
             </div>

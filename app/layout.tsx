@@ -22,9 +22,65 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IntentIQ — B2B Lead Intent Scoring",
+  title: {
+    default: "IntentIQ — B2B Intent Scoring for MENA",
+    template: "%s | IntentIQ",
+  },
   description:
-    "Know which leads are ready to buy before your competitors do. Composite intent score, AI reasoning, and recommended actions in one API call.",
+    "Score any company 0–100 for purchase intent in one API call. Funding, hiring, news, tech stack & web signals combined with AI reasoning — 100x cheaper than 6sense or Bombora. Built for MENA sales teams.",
+  metadataBase: new URL("https://www.intentiqs.com"),
+  keywords: [
+    "B2B intent data",
+    "buyer intent signals",
+    "lead scoring",
+    "sales intelligence",
+    "MENA",
+    "intent scoring API",
+    "6sense alternative",
+    "Bombora alternative",
+    "purchase intent",
+    "B2B sales",
+    "SMB sales tools",
+    "intent data platform",
+  ],
+  authors: [{ name: "IntentIQ", url: "https://www.intentiqs.com" }],
+  creator: "IntentIQ",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.intentiqs.com",
+    siteName: "IntentIQ",
+    title: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
+    description:
+      "Track hiring spikes, funding rounds, tech stack changes, and news mentions. " +
+      "Surface companies ready to buy before your competitors do. From $49/mo.",
+    images: [
+      {
+        url: "https://www.intentiqs.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "IntentIQ — B2B Intent Signal Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "IntentIQ — B2B Buyer Intent Signals",
+    description:
+      "Track hiring spikes, funding rounds, tech stack changes and more. Find your buyers first.",
+    images: ["https://www.intentiqs.com/og-image.png"],
+  },
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",

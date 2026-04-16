@@ -871,7 +871,7 @@ export default function AnalyzePage() {
             className="w-full px-4 pt-4 pb-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 bg-transparent resize-none outline-none"
           />
           <div className="flex items-center justify-between px-4 pb-3">
-            <span className="text-xs text-slate-400 tracking-wide">Shift+Enter for new line · Ctrl+V to paste screenshot</span>
+            <span className="hidden sm:inline text-xs text-slate-400 tracking-wide">Shift+Enter for new line · Ctrl+V to paste screenshot</span>
             <button
               onClick={() => handleAnalyze()}
               disabled={!query.trim() && !hasImage}
@@ -992,9 +992,8 @@ export default function AnalyzePage() {
               </div>
             </div>
             <p className="font-sans text-[10px] text-slate-400 dark:text-slate-600 mt-1.5 text-center tracking-wide">
-              {hasImage
-                ? "1 credit · Ctrl+V to paste screenshot · Enter to send"
-                : "0.25 credits per follow-up · Ctrl+V to paste screenshot · Enter to send"}
+              <span className="sm:hidden">{hasImage ? "1 credit · Enter to send" : "0.25 credits · Enter to send"}</span>
+              <span className="hidden sm:inline">{hasImage ? "1 credit · Ctrl+V to paste screenshot · Enter to send" : "0.25 credits per follow-up · Ctrl+V to paste screenshot · Enter to send"}</span>
             </p>
           </form>
         ) : (
