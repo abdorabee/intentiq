@@ -67,10 +67,10 @@ export const metadata: Metadata = {
       "Surface companies ready to buy before your competitors do. From $49/mo.",
     images: [
       {
-        url: "https://www.intentiqs.com/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "IntentIQ — B2B Intent Signal Platform",
+        alt: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
       },
     ],
   },
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     title: "IntentIQ — B2B Buyer Intent Signals",
     description:
       "Track hiring spikes, funding rounds, tech stack changes and more. Find your buyers first.",
-    images: ["https://www.intentiqs.com/og-image.png"],
+    images: ["/opengraph-image"],
   },
   icons: {
     icon: "/icon.svg",

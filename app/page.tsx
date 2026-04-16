@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     canonical: CANONICAL,
   },
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "IntentIQ",
     url: CANONICAL,
     title: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
     description:
