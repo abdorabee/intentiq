@@ -26,6 +26,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         email: user?.emailAddresses[0]?.emailAddress ?? "",
         plan: "free",
         credits_remaining: 20,
+        onboarding_completed: true,
       },
       { onConflict: "id", ignoreDuplicates: true }
     ),
