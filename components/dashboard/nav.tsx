@@ -170,7 +170,7 @@ export default function DashboardNav({
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDrawerOpen(false)} />
-          <div className="absolute top-0 right-0 bottom-0 w-64 bg-white dark:bg-black border-l border-slate-200 dark:border-white/[0.06] p-4 space-y-1 overflow-y-auto">
+          <div className="absolute top-0 right-0 bottom-0 w-[min(256px,85vw)] bg-white dark:bg-black border-l border-slate-200 dark:border-white/[0.06] p-4 space-y-1 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
               <button

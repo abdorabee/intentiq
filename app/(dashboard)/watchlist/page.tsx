@@ -180,10 +180,10 @@ export default function WatchlistPage() {
                 <TableHeader>
                   <TableRow className="border-slate-200 dark:border-white/[0.06] hover:bg-transparent">
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Company</TableHead>
-                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Domain</TableHead>
+                    <TableHead className="hidden sm:table-cell text-slate-500 text-xs uppercase tracking-wide">Domain</TableHead>
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Score</TableHead>
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Band</TableHead>
-                    <TableHead className="text-slate-500 text-xs uppercase tracking-wide">Last Scored</TableHead>
+                    <TableHead className="hidden sm:table-cell text-slate-500 text-xs uppercase tracking-wide">Last Scored</TableHead>
                     <TableHead className="text-slate-500 text-xs uppercase tracking-wide w-10" />
                   </TableRow>
                 </TableHeader>
@@ -194,7 +194,7 @@ export default function WatchlistPage() {
                       className="border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors"
                     >
                       <TableCell className="font-medium text-slate-700 dark:text-slate-200">{item.company_name}</TableCell>
-                      <TableCell className="text-slate-500 text-sm">{item.domain}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-slate-500 text-sm">{item.domain}</TableCell>
                       <TableCell className="font-bold text-slate-800 dark:text-slate-100">{item.score ?? "—"}</TableCell>
                       <TableCell>
                         {item.score_band ? (
@@ -205,7 +205,7 @@ export default function WatchlistPage() {
                           <span className="text-slate-600 text-xs">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-slate-500 text-sm">
+                      <TableCell className="hidden sm:table-cell text-slate-500 text-sm">
                         {item.last_scored ? new Date(item.last_scored).toLocaleDateString() : "Never"}
                       </TableCell>
                       <TableCell>

@@ -183,7 +183,7 @@ export default function BulkScorerPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div
-            className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-white/[0.12] p-10 text-center cursor-pointer hover:border-cyan-500/50 transition-colors"
+            className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-white/[0.12] p-5 sm:p-10 text-center cursor-pointer hover:border-cyan-500/50 transition-colors"
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             onClick={() => inputRef.current?.click()}
@@ -328,7 +328,7 @@ export default function BulkScorerPage() {
                       <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Company</th>
                       <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Domain</th>
                       <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Score</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">AI Summary</th>
+                      <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">AI Summary</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -346,7 +346,7 @@ export default function BulkScorerPage() {
                             {r.score_band} · {r.intent_score}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-slate-500 max-w-md">
+                        <td className="hidden sm:table-cell px-4 py-3 text-slate-500 max-w-md">
                           <p className="line-clamp-2">{r.ai_summary}</p>
                         </td>
                       </tr>

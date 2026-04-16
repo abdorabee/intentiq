@@ -19,16 +19,16 @@ export default function LandingPage() {
 
   const handleEnter = () => {
     setHasEntered(true);
-    // Refresh ScrollTrigger after content renders
+    // Refresh ScrollTrigger after Loader fades out
     setTimeout(() => ScrollTrigger.refresh(), 100);
   };
 
   return (
     <div className="bg-black text-white overflow-x-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-      {/* Loader */}
+      {/* Loader — full-screen gateway; fades out on Enter */}
       {!hasEntered && <Loader onEnter={handleEnter} />}
 
-      {/* Main content */}
+      {/* Main content — gated until visitor clicks Enter */}
       {hasEntered && (
         <>
           <HUD visible={hasEntered} />

@@ -57,6 +57,9 @@ export default function SignalsShowcase() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12 space-y-4">
           <SectionLabel text="SIGNALS" />
+          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+            Five signals. One intent score.
+          </h2>
           <p className="text-slate-500 text-sm tracking-[0.1em]">
             Five live data signals, weighted and scored in real time.
           </p>
