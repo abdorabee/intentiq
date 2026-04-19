@@ -1,9 +1,45 @@
 export const PRICING = [
-  { plan: "Free",    price: "$0",    credits: "20",     cta: "Start Free" },
-  { plan: "Starter", price: "$49",   credits: "500",    cta: "Get Started" },
-  { plan: "Growth",  price: "$149",  credits: "2,500",  cta: "Get Started", highlight: true },
-  { plan: "Pro",     price: "$299",  credits: "8,000",  cta: "Get Started" },
-  { plan: "Agency",  price: "$499",  credits: "25,000", cta: "Get Started" },
+  {
+    plan: "Free",
+    price: "$0",
+    credits: "20",
+    perScore: null,
+    cta: "Start Free",
+    features: ["20 intent scores", "5 watchlist companies", "Dashboard access"],
+  },
+  {
+    plan: "Starter",
+    price: "$29",
+    credits: "500",
+    perScore: "$0.058",
+    cta: "Get Started",
+    features: ["500 intent scores/mo", "50 watchlist companies", "CSV exports", "API access"],
+  },
+  {
+    plan: "Growth",
+    price: "$79",
+    credits: "2,500",
+    perScore: "$0.032",
+    cta: "Get Started",
+    highlight: true,
+    features: ["2,500 intent scores/mo", "250 watchlist companies", "Bulk scorer", "5 Autopilot workflows"],
+  },
+  {
+    plan: "Pro",
+    price: "$199",
+    credits: "8,000",
+    perScore: "$0.025",
+    cta: "Get Started",
+    features: ["8,000 intent scores/mo", "1,000 watchlist companies", "People scorer", "50 Autopilot workflows"],
+  },
+  {
+    plan: "Agency",
+    price: "$499",
+    credits: "25,000",
+    perScore: "$0.020",
+    cta: "Get Started",
+    features: ["25,000 intent scores/mo", "Unlimited watchlist", "Priority support", "Unlimited Autopilot"],
+  },
 ];
 
 export const COMPARISON = [
@@ -11,7 +47,7 @@ export const COMPARISON = [
   { name: "Bombora",         price: "$25K+/yr", smb: false, api: false, ai: false, mena: false },
   { name: "ZoomInfo Intent", price: "$15K+/yr", smb: false, api: false, ai: false, mena: true  },
   { name: "Apollo Intent",   price: "$49/mo+",  smb: true,  api: true,  ai: false, mena: true  },
-  { name: "IntentIQ",        price: "$49/mo",   smb: true,  api: true,  ai: true,  mena: true, you: true },
+  { name: "IntentIQ",        price: "from $29/mo", smb: true,  api: true,  ai: true,  mena: true, you: true },
 ];
 
 export const MARQUEE_COMPANIES = [

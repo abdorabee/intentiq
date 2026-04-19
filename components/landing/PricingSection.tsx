@@ -4,14 +4,13 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Link from "next/link";
 import SectionLabel from "./SectionLabel";
 import BracketButton from "./BracketButton";
 import { PRICING, COMPARISON } from "./data";
 
 gsap.registerPlugin(ScrollTrigger);
 
-function Check({ yes }: { yes: boolean }) {
+function CompareCheck({ yes }: { yes: boolean }) {
   return yes ? (
     <span className="text-cyan-400 text-xs tracking-[0.2em]">[+]</span>
   ) : (
@@ -61,7 +60,8 @@ export default function PricingSection() {
 
   return (
     <section ref={sectionRef} id="pricing" className="py-24 md:py-32" style={{ background: "linear-gradient(to bottom, #000c18 0%, #000810 50%, #000000 100%)" }}>
-      <div className="max-w-5xl mx-auto px-6 space-y-16">
+      <div className="max-w-6xl mx-auto px-6 space-y-16">
+
         {/* Header */}
         <div className="space-y-4">
           <SectionLabel text="PRICING" />
@@ -69,16 +69,16 @@ export default function PricingSection() {
             Simple pricing
           </h2>
           <p className="text-slate-500 text-sm tracking-[0.05em]">
-            Pay for what you score. No annual lock-in.
+            100x cheaper than 6sense. Start free, upgrade when you&apos;re ready.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div ref={cardsRef} className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <div ref={cardsRef} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {PRICING.map((p) => (
             <div
               key={p.plan}
-              className={`flex flex-col p-5 gap-4 border transition-all ${
+              className={`relative flex flex-col p-5 gap-4 border transition-all ${
                 p.highlight
                   ? "border-cyan-500/40 bg-cyan-500/5"
                   : "border-white/[0.08] bg-white/[0.02]"
@@ -87,21 +87,45 @@ export default function PricingSection() {
                 boxShadow: "0 0 30px rgba(6,182,212,0.15), 0 0 60px rgba(6,182,212,0.05)",
               } : undefined}
             >
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-slate-400 text-xs tracking-[0.2em]">[ {p.plan.toUpperCase()} ]</p>
-                  {p.highlight && (
-                    <span className="text-[10px] tracking-[0.2em] text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5">
-                      POPULAR
-                    </span>
-                  )}
+              {/* Popular badge */}
+              {p.highlight && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                  <span className="bg-cyan-500 text-black text-[9px] font-bold px-3 py-0.5 tracking-[0.2em] uppercase">
+                    MOST POPULAR
+                  </span>
                 </div>
+              )}
+
+              {/* Plan name + price */}
+              <div className="space-y-1">
+                <p className="text-slate-400 text-xs tracking-[0.2em]">[ {p.plan.toUpperCase()} ]</p>
                 <p className="text-2xl font-bold text-white">
                   {p.price}
                   <span className="text-sm font-normal text-slate-600">/mo</span>
                 </p>
+                {p.perScore ? (
+                  <p className="text-[10px] text-slate-600 tracking-[0.08em]">≈ {p.perScore}/score</p>
+                ) : (
+                  <p className="text-[10px] text-slate-700 tracking-[0.08em]">no card required</p>
+                )}
               </div>
-              <p className="text-sm text-slate-500">{p.credits} credits</p>
+
+              {/* Credit count */}
+              <p className="text-xs text-slate-500 tracking-[0.05em] border-t border-white/[0.06] pt-3">
+                {p.credits} credits/month
+              </p>
+
+              {/* Features */}
+              <ul className="space-y-1.5 flex-1">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-slate-400">
+                    <span className="text-cyan-500/70 shrink-0 mt-px">[+]</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA */}
               <div className="mt-auto">
                 <BracketButton href="/signup" size="sm" className="w-full justify-center">
                   {p.cta}
@@ -111,11 +135,12 @@ export default function PricingSection() {
           ))}
         </div>
 
+        {/* Risk reversal footer */}
         <p className="text-center text-xs text-slate-600 tracking-[0.1em]">
-          Pay-as-you-go also available at $0.08/credit. No annual contracts.
+          No annual contracts &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; Pay-as-you-go at $0.08/credit
         </p>
 
-        {/* Comparison Table */}
+        {/* Competitor Comparison Table */}
         <div ref={tableRef} className="border border-white/[0.08] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -144,17 +169,20 @@ export default function PricingSection() {
                         <span className="text-slate-400 text-xs tracking-[0.05em]">{c.name}</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-slate-600 text-xs tracking-[0.05em]">{c.price}</td>
-                    <td className="px-5 py-4"><Check yes={c.smb} /></td>
-                    <td className="px-5 py-4"><Check yes={c.api} /></td>
-                    <td className="px-5 py-4"><Check yes={c.ai} /></td>
-                    <td className="px-5 py-4"><Check yes={c.mena} /></td>
+                    <td className={`px-5 py-4 text-xs tracking-[0.05em] ${c.you ? "text-cyan-400 font-semibold" : "text-slate-600"}`}>
+                      {c.price}
+                    </td>
+                    <td className="px-5 py-4"><CompareCheck yes={c.smb} /></td>
+                    <td className="px-5 py-4"><CompareCheck yes={c.api} /></td>
+                    <td className="px-5 py-4"><CompareCheck yes={c.ai} /></td>
+                    <td className="px-5 py-4"><CompareCheck yes={c.mena} /></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+
       </div>
     </section>
   );
