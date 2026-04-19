@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Loader from "./Loader";
 import HUD from "./HUD";
 import HeroSection from "./HeroSection";
 import SignalsShowcase from "./SignalsShowcase";
@@ -15,33 +13,17 @@ import CTAFooter from "./CTAFooter";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
-  const [hasEntered, setHasEntered] = useState(false);
-
-  const handleEnter = () => {
-    setHasEntered(true);
-    // Refresh ScrollTrigger after Loader fades out
-    setTimeout(() => ScrollTrigger.refresh(), 100);
-  };
-
   return (
     <div className="bg-black text-white overflow-x-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-      {/* Loader — full-screen gateway; fades out on Enter */}
-      {!hasEntered && <Loader onEnter={handleEnter} />}
-
-      {/* Main content — gated until visitor clicks Enter */}
-      {hasEntered && (
-        <>
-          <HUD visible={hasEntered} />
-          <main>
-            <HeroSection />
-            <SignalsShowcase />
-            <CodeDemo />
-            <HowItWorks />
-            <PricingSection />
-            <CTAFooter />
-          </main>
-        </>
-      )}
+      <HUD visible={true} />
+      <main>
+        <HeroSection />
+        <SignalsShowcase />
+        <CodeDemo />
+        <HowItWorks />
+        <PricingSection />
+        <CTAFooter />
+      </main>
     </div>
   );
 }
