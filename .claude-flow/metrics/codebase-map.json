@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-11T03:58:06.103Z",
+  "projectRoot": "D:\\projects\\intentiq",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": true,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1778471886103
+}
