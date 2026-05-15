@@ -471,6 +471,18 @@ details.nav-dd[open] .nav-chevron {
 }
 
 /* ================================================================
+   Clerk overrides
+   ================================================================ */
+
+/* Hide the "Development mode" orange banner */
+.cl-badge,
+.cl-internal-badge,
+[data-localization-key="badge__devMode"],
+.cl-devModeNotice {
+  display: none !important;
+}
+
+/* ================================================================
    Landing page CSS — ported from IntentIQ Linear.html
    ================================================================ */
 

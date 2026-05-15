@@ -146,16 +146,16 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
 export function SignalDonut({ signals, totalScore }: { signals: SignalSet; totalScore: number }) {
   const r = 40;
   const circumference = 2 * Math.PI * r;
-  let cumulativeOffset = 0;
-
-  const segments = SIGNAL_META.map((m) => {
+  const segments = SIGNAL_META.reduce<
+    Array<ReturnType<typeof Object.assign> & { score: number; pct: number; dashLength: number; offset: number }>
+  >((acc, m) => {
     const sig = signals[m.key];
     const pct = totalScore > 0 ? sig.score / totalScore : 0;
     const dashLength = pct * circumference;
-    const offset = cumulativeOffset;
-    cumulativeOffset += dashLength;
-    return { ...m, score: sig.score, pct, dashLength, offset };
-  });
+    const offset = acc.reduce((sum, s) => sum + s.dashLength, 0);
+    acc.push({ ...m, score: sig.score, pct, dashLength, offset });
+    return acc;
+  }, []);
 
   return (
     <div className="flex items-center gap-4">
