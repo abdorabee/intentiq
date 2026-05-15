@@ -15,6 +15,7 @@ import {
 import { Download, ChevronLeft, ChevronRight, Copy, Check, X } from "lucide-react";
 import { toCSV, downloadCSV as triggerDownload, csvFilename, formatSignal } from "@/lib/csv";
 import type { DbScore, ScoreBand, BuyingStage, UrgencyLevel, SignalSet } from "@/lib/types";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 const bandClass = (band: ScoreBand) => {
   if (band === "HOT")  return "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30";
@@ -163,13 +164,12 @@ export default function ScoreHistoryPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[HISTORY]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Score History</h1>
-        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">All companies you&apos;ve scored — most recent first.</p>
-      </div>
-
+    <DashboardPageShell
+      eyebrow="Pipeline"
+      title="Score history"
+      description="All companies you've scored — most recent first."
+      maxWidthClass="max-w-6xl"
+    >
       <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader>
           <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -181,7 +181,7 @@ export default function ScoreHistoryPage() {
                 placeholder="Search company or domain…"
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-52 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50 text-sm h-8"
+                className="w-52 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-[#5e6ad2]/50 text-sm h-8"
               />
               <Button
                 variant="outline"
@@ -428,6 +428,6 @@ export default function ScoreHistoryPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 }

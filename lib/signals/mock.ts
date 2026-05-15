@@ -19,6 +19,7 @@ export function getMockSignals(domain: string): SignalSet {
   const newsScore     = r(0, 20);
   const techScore     = r(0, 20);
   const webScore      = r(0, 15);
+  const githubScore   = r(0, 20);
 
   return {
     funding: {
@@ -65,6 +66,15 @@ export function getMockSignals(domain: string): SignalSet {
         : webScore > 5
         ? "Traffic up 9% MoM — MOCK"
         : "Flat or declining traffic — MOCK",
+    },
+    github: {
+      score: githubScore,
+      max: 20,
+      detail: githubScore > 12
+        ? "8 repos pushed last 30d; 2 new repos this quarter — MOCK"
+        : githubScore > 5
+        ? "3 repos with recent activity — MOCK"
+        : "No recent GitHub activity detected — MOCK",
     },
     latestSignalDate: new Date().toISOString(),
   };

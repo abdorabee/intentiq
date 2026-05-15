@@ -13,7 +13,7 @@ const ScanlineRow = forwardRef<HTMLDivElement, ScanlineRowProps>(
     return (
       <div
         ref={ref}
-        className={`scanline-hover flex items-center justify-between py-6 px-4 md:px-8 border-b border-dashed border-cyan-500/20 cursor-default ${className}`}
+        className={`scanline-hover flex items-center justify-between py-6 px-4 md:px-8 border-b border-dashed border-white/[0.08] cursor-default ${className}`}
       >
         <div className="flex-1 min-w-0">{left}</div>
         <div className="flex-shrink-0 ml-4">{right}</div>

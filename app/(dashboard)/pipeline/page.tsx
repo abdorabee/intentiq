@@ -24,6 +24,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import type { PipelineCompany } from "@/app/api/dashboard/pipeline/route";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 type StageKey = "cold" | "warming" | "hot" | "engaged" | "converted";
 
@@ -71,11 +72,11 @@ const STAGE_CONFIG: Record<StageKey, {
     label: "ENGAGED",
     desc: "In Outreach",
     action: "Send proposal or follow up",
-    headerClass: "border-cyan-500/30 bg-cyan-500/10",
-    titleClass: "text-cyan-400",
-    dotClass: "bg-cyan-400",
-    scoreClass: "text-cyan-400",
-    badgeClass: "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30",
+    headerClass: "border-[#5e6ad2]/35 bg-[#5e6ad2]/10",
+    titleClass: "text-[#c9c4ff]",
+    dotClass: "bg-[#7170ff]",
+    scoreClass: "text-[#c9c4ff]",
+    badgeClass: "border border-[#5e6ad2]/35 bg-[#5e6ad2]/15 text-[#c9c4ff]",
   },
   converted: {
     label: "CONVERTED",
@@ -239,7 +240,7 @@ function PipelineColumn({
   const cfg = STAGE_CONFIG[stage];
   return (
     <div
-      className={`flex flex-col gap-3 min-w-0 transition-all duration-200 ${dragOver ? "ring-2 ring-cyan-500/40 rounded-sm" : ""}`}
+      className={`flex flex-col gap-3 min-w-0 transition-all duration-200 ${dragOver ? "ring-2 ring-[#5e6ad2]/40 rounded-sm" : ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
@@ -265,9 +266,9 @@ function PipelineColumn({
         <p className="text-[10px] text-slate-500 dark:text-slate-600 mt-1 pl-4">→ {cfg.action}</p>
       </div>
 
-      <div className={`space-y-2 min-h-[80px] ${dragOver ? "bg-cyan-500/5" : ""}`}>
+      <div className={`space-y-2 min-h-[80px] ${dragOver ? "bg-[#5e6ad2]/5" : ""}`}>
         {companies.length === 0 ? (
-          <div className={`border border-dashed px-4 py-8 text-center ${dragOver ? "border-cyan-500/30" : "border-slate-200 dark:border-white/[0.06]"}`}>
+          <div className={`border border-dashed px-4 py-8 text-center ${dragOver ? "border-[#5e6ad2]/35" : "border-slate-200 dark:border-white/[0.06]"}`}>
             <p className="text-xs text-slate-600">{dragOver ? `Drop here → ${cfg.label}` : `No ${cfg.label.toLowerCase()} companies`}</p>
           </div>
         ) : (
@@ -400,15 +401,12 @@ export default function PipelinePage() {
   const engagedCount = grouped.engaged.length;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[INTENT HUB]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Intent Hub</h1>
-        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">
-          Track companies through intent stages — each stage tells you exactly what to do next.
-        </p>
-      </div>
-
+    <DashboardPageShell
+      eyebrow="Intent hub"
+      title="Intent Hub"
+      description="Track companies through intent stages — each stage tells you exactly what to do next."
+      maxWidthClass="max-w-[1600px]"
+    >
       {/* Alert bar — shown when there is data */}
       {!loading && companies.length > 0 && (
         <div className="flex flex-wrap gap-3">
@@ -429,9 +427,9 @@ export default function PipelinePage() {
             </div>
           )}
           {engagedCount > 0 && (
-            <div className="flex items-center gap-2 border border-cyan-500/30 bg-cyan-500/5 px-4 py-2">
-              <ArrowRight className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
-              <span className="text-xs text-cyan-400 font-medium">
+            <div className="flex items-center gap-2 border border-[#5e6ad2]/35 bg-[#5e6ad2]/8 px-4 py-2">
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[#c9c4ff]" />
+              <span className="text-xs font-medium text-[#c9c4ff]">
                 {engagedCount} in outreach — send proposal or follow up
               </span>
             </div>
@@ -452,7 +450,7 @@ export default function PipelinePage() {
           </div>
           <Link
             href="/watchlist"
-            className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            className="text-sm text-[#c9c4ff] transition-colors hover:text-[#f7f8f8]"
           >
             Go to Watchlist →
           </Link>
@@ -557,7 +555,7 @@ export default function PipelinePage() {
 
                 <div className="flex gap-2 flex-wrap pt-1">
                   <Button
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-400 text-white border-0 gap-1.5 cursor-pointer"
+                    className="flex-1 cursor-pointer gap-1.5 border-0 bg-[#5e6ad2] text-white hover:bg-[#7170ff]"
                     onClick={handleCopyDialogEmail}
                     disabled={!selected.email_subject && !selected.talk_track}
                   >
@@ -583,6 +581,6 @@ export default function PipelinePage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 }

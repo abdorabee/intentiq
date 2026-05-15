@@ -17,7 +17,7 @@ export default function ChatTrigger({ creditsRemaining }: ChatTriggerProps) {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-30 flex items-center gap-2 px-4 py-2.5 bg-cyan-500/10 border border-cyan-500/25 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-500/40 transition-all duration-200 cursor-pointer group shadow-sm dark:shadow-none"
+          className="group fixed bottom-6 right-6 z-30 flex cursor-pointer items-center gap-2 border border-[#5e6ad2]/30 bg-[#5e6ad2]/12 px-4 py-2.5 text-[#c9c4ff] shadow-sm transition-all duration-200 hover:border-[#7170ff]/45 hover:bg-[#5e6ad2]/22 dark:shadow-none"
           aria-label="Open Intent Copilot"
         >
           <Sparkles className="h-4 w-4 group-hover:animate-pulse" />

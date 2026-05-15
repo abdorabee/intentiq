@@ -79,7 +79,7 @@ export default function CTAFooter() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] py-8">
         <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <span className="text-cyan-400 text-xs tracking-[0.2em]">INTENTIQ</span>
+          <span className="text-xs tracking-[0.2em] text-[#7170ff]">INTENTIQ</span>
           <p className="text-[10px] text-slate-600 tracking-[0.15em]">
             © {new Date().getFullYear()} INTENTIQ · BUILT FOR B2B SALES TEAMS
           </p>

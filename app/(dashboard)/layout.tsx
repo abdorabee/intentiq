@@ -37,31 +37,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await admin
     .from("users")
-    .select("credits_remaining, onboarding_completed")
+    .select("credits_remaining, onboarding_completed, plan")
     .eq("id", userId)
     .single();
 
   const creditsRemaining = profile?.credits_remaining ?? 0;
   const onboardingCompleted = profile?.onboarding_completed ?? true;
+  const plan = (profile?.plan as "free" | "starter" | "growth" | "pro" | "agency" | undefined) ?? "free";
 
   return (
     <OnboardingGate completed={onboardingCompleted}>
       {onboardingCompleted ? (
-        <div className="relative min-h-screen bg-white dark:bg-black overflow-x-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-          {/* Subtle wireframe grid background */}
-          <div className="fixed inset-0 pointer-events-none dark:block hidden" aria-hidden>
-            <div className="absolute inset-0" style={{
-              backgroundImage: "linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
-            }} />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.08)_0%,transparent_50%)]" />
-          </div>
-          <div className="fixed inset-0 pointer-events-none dark:hidden block" aria-hidden>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.05)_0%,transparent_50%)]" />
-          </div>
-
+        <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden font-sans text-[13px] tracking-[-0.006em] antialiased">
           <div className="relative flex min-h-screen">
-            <DashboardShell creditsRemaining={creditsRemaining}>
+            <DashboardShell creditsRemaining={creditsRemaining} plan={plan}>
               {children}
             </DashboardShell>
           </div>
@@ -69,7 +58,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       ) : (
         // During onboarding: clean layout without sidebar/nav
-        <div className="relative min-h-screen bg-white dark:bg-black" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
+        <div className="relative min-h-screen bg-background font-sans">
           {children}
         </div>
       )}

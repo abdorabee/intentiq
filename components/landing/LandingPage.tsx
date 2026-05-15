@@ -1,28 +1,42 @@
-"use client";
-
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import LandingBanner from "./LandingBanner";
 import HUD from "./HUD";
 import HeroSection from "./HeroSection";
+import LogoStrip from "./LogoStrip";
+import PillarsSection from "./PillarsSection";
+import StatsSection from "./StatsSection";
+import ScoreFeatureSection from "./ScoreFeatureSection";
+import PipelineFeatureSection from "./PipelineFeatureSection";
+import AutopilotFeatureSection from "./AutopilotFeatureSection";
+import DevelopersSection from "./DevelopersSection";
+import TestimonialsSection from "./TestimonialsSection";
 import SignalsShowcase from "./SignalsShowcase";
 import CodeDemo from "./CodeDemo";
 import HowItWorks from "./HowItWorks";
-import PricingSection from "./PricingSection";
-import CTAFooter from "./CTAFooter";
-
-gsap.registerPlugin(ScrollTrigger);
+import PricingV2Section from "./PricingV2Section";
+import FinalCtaSection from "./FinalCtaSection";
+import LandingFooter from "./LandingFooter";
 
 export default function LandingPage() {
   return (
-    <div className="bg-black text-white overflow-x-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
+    <div className="min-h-screen overflow-x-hidden bg-[#08090a] font-sans text-[#f7f8f8] antialiased">
+      <LandingBanner />
       <HUD visible={true} />
       <main>
         <HeroSection />
+        <LogoStrip />
+        <PillarsSection />
+        <StatsSection />
+        <ScoreFeatureSection />
+        <PipelineFeatureSection />
+        <AutopilotFeatureSection />
+        <DevelopersSection />
+        <TestimonialsSection />
         <SignalsShowcase />
         <CodeDemo />
         <HowItWorks />
-        <PricingSection />
-        <CTAFooter />
+        <PricingV2Section />
+        <FinalCtaSection />
+        <LandingFooter />
       </main>
     </div>
   );

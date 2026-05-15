@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Eye, Trash2, Plus, AlertCircle } from "lucide-react";
 import type { WatchlistEntry } from "@/lib/types";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 type FilterTab = "ALL" | "HOT" | "WARM" | "COLD";
 
@@ -90,13 +91,12 @@ export default function WatchlistPage() {
     : watchlist.filter((w) => w.score_band === activeTab);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[WATCHLIST]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Monitored Companies</h1>
-        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Companies you&apos;re monitoring — re-scored weekly.</p>
-      </div>
-
+    <DashboardPageShell
+      eyebrow="Watchlist"
+      title="Monitored companies"
+      description="Companies you're monitoring — re-scored weekly."
+      maxWidthClass="max-w-5xl"
+    >
       {/* Add Company Form */}
       <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader className="pb-3">
@@ -109,14 +109,14 @@ export default function WatchlistPage() {
               value={addDomain}
               onChange={(e) => setAddDomain(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 min-w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+              className="flex-1 min-w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-[#5e6ad2]/50"
             />
             <Input
               placeholder="Company name (optional)"
               value={addCompany}
               onChange={(e) => setAddCompany(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 min-w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+              className="flex-1 min-w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-[#5e6ad2]/50"
             />
             <Button
               onClick={handleAdd}
@@ -226,6 +226,6 @@ export default function WatchlistPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 }

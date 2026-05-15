@@ -12,6 +12,7 @@ export interface SignalSet {
   news: SignalResult;
   technology: SignalResult;
   web: SignalResult;
+  github: SignalResult;
   latestSignalDate: string; // ISO date string
 }
 

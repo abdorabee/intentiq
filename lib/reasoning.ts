@@ -146,25 +146,36 @@ export async function generateReasoning(
   let res: Response | undefined;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 700,
-        temperature: 0.4,
-        messages: [
-          {
-            role: "system",
-            content: "You are IntentIQ's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
-          },
-          { role: "user", content: buildPrompt(company, score, band, signals, productCategory, businessProfile) },
-        ],
-      }),
-    });
+    try {
+      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 700,
+          temperature: 0.4,
+          messages: [
+            {
+              role: "system",
+              content: "You are IntentIQ's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
+            },
+            { role: "user", content: buildPrompt(company, score, band, signals, productCategory, businessProfile) },
+          ],
+        }),
+      });
+    } catch (err) {
+      if (attempt < MAX_RETRIES) {
+        const delay = Math.pow(2, attempt + 2) * 1000;
+        console.warn(`[reasoning] network error for ${company}, retry ${attempt + 1}/${MAX_RETRIES} in ${(delay / 1000).toFixed(0)}s`, err);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      console.warn(`[reasoning] all retries failed for ${company}, using mock`, err);
+      return { ...buildMockResult(company, score, band, signals), model_tier: "free" };
+    }
 
     if (res.ok) break;
 

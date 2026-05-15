@@ -5,6 +5,7 @@ import { fetchHiringSignal } from "@/lib/signals/hiring";
 import { fetchNewsSignal } from "@/lib/signals/news";
 import { fetchTechnologySignal } from "@/lib/signals/technology";
 import { fetchWebSignal } from "@/lib/signals/web";
+import { fetchGitHubSignal } from "@/lib/signals/github";
 import { getMockSignals } from "@/lib/signals/mock";
 import { computeIntentScore, generateScoreExplanation, buildScoredSignals } from "@/lib/scorer";
 import { generateReasoning } from "@/lib/reasoning";
@@ -98,12 +99,13 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentSco
   if (USE_MOCK) {
     signals = getMockSignals(lookupDomain);
   } else {
-    const [funding, hiring, news, technology, web] = await Promise.all([
+    const [funding, hiring, news, technology, web, github] = await Promise.all([
       fetchFundingSignal(lookupDomain),
       fetchHiringSignal(lookupDomain),
       fetchNewsSignal(lookupCompany),
       fetchTechnologySignal(lookupDomain),
       fetchWebSignal(lookupDomain),
+      fetchGitHubSignal(lookupDomain),
     ]);
     signals = {
       funding,
@@ -111,6 +113,7 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentSco
       news,
       technology,
       web,
+      github,
       latestSignalDate: new Date().toISOString(),
     };
   }

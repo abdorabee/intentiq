@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #08090a;
+  --bg-elevated:  #0e1011;
+  --surface:      #131517;
+  --surface-2:    #1a1d20;
+
+  --text-primary:  #f7f8f8;
+  --text-secondary:#b4bbc8;
+  --text-tertiary: #8a8f98;
+  --text-quaternary:#62666d;
+
+  --border:        rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.13);
+  --border-subtle: rgba(255,255,255,0.04);
+
+  --accent:        #5e6ad2;
+  --accent-2:      #7170ff;
+  --cyan:          #4ec9d8;
+  --cyan-soft:     rgba(78,201,216,0.16);
+
+  --hot:           #4ade80;
+  --hot-bg:        rgba(74,222,128,0.10);
+  --hot-border:    rgba(74,222,128,0.25);
+  --warm:          #f5b544;
+  --warm-bg:       rgba(245,181,68,0.10);
+  --warm-border:   rgba(245,181,68,0.25);
+  --cold:          #8a8f98;
+  --cold-bg:       rgba(138,143,152,0.08);
+  --cold-border:   rgba(138,143,152,0.22);
+  --red:           #f87171;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --r-sm: 4px; --r-md: 6px; --r-lg: 8px; --r-xl: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.006em;
+  overflow: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+::selection { background: rgba(94,106,210,0.45); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+.mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+
+/* ─────────────────────────────────────────────────────────────
+   App shell
+   ───────────────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  height: 100vh;
+  background: var(--bg);
+}
+
+/* Sidebar */
+.sidebar {
+  background: #0a0b0d;
+  border-right: 1px solid var(--border);
+  padding: 12px 8px;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow: hidden;
+}
+.sb-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+.sb-head:hover { background: rgba(255,255,255,0.02); }
+.ws-logo {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%);
+  display: grid; place-items: center; color: #0a0b0f;
+  font-weight: 800; font-size: 11px; font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.ws-name {
+  flex: 1; min-width: 0;
+  font-weight: 500; font-size: 13px;
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ws-name .role {
+  font-size: 11px; color: var(--text-tertiary); font-weight: 400;
+  display: block;
+}
+.ws-chev { color: var(--text-tertiary); width: 12px; height: 12px; flex-shrink: 0; }
+
+.sb-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin: 4px 4px 8px;
+  font-size: 13px; color: var(--text-tertiary);
+  cursor: pointer;
+}
+.sb-search:hover { background: rgba(255,255,255,0.05); border-color: var(--border-strong); }
+.sb-search .ic { width: 12px; height: 12px; opacity: 0.7; }
+.sb-search .kbd {
+  margin-left: auto;
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+}
+
+.sb-section {
+  padding: 10px 10px 4px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-quaternary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sb-section .add {
+  width: 16px; height: 16px;
+  display: grid; place-items: center;
+  cursor: pointer; border-radius: 3px;
+  color: var(--text-tertiary);
+}
+.sb-section .add:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.sb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-size: 13px; letter-spacing: -0.011em;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.sb-item .ic { width: 14px; height: 14px; opacity: 0.75; flex-shrink: 0; }
+.sb-item:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+.sb-item.active {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+}
+.sb-item .count {
+  margin-left: auto;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+.sb-item .count.hot { color: var(--hot); }
+.sb-item .indicator {
+  margin-left: auto;
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--hot);
+  box-shadow: 0 0 6px var(--hot);
+}
+
+.sb-divider {
+  height: 1px; background: var(--border); margin: 8px 4px;
+}
+.sb-spacer { flex: 1; }
+
+.sb-credits {
+  margin: 8px 4px 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.02);
+}
+.sb-credits .label {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.sb-credits .row { display: flex; align-items: baseline; justify-content: space-between; }
+.sb-credits .val {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 600;
+  color: var(--text-primary); letter-spacing: -0.02em;
+}
+.sb-credits .of { font-size: 11px; color: var(--text-tertiary); margin-left: 2px; }
+.sb-credits .topup {
+  font-size: 11px; color: var(--accent-2); font-weight: 500;
+  text-decoration: none;
+}
+.sb-credits .bar {
+  margin-top: 6px;
+  height: 3px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+.sb-credits .fill {
+  height: 100%; width: 62%;
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--accent) 100%);
+}
+
+.sb-user {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  margin: 0 4px;
+  cursor: pointer;
+}
+.sb-user:hover { background: rgba(255,255,255,0.04); }
+.sb-user .av {
+  width: 22px; height: 22px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; color: #0a0b0f;
+  background: linear-gradient(135deg, #f5b544, #ec4899);
+}
+.sb-user .info { flex: 1; min-width: 0; }
+.sb-user .name {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sb-user .email {
+  font-size: 11px; color: var(--text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Main
+   ───────────────────────────────────────────────────────────── */
+.main {
+  display: flex; flex-direction: column;
+  min-width: 0; min-height: 0;
+}
+
+.topbar {
+  height: 44px;
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.crumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  letter-spacing: -0.011em;
+}
+.crumb .sep { color: var(--text-quaternary); }
+.crumb .current { color: var(--text-primary); font-weight: 500; }
+.crumb .ic {
+  width: 14px; height: 14px; color: var(--text-tertiary);
+  margin-right: 2px;
+}
+.spacer { flex: 1; }
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  padding: 4px 10px; border-radius: var(--r-md);
+  border: 1px solid transparent;
+  cursor: pointer; transition: all 0.12s;
+  letter-spacing: -0.006em;
+}
+.tb-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+.tb-btn.outlined { border-color: var(--border); }
+.tb-btn.outlined:hover { border-color: var(--border-strong); }
+.tb-btn .ic { width: 12px; height: 12px; opacity: 0.85; }
+.tb-btn .chev { width: 10px; height: 10px; opacity: 0.7; }
+.tb-btn .kbd {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+}
+.btn-primary {
+  background: var(--accent); color: #fff;
+  padding: 4px 12px; border-radius: var(--r-md);
+  font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+  letter-spacing: -0.006em;
+}
+.btn-primary:hover { background: var(--accent-2); }
+.btn-primary .ic { width: 12px; height: 12px; }
+
+.notif {
+  position: relative;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  color: var(--text-tertiary);
+  border-radius: var(--r-sm); cursor: pointer;
+}
+.notif:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.notif .dot {
+  position: absolute; top: 6px; right: 7px;
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--hot);
+  box-shadow: 0 0 6px var(--hot), 0 0 0 2px #0e1011;
+}
+
+/* Page body */
+.page {
+  flex: 1; overflow: auto;
+  padding: 20px 28px 40px;
+}
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.page-title {
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.024em; line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.page-sub {
+  font-size: 13px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.page-actions { display: flex; align-items: center; gap: 8px; }
+
+.range-tabs {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px;
+}
+.range-tab {
+  padding: 4px 10px;
+  font-size: 12px; color: var(--text-tertiary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.range-tab.active {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   KPI strip
+   ───────────────────────────────────────────────────────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.kpi-head .ic {
+  width: 14px; height: 14px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.kpi-head .more {
+  margin-left: auto;
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  border-radius: 4px; cursor: pointer;
+  color: var(--text-quaternary);
+}
+.kpi-head .more:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.kpi-row {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 10px;
+}
+.kpi-num {
+  font-family: var(--font-sans); font-weight: 500;
+  font-size: 30px; letter-spacing: -0.035em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.kpi-delta {
+  font-family: var(--font-mono); font-size: 12px;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.kpi-delta-up { color: var(--hot); }
+.kpi-delta-down { color: var(--red); }
+.kpi-delta-flat { color: var(--text-tertiary); }
+.kpi-meta {
+  font-size: 11px; color: var(--text-quaternary);
+  letter-spacing: -0.006em;
+}
+/* mini sparkline */
+.kpi-spark {
+  display: flex; align-items: end; gap: 2px;
+  height: 22px; margin-top: 8px;
+}
+.kpi-spark .b {
+  flex: 1; max-width: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 1px;
+}
+.kpi-spark .b.hl { background: var(--accent-2); }
+.kpi-spark .b.hot { background: var(--hot); }
+.kpi-spark .b.warm { background: var(--warm); }
+
+.kpi-ic-hot { background: var(--hot-bg); color: var(--hot); }
+.kpi-ic-credits { background: rgba(94,106,210,0.12); color: #c9c4ff; }
+.kpi-ic-fires { background: var(--warm-bg); color: var(--warm); }
+.kpi-ic-velocity { background: var(--cyan-soft); color: var(--cyan); }
+
+/* ─────────────────────────────────────────────────────────────
+   Main grid (chart + right rail)
+   ───────────────────────────────────────────────────────────── */
+.grid-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  display: flex; flex-direction: column;
+  min-width: 0; min-height: 0;
+}
+.card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.card-title {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.card-sub {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.card-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.card-mini-tab {
+  font-size: 11px; padding: 3px 8px; border-radius: 4px;
+  color: var(--text-tertiary); cursor: pointer;
+  font-family: var(--font-mono);
+}
+.card-mini-tab.active {
+  background: rgba(255,255,255,0.06); color: var(--text-primary);
+}
+.card-body {
+  padding: 18px;
+  flex: 1;
+  min-height: 0;
+}
+.card-body.dense { padding: 0; }
+
+/* Chart card */
+.chart-card { min-height: 320px; }
+.chart-legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+}
+.chart-legend .lg {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  font-size: 12px; color: var(--text-tertiary);
+}
+.chart-legend .lg .swatch {
+  width: 8px; height: 8px; border-radius: 2px;
+  display: inline-block;
+}
+.chart-legend .lg .num {
+  font-family: var(--font-mono); font-weight: 600;
+  color: var(--text-primary); font-size: 13px;
+}
+.chart-legend .lg.hot .swatch { background: var(--hot); }
+.chart-legend .lg.warm .swatch { background: var(--warm); }
+.chart-legend .lg.cold .swatch { background: var(--cold); }
+.chart-svg-wrap {
+  position: relative;
+  margin-top: 12px;
+}
+.chart-svg { width: 100%; height: 240px; display: block; }
+.chart-axis {
+  display: grid; grid-template-columns: repeat(8, 1fr);
+  margin-top: 6px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary);
+}
+.chart-axis .tick { text-align: center; }
+
+/* Hover marker */
+.chart-marker {
+  position: absolute;
+  pointer-events: none;
+}
+.chart-marker .vl {
+  position: absolute; top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,0.15);
+  border-left: 1px dashed rgba(255,255,255,0.25);
+}
+.chart-tip {
+  position: absolute;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  font-size: 12px;
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,0.6);
+  white-space: nowrap;
+  z-index: 4;
+}
+.chart-tip .date {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.chart-tip .val-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.chart-tip .val-row .swatch {
+  width: 6px; height: 6px; border-radius: 999px;
+}
+.chart-tip .val-row .name { flex: 1; color: var(--text-secondary); margin-right: 14px;}
+.chart-tip .val-row .num {
+  font-family: var(--font-mono); font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Activity feed */
+.activity-list {
+  display: flex; flex-direction: column;
+}
+.activity-row {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: flex-start;
+}
+.activity-row:last-child { border-bottom: none; }
+.activity-row .dot {
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  margin-top: 1px;
+}
+.activity-row .dot .ring {
+  width: 6px; height: 6px; border-radius: 999px;
+}
+.activity-row .body { min-width: 0; }
+.activity-row .text {
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.006em;
+  line-height: 1.4;
+}
+.activity-row .text strong {
+  font-weight: 500;
+}
+.activity-row .text .pill {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 0 5px; border-radius: 4px;
+  margin: 0 2px;
+}
+.activity-row .meta {
+  margin-top: 2px;
+  font-size: 11px; color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+.activity-row .ts {
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.dot-hot .ring { background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.dot-warm .ring { background: var(--warm); }
+.dot-cold .ring { background: var(--cold); }
+.dot-blue .ring { background: var(--accent-2); box-shadow: 0 0 6px rgba(113,112,255,0.5); }
+.pill-hot  { background: var(--hot-bg); color: var(--hot); }
+.pill-warm { background: var(--warm-bg); color: var(--warm); }
+.pill-cold { background: var(--cold-bg); color: var(--cold); }
+.pill-blue { background: rgba(94,106,210,0.12); color: #c9c4ff; }
+
+/* ─────────────────────────────────────────────────────────────
+   Lower grid (movers + signals + pipeline)
+   ───────────────────────────────────────────────────────────── */
+.grid-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Top movers list */
+.movers {
+  display: flex; flex-direction: column;
+}
+.mover-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 50px 56px;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+.mover-row:hover { background: rgba(255,255,255,0.02); }
+.mover-row:last-child { border-bottom: none; }
+.mover-row .av {
+  width: 24px; height: 24px;
+  border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; color: #0a0b0f;
+}
+.mover-row .info { min-width: 0; }
+.mover-row .name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mover-row .reason {
+  font-size: 11px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--font-mono);
+}
+.mover-row .score {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 14px; letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.mover-row .delta {
+  font-family: var(--font-mono); font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.delta-up { color: var(--hot); }
+.delta-down { color: var(--red); }
+.delta-flat { color: var(--text-tertiary); }
+
+/* Pipeline by band */
+.pipeline-list {
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.pipe-row .top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.pipe-row .label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.pipe-row .label .swatch {
+  width: 8px; height: 8px; border-radius: 999px;
+}
+.pipe-row .num {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 14px; color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.pipe-row .num .pct {
+  font-size: 11px; color: var(--text-tertiary);
+  margin-left: 4px;
+  font-weight: 400;
+}
+.pipe-bar {
+  height: 6px; border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  overflow: hidden;
+  display: flex;
+}
+.pipe-bar .fill { height: 100%; }
+.pipe-row .delta {
+  display: flex; justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px; font-family: var(--font-mono);
+  color: var(--text-tertiary);
+}
+.pipe-row .delta .right { color: var(--text-quaternary); }
+
+/* Signal mix donut */
+.signals-card {
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+.donut {
+  position: relative;
+  width: 130px; height: 130px;
+}
+.donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.donut-num {
+  font-family: var(--font-sans); font-weight: 500;
+  font-size: 24px; letter-spacing: -0.024em; line-height: 1;
+  color: var(--text-primary);
+}
+.donut-label {
+  font-size: 10px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+.signals-legend {
+  display: flex; flex-direction: column; gap: 7px;
+}
+.signals-legend .row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 8px; align-items: center;
+  font-size: 12px;
+}
+.signals-legend .swatch {
+  width: 10px; height: 10px; border-radius: 3px;
+}
+.signals-legend .name {
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.signals-legend .num {
+  font-family: var(--font-mono); color: var(--text-primary);
+  font-weight: 500; font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Watchlist heatmap row
+   ───────────────────────────────────────────────────────────── */
+.heatmap {
+  padding: 0;
+}
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  padding: 16px 18px;
+}
+.hm-cell {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+  cursor: pointer; transition: all 0.12s;
+  min-width: 0;
+}
+.hm-cell:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+.hm-cell .top {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.hm-cell .name {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hm-cell .score {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.hm-cell .spark {
+  display: flex; align-items: end; gap: 1px;
+  height: 22px;
+}
+.hm-cell .spark .b {
+  flex: 1; min-width: 1px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 1px;
+}
+.hm-cell.hot .score { color: var(--hot); }
+.hm-cell.warm .score { color: var(--warm); }
+.hm-cell.cold .score { color: var(--cold); }
+
+/* ─────────────────────────────────────────────────────────────
+   Autopilot status bar
+   ───────────────────────────────────────────────────────────── */
+.ap-row {
+  display: grid;
+  grid-template-columns: 16px 1fr 80px 90px 60px;
+  align-items: center; gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+  cursor: pointer;
+}
+.ap-row:last-child { border-bottom: none; }
+.ap-row:hover { background: rgba(255,255,255,0.02); }
+.ap-row .pulse {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--hot);
+  box-shadow: 0 0 6px var(--hot);
+}
+.ap-row .pulse.paused {
+  background: var(--text-quaternary); box-shadow: none;
+}
+.ap-row .name {
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 500; color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ap-row .desc {
+  font-size: 11px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ap-row .col-num {
+  font-family: var(--font-mono);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ap-row .col-num .label-small {
+  display: block;
+  font-size: 10px; color: var(--text-tertiary);
+  font-weight: 400;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-top: 1px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Score bands
+   ───────────────────────────────────────────────────────────── */
+.band {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.band .dot { width: 5px; height: 5px; border-radius: 999px; }
+.band-hot { background: var(--hot-bg); border-color: var(--hot-border); color: var(--hot); }
+.band-hot .dot { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+.band-warm { background: var(--warm-bg); border-color: var(--warm-border); color: var(--warm); }
+.band-warm .dot { background: var(--warm); }
+.band-cold { background: var(--cold-bg); border-color: var(--cold-border); color: var(--cold); }
+.band-cold .dot { background: var(--cold); }
+.band-blue { background: rgba(94,106,210,0.12); border-color: rgba(94,106,210,0.25); color: #c9c4ff; }
+.band-blue .dot { background: var(--accent-2); }
+
+/* avatars */
+.av-1 { background: linear-gradient(135deg, #4ec9d8, #5e6ad2); }
+.av-2 { background: linear-gradient(135deg, #4ade80, #22c55e); }
+.av-3 { background: linear-gradient(135deg, #f5b544, #ec4899); }
+.av-4 { background: linear-gradient(135deg, #7170ff, #c9c4ff); }
+.av-5 { background: linear-gradient(135deg, #ec4899, #f87171); }
+.av-6 { background: linear-gradient(135deg, #4ec9d8, #4ade80); }
+.av-7 { background: linear-gradient(135deg, #f87171, #f5b544); }
+.av-8 { background: linear-gradient(135deg, #c9c4ff, #4ec9d8); }
+
+/* footer "view all" link */
+.card-foot {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.card-foot a {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.card-foot a:hover { color: var(--text-primary); }
+.card-foot .arrow {
+  display: inline-block; margin-left: 4px;
+  transition: transform 0.15s;
+}
+.card-foot a:hover .arrow { transform: translateX(2px); }
+
+/* responsive collapse */
+@media (max-width: 1280px) {
+  .grid-lower { grid-template-columns: 1fr 1fr; }
+  .signals-card { grid-column: span 2; grid-template-columns: 130px 1fr 1fr; }
+  .hm-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 980px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .grid-main { grid-template-columns: 1fr; }
+  .grid-lower { grid-template-columns: 1fr; }
+  .signals-card { grid-column: auto; grid-template-columns: 130px 1fr; }
+  .hm-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─────── Sidebar ─────── -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">
+        Acme Sales
+        <span class="role">Workspace · Growth</span>
+      </div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span>
+      <span class="kbd">⌘K</span>
+    </div>
+
+    <div class="sb-section">Workspace</div>
+    <div class="sb-item active">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>
+      Intent Hub
+      <span class="count hot">●12</span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>
+      Score
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>
+      Pipeline
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>
+      People
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>
+      Watchlist
+      <span class="count">24</span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>
+      Autopilot
+      <span class="indicator"></span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>
+      Inbox
+      <span class="count">12</span>
+    </div>
+
+    <div class="sb-section">
+      Lists
+      <span class="add">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+      </span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--hot)" stroke="none"/></svg>
+      Q1 Targets
+      <span class="count">42</span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--accent-2)" stroke="none"/></svg>
+      Enterprise SaaS
+      <span class="count">86</span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--warm)" stroke="none"/></svg>
+      Just funded ('26)
+      <span class="count">31</span>
+    </div>
+    <div class="sb-item">
+      <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--cyan)" stroke="none"/></svg>
+      Detected: Snowflake
+      <span class="count">119</span>
+    </div>
+
+    <div class="sb-spacer"></div>
+
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row">
+        <div><span class="val">1,548</span><span class="of"> / 2,500</span></div>
+        <a class="topup">Top up</a>
+      </div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info">
+        <div class="name">Dahlia Marwan</div>
+        <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f99d9891959098b9989a949c8a98959c8ad79096">[email&#160;protected]</a></div>
+      </div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <!-- ─────── Main ─────── -->
+  <div class="main">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>
+        <span>Workspace</span>
+        <span class="sep">/</span>
+        <span class="current">Dashboard</span>
+      </div>
+      <span class="band band-hot" style="margin-left:6px;"><span class="dot"></span>HOT 12</span>
+      <span class="band band-warm"><span class="dot"></span>WARM 38</span>
+      <span class="band band-cold"><span class="dot"></span>COLD 197</span>
+
+      <div class="spacer"></div>
+
+      <button class="tb-btn">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+        Search
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="tb-btn outlined">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M4 3h4M5 9h2"/></svg>
+        Filter
+      </button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+        Score account
+      </button>
+    </div>
+
+    <!-- Page -->
+    <div class="page">
+
+      <!-- Page head -->
+      <div class="page-head">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">
+            <span class="mono" style="color:var(--text-secondary);">247</span> accounts tracked ·
+            <span class="mono" style="color:var(--text-secondary);">3 min</span> ago last refresh ·
+            next refresh in <span class="mono" style="color:var(--text-secondary);">6h 12m</span>
+          </div>
+        </div>
+        <div class="page-actions">
+          <div class="range-tabs">
+            <span class="range-tab">24H</span>
+            <span class="range-tab active">7D</span>
+            <span class="range-tab">30D</span>
+            <span class="range-tab">90D</span>
+            <span class="range-tab">YTD</span>
+          </div>
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M9 2v3h-3M3 10V7h3"/></svg>
+            Refresh
+          </button>
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h6M6 3v6"/></svg>
+            Add panel
+          </button>
+        </div>
+      </div>
+
+      <!-- ─── KPI strip ─── -->
+      <div class="kpis">
+        <!-- KPI 1 -->
+        <div class="kpi">
+          <div class="kpi-head">
+            <span class="ic kpi-ic-hot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 1c1 2 3 3 3 5a3 3 0 11-6 0c0-1 1-2 1-3l1-2"/></svg></span>
+            HOT accounts
+            <span class="more">⋯</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-num">12</div>
+            <div class="kpi-delta kpi-delta-up">▲ 4 (50%)</div>
+          </div>
+          <div class="kpi-meta">vs 8 last week</div>
+          <div class="kpi-spark">
+            <div class="b" style="height:30%"></div>
+            <div class="b" style="height:42%"></div>
+            <div class="b" style="height:38%"></div>
+            <div class="b" style="height:51%"></div>
+            <div class="b" style="height:48%"></div>
+            <div class="b hot" style="height:70%"></div>
+            <div class="b hot" style="height:90%"></div>
+          </div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="kpi">
+          <div class="kpi-head">
+            <span class="ic kpi-ic-velocity"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M2 8l3-3 2 2 3-4"/></svg></span>
+            Avg HOT-band score
+            <span class="more">⋯</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-num">87.4</div>
+            <div class="kpi-delta kpi-delta-up">▲ 2.1</div>
+          </div>
+          <div class="kpi-meta">range 78–96 across 12 accounts</div>
+          <div class="kpi-spark">
+            <div class="b" style="height:60%"></div>
+            <div class="b" style="height:64%"></div>
+            <div class="b" style="height:62%"></div>
+            <div class="b" style="height:71%"></div>
+            <div class="b" style="height:74%"></div>
+            <div class="b hl" style="height:82%"></div>
+            <div class="b hl" style="height:88%"></div>
+          </div>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="kpi">
+          <div class="kpi-head">
+            <span class="ic kpi-ic-fires"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 1l1.5 4L11 5l-3 2 1 4-3-2-3 2 1-4-3-2 3.5 0z"/></svg></span>
+            Autopilot fires
+            <span class="more">⋯</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-num">96</div>
+            <div class="kpi-delta kpi-delta-up">▲ 23</div>
+          </div>
+          <div class="kpi-meta">3 active workflows · 412 this month</div>
+          <div class="kpi-spark">
+            <div class="b" style="height:40%"></div>
+            <div class="b" style="height:55%"></div>
+            <div class="b" style="height:48%"></div>
+            <div class="b warm" style="height:62%"></div>
+            <div class="b warm" style="height:71%"></div>
+            <div class="b warm" style="height:78%"></div>
+            <div class="b warm" style="height:88%"></div>
+          </div>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="kpi">
+          <div class="kpi-head">
+            <span class="ic kpi-ic-credits"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><circle cx="6" cy="6" r="4"/><path d="M6 4v3l2 1"/></svg></span>
+            Credits used
+            <span class="more">⋯</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-num">1,548</div>
+            <div class="kpi-delta kpi-delta-flat">62%</div>
+          </div>
+          <div class="kpi-meta">of 2,500 · resets in 11 days</div>
+          <div class="kpi-spark">
+            <div class="b" style="height:32%"></div>
+            <div class="b" style="height:44%"></div>
+            <div class="b" style="height:51%"></div>
+            <div class="b" style="height:58%"></div>
+            <div class="b" style="height:62%"></div>
+            <div class="b" style="height:67%"></div>
+            <div class="b" style="height:74%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Chart + Activity ─── -->
+      <div class="grid-main">
+
+        <!-- Score distribution chart -->
+        <div class="card chart-card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Score distribution</div>
+              <div class="card-sub">Account count by band over the last 7 days</div>
+            </div>
+            <div class="card-actions">
+              <span class="card-mini-tab">Count</span>
+              <span class="card-mini-tab active">Stacked</span>
+              <span class="card-mini-tab">% Share</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-legend">
+              <div class="lg hot"><span class="swatch"></span>HOT <span class="num">12</span></div>
+              <div class="lg warm"><span class="swatch"></span>Warming <span class="num">38</span></div>
+              <div class="lg cold"><span class="swatch"></span>Cold <span class="num">197</span></div>
+              <div style="margin-left:auto;font-size:11px;color:var(--text-quaternary);font-family:var(--font-mono);align-self:center;">
+                ↗ Avg score 64.2 (▲ 1.8)
+              </div>
+            </div>
+
+            <div class="chart-svg-wrap">
+              <svg class="chart-svg" viewBox="0 0 800 240" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="hotGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4ade80" stop-opacity="0.7"/>
+                    <stop offset="100%" stop-color="#4ade80" stop-opacity="0.04"/>
+                  </linearGradient>
+                  <linearGradient id="warmGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#f5b544" stop-opacity="0.55"/>
+                    <stop offset="100%" stop-color="#f5b544" stop-opacity="0.04"/>
+                  </linearGradient>
+                  <linearGradient id="coldGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#8a8f98" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#8a8f98" stop-opacity="0.02"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- Grid lines -->
+                <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                  <line x1="0" y1="0" x2="800" y2="0"/>
+                  <line x1="0" y1="60" x2="800" y2="60"/>
+                  <line x1="0" y1="120" x2="800" y2="120"/>
+                  <line x1="0" y1="180" x2="800" y2="180"/>
+                  <line x1="0" y1="240" x2="800" y2="240"/>
+                </g>
+
+                <!-- Cold area (bottom) -->
+                <path d="M 0,240 L 0,140 C 50,138 100,142 150,135 S 250,128 300,125 S 400,120 450,118 S 550,114 600,116 S 700,108 800,102 L 800,240 Z"
+                  fill="url(#coldGrad)" stroke="none"/>
+                <!-- Cold line -->
+                <path d="M 0,140 C 50,138 100,142 150,135 S 250,128 300,125 S 400,120 450,118 S 550,114 600,116 S 700,108 800,102"
+                  fill="none" stroke="#8a8f98" stroke-width="1.4" stroke-opacity="0.5"/>
+
+                <!-- Warm area -->
+                <path d="M 0,240 L 0,108 C 50,104 100,110 150,98 S 250,84 300,82 S 400,72 450,68 S 550,58 600,60 S 700,46 800,42 L 800,240 Z"
+                  fill="url(#warmGrad)" stroke="none"/>
+                <path d="M 0,108 C 50,104 100,110 150,98 S 250,84 300,82 S 400,72 450,68 S 550,58 600,60 S 700,46 800,42"
+                  fill="none" stroke="#f5b544" stroke-width="1.6" stroke-opacity="0.7"/>
+
+                <!-- Hot area (top) -->
+                <path d="M 0,240 L 0,82 C 50,78 100,86 150,72 S 250,58 300,56 S 400,44 450,42 S 550,28 600,30 S 700,16 800,12 L 800,240 Z"
+                  fill="url(#hotGrad)" stroke="none"/>
+                <path d="M 0,82 C 50,78 100,86 150,72 S 250,58 300,56 S 400,44 450,42 S 550,28 600,30 S 700,16 800,12"
+                  fill="none" stroke="#4ade80" stroke-width="2"/>
+
+                <!-- highlight marker -->
+                <line x1="650" y1="0" x2="650" y2="240" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="3 3"/>
+                <circle cx="650" cy="22" r="4" fill="#4ade80" stroke="#0e1011" stroke-width="2"/>
+                <circle cx="650" cy="50" r="4" fill="#f5b544" stroke="#0e1011" stroke-width="2"/>
+                <circle cx="650" cy="110" r="4" fill="#8a8f98" stroke="#0e1011" stroke-width="2"/>
+              </svg>
+
+              <!-- Tooltip overlay -->
+              <div class="chart-marker" style="left: calc(81.25% - 80px); top: -4px;">
+                <div class="chart-tip">
+                  <div class="date">Mar 18 · Tue</div>
+                  <div class="val-row"><span class="swatch" style="background:#4ade80;"></span><span class="name">HOT</span><span class="num">11</span></div>
+                  <div class="val-row"><span class="swatch" style="background:#f5b544;"></span><span class="name">Warm</span><span class="num">36</span></div>
+                  <div class="val-row"><span class="swatch" style="background:#8a8f98;"></span><span class="name">Cold</span><span class="num">194</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-axis">
+              <div class="tick">Mar 14</div>
+              <div class="tick">Mar 15</div>
+              <div class="tick">Mar 16</div>
+              <div class="tick">Mar 17</div>
+              <div class="tick">Mar 18</div>
+              <div class="tick">Mar 19</div>
+              <div class="tick">Mar 20</div>
+              <div class="tick" style="color:var(--text-secondary);">Today</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity feed -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Recent activity</div>
+              <div class="card-sub">Score events and signal triggers</div>
+            </div>
+            <div class="card-actions">
+              <span class="card-mini-tab active">All</span>
+              <span class="card-mini-tab">Mine</span>
+            </div>
+          </div>
+          <div class="card-body dense" style="overflow-y:auto;max-height:340px;">
+            <div class="activity-list">
+
+              <div class="activity-row">
+                <div class="dot dot-hot"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    <strong>Stripe</strong> moved to <span class="pill pill-hot">HOT 94</span> on Series H signal
+                  </div>
+                  <div class="meta">Funding · ▲ 12 · auto-routed to D. Marwan</div>
+                </div>
+                <div class="ts">3m</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-blue"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    Autopilot <strong>when_account_goes_hot</strong> fired on <strong>Anthropic</strong>
+                  </div>
+                  <div class="meta">3 actions · email drafted · #pipeline notified</div>
+                </div>
+                <div class="ts">14m</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-hot"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    <strong>Linear</strong> crossed <span class="pill pill-hot">HOT 82</span> from hiring spike
+                  </div>
+                  <div class="meta">Hiring · +18 Eng. roles · ▲ 4</div>
+                </div>
+                <div class="ts">9m</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-warm"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    <strong>Notion</strong> pricing-page traffic spike detected
+                  </div>
+                  <div class="meta">Web signal · +96% · score 78</div>
+                </div>
+                <div class="ts">2h</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-blue"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    Bulk score job completed: <strong>Q1 Targets</strong>
+                  </div>
+                  <div class="meta">42 accounts · 4 new HOT · 91 credits</div>
+                </div>
+                <div class="ts">3h</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-warm"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    <strong>Vercel</strong> tech-stack change: Segment + Snowflake
+                  </div>
+                  <div class="meta">Tech · score 67 · band: Warm</div>
+                </div>
+                <div class="ts">1h</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-cold"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    <strong>Mixpanel</strong> dropped to <span class="pill pill-cold">COLD 38</span>
+                  </div>
+                  <div class="meta">No new signals 14d · sequence paused</div>
+                </div>
+                <div class="ts">1d</div>
+              </div>
+
+              <div class="activity-row">
+                <div class="dot dot-warm"><div class="ring"></div></div>
+                <div class="body">
+                  <div class="text">
+                    <strong>Figma</strong> Config '26 keynote signal added
+                  </div>
+                  <div class="meta">News · sentiment +0.62 · score 71</div>
+                </div>
+                <div class="ts">3h</div>
+              </div>
+
+            </div>
+          </div>
+          <div class="card-foot">
+            <span>Showing 8 of 247</span>
+            <a href="#">View activity log <span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Movers + Pipeline + Signal mix ─── -->
+      <div class="grid-lower">
+
+        <!-- Top movers -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Top movers · 7 days</div>
+              <div class="card-sub">Biggest score deltas across your tracked accounts</div>
+            </div>
+            <div class="card-actions">
+              <span class="card-mini-tab active">▲ Up</span>
+              <span class="card-mini-tab">▼ Down</span>
+            </div>
+          </div>
+          <div class="card-body dense">
+            <div class="movers">
+              <div class="mover-row">
+                <div class="av av-2">A</div>
+                <div class="info">
+                  <div class="name">Anthropic</div>
+                  <div class="reason">News + funding · 5 axes lit</div>
+                </div>
+                <div class="score">96</div>
+                <div class="delta delta-up">▲ 24</div>
+              </div>
+              <div class="mover-row">
+                <div class="av av-1">S</div>
+                <div class="info">
+                  <div class="name">Stripe</div>
+                  <div class="reason">Series H · $6.5B</div>
+                </div>
+                <div class="score">94</div>
+                <div class="delta delta-up">▲ 12</div>
+              </div>
+              <div class="mover-row">
+                <div class="av av-3">D</div>
+                <div class="info">
+                  <div class="name">Databricks</div>
+                  <div class="reason">Hiring + tech change</div>
+                </div>
+                <div class="score">87</div>
+                <div class="delta delta-up">▲ 9</div>
+              </div>
+              <div class="mover-row">
+                <div class="av av-3">N</div>
+                <div class="info">
+                  <div class="name">Notion</div>
+                  <div class="reason">Pricing traffic +96%</div>
+                </div>
+                <div class="score">78</div>
+                <div class="delta delta-up">▲ 7</div>
+              </div>
+              <div class="mover-row">
+                <div class="av av-8">F</div>
+                <div class="info">
+                  <div class="name">Figma</div>
+                  <div class="reason">Config '26 press cycle</div>
+                </div>
+                <div class="score">71</div>
+                <div class="delta delta-up">▲ 5</div>
+              </div>
+              <div class="mover-row">
+                <div class="av av-4">L</div>
+                <div class="info">
+                  <div class="name">Linear</div>
+                  <div class="reason">+18 Eng. roles</div>
+                </div>
+                <div class="score">82</div>
+                <div class="delta delta-up">▲ 4</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span>6 of 24 movers</span>
+            <a href="#">View all movers <span class="arrow">→</span></a>
+          </div>
+        </div>
+
+        <!-- Pipeline by band -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Pipeline by band</div>
+              <div class="card-sub">247 tracked accounts</div>
+            </div>
+          </div>
+          <div class="card-body dense">
+            <div class="pipeline-list">
+              <div class="pipe-row">
+                <div class="top">
+                  <span class="label"><span class="swatch" style="background:var(--hot);box-shadow:0 0 6px var(--hot);"></span>HOT</span>
+                  <span class="num">12<span class="pct">4.9%</span></span>
+                </div>
+                <div class="pipe-bar"><div class="fill" style="width:4.9%;background:var(--hot);"></div></div>
+                <div class="delta">
+                  <span style="color:var(--hot);">▲ 4 vs 7d</span>
+                  <span class="right">avg 87.4</span>
+                </div>
+              </div>
+              <div class="pipe-row">
+                <div class="top">
+                  <span class="label"><span class="swatch" style="background:var(--warm);"></span>Warming</span>
+                  <span class="num">38<span class="pct">15.4%</span></span>
+                </div>
+                <div class="pipe-bar"><div class="fill" style="width:15.4%;background:var(--warm);"></div></div>
+                <div class="delta">
+                  <span style="color:var(--hot);">▲ 6 vs 7d</span>
+                  <span class="right">avg 62.8</span>
+                </div>
+              </div>
+              <div class="pipe-row">
+                <div class="top">
+                  <span class="label"><span class="swatch" style="background:var(--cold);"></span>Cold</span>
+                  <span class="num">191<span class="pct">77.3%</span></span>
+                </div>
+                <div class="pipe-bar"><div class="fill" style="width:77.3%;background:var(--cold);"></div></div>
+                <div class="delta">
+                  <span style="color:var(--red);">▼ 8 vs 7d</span>
+                  <span class="right">avg 28.1</span>
+                </div>
+              </div>
+              <div class="pipe-row">
+                <div class="top">
+                  <span class="label"><span class="swatch" style="background:var(--accent-2);"></span>Engaged</span>
+                  <span class="num">6<span class="pct">2.4%</span></span>
+                </div>
+                <div class="pipe-bar"><div class="fill" style="width:2.4%;background:var(--accent-2);"></div></div>
+                <div class="delta">
+                  <span style="color:var(--hot);">▲ 2 vs 7d</span>
+                  <span class="right">avg 89.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="mono" style="color:var(--text-quaternary);">+50 net moved up this week</span>
+            <a href="#">Open Intent Hub <span class="arrow">→</span></a>
+          </div>
+        </div>
+
+        <!-- Signal mix -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Signal mix</div>
+              <div class="card-sub">Avg contribution across your HOT band</div>
+            </div>
+          </div>
+          <div class="card-body signals-card">
+            <div class="donut">
+              <svg viewBox="0 0 100 100">
+                <!-- Total circumference of r=40 ≈ 251.3 -->
+                <!-- segments: funding 26%, hiring 22%, news 21%, tech 18%, web 13% -->
+                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#4ec9d8" stroke-width="14"
+                  stroke-dasharray="65.3 251.3" stroke-dashoffset="0" stroke-linecap="butt"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#4ade80" stroke-width="14"
+                  stroke-dasharray="55.3 251.3" stroke-dashoffset="-65.3"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#f5b544" stroke-width="14"
+                  stroke-dasharray="52.8 251.3" stroke-dashoffset="-120.6"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#7170ff" stroke-width="14"
+                  stroke-dasharray="45.2 251.3" stroke-dashoffset="-173.4"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#ec4899" stroke-width="14"
+                  stroke-dasharray="32.7 251.3" stroke-dashoffset="-218.6"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-num">87.4</div>
+                <div class="donut-label">avg HOT</div>
+              </div>
+            </div>
+            <div class="signals-legend">
+              <div class="row">
+                <span class="swatch" style="background:#4ec9d8;"></span>
+                <span class="name">Funding</span>
+                <span class="num">26%</span>
+              </div>
+              <div class="row">
+                <span class="swatch" style="background:#4ade80;"></span>
+                <span class="name">Hiring</span>
+                <span class="num">22%</span>
+              </div>
+              <div class="row">
+                <span class="swatch" style="background:#f5b544;"></span>
+                <span class="name">News</span>
+                <span class="num">21%</span>
+              </div>
+              <div class="row">
+                <span class="swatch" style="background:#7170ff;"></span>
+                <span class="name">Tech stack</span>
+                <span class="num">18%</span>
+              </div>
+              <div class="row">
+                <span class="swatch" style="background:#ec4899;"></span>
+                <span class="name">Web presence</span>
+                <span class="num">13%</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="mono" style="color:var(--text-quaternary);">last 7 days</span>
+            <a href="#">Tune weights <span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Watchlist heatmap ─── -->
+      <div class="card heatmap" style="margin-bottom:12px;">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Watchlist · 7-day score trend</div>
+            <div class="card-sub">24 pinned accounts · sparkline shows daily score</div>
+          </div>
+          <div class="card-actions">
+            <button class="tb-btn">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M4 3h4M5 9h2"/></svg>
+              Filter
+            </button>
+            <button class="tb-btn">
+              All
+              <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="hm-grid">
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Stripe</span><span class="score">94</span></div>
+            <div class="spark">
+              <div class="b" style="height:62%"></div><div class="b" style="height:65%"></div>
+              <div class="b" style="height:71%"></div><div class="b" style="height:73%"></div>
+              <div class="b" style="height:78%"></div><div class="b" style="height:82%"></div>
+              <div class="b" style="height:90%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Anthropic</span><span class="score">96</span></div>
+            <div class="spark">
+              <div class="b" style="height:30%"></div><div class="b" style="height:42%"></div>
+              <div class="b" style="height:51%"></div><div class="b" style="height:58%"></div>
+              <div class="b" style="height:67%"></div><div class="b" style="height:79%"></div>
+              <div class="b" style="height:96%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Linear</span><span class="score">82</span></div>
+            <div class="spark">
+              <div class="b" style="height:70%"></div><div class="b" style="height:74%"></div>
+              <div class="b" style="height:69%"></div><div class="b" style="height:72%"></div>
+              <div class="b" style="height:76%"></div><div class="b" style="height:78%"></div>
+              <div class="b" style="height:82%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Notion</span><span class="score">78</span></div>
+            <div class="spark">
+              <div class="b" style="height:55%"></div><div class="b" style="height:58%"></div>
+              <div class="b" style="height:60%"></div><div class="b" style="height:64%"></div>
+              <div class="b" style="height:68%"></div><div class="b" style="height:74%"></div>
+              <div class="b" style="height:78%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell warm">
+            <div class="top"><span class="name">Vercel</span><span class="score">67</span></div>
+            <div class="spark">
+              <div class="b" style="height:48%"></div><div class="b" style="height:52%"></div>
+              <div class="b" style="height:55%"></div><div class="b" style="height:59%"></div>
+              <div class="b" style="height:62%;background:var(--warm);"></div>
+              <div class="b" style="height:65%;background:var(--warm);"></div>
+              <div class="b" style="height:67%;background:var(--warm);"></div>
+            </div>
+          </div>
+          <div class="hm-cell warm">
+            <div class="top"><span class="name">Datadog</span><span class="score">64</span></div>
+            <div class="spark">
+              <div class="b" style="height:40%"></div><div class="b" style="height:48%"></div>
+              <div class="b" style="height:52%"></div><div class="b" style="height:56%"></div>
+              <div class="b" style="height:58%;background:var(--warm);"></div>
+              <div class="b" style="height:62%;background:var(--warm);"></div>
+              <div class="b" style="height:64%;background:var(--warm);"></div>
+            </div>
+          </div>
+          <div class="hm-cell warm">
+            <div class="top"><span class="name">Figma</span><span class="score">71</span></div>
+            <div class="spark">
+              <div class="b" style="height:42%"></div><div class="b" style="height:48%"></div>
+              <div class="b" style="height:54%"></div><div class="b" style="height:58%"></div>
+              <div class="b" style="height:62%;background:var(--warm);"></div>
+              <div class="b" style="height:66%;background:var(--warm);"></div>
+              <div class="b" style="height:71%;background:var(--warm);"></div>
+            </div>
+          </div>
+          <div class="hm-cell warm">
+            <div class="top"><span class="name">Retool</span><span class="score">58</span></div>
+            <div class="spark">
+              <div class="b" style="height:38%"></div><div class="b" style="height:42%"></div>
+              <div class="b" style="height:46%"></div><div class="b" style="height:50%"></div>
+              <div class="b" style="height:53%;background:var(--warm);"></div>
+              <div class="b" style="height:55%;background:var(--warm);"></div>
+              <div class="b" style="height:58%;background:var(--warm);"></div>
+            </div>
+          </div>
+          <div class="hm-cell cold">
+            <div class="top"><span class="name">Mixpanel</span><span class="score">38</span></div>
+            <div class="spark">
+              <div class="b" style="height:55%"></div><div class="b" style="height:50%"></div>
+              <div class="b" style="height:48%"></div><div class="b" style="height:45%"></div>
+              <div class="b" style="height:42%"></div><div class="b" style="height:40%"></div>
+              <div class="b" style="height:38%"></div>
+            </div>
+          </div>
+          <div class="hm-cell cold">
+            <div class="top"><span class="name">Heap</span><span class="score">32</span></div>
+            <div class="spark">
+              <div class="b" style="height:45%"></div><div class="b" style="height:42%"></div>
+              <div class="b" style="height:40%"></div><div class="b" style="height:38%"></div>
+              <div class="b" style="height:35%"></div><div class="b" style="height:34%"></div>
+              <div class="b" style="height:32%"></div>
+            </div>
+          </div>
+          <div class="hm-cell cold">
+            <div class="top"><span class="name">Amplitude</span><span class="score">28</span></div>
+            <div class="spark">
+              <div class="b" style="height:42%"></div><div class="b" style="height:40%"></div>
+              <div class="b" style="height:36%"></div><div class="b" style="height:34%"></div>
+              <div class="b" style="height:32%"></div><div class="b" style="height:30%"></div>
+              <div class="b" style="height:28%"></div>
+            </div>
+          </div>
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Databricks</span><span class="score">87</span></div>
+            <div class="spark">
+              <div class="b" style="height:62%"></div><div class="b" style="height:68%"></div>
+              <div class="b" style="height:71%"></div><div class="b" style="height:74%"></div>
+              <div class="b" style="height:79%"></div><div class="b" style="height:83%"></div>
+              <div class="b" style="height:87%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Plaid</span><span class="score">91</span></div>
+            <div class="spark">
+              <div class="b" style="height:68%"></div><div class="b" style="height:72%"></div>
+              <div class="b" style="height:78%"></div><div class="b" style="height:82%"></div>
+              <div class="b" style="height:85%"></div><div class="b" style="height:88%"></div>
+              <div class="b" style="height:91%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell hot">
+            <div class="top"><span class="name">Intercom</span><span class="score">88</span></div>
+            <div class="spark">
+              <div class="b" style="height:64%"></div><div class="b" style="height:70%"></div>
+              <div class="b" style="height:74%"></div><div class="b" style="height:80%"></div>
+              <div class="b" style="height:83%"></div><div class="b" style="height:86%"></div>
+              <div class="b" style="height:88%;background:var(--hot);"></div>
+            </div>
+          </div>
+          <div class="hm-cell warm">
+            <div class="top"><span class="name">Segment</span><span class="score">62</span></div>
+            <div class="spark">
+              <div class="b" style="height:48%"></div><div class="b" style="height:50%"></div>
+              <div class="b" style="height:53%"></div><div class="b" style="height:56%"></div>
+              <div class="b" style="height:58%;background:var(--warm);"></div>
+              <div class="b" style="height:60%;background:var(--warm);"></div>
+              <div class="b" style="height:62%;background:var(--warm);"></div>
+            </div>
+          </div>
+          <div class="hm-cell warm">
+            <div class="top"><span class="name">PostHog</span><span class="score">55</span></div>
+            <div class="spark">
+              <div class="b" style="height:38%"></div><div class="b" style="height:42%"></div>
+              <div class="b" style="height:44%"></div><div class="b" style="height:48%"></div>
+              <div class="b" style="height:50%;background:var(--warm);"></div>
+              <div class="b" style="height:53%;background:var(--warm);"></div>
+              <div class="b" style="height:55%;background:var(--warm);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Autopilot status ─── -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Autopilot · status</div>
+            <div class="card-sub">3 active workflows · 412 fires this month</div>
+          </div>
+          <div class="card-actions">
+            <button class="tb-btn outlined">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h6M6 3v6"/></svg>
+              New workflow
+            </button>
+          </div>
+        </div>
+        <div class="card-body dense">
+          <div class="ap-row">
+            <div class="pulse"></div>
+            <div>
+              <div class="name">when_account_goes_hot</div>
+              <div class="desc">band → HOT · ICP fit ≥ 70 → route + draft + notify</div>
+            </div>
+            <div class="col-num">128<span class="label-small">Fires</span></div>
+            <div class="col-num">94%<span class="label-small">Match rate</span></div>
+            <div><span class="band band-hot"><span class="dot"></span>Active</span></div>
+          </div>
+          <div class="ap-row">
+            <div class="pulse"></div>
+            <div>
+              <div class="name">funding_announced</div>
+              <div class="desc">signal: Series A+ · industry ∈ {Fintech, SaaS} → Slack + assign</div>
+            </div>
+            <div class="col-num">42<span class="label-small">Fires</span></div>
+            <div class="col-num">88%<span class="label-small">Match rate</span></div>
+            <div><span class="band band-hot"><span class="dot"></span>Active</span></div>
+          </div>
+          <div class="ap-row">
+            <div class="pulse"></div>
+            <div>
+              <div class="name">snowflake_detected</div>
+              <div class="desc">tech-stack add: Snowflake → tag + add to "Detected" list</div>
+            </div>
+            <div class="col-num">242<span class="label-small">Fires</span></div>
+            <div class="col-num">100%<span class="label-small">Match rate</span></div>
+            <div><span class="band band-hot"><span class="dot"></span>Active</span></div>
+          </div>
+          <div class="ap-row">
+            <div class="pulse paused"></div>
+            <div>
+              <div class="name">cold_pause_sequence</div>
+              <div class="desc">band → COLD for 14d → pause Outreach sequences</div>
+            </div>
+            <div class="col-num">17<span class="label-small">Fires</span></div>
+            <div class="col-num">76%<span class="label-small">Match rate</span></div>
+            <div><span class="band band-cold"><span class="dot"></span>Paused</span></div>
+          </div>
+        </div>
+        <div class="card-foot">
+          <span class="mono" style="color:var(--text-quaternary);">avg latency 1.4s · 4 of 5 workflows used (Growth plan)</span>
+          <a href="#">Open Autopilot <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

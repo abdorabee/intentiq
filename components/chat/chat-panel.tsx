@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Plus, MessageSquare, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import ChatMessage, { type ChatMessageData, type ToolCallEvent } from "./chat-message";
+import ChatMessage, { type ChatMessageData } from "./chat-message";
 import ChatInput from "./chat-input";
 
 interface Session {
@@ -16,9 +16,11 @@ interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
   creditsRemaining: number;
+  /** Full-width in-page layout (no overlay / fixed drawer) */
+  embedded?: boolean;
 }
 
-export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, creditsRemaining, embedded = false }: ChatPanelProps) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
@@ -38,10 +40,10 @@ export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPan
 
   // Load sessions when panel opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen || embedded) {
       fetchSessions();
     }
-  }, [isOpen]);
+  }, [isOpen, embedded]);
 
   const fetchSessions = async () => {
     try {
@@ -193,7 +195,7 @@ export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPan
       setMessages((prev) =>
         prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m))
       );
-    } catch (err) {
+    } catch {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId ? { ...m, content: "Connection error. Please try again.", isStreaming: false } : m
@@ -204,19 +206,27 @@ export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPan
     }
   }, [activeSessionId]);
 
-  if (!isOpen) return null;
+  if (!embedded && !isOpen) return null;
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/40 lg:bg-transparent" onClick={onClose} />
+      {!embedded ? (
+        <div className="fixed inset-0 z-40 bg-black/40 lg:bg-transparent" onClick={onClose} />
+      ) : null}
 
       {/* Panel */}
-      <div className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[420px] lg:w-[440px] bg-white dark:bg-black border-l border-slate-200 dark:border-white/[0.06] flex flex-col" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
+      <div
+        className={
+          embedded
+            ? "flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-white/[0.08] bg-[#0e1011] font-mono"
+            : "fixed top-0 right-0 bottom-0 z-50 flex w-full flex-col border-l border-slate-200 bg-white sm:w-[420px] lg:w-[440px] dark:border-white/[0.06] dark:bg-black"
+        }
+        style={embedded ? undefined : { fontFamily: "var(--font-jetbrains), monospace" }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-white/[0.06]">
           <div className="flex items-center gap-3">
-            <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.15em] font-bold">COPILOT</span>
+            <span className="text-xs font-bold tracking-[0.15em] text-[#c9c4ff]">COPILOT</span>
             <button
               onClick={() => setShowSessions(!showSessions)}
               className="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer p-1"
@@ -226,7 +236,7 @@ export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPan
             </button>
             <button
               onClick={startNewChat}
-              className="text-slate-500 hover:text-cyan-400 transition-colors cursor-pointer p-1"
+              className="cursor-pointer p-1 text-slate-500 transition-colors hover:text-[#c9c4ff]"
               aria-label="New chat"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -259,7 +269,7 @@ export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPan
                   className={cn(
                     "flex items-center justify-between px-4 py-2.5 cursor-pointer transition-colors text-[11px]",
                     s.id === activeSessionId
-                      ? "bg-cyan-500/5 text-cyan-700 dark:text-cyan-300 border-l-2 border-cyan-400"
+                      ? "border-l-2 border-[#7170ff] bg-[#5e6ad2]/10 text-[#c9c4ff]"
                       : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.02] border-l-2 border-transparent"
                   )}
                 >
@@ -281,8 +291,8 @@ export default function ChatPanel({ isOpen, onClose, creditsRemaining }: ChatPan
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <span className="text-cyan-400 text-lg">?</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#5e6ad2]/25 bg-[#5e6ad2]/10">
+                <span className="text-lg text-[#c9c4ff]">?</span>
               </div>
               <div>
                 <p className="text-slate-700 dark:text-slate-300 text-sm mb-1">Intent Copilot</p>

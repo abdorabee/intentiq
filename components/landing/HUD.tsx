@@ -1,47 +1,55 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
+import { ChevronDown, Menu, X } from "lucide-react";
 
 interface HUDProps {
   visible: boolean;
 }
 
-const NAV_LINKS = [
-  { href: "#signals", label: "SIGNALS" },
-  { href: "#api", label: "API" },
-  { href: "#pricing", label: "PRICING" },
-  { href: "/login", label: "SIGN IN" },
-  { href: "/signup", label: "START FREE", highlight: true },
-];
+function DropdownLink({
+  href,
+  children,
+  onNavigate,
+}: {
+  href: string;
+  children: ReactNode;
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className="block px-3 py-2 text-[13px] text-[#b4bbc8] transition-colors hover:bg-white/[0.05] hover:text-[#f7f8f8]"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function NavDropdown({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="nav-dd relative" name="topnav">
+      <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md px-3 py-1.5 text-[13px] text-[#b4bbc8] transition-colors hover:bg-white/[0.05] hover:text-[#f7f8f8]">
+        {label}
+        <ChevronDown className="nav-chevron h-3.5 w-3.5 opacity-55 transition-transform duration-200" />
+      </summary>
+      <div className="absolute left-0 top-[calc(100%+4px)] z-50 min-w-[200px] rounded-lg border border-white/[0.08] bg-[#0e1011]/95 py-1 shadow-[0_16px_48px_rgba(0,0,0,0.5)] backdrop-blur-md">
+        {children}
+      </div>
+    </details>
+  );
+}
 
 export default function HUD({ visible }: HUDProps) {
-  const hudRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useGSAP(() => {
-    if (!visible || !hudRef.current) return;
-
-    const elements = hudRef.current.querySelectorAll("[data-hud]");
-    gsap.set(elements, { opacity: 0 });
-    gsap.to(elements, { opacity: 1, stagger: 0.15, duration: 0.6, ease: "power2.out", delay: 0.3 });
-  }, { dependencies: [visible], scope: hudRef });
-
-  // Animate mobile menu
-  useGSAP(() => {
-    if (!overlayRef.current) return;
-    const links = overlayRef.current.querySelectorAll("[data-menu-link]");
-
-    if (menuOpen) {
-      gsap.set(overlayRef.current, { opacity: 0 });
-      gsap.to(overlayRef.current, { opacity: 1, duration: 0.3, ease: "power2.out" });
-      gsap.set(links, { opacity: 0, y: 20 });
-      gsap.to(links, { opacity: 1, y: 0, stagger: 0.08, duration: 0.4, ease: "power2.out", delay: 0.15 });
-    }
-  }, { dependencies: [menuOpen] });
 
   if (!visible) return null;
 
@@ -49,100 +57,138 @@ export default function HUD({ visible }: HUDProps) {
 
   return (
     <>
-      <div ref={hudRef} className="fixed inset-0 z-40 pointer-events-none">
-        {/* Top-left: Logo + version */}
-        <div data-hud className="absolute top-5 left-6">
-          <p className="text-white text-xs tracking-[0.15em] leading-tight font-medium pointer-events-auto">
-            INTENT
-            <br />
-            IQ
-          </p>
-          <p className="text-slate-500 text-[10px] tracking-[0.2em] mt-1">1.0</p>
-        </div>
-
-        {/* Top-right: Desktop menu */}
-        <div data-hud className="absolute top-5 right-6 hidden md:block">
-          <nav className="flex items-center gap-6 pointer-events-auto">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-xs tracking-[0.2em] transition-colors ${
-                  link.highlight
-                    ? "text-cyan-400 hover:text-cyan-300"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        {/* Top-right: Mobile hamburger */}
-        <div data-hud className="absolute top-5 right-6 md:hidden">
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="pointer-events-auto flex flex-col gap-1.5 p-2 cursor-pointer"
-            aria-label="Open menu"
-          >
-            <span className="block w-5 h-px bg-slate-300" />
-            <span className="block w-5 h-px bg-slate-300" />
-            <span className="block w-3 h-px bg-cyan-400" />
-          </button>
-        </div>
-
-        {/* Bottom-right: Contact info */}
-        <div data-hud className="absolute bottom-5 right-6 text-right hidden md:block">
-          <p className="text-slate-500 text-[10px] tracking-[0.15em]">hello@intentiq.com</p>
-          <p className="text-slate-600 text-[10px] tracking-[0.15em]">API v1 · Live</p>
-        </div>
-      </div>
-
-      {/* Mobile fullscreen overlay menu */}
-      {menuOpen && (
-        <div
-          ref={overlayRef}
-          className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center"
-        >
-          {/* Close button */}
-          <button
-            onClick={closeMenu}
-            className="absolute top-5 right-6 text-slate-400 hover:text-white transition-colors p-2 cursor-pointer"
-            aria-label="Close menu"
-          >
-            <span className="text-lg tracking-[0.2em]">[X]</span>
-          </button>
-
-          {/* Logo */}
-          <div className="absolute top-5 left-6">
-            <p className="text-white text-xs tracking-[0.15em] leading-tight font-medium">
-              INTENT
-              <br />
+      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 md:h-[56px] lg:px-8">
+          <Link href="/" className="flex shrink-0 items-center gap-2 text-[15px] font-semibold tracking-tight text-[#f7f8f8]">
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-[#5e6ad2] text-[11px] font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
               IQ
-            </p>
+            </span>
+            IntentIQ
+          </Link>
+
+          <nav className="hidden items-center gap-0.5 md:flex">
+            <NavDropdown label="Product">
+              <DropdownLink href="#signals">Intent signals</DropdownLink>
+              <DropdownLink href="#how-it-works">How it works</DropdownLink>
+            </NavDropdown>
+            <NavDropdown label="Autopilot">
+              <DropdownLink href="#">Rules & routing</DropdownLink>
+              <DropdownLink href="#">Workflows</DropdownLink>
+            </NavDropdown>
+            <NavDropdown label="Developers">
+              <DropdownLink href="#api">API reference</DropdownLink>
+              <DropdownLink href="/docs">Documentation</DropdownLink>
+            </NavDropdown>
+            <Link
+              href="#pricing"
+              className="rounded-md px-3 py-1.5 text-[13px] text-[#b4bbc8] transition-colors hover:bg-white/[0.05] hover:text-[#f7f8f8]"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="#customers"
+              className="rounded-md px-3 py-1.5 text-[13px] text-[#b4bbc8] transition-colors hover:bg-white/[0.05] hover:text-[#f7f8f8]"
+            >
+              Customers
+            </Link>
+            <NavDropdown label="Company">
+              <DropdownLink href="#">About</DropdownLink>
+              <DropdownLink href="/docs">Changelog</DropdownLink>
+            </NavDropdown>
+          </nav>
+
+          <div className="hidden items-center gap-2 md:flex">
+            <Link
+              href="/login"
+              className="rounded-md px-3 py-1.5 text-[13px] text-[#b4bbc8] transition-colors hover:bg-white/[0.05] hover:text-[#f7f8f8]"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] bg-transparent px-4 py-2 text-[13px] font-medium text-[#f7f8f8] shadow-none transition-colors hover:border-white/[0.22] hover:bg-white/[0.04]"
+            >
+              Sign up
+              <span aria-hidden className="text-[#8a8f98]">
+                →
+              </span>
+            </Link>
           </div>
 
-          {/* Menu links */}
-          <nav className="flex flex-col items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                data-menu-link
-                onClick={closeMenu}
-                className={`text-sm tracking-[0.3em] transition-colors ${
-                  link.highlight
-                    ? "text-cyan-400 hover:text-cyan-300"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                [ {link.label} ]
+          <button
+            type="button"
+            className="grid h-9 w-9 place-items-center rounded-md text-[#b4bbc8] hover:bg-white/[0.06] hover:text-[#f7f8f8] md:hidden"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
+      </header>
+
+      {menuOpen ? (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#08090a]/98 backdrop-blur-lg md:hidden">
+          <div className="flex h-14 items-center justify-between border-b border-white/[0.06] px-5">
+            <span className="text-[15px] font-semibold text-[#f7f8f8]">Menu</span>
+            <button
+              type="button"
+              className="grid h-9 w-9 place-items-center rounded-md text-[#b4bbc8] hover:bg-white/[0.06]"
+              onClick={closeMenu}
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <nav className="flex flex-1 flex-col gap-0 overflow-y-auto p-5">
+            <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.12em] text-[#62666d]">Product</p>
+            <Link href="#signals" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#f7f8f8] hover:bg-white/[0.05]">
+              Intent signals
+            </Link>
+            <Link href="#how-it-works" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#f7f8f8] hover:bg-white/[0.05]">
+              How it works
+            </Link>
+            <p className="mb-1 mt-4 text-[11px] font-medium uppercase tracking-[0.12em] text-[#62666d]">Autopilot</p>
+            <Link href="#" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#b4bbc8] hover:bg-white/[0.05] hover:text-[#f7f8f8]">
+              Rules & routing
+            </Link>
+            <Link href="#" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#b4bbc8] hover:bg-white/[0.05] hover:text-[#f7f8f8]">
+              Workflows
+            </Link>
+            <p className="mb-1 mt-4 text-[11px] font-medium uppercase tracking-[0.12em] text-[#62666d]">Developers</p>
+            <Link href="#api" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#f7f8f8] hover:bg-white/[0.05]">
+              API reference
+            </Link>
+            <Link href="/docs" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#f7f8f8] hover:bg-white/[0.05]">
+              Documentation
+            </Link>
+            <p className="mb-1 mt-4 text-[11px] font-medium uppercase tracking-[0.12em] text-[#62666d]">Pricing & company</p>
+            <Link href="#pricing" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#f7f8f8] hover:bg-white/[0.05]">
+              Pricing
+            </Link>
+            <Link href="#customers" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#f7f8f8] hover:bg-white/[0.05]">
+              Customers
+            </Link>
+            <Link href="#" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#b4bbc8] hover:bg-white/[0.05] hover:text-[#f7f8f8]">
+              About
+            </Link>
+            <Link href="/docs" onClick={closeMenu} className="rounded-lg px-4 py-2.5 text-[15px] text-[#b4bbc8] hover:bg-white/[0.05] hover:text-[#f7f8f8]">
+              Changelog
+            </Link>
+            <div className="mt-8 flex flex-col gap-2 border-t border-white/[0.06] pt-6">
+              <Link href="/login" onClick={closeMenu} className="rounded-lg px-4 py-3 text-center text-[15px] text-[#b4bbc8] hover:bg-white/[0.05] hover:text-[#f7f8f8]">
+                Log in
               </Link>
-            ))}
+              <Link
+                href="/signup"
+                onClick={closeMenu}
+                className="rounded-full border border-white/[0.14] px-4 py-3 text-center text-[15px] font-medium text-[#f7f8f8] hover:bg-white/[0.04]"
+              >
+                Sign up →
+              </Link>
+            </div>
           </nav>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

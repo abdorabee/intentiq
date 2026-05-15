@@ -98,13 +98,13 @@ export default function Loader({ onEnter }: LoaderProps) {
       <div className="relative z-10 max-w-xl w-full px-4 sm:px-8">
         {/* Loading indicator */}
         <div className="space-y-1 mb-12 overflow-hidden">
-          <p className="text-cyan-500/60 text-xs tracking-[0.3em]">[[</p>
-          <p className="text-cyan-400 text-sm tracking-[0.2em] ml-4">[loading]</p>
-          <p className="text-cyan-500/60 text-xs tracking-[0.3em] ml-8">]]]</p>
+          <p className="text-[#7170ff]/60 text-xs tracking-[0.3em]">[[</p>
+          <p className="text-[#c9c4ff] text-sm tracking-[0.2em] ml-4">[loading]</p>
+          <p className="text-[#7170ff]/60 text-xs tracking-[0.3em] ml-8">]]]</p>
           <p className="text-white text-sm tracking-[0.15em] ml-12 counter-glow">
             [<span ref={counterRef}>0</span>%]
           </p>
-          <p className="text-cyan-500/60 text-xs tracking-[0.3em]">[[[][]</p>
+          <p className="text-[#7170ff]/60 text-xs tracking-[0.3em]">[[[][]</p>
         </div>
 
         {/* Intro text — initial styles set via inline so they don't get reset by re-renders */}

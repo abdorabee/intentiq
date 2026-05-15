@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from "react";
 import DashboardNav from "@/components/dashboard/nav";
+import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
+import type { DbUser } from "@/lib/types";
 
 interface DashboardShellProps {
   children: React.ReactNode;
   creditsRemaining: number;
+  plan: DbUser["plan"];
 }
 
-export default function DashboardShell({ children, creditsRemaining }: DashboardShellProps) {
+export default function DashboardShell({ children, creditsRemaining, plan }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false);
 
-  // Persist collapsed state across navigation
   useEffect(() => {
     const stored = localStorage.getItem("nav-collapsed");
     if (stored === "true") setCollapsed(true);
@@ -24,20 +26,22 @@ export default function DashboardShell({ children, creditsRemaining }: Dashboard
     });
   }
 
-  const navWidth = collapsed ? "lg:ml-16" : "lg:ml-60";
+  const mainMargin = collapsed ? "lg:ml-16" : "lg:ml-[232px]";
 
   return (
     <>
       <DashboardNav
         creditsRemaining={creditsRemaining}
+        plan={plan}
         collapsed={collapsed}
         onToggle={toggle}
       />
-      <main
-        className={`flex-1 w-full p-4 pt-16 lg:p-10 lg:pt-10 transition-[margin] duration-300 ease-out ${navWidth}`}
+      <div
+        className={`flex min-h-screen min-w-0 flex-1 flex-col bg-[#08090a] pt-14 transition-[margin] duration-300 ease-out lg:min-h-0 lg:pt-0 ${mainMargin}`}
       >
-        {children}
-      </main>
+        <DashboardTopbar />
+        <main className="flex min-h-0 flex-1 flex-col overflow-auto">{children}</main>
+      </div>
     </>
   );
 }

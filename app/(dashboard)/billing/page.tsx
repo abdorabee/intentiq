@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { PLAN_CREDITS } from "@/lib/types";
 import { Check, Zap, Settings, AlertTriangle } from "lucide-react";
 import { BillingNotification } from "./billing-notification";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 // ─── Plan config ──────────────────────────────────────────────────────────────
 
@@ -83,15 +84,13 @@ export default async function BillingPage() {
     : null;
 
   return (
-    <div className="max-w-4xl space-y-8">
+    <DashboardPageShell
+      eyebrow="Billing"
+      title="Plans & credits"
+      description="Manage your subscription and credits."
+      maxWidthClass="max-w-4xl"
+    >
       <BillingNotification />
-
-      <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[BILLING]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Plans & Credits</h1>
-        <p className="text-slate-500 text-sm tracking-[0.05em]">Manage your subscription and credits.</p>
-      </div>
-
       {/* Current Plan */}
       <Card className="border-slate-200 dark:border-white/[0.08]">
         <CardHeader>
@@ -101,7 +100,7 @@ export default async function BillingPage() {
           {/* Plan + credits remaining */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <Badge className="capitalize text-base px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+              <Badge className="capitalize text-base px-3 py-1 bg-[#5e6ad2]/20 text-[#c9c4ff] border border-[#5e6ad2]/35">
                 {plan}
               </Badge>
               <span className="text-slate-500 dark:text-slate-400">{totalCredits} credits/month</span>
@@ -172,13 +171,13 @@ export default async function BillingPage() {
                 key={p.key}
                 className={`relative rounded-xl border p-5 flex flex-col gap-4 ${
                   p.popular
-                    ? "border-cyan-500/50 bg-cyan-500/5 dark:bg-cyan-500/[0.07]"
+                    ? "border-[#5e6ad2]/50 bg-[#5e6ad2]/5 dark:bg-[#5e6ad2]/[0.07]"
                     : "border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03]"
                 }`}
               >
                 {p.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-cyan-500 text-black text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-[#5e6ad2] text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
                       Most Popular
                     </span>
                   </div>
@@ -198,14 +197,14 @@ export default async function BillingPage() {
                 <ul className="space-y-1.5 flex-1">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-400">
-                      <Check className="w-3.5 h-3.5 text-cyan-400 mt-0.5 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#7170ff] mt-0.5 shrink-0" />
                       {f}
                     </li>
                   ))}
                 </ul>
 
                 {isCurrent ? (
-                  <div className="w-full text-center text-xs font-medium py-2 rounded-lg border border-cyan-500/30 text-cyan-400 bg-cyan-500/10">
+                  <div className="w-full rounded-lg border border-[#5e6ad2]/35 bg-[#5e6ad2]/10 py-2 text-center text-xs font-medium text-[#c9c4ff]">
                     Current Plan
                   </div>
                 ) : (
@@ -215,7 +214,7 @@ export default async function BillingPage() {
                       type="submit"
                       className={`w-full py-2 rounded-lg text-xs font-semibold transition-colors ${
                         p.popular
-                          ? "bg-cyan-500 hover:bg-cyan-400 text-black"
+                          ? "bg-[#5e6ad2] hover:bg-[#7170ff] text-white"
                           : "bg-slate-100 dark:bg-white/[0.07] hover:bg-slate-200 dark:hover:bg-white/[0.12] text-slate-700 dark:text-slate-200"
                       }`}
                     >
@@ -242,8 +241,8 @@ export default async function BillingPage() {
               className="rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-5 flex flex-col gap-4"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-cyan-400" />
+                <div className="w-9 h-9 rounded-lg bg-[#5e6ad2]/10 border border-[#5e6ad2]/25 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-[#7170ff]" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">
@@ -265,6 +264,6 @@ export default async function BillingPage() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   );
 }

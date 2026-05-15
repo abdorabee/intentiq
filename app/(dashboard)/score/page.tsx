@@ -14,6 +14,7 @@ import {
   UrgencyMeter,
   KeyTriggersVisual,
 } from "@/components/score/reasoning-visuals";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 const SIGNAL_LABELS = {
   funding:    "Funding & Growth",
@@ -24,7 +25,7 @@ const SIGNAL_LABELS = {
 };
 
 const SIGNAL_COLORS: Record<string, string> = {
-  funding:    "from-cyan-500 to-sky-400",
+  funding:    "from-[#4ec9d8] to-[#5e6ad2]",
   hiring:     "from-emerald-500 to-green-400",
   news:       "from-amber-500 to-orange-400",
   technology: "from-blue-500 to-cyan-400",
@@ -56,9 +57,9 @@ function ThinkingLoader({ domain }: { domain: string }) {
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 flex-shrink-0">
-            <div className="absolute inset-0 rounded-full border border-cyan-500/40 animate-ping opacity-30" />
-            <div className="relative h-10 w-10 rounded-full border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center">
-              <Zap className="h-4 w-4 text-cyan-400" />
+            <div className="absolute inset-0 rounded-full border border-[#5e6ad2]/40 animate-ping opacity-30" />
+            <div className="relative h-10 w-10 rounded-full border border-[#5e6ad2]/35 bg-[#5e6ad2]/10 flex items-center justify-center">
+              <Zap className="h-4 w-4 text-[#7170ff]" />
             </div>
           </div>
           <div>
@@ -69,7 +70,7 @@ function ThinkingLoader({ domain }: { domain: string }) {
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="inline-block h-1 w-1 rounded-full bg-cyan-400"
+                    className="inline-block h-1 w-1 rounded-full bg-[#7170ff]"
                     style={{ animation: "thinking-dot 1.2s ease-in-out infinite", animationDelay: `${i * 0.2}s` }}
                   />
                 ))}
@@ -198,25 +199,24 @@ export default function ScoreExplorerPage() {
   };
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <div>
-        <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.25em] uppercase">[SCORE]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Score Explorer</h1>
-        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">Enter a domain to get a full intent score with signal breakdown.</p>
-      </div>
-
+    <DashboardPageShell
+      eyebrow="Score"
+      title="Score explorer"
+      description="Enter a domain to get a full intent score with signal breakdown."
+      maxWidthClass="max-w-3xl"
+    >
       <div className="flex gap-2">
         <Input
           placeholder="acme.com"
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleScore()}
-          className="bg-slate-50 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-cyan-500/50"
+          className="bg-slate-50 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#5e6ad2]/50"
         />
         <Button
           onClick={handleScore}
           disabled={loading}
-          className="bg-cyan-500 hover:bg-cyan-400 text-white border-0 cursor-pointer min-w-[90px]"
+          className="min-w-[90px] cursor-pointer border-0 bg-[#5e6ad2] text-white hover:bg-[#7170ff]"
         >
           {loading ? "Scoring…" : "Score"}
         </Button>
@@ -387,6 +387,6 @@ export default function ScoreExplorerPage() {
           </div>
         );
       })()}
-    </div>
+    </DashboardPageShell>
   );
 }
