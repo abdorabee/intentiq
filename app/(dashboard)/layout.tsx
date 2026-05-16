@@ -48,16 +48,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <OnboardingGate completed={onboardingCompleted}>
       {onboardingCompleted ? (
-        <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden font-sans text-[13px] tracking-[-0.006em] antialiased">
-          <div className="relative flex min-h-screen">
-            <DashboardShell creditsRemaining={creditsRemaining} plan={plan}>
-              {children}
-            </DashboardShell>
-          </div>
+        <>
+          <DashboardShell creditsRemaining={creditsRemaining} plan={plan}>
+            {children}
+          </DashboardShell>
           <ChatTrigger creditsRemaining={creditsRemaining} />
-        </div>
+        </>
       ) : (
-        // During onboarding: clean layout without sidebar/nav
         <div className="relative min-h-screen bg-background font-sans">
           {children}
         </div>

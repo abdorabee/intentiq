@@ -26,22 +26,21 @@ export default function DashboardShell({ children, creditsRemaining, plan }: Das
     });
   }
 
-  const mainMargin = collapsed ? "lg:ml-16" : "lg:ml-[232px]";
-
   return (
-    <>
+    <div
+      className="app"
+      style={{ gridTemplateColumns: collapsed ? "56px 1fr" : "232px 1fr" }}
+    >
       <DashboardNav
         creditsRemaining={creditsRemaining}
         plan={plan}
         collapsed={collapsed}
         onToggle={toggle}
       />
-      <div
-        className={`flex min-h-screen min-w-0 flex-1 flex-col bg-[#08090a] pt-14 transition-[margin] duration-300 ease-out lg:min-h-0 lg:pt-0 ${mainMargin}`}
-      >
+      <div className="main">
         <DashboardTopbar />
-        <main className="flex min-h-0 flex-1 flex-col overflow-auto">{children}</main>
+        <main className="page">{children}</main>
       </div>
-    </>
+    </div>
   );
 }
