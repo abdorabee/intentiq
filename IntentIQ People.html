@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="intentiq.css">
+<style>
+.people-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   Three-state pattern (List / Score / Result) — mirrors Score page
+   ───────────────────────────────────────────────────────────── */
+
+/* State toggle (demo, top-right under topbar) */
+.state-toggle {
+  position: fixed;
+  top: 56px; right: 24px;
+  z-index: 50;
+  display: inline-flex;
+  background: rgba(8,9,10,0.92);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px;
+  backdrop-filter: blur(10px);
+}
+.state-toggle .st {
+  padding: 4px 10px;
+  font-size: 11px; color: var(--text-tertiary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.state-toggle .st.active {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-primary);
+}
+
+/* ─── Score-a-person prompt (empty state) ─── */
+.prompt-stage {
+  position: relative;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 32px;
+  overflow: hidden;
+}
+.prompt-bg { position: absolute; inset: 0; pointer-events: none; }
+.prompt-bg::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px; height: 500px;
+  background:
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(94,106,210,0.22), transparent 60%),
+    radial-gradient(ellipse 40% 70% at 20% 30%, rgba(78,201,216,0.18), transparent 70%),
+    radial-gradient(ellipse 35% 55% at 80% 70%, rgba(245,181,68,0.10), transparent 70%);
+  filter: blur(40px);
+}
+.prompt-bg .grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, #000 30%, transparent 80%);
+}
+
+.prompt-inner { position: relative; z-index: 2; max-width: 720px; width: 100%; text-align: center; }
+.prompt-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 5px 5px 5px 12px;
+  font-size: 12px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  letter-spacing: -0.006em;
+  margin-bottom: 22px;
+}
+.prompt-eyebrow .badge {
+  font-size: 10px; font-weight: 600;
+  background: rgba(78,201,216,0.15);
+  color: #9ee0e8;
+  padding: 1px 7px; border-radius: 999px;
+  border: 1px solid rgba(78,201,216,0.25);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.prompt-h1 {
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.038em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  text-wrap: balance;
+  margin-bottom: 14px;
+}
+.prompt-h1 .grad {
+  background: linear-gradient(110deg, #ffffff 0%, #d9d6ff 50%, #4ec9d8 75%, #4ade80 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.prompt-sub {
+  font-size: 15px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin: 0 auto 32px;
+  max-width: 540px;
+  line-height: 1.55;
+}
+
+.prompt-holder {
+  background: rgba(14,16,17,0.85);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(94,106,210,0.18),
+    0 24px 48px -16px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: box-shadow 0.2s;
+  text-align: left;
+}
+.prompt-holder:focus-within {
+  border-color: rgba(94,106,210,0.5);
+  box-shadow:
+    0 0 0 1px rgba(94,106,210,0.4),
+    0 0 0 4px rgba(94,106,210,0.08),
+    0 24px 48px -16px rgba(0,0,0,0.6);
+}
+.prompt-prefix {
+  display: grid; place-items: center;
+  width: 22px; height: 22px;
+  margin-left: 8px;
+  color: var(--text-tertiary);
+}
+.prompt-input {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--text-primary);
+  width: 100%;
+  letter-spacing: -0.006em;
+  padding: 8px 0;
+  caret-color: var(--accent-2);
+  background: transparent; border: none; outline: none;
+}
+.prompt-input::placeholder { color: var(--text-quaternary); }
+.prompt-mode {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-secondary);
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.prompt-mode:hover { background: rgba(255,255,255,0.07); }
+.prompt-mode .ic { width: 12px; height: 12px; opacity: 0.85; }
+.prompt-mode .chev { width: 10px; height: 10px; color: var(--text-tertiary); }
+.prompt-go {
+  padding: 6px 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px; font-weight: 500;
+  border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+  letter-spacing: -0.006em;
+}
+.prompt-go:hover { background: var(--accent-2); }
+.prompt-go .kbd-inline {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 0 4px; border-radius: 3px;
+  background: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85);
+}
+.prompt-meta {
+  margin-top: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  padding: 0 4px;
+}
+.prompt-meta .left, .prompt-meta .right { display: inline-flex; gap: 12px; }
+.prompt-meta strong { color: var(--text-tertiary); font-weight: 500; }
+
+.prompt-section-label {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 500;
+  margin: 32px 0 10px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono);
+}
+.prompt-section-label .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.input-type-tabs {
+  display: inline-flex;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 3px;
+  margin-bottom: 14px;
+}
+.input-type-tabs .tt {
+  padding: 5px 12px;
+  font-size: 12px; color: var(--text-tertiary);
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: -0.006em;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.input-type-tabs .tt.active {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+}
+.input-type-tabs .tt svg { width: 12px; height: 12px; }
+
+.suggestion-row {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.sugg-person {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.sugg-person:hover { background: rgba(255,255,255,0.06); border-color: var(--border-strong); color: var(--text-primary); }
+.sugg-person .av {
+  width: 20px; height: 20px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.sugg-person .role-mono {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.prompt-feature-row {
+  display: flex; gap: 14px;
+  margin-top: 36px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.prompt-feature-row .feat { display: inline-flex; align-items: center; gap: 6px; }
+.prompt-feature-row .feat .ic {
+  width: 14px; height: 14px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ─── Result state (scored person) ─── */
+.result-page { flex: 1; overflow-y: auto; padding: 18px 28px 60px; }
+
+.live-progress {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px;
+  background: rgba(94,106,210,0.05);
+  border: 1px solid rgba(94,106,210,0.2);
+  border-radius: var(--r-md);
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.live-progress .pulse {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--accent-2);
+  box-shadow: 0 0 8px var(--accent-2);
+  animation: p-pulse-glow 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes p-pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.live-progress .steps {
+  display: flex; gap: 10px;
+  flex: 1; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 11px;
+}
+.live-progress .step {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+.live-progress .step.done { color: var(--hot); }
+.live-progress .step .check {
+  width: 12px; height: 12px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+}
+.live-progress .step.done .check { background: var(--hot-bg); color: var(--hot); }
+.live-progress .timing {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.04em;
+}
+
+/* Person head */
+.p-head {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.p-avatar {
+  width: 56px; height: 56px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 20px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.p-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.p-title {
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.024em; line-height: 1.2;
+  color: var(--text-primary);
+}
+.p-id {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.p-meta {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px; color: var(--text-tertiary);
+}
+.p-meta .dot { width: 3px; height: 3px; border-radius: 999px; background: var(--text-quaternary); }
+.p-meta a { color: var(--text-secondary); text-decoration: none; }
+.p-meta a:hover { color: var(--text-primary); }
+.p-actions { margin-left: auto; display: flex; gap: 6px; }
+
+/* Score ring + thesis */
+.overview-block {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: 22px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.overview-block::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(74,222,128,0.08), transparent 60%);
+  pointer-events: none;
+}
+.score-ring { position: relative; width: 200px; height: 200px; }
+.score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.score-ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring-band {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px;
+  background: var(--hot-bg); border: 1px solid var(--hot-border);
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  color: var(--hot); font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.score-ring-band .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.score-ring-num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 60px; letter-spacing: -0.04em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.score-ring-of {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px; letter-spacing: 0.04em;
+}
+.score-ring-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 4px;
+  font-size: 12px; font-family: var(--font-mono);
+  color: var(--hot);
+}
+
+.thesis-block { min-width: 0; }
+.thesis-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.thesis-head .ic {
+  width: 16px; height: 16px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+  flex-shrink: 0;
+}
+.thesis-text {
+  font-size: 15px; line-height: 1.55;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  margin-bottom: 12px;
+  text-wrap: pretty;
+}
+.thesis-text strong {
+  font-weight: 500;
+  background: linear-gradient(180deg, transparent 60%, rgba(94,106,210,0.18) 60%);
+}
+.thesis-meta {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono); letter-spacing: 0.04em;
+}
+.thesis-meta .dot { width: 2px; height: 2px; border-radius: 999px; background: var(--text-quaternary); }
+
+/* Section labels */
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin: 28px 0 12px;
+}
+.section-label .line { flex: 1; height: 1px; background: var(--border-subtle); }
+.section-label .ic { width: 5px; height: 5px; border-radius: 999px; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.section-label strong { color: var(--text-primary); font-weight: 500; }
+
+/* Signal grid (5 axes for a person) */
+.signal-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 8px; margin-bottom: 20px;
+}
+.signal-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.signal-card .name {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600; margin-bottom: 10px;
+}
+.signal-card .name .swatch { width: 8px; height: 8px; border-radius: 999px; }
+.signal-card .num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 26px; letter-spacing: -0.035em;
+  color: var(--text-primary); line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
+}
+.signal-card .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot); margin-bottom: 8px;
+}
+.signal-card .delta.flat { color: var(--text-tertiary); }
+.signal-card .bar {
+  height: 3px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.signal-card .bar .fill { height: 100%; border-radius: 999px; }
+.signal-card .note {
+  margin-top: 8px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.02em;
+}
+
+/* Two-col layout: timeline + context */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-head .title {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.panel-head .sub {
+  font-size: 11px; color: var(--text-tertiary);
+  margin-left: auto;
+  font-family: var(--font-mono);
+}
+.panel-body { padding: 6px 0; }
+
+/* Activity timeline */
+.timeline { padding: 6px 16px 12px; }
+.tl-row {
+  display: grid;
+  grid-template-columns: 84px 14px 1fr auto;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px 0;
+  position: relative;
+}
+.tl-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 90px; top: 22px; bottom: -6px;
+  width: 1px;
+  background: var(--border-subtle);
+}
+.tl-row .when {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.04em;
+  padding-top: 2px;
+  text-align: right;
+}
+.tl-row .dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  margin-top: 5px;
+  background: var(--text-quaternary);
+  position: relative; z-index: 1;
+}
+.tl-row.hot .dot { background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.tl-row.warm .dot { background: var(--warm); }
+.tl-row.cool .dot { background: var(--accent-2); }
+.tl-row .body { font-size: 13px; color: var(--text-primary); letter-spacing: -0.006em; line-height: 1.45; }
+.tl-row .body .sub-line {
+  display: block;
+  font-size: 11px; color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: -0.006em;
+}
+.tl-row .body strong { font-weight: 500; }
+.tl-row .body .tag {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 3px;
+  margin-left: 6px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.tl-row .body .tag.hot { background: var(--hot-bg); color: var(--hot); }
+.tl-row .body .tag.warm { background: var(--warm-bg); color: var(--warm); }
+.tl-row .body .tag.blue { background: var(--accent-soft); color: #c9c4ff; }
+.tl-row .pts {
+  font-family: var(--font-mono); font-size: 11px;
+  font-weight: 600;
+  color: var(--hot);
+  padding-top: 2px;
+}
+.tl-row .pts.warm { color: var(--warm); }
+.tl-row .pts.cool { color: var(--accent-2); }
+
+/* Account + champion context */
+.kv-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  font-size: 13px;
+}
+.kv-row:last-child { border-bottom: none; }
+.kv-row .k {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.kv-row .v { color: var(--text-primary); letter-spacing: -0.006em; }
+.kv-row .v .pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+.kv-row .v .pill.hot { background: var(--hot-bg); color: var(--hot); border: 1px solid var(--hot-border); }
+.kv-row .v .pill.warm { background: var(--warm-bg); color: var(--warm); border: 1px solid var(--warm-border); }
+.kv-row .v .mono { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
+
+/* Similar people at this account */
+.peers-list { padding: 0; }
+.peer-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.peer-row:last-child { border-bottom: none; }
+.peer-row:hover { background: rgba(255,255,255,0.02); }
+.peer-row .av {
+  width: 28px; height: 28px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #0a0b0f;
+}
+.peer-row .name {
+  font-size: 13px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.peer-row .role {
+  font-size: 11px; color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  margin-top: 1px;
+}
+.peer-row .score-mini {
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.peer-row .score-mini.hot { background: var(--hot-bg); color: var(--hot); }
+.peer-row .score-mini.warm { background: var(--warm-bg); color: var(--warm); }
+.peer-row .score-mini.cold { background: var(--cold-bg); color: var(--cold); }
+
+/* Recommended action */
+.next-action {
+  padding: 16px 18px;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(94,106,210,0.04), transparent);
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.next-action .ai-dot {
+  width: 14px; height: 14px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+  margin-top: 3px;
+}
+.next-action .text {
+  font-size: 13px; line-height: 1.55;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+  text-wrap: pretty;
+}
+.next-action .text strong {
+  font-weight: 500;
+  background: linear-gradient(180deg, transparent 60%, rgba(94,106,210,0.18) 60%);
+}
+.next-action .text .label {
+  font-size: 10px; color: #c9c4ff;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  display: block;
+}
+.next-action .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+
+/* Stat cards */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+}
+.stat-card .label {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-bottom: 8px; letter-spacing: -0.006em;
+}
+.stat-card .num {
+  font-family: var(--font-sans); font-weight: 500;
+  font-size: 26px; letter-spacing: -0.032em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.stat-card .num.hot { color: var(--hot); }
+.stat-card .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot);
+  margin-top: 6px;
+}
+
+/* Filter row */
+.tools-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.search-input {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6px 12px;
+  width: 280px;
+  font-size: 13px; color: var(--text-primary);
+}
+.search-input .ic { width: 12px; height: 12px; color: var(--text-tertiary); }
+.search-input input {
+  flex: 1; min-width: 0;
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.search-input input::placeholder { color: var(--text-tertiary); }
+.search-input .kbd { color: var(--text-tertiary); }
+
+/* People table */
+.people-list {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.pl-head {
+  display: grid;
+  grid-template-columns: minmax(220px,1.6fr) 1.1fr 0.8fr 0.7fr 0.9fr 0.6fr 80px;
+  gap: 16px;
+  padding: 0 18px;
+  height: 36px;
+  align-items: center;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+.pl-row {
+  display: grid;
+  grid-template-columns: minmax(220px,1.6fr) 1.1fr 0.8fr 0.7fr 0.9fr 0.6fr 80px;
+  gap: 16px;
+  padding: 0 18px;
+  height: 54px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.pl-row:last-child { border-bottom: none; }
+.pl-row:hover { background: rgba(255,255,255,0.02); }
+.pl-row.selected { background: rgba(94,106,210,0.06); }
+
+.pl-person {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.pl-person .av {
+  width: 32px; height: 32px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.pl-person .name {
+  font-size: 14px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-person .email {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-role { font-size: 13px; color: var(--text-secondary); letter-spacing: -0.006em; }
+.pl-role .seniority {
+  display: block;
+  font-size: 11px; color: var(--text-tertiary);
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+.pl-company {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.pl-company .co-av {
+  width: 18px; height: 18px; border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.pl-fit {
+  display: flex; align-items: center; gap: 8px;
+}
+.pl-fit .bar-wrap {
+  flex: 1; max-width: 70px;
+}
+.pl-fit .bar {
+  height: 3px; border-radius: 999px;
+  background: rgba(255,255,255,0.06); overflow: hidden;
+}
+.pl-fit .fill { height: 100%; }
+.pl-fit .val {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.011em;
+}
+.pl-score {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 15px; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.pl-actions {
+  display: flex; gap: 4px; justify-content: flex-end;
+}
+.pl-icon-btn {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer; transition: all 0.12s;
+}
+.pl-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+/* Pagination */
+.pl-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px; color: var(--text-tertiary);
+}
+.pl-foot .pages { display: flex; align-items: center; gap: 4px; }
+.pl-foot .page-btn {
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border-radius: 4px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+.pl-foot .page-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.pl-foot .page-btn.active { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">Acme Sales<span class="role">Workspace · Growth</span></div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span><span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-item" href="IntentIQ Dashboard.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>Dashboard</a>
+    <a class="sb-item" href="IntentIQ Intent Hub.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>Intent Hub<span class="count hot">●12</span></a>
+    <a class="sb-item" href="IntentIQ Account.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>Score</a>
+    <a class="sb-item" href="IntentIQ Pipeline.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>Pipeline</a>
+    <a class="sb-item active" href="IntentIQ People.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>People</a>
+    <a class="sb-item" href="IntentIQ Watchlist.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>Watchlist<span class="count">24</span></a>
+    <a class="sb-item" href="IntentIQ Autopilot.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>Autopilot<span class="indicator"></span></a>
+    <a class="sb-item" href="IntentIQ Inbox.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>Inbox<span class="count">12</span></a>
+    <div class="sb-section">Lists<span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--hot)" stroke="none"/></svg>Q1 Targets<span class="count">42</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--accent-2)" stroke="none"/></svg>Enterprise SaaS<span class="count">86</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row"><div><span class="val">1,548</span><span class="of"> / 2,500</span></div><a class="topup">Top up</a></div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info"><div class="name">Dahlia Marwan</div><div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0f6b6e6763666e4f6e6c626a7c6e636a7c216660">[email&#160;protected]</a></div></div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>
+        <span>Workspace</span><span class="sep">/</span>
+        <span class="current">People</span>
+      </div>
+      <div class="spacer"></div>
+      <button class="tb-btn"><svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>Search<span class="kbd">⌘K</span></button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary" id="open-score-btn">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+        Score person
+      </button>
+    </div>
+
+    <!-- State toggle (demo) -->
+    <div class="state-toggle">
+      <span class="st active" data-state="list">List</span>
+      <span class="st" data-state="score">Score</span>
+      <span class="st" data-state="result">Result</span>
+    </div>
+
+    <div class="page" id="state-list">
+
+      <div class="page-head">
+        <div>
+          <div class="page-title">People</div>
+          <div class="page-sub">
+            Score the human, not just the logo · <span class="mono" style="color:var(--text-secondary);">1,284</span> people indexed across your tracked accounts
+          </div>
+        </div>
+        <div class="page-actions">
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M5 3l-3 3 3 3"/></svg>
+            Import CSV
+          </button>
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="8" height="6"/><path d="M2 5h8"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-strip">
+        <div class="stat-card">
+          <div class="label">People scored</div>
+          <div class="num">1,284</div>
+          <div class="delta">▲ 142 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">HOT contacts</div>
+          <div class="num hot">68</div>
+          <div class="delta">▲ 14 vs 7d</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg ICP fit</div>
+          <div class="num">72</div>
+          <div class="delta">▲ 4 pts</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Champions identified</div>
+          <div class="num">22</div>
+          <div class="delta" style="color:var(--text-tertiary);">stable</div>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="tools-row">
+        <div class="search-input">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+          <input type="text" placeholder="Search by name, email, role…">
+          <span class="kbd">⌘F</span>
+        </div>
+        <span class="band band-hot" style="margin-left:6px;"><span class="dot"></span>HOT 68</span>
+        <span class="band band-warm"><span class="dot"></span>WARM 312</span>
+        <span class="band band-cold"><span class="dot"></span>COLD 904</span>
+        <div class="spacer"></div>
+        <button class="tb-btn outlined">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M4 3h4M5 9h2"/></svg>
+          Filter
+        </button>
+        <button class="tb-btn outlined">
+          Sort: Score ↓
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="people-list">
+        <div class="pl-head">
+          <div>Person</div>
+          <div>Role</div>
+          <div>Company</div>
+          <div>ICP fit</div>
+          <div>Signals · last touch</div>
+          <div style="text-align:right;">Score</div>
+          <div></div>
+        </div>
+
+        <div class="pl-row selected">
+          <div class="pl-person">
+            <div class="av av-1">EM</div>
+            <div style="min-width:0;">
+              <div class="name">Elif Marwa</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d2b7bebbb4fcbfb3a0a5b392a1a6a0bba2b7fcb1bdbf">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">VP Revenue Operations<span class="seniority">VP · 7y at company</span></div>
+          <div class="pl-company"><div class="co-av av-1">S</div>Stripe</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:91%;background:var(--hot);"></div></div></div><div class="val">91</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Job change 4mo · <span style="color:var(--text-secondary);">never contacted</span></div>
+          <div class="pl-score" style="color:var(--hot);">88</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-3">JN</div>
+            <div style="min-width:0;">
+              <div class="name">Jamal Norris</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f49e9a9b86869d87b4989d9a919586da958484">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Head of GTM Systems<span class="seniority">Director · 3y at company</span></div>
+          <div class="pl-company"><div class="co-av av-4">L</div>Linear</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:84%;background:var(--hot);"></div></div></div><div class="val">84</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Liked our post 2d · <span style="color:var(--text-secondary);">opened email 5d</span></div>
+          <div class="pl-score" style="color:var(--hot);">81</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-6">PT</div>
+            <div style="min-width:0;">
+              <div class="name">Priya Tan</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d8a8aab1a1b9f6acb9b698b6b7acb1b7b6f6abb7">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Director, RevOps<span class="seniority">Director · 4y at company</span></div>
+          <div class="pl-company"><div class="co-av av-3">N</div>Notion</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:78%;background:var(--hot);"></div></div></div><div class="val">78</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Champion of 2 tools · <span style="color:var(--text-secondary);">2 mtgs Q4</span></div>
+          <div class="pl-score" style="color:var(--hot);">76</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-2">AC</div>
+            <div style="min-width:0;">
+              <div class="name">Adesola Chen</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ef8e8b8a9c80838eaf8e819b879d809f868cc18c8082">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Head of Sales Tools<span class="seniority">Director · 11mo at company</span></div>
+          <div class="pl-company"><div class="co-av av-2">A</div>Anthropic</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:88%;background:var(--hot);"></div></div></div><div class="val">88</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">New hire 11mo · <span style="color:var(--text-secondary);">never contacted</span></div>
+          <div class="pl-score" style="color:var(--hot);">82</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-7">DK</div>
+            <div style="min-width:0;">
+              <div class="name">Daniel Kovács</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593d32362f383a2a192f3c2b3a3c35773a3634">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Sr. Manager, Sales Ops<span class="seniority">Manager · 2y at company</span></div>
+          <div class="pl-company"><div class="co-av av-7">V</div>Vercel</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:68%;background:var(--warm);"></div></div></div><div class="val">68</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Replied 14d · <span style="color:var(--text-secondary);">demo declined</span></div>
+          <div class="pl-score" style="color:var(--warm);">64</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-4">RG</div>
+            <div style="min-width:0;">
+              <div class="name">Rosa García</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5f2d383e2d3c363e1f393638323e713c3032">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Manager, Pipeline Ops<span class="seniority">Manager · 5y at company</span></div>
+          <div class="pl-company"><div class="co-av av-8">F</div>Figma</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:71%;background:var(--warm);"></div></div></div><div class="val">71</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Visited pricing 3x · <span style="color:var(--text-secondary);">unresponsive 4w</span></div>
+          <div class="pl-score" style="color:var(--warm);">69</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-9">MH</div>
+            <div style="min-width:0;">
+              <div class="name">Mahir Hassan</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f29f939a9b80b29693869390809b919981dc919d9f">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">VP Sales Ops<span class="seniority">VP · 1y at company</span></div>
+          <div class="pl-company"><div class="co-av av-6">D</div>Databricks</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:86%;background:var(--hot);"></div></div></div><div class="val">86</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">In active deal · <span style="color:var(--text-secondary);">mtg Thu</span></div>
+          <div class="pl-score" style="color:var(--hot);">85</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-5">AB</div>
+            <div style="min-width:0;">
+              <div class="name">Aisha Bello</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5c3d3e393030331c3135242c3d323930723f3331">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Sr. RevOps Analyst<span class="seniority">IC · 2y at company</span></div>
+          <div class="pl-company"><div class="co-av av-5">M</div>Mixpanel</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:42%;background:var(--cold);"></div></div></div><div class="val">42</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Org in cooldown · <span style="color:var(--text-secondary);">unsubscribed</span></div>
+          <div class="pl-score" style="color:var(--cold);">41</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-10">SO</div>
+            <div style="min-width:0;">
+              <div class="name">Sofía Ortega</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4a3925383e2f2d2b0a23243e2f3829252764292527">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">Head of Pipeline<span class="seniority">Director · 6y at company</span></div>
+          <div class="pl-company"><div class="co-av av-8">I</div>Intercom</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:82%;background:var(--hot);"></div></div></div><div class="val">82</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">2nd mtg booked · <span style="color:var(--text-secondary);">procurement looped</span></div>
+          <div class="pl-score" style="color:var(--hot);">79</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-row">
+          <div class="pl-person">
+            <div class="av av-8">TN</div>
+            <div style="min-width:0;">
+              <div class="name">Tobi Nakamura</div>
+              <div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="98ecf7faf1d8e8f4f9f1fcb6fbf7f5">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="pl-role">VP RevOps<span class="seniority">VP · 3y at company</span></div>
+          <div class="pl-company"><div class="co-av av-9">P</div>Plaid</div>
+          <div class="pl-fit"><div class="bar-wrap"><div class="bar"><div class="fill" style="width:94%;background:var(--hot);"></div></div></div><div class="val">94</div></div>
+          <div style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">Contract signing · <span style="color:var(--text-secondary);">closed-won pending</span></div>
+          <div class="pl-score" style="color:var(--hot);">93</div>
+          <div class="pl-actions">
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 4l5 4 5-4M2 3h10v6H2z"/></svg></div>
+            <div class="pl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="pl-foot">
+          <span>Showing 10 of 1,284</span>
+          <div class="pages">
+            <div class="page-btn">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">…</div>
+            <div class="page-btn">129</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCORE STATE — prompt to score a person
+         ═══════════════════════════════════════════════════════ -->
+    <div class="prompt-stage" id="state-score" style="display:none;">
+      <div class="prompt-bg"><div class="grid"></div></div>
+
+      <div class="prompt-inner">
+        <div class="prompt-eyebrow">
+          <span class="badge">Score</span>
+          <span>Drop in an email or LinkedIn URL — we score the human in &lt; 3 seconds</span>
+        </div>
+        <h1 class="prompt-h1">
+          Who do you want to <span class="grad">score</span>?
+        </h1>
+        <p class="prompt-sub">
+          Paste a work email or LinkedIn URL. IntentIQ resolves the person, pulls role, tenure, engagement, and influence — then returns a 0–100 buying-intent score with AI reasoning.
+        </p>
+
+        <!-- Input-type tabs -->
+        <div class="input-type-tabs">
+          <span class="tt active" data-input="email">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8v6H2z M2 4l4 3 4-3"/></svg>
+            Email
+          </span>
+          <span class="tt" data-input="linkedin">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><path d="M4 5v3M4 4v0M6 8V5M8 8V6.5a1 1 0 00-2 0"/></svg>
+            LinkedIn URL
+          </span>
+          <span class="tt" data-input="name">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="4.5" r="2"/><path d="M2 10c0-2 2-3 4-3s4 1 4 3"/></svg>
+            Name + company
+          </span>
+        </div>
+
+        <!-- Prompt holder -->
+        <div class="prompt-holder">
+          <div class="prompt-prefix">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M2 4h10v6H2z M2 4.5l5 3.5 5-3.5"/></svg>
+          </div>
+          <input class="prompt-input" type="text" placeholder="elif.marwa@stripe.com" value="">
+          <div class="prompt-mode">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z"/></svg>
+            Full enrich
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+          </div>
+          <div class="prompt-go" id="prompt-go-btn">
+            Score
+            <span class="kbd-inline">↵</span>
+          </div>
+        </div>
+
+        <div class="prompt-meta">
+          <div class="left">
+            <span><strong>1</strong> credit · refunded if person not found</span>
+            <span>Cached for <strong>24h</strong></span>
+          </div>
+          <div class="right">
+            <span><strong>&lt; 3s</strong> typical</span>
+            <span><strong>9</strong> sources</span>
+          </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="prompt-section-label">
+          <span>Hot picks from your tracked accounts</span>
+          <span class="line"></span>
+        </div>
+        <div class="suggestion-row">
+          <div class="sugg-person" data-go-result><div class="av av-1">EM</div>Elif Marwa<span class="role-mono">· VP RevOps @ Stripe</span></div>
+          <div class="sugg-person"><div class="av av-8">TN</div>Tobi Nakamura<span class="role-mono">· VP RevOps @ Plaid</span></div>
+          <div class="sugg-person"><div class="av av-2">AC</div>Adesola Chen<span class="role-mono">· Sales Tools @ Anthropic</span></div>
+          <div class="sugg-person"><div class="av av-9">MH</div>Mahir Hassan<span class="role-mono">· VP Sales Ops @ Databricks</span></div>
+        </div>
+
+        <!-- Recent -->
+        <div class="prompt-section-label">
+          <span>Recently scored</span>
+          <span class="line"></span>
+        </div>
+        <div class="suggestion-row">
+          <div class="sugg-person"><div class="av av-3">JN</div>Jamal Norris<span class="role-mono">81</span></div>
+          <div class="sugg-person"><div class="av av-6">PT</div>Priya Tan<span class="role-mono">76</span></div>
+          <div class="sugg-person"><div class="av av-7">DK</div>Daniel Kovács<span class="role-mono">64</span></div>
+          <div class="sugg-person"><div class="av av-4">RG</div>Rosa García<span class="role-mono">69</span></div>
+        </div>
+
+        <!-- Feature pills -->
+        <div class="prompt-feature-row">
+          <div class="feat">
+            <span class="ic" style="background:rgba(78,201,216,0.12);color:var(--cyan);">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><circle cx="6" cy="4.5" r="2"/><path d="M2 10c0-2 2-3 4-3s4 1 4 3"/></svg>
+            </span>
+            5 person-axes
+          </div>
+          <div class="feat">
+            <span class="ic" style="background:rgba(94,106,210,0.12);color:#c9c4ff;">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><circle cx="6" cy="6" r="4"/><path d="M6 4v3l2 1"/></svg>
+            </span>
+            AI thesis from Claude
+          </div>
+          <div class="feat">
+            <span class="ic" style="background:rgba(74,222,128,0.12);color:var(--hot);">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M2 6l3 3 5-7"/></svg>
+            </span>
+            Verified contact
+          </div>
+          <div class="feat">
+            <span class="ic" style="background:rgba(245,181,68,0.12);color:var(--warm);">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M3 3h6M3 6h6M3 9h4"/></svg>
+            </span>
+            Recommended outreach
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         RESULT STATE — a scored person
+         ═══════════════════════════════════════════════════════ -->
+    <div class="result-page" id="state-result" style="display:none;">
+
+      <!-- Live progress (just completed) -->
+      <div class="live-progress">
+        <span class="pulse"></span>
+        <div class="steps">
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Identity resolved</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Role + tenure</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Engagement history</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Influence graph</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Contact verified</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>AI thesis</span>
+        </div>
+        <span class="timing">1.84s · 1 credit</span>
+      </div>
+
+      <!-- Mini prompt re-runner -->
+      <div class="prompt-holder" style="margin-bottom:18px;">
+        <div class="prompt-prefix">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M2 4h10v6H2z M2 4.5l5 3.5 5-3.5"/></svg>
+        </div>
+        <input class="prompt-input" type="text" value="elif.marwa@stripe.com" style="font-size: 14px;">
+        <div class="prompt-mode">
+          <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z"/></svg>
+          Full enrich
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+        </div>
+        <div class="prompt-go">Re-score</div>
+      </div>
+
+      <!-- Person head -->
+      <div class="p-head">
+        <div class="p-avatar av-1">EM</div>
+        <div style="flex:1;min-width:0;">
+          <div class="p-title-row">
+            <span class="p-id">P-4081</span>
+            <span class="band band-hot"><span class="dot"></span>HOT</span>
+            <span class="band band-blue"><span class="dot"></span>Decision-maker</span>
+            <span class="p-title">Elif Marwa</span>
+          </div>
+          <div class="p-meta">
+            <a href="#"><span class="__cf_email__" data-cfemail="37525b5e51195a56454056774443455e47521954585a">[email&#160;protected]</span></a>
+            <span class="dot"></span>
+            <span>VP Revenue Operations · Stripe</span>
+            <span class="dot"></span>
+            <span>San Francisco, US</span>
+            <span class="dot"></span>
+            <span>7y at company · VP for 2y</span>
+            <span class="dot"></span>
+            <a href="#">linkedin.com/in/elifmarwa</a>
+          </div>
+        </div>
+        <div class="p-actions">
+          <button class="tb-btn outlined">Save to list</button>
+          <button class="tb-btn outlined">Subscribe</button>
+          <button class="btn-primary" style="height:30px;padding:0 12px;">Draft outreach →</button>
+        </div>
+      </div>
+
+      <!-- Score ring + AI thesis -->
+      <div class="overview-block">
+        <div class="score-ring">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="pScoreGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4ade80"/>
+                <stop offset="55%" stop-color="#4ec9d8"/>
+                <stop offset="100%" stop-color="#7170ff"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.05)" stroke-width="6" fill="none"/>
+            <circle cx="50" cy="50" r="42" stroke="url(#pScoreGrad)" stroke-width="6" fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="263.9"
+              stroke-dashoffset="31.7"/>
+          </svg>
+          <div class="score-ring-center">
+            <span class="score-ring-band"><span class="dot"></span>HOT</span>
+            <div class="score-ring-num">88</div>
+            <div class="score-ring-of">/ 100</div>
+            <div class="score-ring-delta">▲ 9 vs 7d</div>
+          </div>
+        </div>
+
+        <div class="thesis-block">
+          <div class="thesis-head">
+            <span class="ic"></span>
+            AI thesis · Claude
+          </div>
+          <div class="thesis-text">
+            Elif owns the RevOps tooling budget at Stripe and has been <strong>silently evaluating peers</strong>
+            for 11 days — three pricing-page visits and a competitor demo request. The account just lit up on
+            funding + hiring, which usually means a <strong>tooling refresh inside 60 days</strong>. She has
+            never been contacted by your team.
+          </div>
+          <div class="thesis-meta">
+            <span>Generated just now</span>
+            <span class="dot"></span>
+            <span>Confidence 0.89</span>
+            <span class="dot"></span>
+            <span>9 sources</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signal axes (5 person-specific axes) -->
+      <div class="section-label">
+        <span class="ic"></span>
+        <strong>Signal axes</strong>
+        <span style="color:var(--text-tertiary);">· why this person scored 88</span>
+        <span class="line"></span>
+      </div>
+
+      <div class="signal-grid">
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#4ec9d8;"></span>ICP fit</div>
+          <div class="num">94</div>
+          <div class="delta">▲ exact title match</div>
+          <div class="bar"><div class="fill" style="width:94%;background:linear-gradient(90deg,#4ec9d8,#38a3b3);"></div></div>
+          <div class="note">VP RevOps · core ICP</div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#4ade80;"></span>Engagement</div>
+          <div class="num">82</div>
+          <div class="delta">▲ 14 vs 7d</div>
+          <div class="bar"><div class="fill" style="width:82%;background:linear-gradient(90deg,#4ade80,#22c55e);"></div></div>
+          <div class="note">3 pricing visits · 1 demo req</div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#f5b544;"></span>Influence</div>
+          <div class="num">91</div>
+          <div class="delta">▲ budget owner</div>
+          <div class="bar"><div class="fill" style="width:91%;background:linear-gradient(90deg,#f5b544,#d49530);"></div></div>
+          <div class="note">Decision-maker · 8 directs</div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#7170ff;"></span>Tenure</div>
+          <div class="num">76</div>
+          <div class="delta flat">stable · 7y at Stripe</div>
+          <div class="bar"><div class="fill" style="width:76%;background:linear-gradient(90deg,#7170ff,#5e6ad2);"></div></div>
+          <div class="note">VP since Q1 2023</div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#ec4899;"></span>Reachability</div>
+          <div class="num">88</div>
+          <div class="delta">▲ verified email</div>
+          <div class="bar"><div class="fill" style="width:88%;background:linear-gradient(90deg,#ec4899,#c0367f);"></div></div>
+          <div class="note">Email · LinkedIn · direct line</div>
+        </div>
+      </div>
+
+      <!-- Activity timeline + Account/champion context -->
+      <div class="detail-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="title">Activity timeline</span>
+            <span class="sub">last 30 days</span>
+          </div>
+          <div class="timeline">
+            <div class="tl-row hot">
+              <span class="when">2d ago</span>
+              <span class="dot"></span>
+              <div class="body">
+                Visited <strong>pricing page</strong> from work IP <span class="tag hot">+8</span>
+                <span class="sub-line">3rd visit this month · spent 4m 12s on Enterprise tier</span>
+              </div>
+              <span class="pts">+8</span>
+            </div>
+            <div class="tl-row hot">
+              <span class="when">5d ago</span>
+              <span class="dot"></span>
+              <div class="body">
+                Requested demo of <strong>Clay</strong> (competitor) <span class="tag hot">+12</span>
+                <span class="sub-line">Inferred from review-site visit + form fill pattern</span>
+              </div>
+              <span class="pts">+12</span>
+            </div>
+            <div class="tl-row warm">
+              <span class="when">8d ago</span>
+              <span class="dot"></span>
+              <div class="body">
+                Posted on LinkedIn: <em>"Anyone else feel like their RevOps stack is held together with duct tape?"</em> <span class="tag warm">+4</span>
+                <span class="sub-line">142 reactions · 28 comments · referenced 3 tools</span>
+              </div>
+              <span class="pts warm">+4</span>
+            </div>
+            <div class="tl-row cool">
+              <span class="when">11d ago</span>
+              <span class="dot"></span>
+              <div class="body">
+                Stripe announced <strong>$6.5B Series I</strong> <span class="tag blue">+6</span>
+                <span class="sub-line">Account-level event · contributes to all contacts</span>
+              </div>
+              <span class="pts cool">+6</span>
+            </div>
+            <div class="tl-row warm">
+              <span class="when">14d ago</span>
+              <span class="dot"></span>
+              <div class="body">
+                Hired 3 new <strong>RevOps Analysts</strong> on team <span class="tag warm">+3</span>
+                <span class="sub-line">Reports to Elif · signals tooling investment</span>
+              </div>
+              <span class="pts warm">+3</span>
+            </div>
+            <div class="tl-row">
+              <span class="when">22d ago</span>
+              <span class="dot"></span>
+              <div class="body">
+                Speaker at <strong>SaaStr "Scaling RevOps"</strong> panel
+                <span class="sub-line">Mentioned needing "better intent signals" at 18:42</span>
+              </div>
+              <span class="pts">+2</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0;">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="title">Account context</span>
+              <span class="sub"><a href="IntentIQ Account.html" style="color:var(--accent-2);text-decoration:none;">Stripe →</a></span>
+            </div>
+            <div class="panel-body">
+              <div class="kv-row">
+                <span class="k">Account score</span>
+                <span class="v"><span class="pill hot"><span style="font-weight:600;">94</span> HOT</span></span>
+              </div>
+              <div class="kv-row">
+                <span class="k">Funding</span>
+                <span class="v"><span class="mono">$6.5B Series I · 11d ago</span></span>
+              </div>
+              <div class="kv-row">
+                <span class="k">Hiring</span>
+                <span class="v"><span class="mono">+12 RevOps roles · 30d</span></span>
+              </div>
+              <div class="kv-row">
+                <span class="k">In pipeline</span>
+                <span class="v"><span class="pill warm">Cooled — Q2 2024</span></span>
+              </div>
+              <div class="kv-row">
+                <span class="k">Last contact</span>
+                <span class="v" style="color:var(--text-tertiary);">Never · by this person</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <span class="title">Others at Stripe</span>
+              <span class="sub">8 indexed</span>
+            </div>
+            <div class="peers-list">
+              <div class="peer-row">
+                <div class="av av-3">RK</div>
+                <div>
+                  <div class="name">Ravi Kapoor</div>
+                  <div class="role">Director · RevOps Architecture</div>
+                </div>
+                <span class="score-mini hot">79</span>
+              </div>
+              <div class="peer-row">
+                <div class="av av-6">SC</div>
+                <div>
+                  <div class="name">Sarah Chen</div>
+                  <div class="role">Sr. Manager · Sales Systems</div>
+                </div>
+                <span class="score-mini warm">68</span>
+              </div>
+              <div class="peer-row">
+                <div class="av av-4">MO</div>
+                <div>
+                  <div class="name">Marcus Okafor</div>
+                  <div class="role">RevOps Analyst (reports to Elif)</div>
+                </div>
+                <span class="score-mini warm">54</span>
+              </div>
+              <div class="peer-row">
+                <div class="av av-9">LZ</div>
+                <div>
+                  <div class="name">Lina Zhao</div>
+                  <div class="role">VP Finance Ops</div>
+                </div>
+                <span class="score-mini cold">42</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommended next action -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="next-action" style="border-top:none;">
+          <span class="ai-dot"></span>
+          <div class="text">
+            <span class="label">Recommended next action</span>
+            Send a <strong>3-line note referencing her SaaStr panel quote</strong> ("better intent signals") and offer a 15-min demo positioned against Clay. Reply rate prediction for this approach: <strong>34%</strong>. The 6.5B raise window closes ~Feb 14.
+          </div>
+          <div class="actions">
+            <button class="tb-btn outlined">See alternatives</button>
+            <button class="btn-primary" style="height:30px;padding:0 12px;">Draft in Inbox →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const toggle = document.querySelector('.state-toggle');
+  const states = {
+    list: document.getElementById('state-list'),
+    score: document.getElementById('state-score'),
+    result: document.getElementById('state-result'),
+  };
+  function show(which) {
+    Object.entries(states).forEach(([k, el]) => {
+      if (k === which) {
+        el.style.display = (k === 'score') ? 'flex' : (k === 'result' ? 'block' : '');
+      } else {
+        el.style.display = 'none';
+      }
+    });
+    toggle.querySelectorAll('.st').forEach(s => {
+      s.classList.toggle('active', s.dataset.state === which);
+    });
+    document.querySelector('.main').scrollTop = 0;
+  }
+  toggle.addEventListener('click', (e) => {
+    const t = e.target.closest('.st');
+    if (t) show(t.dataset.state);
+  });
+
+  // Top-bar "Score person" button → score state
+  document.getElementById('open-score-btn').addEventListener('click', () => show('score'));
+
+  // Clicking a person row in the list → result state
+  document.querySelectorAll('#state-list .pl-row').forEach(row => {
+    row.addEventListener('click', () => show('result'));
+  });
+
+  // Clicking a suggested person on the score prompt → result state
+  document.querySelectorAll('#state-score .sugg-person').forEach(s => {
+    s.addEventListener('click', () => show('result'));
+  });
+
+  // Pressing the Score button on the prompt → result state
+  document.getElementById('prompt-go-btn').addEventListener('click', () => show('result'));
+
+  // Input-type tabs (visual only)
+  document.querySelectorAll('.input-type-tabs .tt').forEach(tt => {
+    tt.addEventListener('click', () => {
+      document.querySelectorAll('.input-type-tabs .tt').forEach(x => x.classList.remove('active'));
+      tt.classList.add('active');
+      const input = document.querySelector('#state-score .prompt-input');
+      const placeholders = {
+        email: 'elif.marwa@stripe.com',
+        linkedin: 'linkedin.com/in/elifmarwa',
+        name: 'Elif Marwa, Stripe',
+      };
+      input.placeholder = placeholders[tt.dataset.input] || '';
+      input.focus();
+    });
+  });
+</script>
+
+</body>
+</html>

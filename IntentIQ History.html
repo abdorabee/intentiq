@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="intentiq.css">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   History page — timeline of past scoring runs
+   ───────────────────────────────────────────────────────────── */
+
+.hist-page { padding-bottom: 24px; }
+
+/* Activity strip: 30-day scoring volume + band mix */
+.activity-strip {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1px 220px;
+  gap: 18px;
+  align-items: stretch;
+}
+.activity-left { display: flex; flex-direction: column; min-width: 0; }
+.activity-head {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 12px;
+}
+.activity-head .num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 28px; letter-spacing: -0.034em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.activity-head .lbl {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.activity-head .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot);
+  margin-left: 4px;
+}
+.activity-head .legend {
+  margin-left: auto;
+  display: inline-flex; gap: 12px;
+  font-size: 11px; color: var(--text-tertiary);
+  font-family: var(--font-mono); letter-spacing: 0.02em;
+}
+.activity-head .legend .lg {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.activity-head .legend .sw { width: 8px; height: 8px; border-radius: 2px; }
+
+.activity-chart {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  gap: 3px;
+  align-items: end;
+  height: 64px;
+  position: relative;
+}
+.activity-chart .col {
+  display: flex; flex-direction: column-reverse; gap: 1px;
+  height: 100%; justify-content: flex-start;
+  cursor: pointer;
+  position: relative;
+}
+.activity-chart .col:hover .seg { filter: brightness(1.3); }
+.activity-chart .seg {
+  width: 100%;
+  border-radius: 1px;
+  min-height: 1px;
+}
+.activity-chart .col.today::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px; border-radius: 999px;
+  background: var(--text-primary);
+}
+.activity-axis {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.04em;
+  margin-top: 10px;
+}
+
+.activity-divider { background: var(--border-subtle); width: 1px; }
+
+.activity-right {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.ar-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0;
+}
+.ar-row + .ar-row { border-top: 1px solid var(--border-subtle); }
+.ar-row .k {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.ar-row .k .dot {
+  width: 7px; height: 7px; border-radius: 999px;
+  box-shadow: 0 0 4px currentColor;
+}
+.ar-row .v {
+  font-family: var(--font-mono); font-weight: 500;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.011em;
+}
+.ar-row .v .pct {
+  color: var(--text-tertiary);
+  font-weight: 400; margin-left: 6px;
+  font-size: 11px;
+}
+
+/* Stat strip — same pattern as People */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+}
+.stat-card .label {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-bottom: 8px; letter-spacing: -0.006em;
+}
+.stat-card .num {
+  font-family: var(--font-sans); font-weight: 500;
+  font-size: 26px; letter-spacing: -0.032em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.stat-card .num.hot { color: var(--hot); }
+.stat-card .num.warm { color: var(--warm); }
+.stat-card .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot);
+  margin-top: 6px;
+}
+.stat-card .delta.flat { color: var(--text-tertiary); }
+
+/* Filter / tools row */
+.tools-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.search-input {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6px 12px;
+  width: 320px;
+  font-size: 13px; color: var(--text-primary);
+}
+.search-input .ic { width: 12px; height: 12px; color: var(--text-tertiary); }
+.search-input input {
+  flex: 1; min-width: 0;
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.search-input input::placeholder { color: var(--text-tertiary); }
+.search-input .kbd { color: var(--text-tertiary); }
+
+.band-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.12s;
+}
+.band-chip:hover { filter: brightness(1.2); }
+.band-chip .dot { width: 6px; height: 6px; border-radius: 999px; }
+.band-chip.hot { background: var(--hot-bg); border-color: var(--hot-border); color: var(--hot); }
+.band-chip.hot .dot { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+.band-chip.warm { background: var(--warm-bg); border-color: var(--warm-border); color: var(--warm); }
+.band-chip.warm .dot { background: var(--warm); }
+.band-chip.cold { background: var(--cold-bg); border-color: var(--cold-border); color: var(--text-secondary); }
+.band-chip.cold .dot { background: var(--cold); }
+.band-chip.inactive { opacity: 0.45; }
+
+/* Date group label */
+.date-group {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  margin: 16px 0 6px;
+  padding: 0 4px;
+}
+.date-group .line { flex: 1; height: 1px; background: var(--border-subtle); }
+.date-group .count {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 1px 7px; border-radius: 999px;
+  color: var(--text-tertiary);
+  font-size: 10px;
+}
+.date-group:first-child { margin-top: 4px; }
+
+/* History table */
+.hist-table {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.ht-head {
+  display: grid;
+  grid-template-columns: 70px minmax(180px, 1.2fr) 60px 70px 220px 1fr 90px 60px;
+  gap: 14px;
+  padding: 0 16px;
+  height: 34px;
+  align-items: center;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+
+.ht-row {
+  display: grid;
+  grid-template-columns: 70px minmax(180px, 1.2fr) 60px 70px 220px 1fr 90px 60px;
+  gap: 14px;
+  padding: 0 16px;
+  min-height: 58px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.ht-row:last-child { border-bottom: none; }
+.ht-row:hover { background: rgba(255,255,255,0.025); }
+.ht-row.open { background: rgba(94,106,210,0.06); }
+
+.ht-time {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.ht-time .ago {
+  display: block;
+  font-size: 10px; color: var(--text-quaternary);
+  margin-top: 1px;
+}
+
+.ht-co {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.ht-co .av {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.ht-co .name {
+  font-size: 14px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ht-co .domain {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.ht-score {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 22px; letter-spacing: -0.034em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: flex; align-items: baseline; gap: 6px;
+}
+.ht-score .of {
+  font-size: 11px; font-weight: 500;
+  color: var(--text-quaternary);
+}
+
+.ht-band {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ht-band .dot { width: 5px; height: 5px; border-radius: 999px; }
+.ht-band.hot { background: var(--hot-bg); border: 1px solid var(--hot-border); color: var(--hot); }
+.ht-band.hot .dot { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+.ht-band.warm { background: var(--warm-bg); border: 1px solid var(--warm-border); color: var(--warm); }
+.ht-band.warm .dot { background: var(--warm); }
+.ht-band.cold { background: var(--cold-bg); border: 1px solid var(--cold-border); color: var(--text-secondary); }
+.ht-band.cold .dot { background: var(--cold); }
+
+.ht-tags {
+  display: flex; flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.ht-stagerow {
+  display: flex; gap: 5px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.ht-stagerow .stage {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 11px;
+  letter-spacing: -0.006em;
+}
+.ht-stagerow .stage .sw {
+  width: 5px; height: 5px; border-radius: 999px;
+  background: var(--accent-2);
+}
+.ht-stagerow .urgency {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.ht-stagerow .urgency.nurture { background: rgba(78,201,216,0.10); color: var(--cyan); }
+.ht-stagerow .urgency.engage { background: var(--warm-bg); color: var(--warm); }
+.ht-stagerow .urgency.strike { background: var(--hot-bg); color: var(--hot); }
+.ht-trigger {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 5px;
+}
+.ht-trigger .pl-dot {
+  width: 3px; height: 3px; border-radius: 999px;
+  background: var(--text-quaternary);
+  flex-shrink: 0;
+}
+.ht-trigger .more {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-tertiary);
+  padding: 1px 5px; border-radius: 3px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.ht-summary {
+  font-size: 12px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-delta {
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 1px;
+}
+.ht-delta .val { display: inline-flex; align-items: center; gap: 3px; }
+.ht-delta.up { color: var(--hot); }
+.ht-delta.down { color: var(--red); }
+.ht-delta.flat { color: var(--text-tertiary); }
+.ht-delta .from {
+  font-size: 10px; color: var(--text-quaternary);
+  letter-spacing: 0.02em; font-weight: 400;
+}
+.ht-delta.first .from { color: var(--accent-2); }
+
+.ht-actions {
+  display: flex; gap: 4px; justify-content: flex-end;
+}
+.ht-icon-btn {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer; transition: all 0.12s;
+}
+.ht-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.ht-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px; color: var(--text-tertiary);
+}
+.ht-foot .pages { display: flex; align-items: center; gap: 4px; }
+.ht-foot .page-btn {
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border-radius: 4px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+.ht-foot .page-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.ht-foot .page-btn.active { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+
+/* ─────────────────────────────────────────────────────────────
+   Detail drawer (slide-in from right)
+   ───────────────────────────────────────────────────────────── */
+.drawer-mask {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 80;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.drawer-mask.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 560px;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  z-index: 90;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(.2,.7,.2,1);
+  box-shadow: -32px 0 80px -32px rgba(0,0,0,0.8);
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255,255,255,0.01);
+}
+.drawer-head .av {
+  width: 40px; height: 40px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.drawer-head .name {
+  font-size: 16px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.022em;
+}
+.drawer-head .domain {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+.drawer-head .close {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.drawer-head .close:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 22px 24px;
+}
+
+.drawer-hero {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 18px;
+  padding: 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.drawer-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(74,222,128,0.08), transparent 60%);
+  pointer-events: none;
+}
+.drawer-hero.cold::before {
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(138,143,152,0.06), transparent 60%);
+}
+.drawer-hero.warm::before {
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(245,181,68,0.08), transparent 60%);
+}
+.dring { position: relative; width: 130px; height: 130px; }
+.dring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.dring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.dring-num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 42px; letter-spacing: -0.04em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.dring-of {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 2px; letter-spacing: 0.04em;
+}
+.dring-band {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+.dring-band.hot { background: var(--hot-bg); border: 1px solid var(--hot-border); color: var(--hot); }
+.dring-band.warm { background: var(--warm-bg); border: 1px solid var(--warm-border); color: var(--warm); }
+.dring-band.cold { background: var(--cold-bg); border: 1px solid var(--cold-border); color: var(--text-secondary); }
+.dring-band .dot { width: 5px; height: 5px; border-radius: 999px; }
+.dring-band.hot .dot { background: var(--hot); }
+.dring-band.warm .dot { background: var(--warm); }
+.dring-band.cold .dot { background: var(--cold); }
+
+.dhero-side {
+  display: flex; flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+.dhero-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 14px;
+  font-size: 11px;
+}
+.dhero-meta .k {
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+.dhero-meta .v {
+  color: var(--text-primary);
+  font-size: 13px;
+  letter-spacing: -0.006em;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.dhero-meta .v .urgency {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.dhero-meta .v .urgency.nurture { background: rgba(78,201,216,0.10); color: var(--cyan); }
+.dhero-meta .v .urgency.engage { background: var(--warm-bg); color: var(--warm); }
+.dhero-meta .v .urgency.strike { background: var(--hot-bg); color: var(--hot); }
+.dhero-when {
+  margin-top: auto;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 8px;
+}
+.dhero-when .pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 2px 7px; border-radius: 999px;
+  color: var(--text-tertiary);
+}
+
+/* Sections inside drawer */
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  margin: 16px 0 8px;
+}
+.section-label .ic {
+  width: 5px; height: 5px; border-radius: 999px;
+  background: var(--cyan); box-shadow: 0 0 4px var(--cyan);
+}
+.section-label strong { color: var(--text-primary); font-weight: 500; }
+.section-label .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.ai-summary {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+  text-wrap: pretty;
+}
+.ai-summary .ai-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+  font-size: 10px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.ai-summary .ai-row .ai-dot {
+  width: 14px; height: 14px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+}
+.ai-summary strong {
+  font-weight: 500;
+  background: linear-gradient(180deg, transparent 60%, rgba(94,106,210,0.18) 60%);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.action-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px 14px;
+}
+.action-card .lbl {
+  font-size: 10px; color: var(--warm);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  margin-bottom: 6px;
+}
+.action-card.action .lbl { color: var(--cyan); }
+.action-card .txt {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+
+.trigger-list {
+  display: flex; flex-direction: column;
+  gap: 6px;
+}
+.trigger-pill {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.trigger-pill .swatch {
+  width: 20px; height: 20px; border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700;
+  font-family: var(--font-mono);
+  color: #0a0b0f;
+}
+.trigger-pill .pts {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.sales-tool {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.sales-tool .st-label {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 10px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-family: var(--font-mono); font-weight: 600;
+}
+.sales-tool .st-label .copy {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.sales-tool .st-label .copy:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.sales-tool .st-body {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+}
+.sales-tool .st-body.mono {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Re-score CTA at bottom */
+.drawer-foot {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, transparent, rgba(94,106,210,0.04));
+  display: flex; gap: 8px;
+  align-items: center;
+}
+.drawer-foot .left {
+  flex: 1;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.drawer-foot .left strong { color: var(--text-secondary); font-weight: 500; }
+
+/* Range tab styles to match what's used elsewhere */
+.range-tabs {
+  display: inline-flex;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px;
+}
+.range-tab {
+  padding: 4px 10px;
+  font-size: 11px; color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.range-tab.active { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+/* Empty state cell styling for first-time scores */
+.ht-first-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 6px; border-radius: 3px;
+  background: var(--accent-soft);
+  color: #c9c4ff;
+  font-family: var(--font-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">Acme Sales<span class="role">Workspace · Growth</span></div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span><span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-item" href="IntentIQ Dashboard.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>Dashboard</a>
+    <a class="sb-item" href="IntentIQ Intent Hub.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>Intent Hub<span class="count hot">●12</span></a>
+    <a class="sb-item" href="IntentIQ Account.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>Score</a>
+    <a class="sb-item" href="IntentIQ Pipeline.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>Pipeline</a>
+    <a class="sb-item" href="IntentIQ People.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>People</a>
+    <a class="sb-item" href="IntentIQ Watchlist.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>Watchlist<span class="count">24</span></a>
+    <a class="sb-item active" href="IntentIQ History.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3.2l2 1.4"/></svg>History<span class="count">1,284</span></a>
+    <a class="sb-item" href="IntentIQ Autopilot.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>Autopilot<span class="indicator"></span></a>
+    <a class="sb-item" href="IntentIQ Inbox.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>Inbox<span class="count">12</span></a>
+    <div class="sb-section">Lists<span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--hot)" stroke="none"/></svg>Q1 Targets<span class="count">42</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--accent-2)" stroke="none"/></svg>Enterprise SaaS<span class="count">86</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row"><div><span class="val">1,548</span><span class="of"> / 2,500</span></div><a class="topup">Top up</a></div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info"><div class="name">Dahlia Marwan</div><div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0266636a6e6b634263616f6771636e67712c6b6d">[email&#160;protected]</a></div></div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3.2l2 1.4"/></svg>
+        <span>Workspace</span><span class="sep">/</span>
+        <span class="current">History</span>
+      </div>
+      <div class="spacer"></div>
+      <button class="tb-btn"><svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>Search<span class="kbd">⌘K</span></button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+        Score account
+      </button>
+    </div>
+
+    <div class="page hist-page">
+
+      <div class="page-head">
+        <div>
+          <div class="page-title">Score history</div>
+          <div class="page-sub">
+            Every account you've scored — <span class="mono" style="color:var(--text-secondary);">1,284</span> runs · last scored <span class="mono" style="color:var(--text-secondary);">3 min</span> ago
+          </div>
+        </div>
+        <div class="page-actions">
+          <div class="range-tabs">
+            <span class="range-tab">24H</span>
+            <span class="range-tab">7D</span>
+            <span class="range-tab active">30D</span>
+            <span class="range-tab">90D</span>
+            <span class="range-tab">All</span>
+          </div>
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="8" height="6"/><path d="M2 5h8"/></svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Activity strip: scoring volume over time + band breakdown -->
+      <div class="activity-strip">
+        <div class="activity-left">
+          <div class="activity-head">
+            <div class="num">412</div>
+            <div class="lbl">scored in last 30 days</div>
+            <div class="delta">▲ 142 vs prior</div>
+            <div class="legend">
+              <span class="lg"><span class="sw" style="background:var(--hot);"></span>HOT</span>
+              <span class="lg"><span class="sw" style="background:var(--warm);"></span>WARM</span>
+              <span class="lg"><span class="sw" style="background:var(--cold);opacity:0.7;"></span>COLD</span>
+            </div>
+          </div>
+          <div class="activity-chart" id="activity-chart"></div>
+          <div class="activity-axis">
+            <span>Apr 27</span>
+            <span>May 4</span>
+            <span>May 11</span>
+            <span>May 18</span>
+            <span>Today</span>
+          </div>
+        </div>
+        <div class="activity-divider"></div>
+        <div class="activity-right">
+          <div class="ar-row">
+            <span class="k"><span class="dot" style="background:var(--hot);color:var(--hot);"></span>HOT (≥75)</span>
+            <span class="v">68<span class="pct">16.5%</span></span>
+          </div>
+          <div class="ar-row">
+            <span class="k"><span class="dot" style="background:var(--warm);color:var(--warm);"></span>WARM (50–74)</span>
+            <span class="v">142<span class="pct">34.5%</span></span>
+          </div>
+          <div class="ar-row">
+            <span class="k"><span class="dot" style="background:var(--cold);color:var(--cold);"></span>COLD (&lt;50)</span>
+            <span class="v">202<span class="pct">49.0%</span></span>
+          </div>
+          <div class="ar-row">
+            <span class="k" style="color:var(--text-tertiary);">Re-scores</span>
+            <span class="v" style="color:var(--text-secondary);">94<span class="pct">22.8%</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat strip -->
+      <div class="stat-strip">
+        <div class="stat-card">
+          <div class="label">Total runs</div>
+          <div class="num">1,284</div>
+          <div class="delta">▲ 412 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg score</div>
+          <div class="num">54.3</div>
+          <div class="delta">▲ 3.1 pts</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Bands flipped to HOT</div>
+          <div class="num hot">22</div>
+          <div class="delta">▲ 7 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Credits used (30d)</div>
+          <div class="num">412</div>
+          <div class="delta flat">≈ 14/day pace</div>
+        </div>
+      </div>
+
+      <!-- Tools row -->
+      <div class="tools-row">
+        <div class="search-input">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+          <input type="text" placeholder="Search company, domain, trigger keyword…">
+          <span class="kbd">⌘F</span>
+        </div>
+        <span class="band-chip hot"><span class="dot"></span>HOT 68</span>
+        <span class="band-chip warm"><span class="dot"></span>WARM 142</span>
+        <span class="band-chip cold"><span class="dot"></span>COLD 202</span>
+        <div class="spacer"></div>
+        <button class="tb-btn outlined">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="3" height="3"/><rect x="7" y="2" width="3" height="3"/><rect x="2" y="7" width="3" height="3"/><rect x="7" y="7" width="3" height="3"/></svg>
+          Stage
+        </button>
+        <button class="tb-btn outlined">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M4 3h4M5 9h2"/></svg>
+          Filter
+        </button>
+        <button class="tb-btn outlined">
+          Sort: Newest
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="hist-table">
+        <div class="ht-head">
+          <div>Time</div>
+          <div>Company</div>
+          <div>Score</div>
+          <div>Band</div>
+          <div>Stage · Urgency</div>
+          <div>Key triggers · AI summary</div>
+          <div style="text-align:right;">Δ vs prev</div>
+          <div></div>
+        </div>
+
+        <!-- ─── TODAY group -->
+        <div class="date-group">
+          Today · May 20, 2026 <span class="line"></span> <span class="count">5 runs</span>
+        </div>
+
+        <div class="ht-row" data-id="paymob-2">
+          <div class="ht-time">09:02 PM<span class="ago">3m ago</span></div>
+          <div class="ht-co">
+            <div class="av av-7">P</div>
+            <div style="min-width:0;">
+              <div class="name">Paymob</div>
+              <div class="domain">paymob.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--cold);">0<span class="of">/100</span></div>
+          <div><span class="ht-band cold"><span class="dot"></span>COLD</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw"></span>Awareness</span>
+              <span class="urgency nurture">Nurture</span>
+            </div>
+            <div class="ht-trigger">Growing mid-market domain (OPR: 3/10) <span class="more">+1</span></div>
+          </div>
+          <div class="ht-summary">Paymob scores 0/100, which reflects limited buying intent signals at this time. Strongest signal is web at 87% — active buying profile, but other axes quiet.</div>
+          <div class="ht-delta flat">
+            <span class="val">= 0</span>
+            <span class="from">vs 09:01 PM</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn" title="Re-score"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="paymob-1">
+          <div class="ht-time">09:01 PM<span class="ago">4m ago</span></div>
+          <div class="ht-co">
+            <div class="av av-7">P</div>
+            <div style="min-width:0;">
+              <div class="name">Paymob</div>
+              <div class="domain">paymob.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--cold);">0<span class="of">/100</span></div>
+          <div><span class="ht-band cold"><span class="dot"></span>COLD</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw"></span>Awareness</span>
+              <span class="urgency nurture">Nurture</span>
+            </div>
+            <div class="ht-trigger">Growing mid-market domain (OPR: 3/10) <span class="more">+1</span></div>
+          </div>
+          <div class="ht-summary">First score for this account. Funding, hiring, and news axes returned no recent activity — only web presence yielded a meaningful signal.</div>
+          <div class="ht-delta first">
+            <span class="val">—</span>
+            <span class="from"><span class="ht-first-badge">first run</span></span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="anthropic">
+          <div class="ht-time">06:48 PM<span class="ago">2h ago</span></div>
+          <div class="ht-co">
+            <div class="av av-2">A</div>
+            <div style="min-width:0;">
+              <div class="name">Anthropic</div>
+              <div class="domain">anthropic.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">96<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--hot);"></span>Decision</span>
+              <span class="urgency strike">Strike now</span>
+            </div>
+            <div class="ht-trigger">Series E close · GTM hiring +18 <span class="more">+3</span></div>
+          </div>
+          <div class="ht-summary">Anthropic scores 96/100 — all five signals firing. Strongest are funding (Series E announced 11d ago) and hiring (18 GTM roles open this quarter). 6-week outreach window estimated.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 24</span>
+            <span class="from">from 72</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="stripe-new">
+          <div class="ht-time">04:11 PM<span class="ago">5h ago</span></div>
+          <div class="ht-co">
+            <div class="av av-1">S</div>
+            <div style="min-width:0;">
+              <div class="name">Stripe</div>
+              <div class="domain">stripe.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">94<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--hot);"></span>Decision</span>
+              <span class="urgency strike">Strike now</span>
+            </div>
+            <div class="ht-trigger">CFO appointed 4mo · Web traffic +38% <span class="more">+2</span></div>
+          </div>
+          <div class="ht-summary">Stripe scores 94/100. Recent leadership change (new CFO) + hiring spike in Treasury Ops suggests they are actively building out finance tooling. Time-bound opportunity.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 65</span>
+            <span class="from">from 29</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="linear">
+          <div class="ht-time">11:24 AM<span class="ago">9h ago</span></div>
+          <div class="ht-co">
+            <div class="av av-4">L</div>
+            <div style="min-width:0;">
+              <div class="name">Linear</div>
+              <div class="domain">linear.app</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">82<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--warm);"></span>Consideration</span>
+              <span class="urgency engage">Engage</span>
+            </div>
+            <div class="ht-trigger">Hiring RevOps lead · Mentioned by 2 customers <span class="more">+1</span></div>
+          </div>
+          <div class="ht-summary">Linear scores 82/100. Open RevOps lead role + mentioned by 2 of your customers in support tickets last quarter. Warm intro path is the right approach.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 4</span>
+            <span class="from">from 78</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <!-- ─── YESTERDAY group -->
+        <div class="date-group">
+          Yesterday · May 19 <span class="line"></span> <span class="count">7 runs</span>
+        </div>
+
+        <div class="ht-row" data-id="databricks">
+          <div class="ht-time">08:52 PM<span class="ago">1d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-6">D</div>
+            <div style="min-width:0;">
+              <div class="name">Databricks</div>
+              <div class="domain">databricks.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">87<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--hot);"></span>Decision</span>
+              <span class="urgency strike">Strike now</span>
+            </div>
+            <div class="ht-trigger">Snowflake migration mentions · Tech eval ongoing <span class="more">+2</span></div>
+          </div>
+          <div class="ht-summary">Databricks scores 87/100. Public RFP signals + 3 mentions of competing platforms in their recent blog suggest an active vendor evaluation. Move within 2 weeks.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 9</span>
+            <span class="from">from 78</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="figma">
+          <div class="ht-time">05:30 PM<span class="ago">1d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-8">F</div>
+            <div style="min-width:0;">
+              <div class="name">Figma</div>
+              <div class="domain">figma.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--warm);">71<span class="of">/100</span></div>
+          <div><span class="ht-band warm"><span class="dot"></span>WARM</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--warm);"></span>Consideration</span>
+              <span class="urgency engage">Engage</span>
+            </div>
+            <div class="ht-trigger">Enterprise team expansion · Procurement signals</div>
+          </div>
+          <div class="ht-summary">Figma scores 71/100. Steady growth in Enterprise segment hiring, but no immediate purchase trigger. Pricing page visits up 3x — qualifying conversation is appropriate.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 2</span>
+            <span class="from">from 69</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="notion">
+          <div class="ht-time">02:08 PM<span class="ago">1d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-3">N</div>
+            <div style="min-width:0;">
+              <div class="name">Notion</div>
+              <div class="domain">notion.so</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">78<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--warm);"></span>Consideration</span>
+              <span class="urgency engage">Engage</span>
+            </div>
+            <div class="ht-trigger">2 champions identified · API team hiring</div>
+          </div>
+          <div class="ht-summary">Notion scores 78/100 — just crossed HOT threshold. Two former customers are now at Notion in RevOps roles. Hiring is concentrated in API/integrations team.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 6</span>
+            <span class="from">from 72</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="vercel">
+          <div class="ht-time">10:22 AM<span class="ago">1d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-7">V</div>
+            <div style="min-width:0;">
+              <div class="name">Vercel</div>
+              <div class="domain">vercel.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--warm);">64<span class="of">/100</span></div>
+          <div><span class="ht-band warm"><span class="dot"></span>WARM</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--warm);"></span>Consideration</span>
+              <span class="urgency nurture">Nurture</span>
+            </div>
+            <div class="ht-trigger">Recent funding · 11 SDR roles open</div>
+          </div>
+          <div class="ht-summary">Vercel scores 64/100. Strong funding signal but their sales tooling stack is already mature. Watch for trigger events; no immediate outreach needed.</div>
+          <div class="ht-delta down">
+            <span class="val">▼ 4</span>
+            <span class="from">from 68</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <!-- ─── EARLIER THIS WEEK -->
+        <div class="date-group">
+          Earlier this week <span class="line"></span> <span class="count">23 runs</span>
+        </div>
+
+        <div class="ht-row" data-id="stripe-old">
+          <div class="ht-time">May 18 · 04:04 PM<span class="ago">2d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-1">S</div>
+            <div style="min-width:0;">
+              <div class="name">Stripe</div>
+              <div class="domain">stripe.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--cold);">29<span class="of">/100</span></div>
+          <div><span class="ht-band cold"><span class="dot"></span>COLD</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw"></span>Awareness</span>
+              <span class="urgency nurture">Nurture</span>
+            </div>
+            <div class="ht-trigger">Established domain (OPR 9) · Leadership change <span class="more">+2</span></div>
+          </div>
+          <div class="ht-summary">Stripe scores 29/100, which reflects limited buying intent. Established brand but no recent triggers. Set a watchlist alert and re-score in 30 days.</div>
+          <div class="ht-delta first">
+            <span class="val">—</span>
+            <span class="from"><span class="ht-first-badge">first run</span></span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="plaid">
+          <div class="ht-time">May 17 · 11:42 AM<span class="ago">3d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-9">P</div>
+            <div style="min-width:0;">
+              <div class="name">Plaid</div>
+              <div class="domain">plaid.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">91<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--hot);"></span>Decision</span>
+              <span class="urgency strike">Strike now</span>
+            </div>
+            <div class="ht-trigger">Contract phase · Procurement engaged</div>
+          </div>
+          <div class="ht-summary">Plaid scores 91/100. Already in late-stage deal with your team — this score confirms continued strong buying intent. Champion is the VP RevOps.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 3</span>
+            <span class="from">from 88</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="mixpanel">
+          <div class="ht-time">May 17 · 09:15 AM<span class="ago">3d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-5">M</div>
+            <div style="min-width:0;">
+              <div class="name">Mixpanel</div>
+              <div class="domain">mixpanel.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--cold);">41<span class="of">/100</span></div>
+          <div><span class="ht-band cold"><span class="dot"></span>COLD</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw"></span>Awareness</span>
+              <span class="urgency nurture">Nurture</span>
+            </div>
+            <div class="ht-trigger">Org cooldown · Layoffs reported</div>
+          </div>
+          <div class="ht-summary">Mixpanel scores 41/100. Recent layoffs and budget freeze make this a poor outreach moment. Set re-score for Q3 and move on.</div>
+          <div class="ht-delta down">
+            <span class="val">▼ 12</span>
+            <span class="from">from 53</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-row" data-id="intercom">
+          <div class="ht-time">May 16 · 03:50 PM<span class="ago">4d ago</span></div>
+          <div class="ht-co">
+            <div class="av av-8">I</div>
+            <div style="min-width:0;">
+              <div class="name">Intercom</div>
+              <div class="domain">intercom.com</div>
+            </div>
+          </div>
+          <div class="ht-score" style="color:var(--hot);">88<span class="of">/100</span></div>
+          <div><span class="ht-band hot"><span class="dot"></span>HOT</span></div>
+          <div class="ht-tags">
+            <div class="ht-stagerow">
+              <span class="stage"><span class="sw" style="background:var(--hot);"></span>Decision</span>
+              <span class="urgency strike">Strike now</span>
+            </div>
+            <div class="ht-trigger">Procurement looped · 2nd meeting booked</div>
+          </div>
+          <div class="ht-summary">Intercom scores 88/100. Active deal in 2nd meeting stage. Procurement now involved — pricing conversation imminent. Send proposal this week.</div>
+          <div class="ht-delta up">
+            <span class="val">▲ 5</span>
+            <span class="from">from 83</span>
+          </div>
+          <div class="ht-actions">
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg></div>
+            <div class="ht-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="ht-foot">
+          <span>Showing 13 of 1,284 runs</span>
+          <div class="pages">
+            <div class="page-btn">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">…</div>
+            <div class="page-btn">99</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────────────────
+     Detail drawer (slides in from right)
+     ────────────────────────────────────────────────────────── -->
+<div class="drawer-mask" id="drawer-mask"></div>
+<div class="drawer" id="drawer">
+
+  <div class="drawer-head">
+    <div class="av av-2" id="d-av">A</div>
+    <div style="min-width:0;">
+      <div class="name" id="d-name">Anthropic</div>
+      <div class="domain" id="d-domain">anthropic.com</div>
+    </div>
+    <div class="close" id="drawer-close">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14"><path d="M3 3l8 8M11 3l-8 8"/></svg>
+    </div>
+  </div>
+
+  <div class="drawer-body">
+
+    <div class="drawer-hero" id="d-hero">
+      <div class="dring">
+        <svg viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="56" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+          <circle id="d-ring" cx="65" cy="65" r="56" fill="none" stroke="var(--hot)" stroke-width="8" stroke-linecap="round" stroke-dasharray="351.86" stroke-dashoffset="14"/>
+        </svg>
+        <div class="dring-center">
+          <div class="dring-num" id="d-num">96</div>
+          <div class="dring-of">/ 100</div>
+          <div class="dring-band hot" id="d-band-pill"><span class="dot"></span>HOT</div>
+        </div>
+      </div>
+      <div class="dhero-side">
+        <div class="dhero-meta">
+          <div>
+            <div class="k">Stage</div>
+            <div class="v" id="d-stage">Decision</div>
+          </div>
+          <div>
+            <div class="k">Urgency</div>
+            <div class="v"><span class="urgency strike" id="d-urgency">Strike now</span></div>
+          </div>
+          <div>
+            <div class="k">Δ vs previous</div>
+            <div class="v" id="d-delta" style="color:var(--hot);font-family:var(--font-mono);">▲ 24 from 72</div>
+          </div>
+          <div>
+            <div class="k">Window</div>
+            <div class="v" id="d-window" style="color:var(--text-secondary);">~6 weeks</div>
+          </div>
+        </div>
+        <div class="dhero-when">
+          <span id="d-when">Scored May 20, 2026 · 06:48 PM</span>
+          <span class="pill" id="d-run-id">Run #1284</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label"><span class="ic"></span><strong>AI summary</strong><span class="line"></span><span style="font-family:var(--font-mono);font-size:10px;color:var(--text-quaternary);">claude-sonnet · 1.8s</span></div>
+    <div class="ai-summary">
+      <div class="ai-row"><span class="ai-dot"></span>Generated by IntentIQ</div>
+      <div id="d-summary"><strong>Anthropic scores 96/100</strong> — all five signals firing. Strongest are funding (Series E announced 11 days ago, $4B valuation) and hiring (18 GTM roles open this quarter, including a Head of Sales Ops). This is a textbook expand-stage moment: cash in hand, GTM team forming, and the function they're hiring for is the same one your tool replaces. Estimated <strong>6-week outreach window</strong> before the buying committee solidifies on incumbent vendors.</div>
+    </div>
+
+    <div class="section-label"><span class="ic" style="background:var(--warm);box-shadow:0 0 4px var(--warm);"></span><strong>Why now &amp; recommended action</strong><span class="line"></span></div>
+    <div class="action-grid">
+      <div class="action-card">
+        <div class="lbl">Why now</div>
+        <div class="txt" id="d-why">Series E closed 11 days ago and they're hiring a Head of Sales Ops. Buying committee for adjacent tooling is forming this quarter — get in before incumbents do.</div>
+      </div>
+      <div class="action-card action">
+        <div class="lbl">Recommended action</div>
+        <div class="txt" id="d-action">Email the new VP RevOps with the Notion expansion case study. Reference their open Head of Sales Ops role as a hook. Aim for a discovery call this week.</div>
+      </div>
+    </div>
+
+    <div class="section-label"><span class="ic" style="background:var(--hot);box-shadow:0 0 4px var(--hot);"></span><strong>Key triggers</strong><span class="line"></span><span style="font-family:var(--font-mono);font-size:10px;color:var(--text-quaternary);">5 of 5 firing</span></div>
+    <div class="trigger-list" id="d-triggers">
+      <div class="trigger-pill">
+        <div class="swatch" style="background:#f5b544;">FU</div>
+        <div>Series E · $4B post-money · announced May 9</div>
+        <div class="pts">+25 / 25</div>
+      </div>
+      <div class="trigger-pill">
+        <div class="swatch" style="background:#4ade80;">HI</div>
+        <div>18 GTM roles open · incl. Head of Sales Ops</div>
+        <div class="pts">+18 / 20</div>
+      </div>
+      <div class="trigger-pill">
+        <div class="swatch" style="background:#ec4899;">NE</div>
+        <div>42 news mentions in last 14 days (peak)</div>
+        <div class="pts">+19 / 20</div>
+      </div>
+      <div class="trigger-pill">
+        <div class="swatch" style="background:#7170ff;">TE</div>
+        <div>Tech stack mature · Snowflake + dbt + Hex</div>
+        <div class="pts">+17 / 20</div>
+      </div>
+      <div class="trigger-pill">
+        <div class="swatch" style="background:#4ec9d8;">WE</div>
+        <div>Domain OPR 9/10 · traffic +38% MoM</div>
+        <div class="pts">+14 / 15</div>
+      </div>
+    </div>
+
+    <div class="section-label"><span class="ic" style="background:var(--accent-2);"></span><strong>Sales tools</strong><span class="line"></span></div>
+    <div class="sales-tool">
+      <div class="st-label">
+        <span>Email subject line</span>
+        <div class="copy"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><rect x="2" y="2" width="6" height="8" rx="1"/><path d="M4 4h4"/></svg></div>
+      </div>
+      <div class="st-body" id="d-subject">Anthropic's Series E + a Head of Sales Ops opening</div>
+    </div>
+    <div class="sales-tool">
+      <div class="st-label">
+        <span>Talk track</span>
+        <div class="copy"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><rect x="2" y="2" width="6" height="8" rx="1"/><path d="M4 4h4"/></svg></div>
+      </div>
+      <div class="st-body" id="d-talk">"Saw the Series E close — congrats. Most teams in your spot are about to hire their first Head of Sales Ops and stand up the tooling stack from scratch. We took Notion's team from 0 to forecast accuracy in 90 days last year — happy to share what worked if useful."</div>
+    </div>
+
+  </div>
+
+  <div class="drawer-foot">
+    <div class="left">Run <strong>#1284</strong> · cached for 24h · 1 credit</div>
+    <button class="tb-btn outlined">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2"/></svg>
+      Re-score
+    </button>
+    <button class="btn-primary">
+      Open account
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h6M6 3l3 3-3 3"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ─── Build activity chart (30 days)
+(function() {
+  const chart = document.getElementById('activity-chart');
+  // Each day: random-ish mix of hot/warm/cold bars (height total = score volume)
+  const days = [
+    [3,5,7],[2,4,8],[4,5,6],[2,6,7],[3,4,9],[1,3,7],[2,2,5],
+    [3,6,9],[4,7,11],[5,8,10],[3,5,9],[2,6,8],[4,4,7],[3,7,10],
+    [5,8,12],[6,9,14],[4,7,12],[5,10,13],[7,11,15],[6,9,13],[8,12,16],
+    [5,8,11],[4,7,10],[6,9,13],[7,10,14],[8,12,17],[9,13,18],[7,11,15],[8,13,16],[10,14,12]
+  ];
+  const max = Math.max(...days.map(d => d[0]+d[1]+d[2]));
+  days.forEach((d, i) => {
+    const col = document.createElement('div');
+    col.className = 'col' + (i === days.length - 1 ? ' today' : '');
+    const [hot, warm, cold] = d;
+    // bottom up: cold, warm, hot
+    const total = hot + warm + cold;
+    const scale = 60 / max; // px
+    col.innerHTML = `
+      <div class="seg" style="background:#8a8f98;opacity:0.55;height:${cold*scale}px"></div>
+      <div class="seg" style="background:var(--warm);height:${warm*scale}px"></div>
+      <div class="seg" style="background:var(--hot);height:${hot*scale}px"></div>
+    `;
+    chart.appendChild(col);
+  });
+})();
+
+// ─── Drawer
+const drawer = document.getElementById('drawer');
+const drawerMask = document.getElementById('drawer-mask');
+const drawerClose = document.getElementById('drawer-close');
+
+// Data for each row → drives the drawer content
+const DATA = {
+  'paymob-2': {
+    av: 'P', avClass: 'av-7', name: 'Paymob', domain: 'paymob.com',
+    score: 0, band: 'cold', stage: 'Awareness', urgency: 'nurture', urgencyLabel: 'Nurture',
+    delta: '= 0 from 0', deltaColor: 'var(--text-tertiary)',
+    window: 'No window — re-check 30d', when: 'Scored May 20, 2026 · 09:02 PM', runId: 'Run #1284',
+    summary: '<strong>Paymob scores 0/100</strong>, which reflects limited buying intent signals at this time. Their strongest signal is web at 87% of max: "Growing mid-market domain (OPR: 3/10) — active buying profile". The remaining four axes returned no recent activity. This doesn\'t mean they\'ll never buy — it means now isn\'t the window. A light-touch nurture sequence that delivers value without a hard pitch is the right approach.',
+    why: 'No time-sensitive trigger exists right now. Monitor for a change in their web or funding signals before investing outreach time.',
+    action: 'Add Paymob to a 60-day nurture sequence. Share a relevant case study and set a signal-based alert to re-engage when their score rises.',
+    triggers: [
+      { sw: 'WE', col: '#4ec9d8', text: 'Growing mid-market domain · OPR 3/10', pts: '+13 / 15' },
+      { sw: 'FU', col: '#f5b544', text: 'No recent funding activity', pts: '+0 / 25', dim: true },
+      { sw: 'HI', col: '#4ade80', text: 'No GTM hiring spike detected', pts: '+0 / 20', dim: true },
+      { sw: 'NE', col: '#ec4899', text: 'No news mentions in last 30d', pts: '+0 / 20', dim: true },
+      { sw: 'TE', col: '#7170ff', text: 'Tech stack signals minimal', pts: '+0 / 20', dim: true },
+    ],
+    subject: 'Keeping Paymob on the radar',
+    talk: '"Not pushing for a meeting today — just wanted to share a quick teardown of how mid-market payments teams in your region are thinking about RevOps tooling. Happy to share whenever it\'s useful."',
+  },
+  'paymob-1': {
+    av: 'P', avClass: 'av-7', name: 'Paymob', domain: 'paymob.com',
+    score: 0, band: 'cold', stage: 'Awareness', urgency: 'nurture', urgencyLabel: 'Nurture',
+    delta: 'first run', deltaColor: '#c9c4ff',
+    window: 'No window — re-check 30d', when: 'Scored May 20, 2026 · 09:01 PM', runId: 'Run #1283',
+    summary: '<strong>First score for this account.</strong> Funding, hiring, news, and tech axes returned no recent activity — only web presence yielded a meaningful signal. We\'d expect this score to climb if Paymob enters a hiring or funding cycle.',
+    why: 'No active trigger. This is a baseline snapshot for future comparison.',
+    action: 'Save to a "future watch" list. Re-score automatically in 30 days or when their web signal jumps by 10+ points.',
+    triggers: [
+      { sw: 'WE', col: '#4ec9d8', text: 'Growing mid-market domain · OPR 3/10', pts: '+13 / 15' },
+      { sw: 'FU', col: '#f5b544', text: 'No recent funding activity', pts: '+0 / 25', dim: true },
+      { sw: 'HI', col: '#4ade80', text: 'No GTM hiring spike detected', pts: '+0 / 20', dim: true },
+      { sw: 'NE', col: '#ec4899', text: 'No news mentions in last 30d', pts: '+0 / 20', dim: true },
+      { sw: 'TE', col: '#7170ff', text: 'Tech stack signals minimal', pts: '+0 / 20', dim: true },
+    ],
+    subject: 'Keeping Paymob on the radar',
+    talk: '"Not pushing for a meeting today — just wanted to share a quick teardown of how mid-market payments teams in your region are thinking about RevOps tooling."',
+  },
+  'anthropic': {
+    av: 'A', avClass: 'av-2', name: 'Anthropic', domain: 'anthropic.com',
+    score: 96, band: 'hot', stage: 'Decision', urgency: 'strike', urgencyLabel: 'Strike now',
+    delta: '▲ 24 from 72', deltaColor: 'var(--hot)',
+    window: '~6 weeks', when: 'Scored May 20, 2026 · 06:48 PM', runId: 'Run #1282',
+    summary: '<strong>Anthropic scores 96/100</strong> — all five signals firing. Strongest are funding (Series E announced 11 days ago, $4B valuation) and hiring (18 GTM roles open this quarter, including a Head of Sales Ops). This is a textbook expand-stage moment: cash in hand, GTM team forming, and the function they\'re hiring for is the same one your tool replaces. Estimated <strong>6-week outreach window</strong> before the buying committee solidifies on incumbent vendors.',
+    why: 'Series E closed 11 days ago and they\'re hiring a Head of Sales Ops. Buying committee for adjacent tooling is forming this quarter — get in before incumbents do.',
+    action: 'Email the new VP RevOps with the Notion expansion case study. Reference their open Head of Sales Ops role as a hook. Aim for a discovery call this week.',
+    triggers: [
+      { sw: 'FU', col: '#f5b544', text: 'Series E · $4B post-money · announced May 9', pts: '+25 / 25' },
+      { sw: 'HI', col: '#4ade80', text: '18 GTM roles open · incl. Head of Sales Ops', pts: '+18 / 20' },
+      { sw: 'NE', col: '#ec4899', text: '42 news mentions in last 14 days (peak)', pts: '+19 / 20' },
+      { sw: 'TE', col: '#7170ff', text: 'Tech stack mature · Snowflake + dbt + Hex', pts: '+17 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 9/10 · traffic +38% MoM', pts: '+14 / 15' },
+    ],
+    subject: 'Anthropic\'s Series E + a Head of Sales Ops opening',
+    talk: '"Saw the Series E close — congrats. Most teams in your spot are about to hire their first Head of Sales Ops and stand up the tooling stack from scratch. We took Notion\'s team from 0 to forecast accuracy in 90 days last year — happy to share what worked if useful."',
+  },
+  'stripe-new': {
+    av: 'S', avClass: 'av-1', name: 'Stripe', domain: 'stripe.com',
+    score: 94, band: 'hot', stage: 'Decision', urgency: 'strike', urgencyLabel: 'Strike now',
+    delta: '▲ 65 from 29', deltaColor: 'var(--hot)',
+    window: '~3 weeks', when: 'Scored May 20, 2026 · 04:11 PM', runId: 'Run #1281',
+    summary: '<strong>Stripe scores 94/100</strong> — a sharp 65-point jump from their score 2 days ago. A new CFO was appointed (announced in TechCrunch May 18) and Treasury Ops hiring spiked. Their finance team is being rebuilt around new leadership. <strong>Time-bound opportunity</strong>: act before incumbent vendors are auto-renewed.',
+    why: 'New CFO + Treasury Ops hiring spike = active reconfiguration of their finance tooling stack. Decision-makers are in evaluation mode this quarter.',
+    action: 'Get a warm intro to the new CFO via your existing Stripe contact (Elif Marwa, VP RevOps). Lead with the "first 90 days" framing for new finance leaders.',
+    triggers: [
+      { sw: 'NE', col: '#ec4899', text: 'New CFO appointed (TechCrunch May 18)', pts: '+19 / 20' },
+      { sw: 'HI', col: '#4ade80', text: 'Treasury Ops +5 roles posted this week', pts: '+17 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 10/10 · highly authoritative', pts: '+15 / 15' },
+      { sw: 'TE', col: '#7170ff', text: 'Strong modern stack · Snowflake confirmed', pts: '+15 / 20' },
+      { sw: 'FU', col: '#f5b544', text: 'Public co — funding axis dormant', pts: '+8 / 25', dim: true },
+    ],
+    subject: 'New CFO at Stripe — your first 90 days playbook',
+    talk: '"Heard about the new CFO appointment — most leaders in that seat spend their first quarter consolidating finance tools. We helped Plaid\'s CFO do that without disrupting close cycles. Want a 20-min look at what we did?"',
+  },
+  'linear': {
+    av: 'L', avClass: 'av-4', name: 'Linear', domain: 'linear.app',
+    score: 82, band: 'hot', stage: 'Consideration', urgency: 'engage', urgencyLabel: 'Engage',
+    delta: '▲ 4 from 78', deltaColor: 'var(--hot)',
+    window: '~8 weeks', when: 'Scored May 20, 2026 · 11:24 AM', runId: 'Run #1280',
+    summary: '<strong>Linear scores 82/100</strong>. Open RevOps lead role + mentioned by 2 of your customers in support tickets last quarter. Warm intro path is the right approach — direct outreach to Jamal Norris (Head of GTM Systems) without referencing the open role.',
+    why: 'They\'re hiring a RevOps lead but the role has been open 6 weeks — internal pain point. Two customer-mentions give you a credible warm intro path.',
+    action: 'Ask your Notion contact (Priya Tan) for an intro to Jamal. Don\'t mention the open RevOps role directly — lead with the workflow problem.',
+    triggers: [
+      { sw: 'HI', col: '#4ade80', text: 'RevOps lead role open 6+ weeks', pts: '+17 / 20' },
+      { sw: 'NE', col: '#ec4899', text: 'Mentioned by 2 customers (support tickets)', pts: '+15 / 20' },
+      { sw: 'TE', col: '#7170ff', text: 'Tech stack growing · added Hex Mar 2026', pts: '+16 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 7/10 · steady', pts: '+11 / 15' },
+      { sw: 'FU', col: '#f5b544', text: 'Series C ($35M · 18mo ago)', pts: '+18 / 25' },
+    ],
+    subject: 'Notion → Linear intro re: pipeline workflow',
+    talk: '"Priya mentioned you were exploring how to standardize pipeline workflows across squads. We built the layer her team uses for that — happy to walk you through it without the demo song-and-dance."',
+  },
+  'databricks': {
+    av: 'D', avClass: 'av-6', name: 'Databricks', domain: 'databricks.com',
+    score: 87, band: 'hot', stage: 'Decision', urgency: 'strike', urgencyLabel: 'Strike now',
+    delta: '▲ 9 from 78', deltaColor: 'var(--hot)',
+    window: '~2 weeks', when: 'Scored May 19, 2026 · 08:52 PM', runId: 'Run #1279',
+    summary: '<strong>Databricks scores 87/100</strong>. Public RFP signals + 3 mentions of competing platforms in their recent blog suggest an active vendor evaluation. <strong>Move within 2 weeks</strong> — they\'re comparing 3 vendors and our slot in the eval may close.',
+    why: 'Active vendor RFP. They\'re comparing 3 platforms and the eval cycle typically closes in 2-3 weeks at this stage.',
+    action: 'Request inclusion in the eval. Lead with the comparison case study against the two competitors mentioned in their blog.',
+    triggers: [
+      { sw: 'NE', col: '#ec4899', text: 'Blog mentions of 3 competing platforms', pts: '+18 / 20' },
+      { sw: 'HI', col: '#4ade80', text: 'GTM Ops Director role open', pts: '+15 / 20' },
+      { sw: 'TE', col: '#7170ff', text: 'Stack maturity · Snowflake migration in progress', pts: '+19 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 8/10', pts: '+12 / 15' },
+      { sw: 'FU', col: '#f5b544', text: 'Late-stage private, $43B valuation', pts: '+23 / 25' },
+    ],
+    subject: 'Comparing 3 platforms? Worth a 15-min look at #4',
+    talk: '"Saw your blog mention the eval — we sit one tier deeper than the three you\'re comparing. 15 min to show you the spot where teams typically wish they\'d looked sooner?"',
+  },
+  'figma': {
+    av: 'F', avClass: 'av-8', name: 'Figma', domain: 'figma.com',
+    score: 71, band: 'warm', stage: 'Consideration', urgency: 'engage', urgencyLabel: 'Engage',
+    delta: '▲ 2 from 69', deltaColor: 'var(--warm)',
+    window: '~12 weeks', when: 'Scored May 19, 2026 · 05:30 PM', runId: 'Run #1278',
+    summary: '<strong>Figma scores 71/100</strong>. Steady growth in Enterprise segment hiring, but no immediate purchase trigger. Pricing page visits up 3x — qualifying conversation is appropriate but no urgency.',
+    why: 'No time-sensitive event. Pricing page activity suggests self-driven research — they\'ll surface when ready.',
+    action: 'Send a thoughtful, low-pressure note offering to help benchmark their RevOps stack. Don\'t push for a meeting.',
+    triggers: [
+      { sw: 'WE', col: '#4ec9d8', text: 'Pricing page visits +3x · 4 unique IPs', pts: '+12 / 15' },
+      { sw: 'HI', col: '#4ade80', text: 'Enterprise segment +4 roles', pts: '+13 / 20' },
+      { sw: 'TE', col: '#7170ff', text: 'Tech stack stable · no new tools', pts: '+10 / 20' },
+      { sw: 'FU', col: '#f5b544', text: 'Post-IPO · funding axis dormant', pts: '+13 / 25', dim: true },
+      { sw: 'NE', col: '#ec4899', text: 'Background coverage · no peaks', pts: '+12 / 20' },
+    ],
+    subject: 'No demo — just a benchmarking call?',
+    talk: '"Saw some pricing page activity from your team — no pressure on a demo. If it\'s useful, I\'m happy to share how peers in your stage are benchmarking RevOps tooling. 20 min, no slides."',
+  },
+  'notion': {
+    av: 'N', avClass: 'av-3', name: 'Notion', domain: 'notion.so',
+    score: 78, band: 'hot', stage: 'Consideration', urgency: 'engage', urgencyLabel: 'Engage',
+    delta: '▲ 6 from 72', deltaColor: 'var(--hot)',
+    window: '~5 weeks', when: 'Scored May 19, 2026 · 02:08 PM', runId: 'Run #1277',
+    summary: '<strong>Notion scores 78/100</strong> — just crossed HOT threshold. Two former customers are now at Notion in RevOps roles (Priya Tan is Director, RevOps). Hiring is concentrated in API/integrations team, which signals platform-thinking.',
+    why: 'Two warm champions inside + API team buildout = optimal moment for a relationship-led conversation.',
+    action: 'Skip cold outreach. Schedule a coffee with Priya Tan and let her route internally. Bring data on the API integration use case.',
+    triggers: [
+      { sw: 'HI', col: '#4ade80', text: 'API team +6 roles in last 60d', pts: '+16 / 20' },
+      { sw: 'NE', col: '#ec4899', text: '2 champions identified (LinkedIn matches)', pts: '+18 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 9/10', pts: '+13 / 15' },
+      { sw: 'TE', col: '#7170ff', text: 'Stack expanding, Hex + dbt added', pts: '+15 / 20' },
+      { sw: 'FU', col: '#f5b544', text: 'Series C, $10B valuation, 12mo ago', pts: '+16 / 25' },
+    ],
+    subject: 'Coffee with Priya — quick RevOps thought?',
+    talk: '"Priya, when you were at our shared customer you helped scope a workflow that I think Notion\'s about to need too. 30 min coffee next week to noodle on it?"',
+  },
+  'vercel': {
+    av: 'V', avClass: 'av-7', name: 'Vercel', domain: 'vercel.com',
+    score: 64, band: 'warm', stage: 'Consideration', urgency: 'nurture', urgencyLabel: 'Nurture',
+    delta: '▼ 4 from 68', deltaColor: 'var(--red)',
+    window: '~18 weeks', when: 'Scored May 19, 2026 · 10:22 AM', runId: 'Run #1276',
+    summary: '<strong>Vercel scores 64/100</strong>. Strong funding signal but their sales tooling stack is already mature. Their RevOps Manager (Daniel Kovács) replied to our last touch with a polite decline. Wait for a leadership change or new market expansion.',
+    why: 'No new buying signal. Last contact declined further conversation 14 days ago.',
+    action: 'Pause active outreach. Set a 90-day re-score alert and watch for new VP RevOps hire or pricing model change.',
+    triggers: [
+      { sw: 'FU', col: '#f5b544', text: 'Series D · $250M · 9mo ago', pts: '+18 / 25' },
+      { sw: 'HI', col: '#4ade80', text: '11 SDR roles · GTM expansion ongoing', pts: '+13 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 9/10', pts: '+13 / 15' },
+      { sw: 'TE', col: '#7170ff', text: 'Stack already mature — incumbent locked', pts: '+9 / 20', dim: true },
+      { sw: 'NE', col: '#ec4899', text: 'Background coverage', pts: '+11 / 20' },
+    ],
+    subject: 'Following up in Q3?',
+    talk: '"Daniel, no pitch — wanted to thank you for the candid reply last month. Mind if I check back when your stack hits its next review cycle?"',
+  },
+  'stripe-old': {
+    av: 'S', avClass: 'av-1', name: 'Stripe', domain: 'stripe.com',
+    score: 29, band: 'cold', stage: 'Awareness', urgency: 'nurture', urgencyLabel: 'Nurture',
+    delta: 'first run', deltaColor: '#c9c4ff',
+    window: 'No window — re-check 30d', when: 'Scored May 18, 2026 · 04:04 PM', runId: 'Run #1275',
+    summary: '<strong>Stripe scores 29/100</strong>, which reflects limited buying intent. Established brand but no recent triggers. Set a watchlist alert and re-score in 30 days. <em>Note: This score was superseded by a 94 on May 20 after a new CFO was announced.</em>',
+    why: 'No fresh trigger at time of scoring. Stable, established account with no near-term catalyst.',
+    action: 'Set a 30-day re-score and a watchlist alert for leadership-change news. Move on.',
+    triggers: [
+      { sw: 'WE', col: '#4ec9d8', text: 'Established domain · OPR 10/10', pts: '+15 / 15' },
+      { sw: 'TE', col: '#7170ff', text: 'Mature stack, no churn signals', pts: '+10 / 20', dim: true },
+      { sw: 'FU', col: '#f5b544', text: 'Public/late-stage, dormant', pts: '+0 / 25', dim: true },
+      { sw: 'HI', col: '#4ade80', text: 'No GTM hiring spike', pts: '+2 / 20', dim: true },
+      { sw: 'NE', col: '#ec4899', text: 'Background coverage', pts: '+2 / 20', dim: true },
+    ],
+    subject: 'Watching Stripe for catalyst events',
+    talk: '"Not pitching today — wanted to flag we\'re watching Stripe and will surface real insights only when the signal warrants. Talk soon."',
+  },
+  'plaid': {
+    av: 'P', avClass: 'av-9', name: 'Plaid', domain: 'plaid.com',
+    score: 91, band: 'hot', stage: 'Decision', urgency: 'strike', urgencyLabel: 'Strike now',
+    delta: '▲ 3 from 88', deltaColor: 'var(--hot)',
+    window: 'In active deal', when: 'Scored May 17, 2026 · 11:42 AM', runId: 'Run #1274',
+    summary: '<strong>Plaid scores 91/100</strong>. Already in late-stage deal with your team — this score confirms continued strong buying intent. Champion is Tobi Nakamura (VP RevOps). Contract phase, procurement engaged.',
+    why: 'Deal already in late stage. Continued signal strength confirms the close window is open.',
+    action: 'Send proposal. Loop in their procurement contact directly. Close this week.',
+    triggers: [
+      { sw: 'WE', col: '#4ec9d8', text: 'Active product usage signals', pts: '+14 / 15' },
+      { sw: 'NE', col: '#ec4899', text: 'Mentioned in pipeline status (CRM)', pts: '+18 / 20' },
+      { sw: 'HI', col: '#4ade80', text: 'Champion in stable seat 3y', pts: '+15 / 20' },
+      { sw: 'TE', col: '#7170ff', text: 'POC infra deployed', pts: '+20 / 20' },
+      { sw: 'FU', col: '#f5b544', text: 'Late-stage private', pts: '+24 / 25' },
+    ],
+    subject: 'Plaid proposal — final draft attached',
+    talk: '"Tobi, attaching the final proposal with the procurement-friendly terms we discussed Thursday. Ready when you are."',
+  },
+  'mixpanel': {
+    av: 'M', avClass: 'av-5', name: 'Mixpanel', domain: 'mixpanel.com',
+    score: 41, band: 'cold', stage: 'Awareness', urgency: 'nurture', urgencyLabel: 'Nurture',
+    delta: '▼ 12 from 53', deltaColor: 'var(--red)',
+    window: 'Cooldown — re-check Q3', when: 'Scored May 17, 2026 · 09:15 AM', runId: 'Run #1273',
+    summary: '<strong>Mixpanel scores 41/100</strong>. Recent layoffs and budget freeze make this a poor outreach moment. Set re-score for Q3 and move on. Their internal contact unsubscribed.',
+    why: 'Layoffs + budget freeze — no buying authority active right now.',
+    action: 'Remove from active sequences. Set Q3 re-score and a re-engagement alert if their headcount rebounds.',
+    triggers: [
+      { sw: 'NE', col: '#ec4899', text: 'Layoff announcement (Mar 2026)', pts: '+3 / 20', dim: true },
+      { sw: 'HI', col: '#4ade80', text: 'Net hiring negative', pts: '+0 / 20', dim: true },
+      { sw: 'FU', col: '#f5b544', text: 'No recent funding', pts: '+6 / 25', dim: true },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 8/10 · steady', pts: '+12 / 15' },
+      { sw: 'TE', col: '#7170ff', text: 'Stack downsizing reported', pts: '+5 / 20', dim: true },
+    ],
+    subject: '(Paused — no active outreach)',
+    talk: '(No talk track generated — account is in cooldown.)',
+  },
+  'intercom': {
+    av: 'I', avClass: 'av-8', name: 'Intercom', domain: 'intercom.com',
+    score: 88, band: 'hot', stage: 'Decision', urgency: 'strike', urgencyLabel: 'Strike now',
+    delta: '▲ 5 from 83', deltaColor: 'var(--hot)',
+    window: '~2 weeks', when: 'Scored May 16, 2026 · 03:50 PM', runId: 'Run #1272',
+    summary: '<strong>Intercom scores 88/100</strong>. Active deal in 2nd meeting stage. Procurement now involved — pricing conversation imminent. Send proposal this week.',
+    why: 'Procurement engaged = deal moving to close phase. Vendor selection happens in next 14 days.',
+    action: 'Send pricing proposal. Get the security questionnaire returned by Wednesday.',
+    triggers: [
+      { sw: 'NE', col: '#ec4899', text: '2nd meeting completed · procurement looped', pts: '+19 / 20' },
+      { sw: 'HI', col: '#4ade80', text: 'Sofía Ortega (Head of Pipeline) stable in seat', pts: '+15 / 20' },
+      { sw: 'TE', col: '#7170ff', text: 'POC in progress', pts: '+17 / 20' },
+      { sw: 'WE', col: '#4ec9d8', text: 'Domain OPR 9/10', pts: '+13 / 15' },
+      { sw: 'FU', col: '#f5b544', text: 'Late-stage private', pts: '+22 / 25' },
+    ],
+    subject: 'Intercom · pricing proposal + security pack',
+    talk: '"Sofía, attaching the proposal and SOC2 pack. Anything we should know about your procurement timeline?"',
+  },
+};
+
+function openDrawer(id) {
+  const d = DATA[id];
+  if (!d) return;
+
+  // Header
+  const av = document.getElementById('d-av');
+  av.textContent = d.av;
+  av.className = 'av ' + d.avClass;
+  document.getElementById('d-name').textContent = d.name;
+  document.getElementById('d-domain').textContent = d.domain;
+
+  // Hero
+  const hero = document.getElementById('d-hero');
+  hero.className = 'drawer-hero ' + d.band;
+
+  document.getElementById('d-num').textContent = d.score;
+  const ring = document.getElementById('d-ring');
+  const C = 2 * Math.PI * 56; // 351.86
+  const off = C * (1 - d.score / 100);
+  ring.setAttribute('stroke-dasharray', C);
+  ring.setAttribute('stroke-dashoffset', off);
+  ring.setAttribute('stroke', d.band === 'hot' ? 'var(--hot)' : d.band === 'warm' ? 'var(--warm)' : 'var(--cold)');
+
+  const bandPill = document.getElementById('d-band-pill');
+  bandPill.className = 'dring-band ' + d.band;
+  bandPill.innerHTML = '<span class="dot"></span>' + d.band.toUpperCase();
+
+  document.getElementById('d-stage').textContent = d.stage;
+  const urg = document.getElementById('d-urgency');
+  urg.className = 'urgency ' + d.urgency;
+  urg.textContent = d.urgencyLabel;
+
+  const delta = document.getElementById('d-delta');
+  if (d.delta === 'first run') {
+    delta.innerHTML = '<span class="ht-first-badge">first run</span>';
+  } else {
+    delta.textContent = d.delta;
+  }
+  delta.style.color = d.deltaColor;
+  document.getElementById('d-window').textContent = d.window;
+  document.getElementById('d-when').textContent = d.when;
+  document.getElementById('d-run-id').textContent = d.runId;
+
+  // Summary, why, action
+  document.getElementById('d-summary').innerHTML = d.summary;
+  document.getElementById('d-why').textContent = d.why;
+  document.getElementById('d-action').textContent = d.action;
+
+  // Triggers
+  const trig = document.getElementById('d-triggers');
+  trig.innerHTML = d.triggers.map(t => `
+    <div class="trigger-pill" style="${t.dim ? 'opacity:0.55' : ''}">
+      <div class="swatch" style="background:${t.col};">${t.sw}</div>
+      <div>${t.text}</div>
+      <div class="pts">${t.pts}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('d-subject').textContent = d.subject;
+  document.getElementById('d-talk').textContent = d.talk;
+
+  drawer.classList.add('open');
+  drawerMask.classList.add('open');
+
+  // mark row selected
+  document.querySelectorAll('.ht-row').forEach(r => r.classList.remove('open'));
+  const row = document.querySelector(`.ht-row[data-id="${id}"]`);
+  if (row) row.classList.add('open');
+}
+
+function closeDrawer() {
+  drawer.classList.remove('open');
+  drawerMask.classList.remove('open');
+  document.querySelectorAll('.ht-row').forEach(r => r.classList.remove('open'));
+}
+
+document.querySelectorAll('.ht-row').forEach(row => {
+  row.addEventListener('click', (e) => {
+    if (e.target.closest('.ht-icon-btn')) return;
+    openDrawer(row.dataset.id);
+  });
+});
+drawerMask.addEventListener('click', closeDrawer);
+drawerClose.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// Band chip toggle (visual only)
+document.querySelectorAll('.band-chip').forEach(c => {
+  c.addEventListener('click', () => c.classList.toggle('inactive'));
+});
+</script>
+
+</body>
+</html>

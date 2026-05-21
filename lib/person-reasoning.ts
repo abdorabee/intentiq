@@ -154,8 +154,8 @@ function buildMockPersonResult(
   };
 }
 
-const PREMIUM_MODEL = "google/gemini-2.0-flash-001";
-const FREE_MODEL = "google/gemini-2.0-flash-exp:free";
+const PREMIUM_MODEL = "google/gemini-3.5-flash";
+const FREE_MODEL = "google/gemini-3.1-flash-lite";
 
 export async function generatePersonReasoning(
   person: ApolloPersonData,

@@ -10,7 +10,7 @@ const CRUMB: Record<string, { parent: string; current: string }> = {
   "/memory": { parent: "Workspace", current: "Memory" },
   "/pipeline": { parent: "Workspace", current: "Intent Hub" },
   "/people": { parent: "Workspace", current: "People" },
-  "/history": { parent: "Workspace", current: "Pipeline" },
+  "/history": { parent: "Workspace", current: "History" },
   "/watchlist": { parent: "Workspace", current: "Watchlist" },
   "/autopilot": { parent: "Workspace", current: "Autopilot" },
   "/bulk": { parent: "Workspace", current: "Bulk" },

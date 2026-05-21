@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intent Hub · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="intentiq.css">
+<style>
+/* Page-specific */
+.hub-tools {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.hub-tabs { display: flex; gap: 2px; align-items: center; }
+.hub-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: var(--r-sm);
+  font-size: 13px; color: var(--text-tertiary);
+  cursor: pointer; letter-spacing: -0.011em;
+}
+.hub-tab.active { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.hub-tab .ic { width: 12px; height: 12px; opacity: 0.85; }
+
+.filter-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+  flex-shrink: 0;
+}
+.f-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 12px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+}
+.f-chip:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.f-chip.active {
+  background: rgba(94,106,210,0.12);
+  border-color: rgba(94,106,210,0.3);
+  color: #c9c4ff;
+}
+.f-chip .ic { width: 10px; height: 10px; opacity: 0.75; }
+.f-chip .swatch { width: 7px; height: 7px; border-radius: 999px; }
+.f-chip .x {
+  color: var(--text-tertiary); cursor: pointer;
+  display: grid; place-items: center; width: 10px; height: 10px;
+}
+.f-chip .x:hover { color: var(--text-primary); }
+.f-chip .label-key {
+  color: var(--text-quaternary);
+  font-family: var(--font-mono); font-size: 11px;
+}
+
+/* Kanban */
+.kanban-wrap {
+  flex: 1; overflow: auto;
+  padding: 16px 20px 28px;
+}
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(260px, 1fr));
+  gap: 12px;
+  min-height: 100%;
+}
+.kcol {
+  background: rgba(255,255,255,0.014);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  display: flex; flex-direction: column;
+  min-height: 0; min-width: 0;
+}
+.kcol-head {
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.kcol-head .indicator {
+  width: 8px; height: 8px; border-radius: 999px;
+  flex-shrink: 0;
+}
+.kcol-head .name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary); letter-spacing: -0.011em;
+}
+.kcol-head .count {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  background: rgba(255,255,255,0.04);
+  padding: 1px 6px; border-radius: 999px;
+}
+.kcol-head .meta {
+  margin-left: auto;
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+}
+.kcol-head .add {
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  color: var(--text-tertiary); cursor: pointer;
+}
+.kcol-head .add:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.kcards {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px;
+  flex: 1;
+}
+
+.kcard {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  cursor: grab;
+  transition: border-color 0.12s, transform 0.06s;
+}
+.kcard:hover { border-color: var(--border-strong); }
+.kcard:active { cursor: grabbing; }
+.kcard .top {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 6px;
+}
+.kcard .iq {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.kcard .row-head {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 4px;
+}
+.kcard .co-av {
+  width: 16px; height: 16px; border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.kcard .name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary); letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1; min-width: 0;
+}
+.kcard .summary {
+  font-size: 12px; color: var(--text-tertiary);
+  line-height: 1.4; margin-bottom: 8px;
+  letter-spacing: -0.006em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.kcard .signal-tags {
+  display: flex; gap: 3px; margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.kcard .signal-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 5px; font-size: 10px;
+  font-family: var(--font-mono);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-tertiary);
+  border-radius: 3px;
+}
+.kcard .signal-tag .sw {
+  width: 5px; height: 5px; border-radius: 999px;
+}
+.kcard .meta {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.kcard .meta-left {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 0;
+}
+.kcard .meta-right { display: flex; align-items: center; gap: 4px; }
+.kcard .av {
+  width: 18px; height: 18px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+}
+.kcard .score {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: -0.011em;
+  font-variant-numeric: tabular-nums;
+}
+.kcard .when {
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+}
+.priority {
+  width: 10px; height: 10px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.pri-urgent { color: var(--red); }
+.pri-high { color: var(--warm); }
+.pri-med { color: var(--text-tertiary); }
+.pri-low { color: var(--text-quaternary); }
+
+.kcard.hot {
+  border-color: rgba(74,222,128,0.2);
+  background: linear-gradient(180deg, rgba(74,222,128,0.04), var(--surface));
+}
+.kcard.engaged {
+  border-color: rgba(94,106,210,0.22);
+  background: linear-gradient(180deg, rgba(94,106,210,0.05), var(--surface));
+}
+
+/* Group toggle */
+.group-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px;
+}
+.group-toggle .gt {
+  padding: 3px 9px;
+  font-size: 12px; color: var(--text-tertiary);
+  border-radius: 4px; cursor: pointer;
+  font-family: var(--font-mono);
+}
+.group-toggle .gt.active {
+  background: rgba(255,255,255,0.06); color: var(--text-primary);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">Acme Sales<span class="role">Workspace · Growth</span></div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span><span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-item" href="IntentIQ Dashboard.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>Dashboard</a>
+    <a class="sb-item active" href="IntentIQ Intent Hub.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>Intent Hub<span class="count hot">●12</span></a>
+    <a class="sb-item" href="IntentIQ Account.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>Score</a>
+    <a class="sb-item" href="IntentIQ Pipeline.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>Pipeline</a>
+    <a class="sb-item" href="IntentIQ People.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>People</a>
+    <a class="sb-item" href="IntentIQ Watchlist.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>Watchlist<span class="count">24</span></a>
+    <a class="sb-item" href="IntentIQ Autopilot.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>Autopilot<span class="indicator"></span></a>
+    <a class="sb-item" href="IntentIQ Inbox.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>Inbox<span class="count">12</span></a>
+    <div class="sb-section">Lists<span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--hot)" stroke="none"/></svg>Q1 Targets<span class="count">42</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--accent-2)" stroke="none"/></svg>Enterprise SaaS<span class="count">86</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--warm)" stroke="none"/></svg>Just funded ('26)<span class="count">31</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--cyan)" stroke="none"/></svg>Detected: Snowflake<span class="count">119</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row"><div><span class="val">1,548</span><span class="of"> / 2,500</span></div><a class="topup">Top up</a></div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info"><div class="name">Dahlia Marwan</div><div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593d383135303819383a343c2a38353c2a773036">[email&#160;protected]</a></div></div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>
+        <span>Workspace</span><span class="sep">/</span>
+        <span class="current">Intent Hub</span>
+      </div>
+      <span class="band band-hot" style="margin-left:6px;"><span class="dot"></span>HOT 12</span>
+      <span class="band band-warm"><span class="dot"></span>WARM 38</span>
+      <div class="spacer"></div>
+      <button class="tb-btn"><svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>Search<span class="kbd">⌘K</span></button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+        Score account
+      </button>
+    </div>
+
+    <!-- View tools -->
+    <div class="hub-tools">
+      <div class="hub-tabs">
+        <div class="hub-tab active">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="3" height="8"/><rect x="5" y="2" width="3" height="6"/><rect x="9" y="2" width="2" height="9"/></svg>
+          Board
+        </div>
+        <div class="hub-tab">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M2 6h8M2 9h8"/></svg>
+          List
+        </div>
+        <div class="hub-tab">
+          <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M6 2v4l3 1"/></svg>
+          Timeline
+        </div>
+      </div>
+      <div style="margin-left:14px;display:flex;gap:6px;align-items:center;">
+        <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono);">Group:</span>
+        <div class="group-toggle">
+          <span class="gt active">Band</span>
+          <span class="gt">Owner</span>
+          <span class="gt">Industry</span>
+          <span class="gt">List</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <button class="tb-btn outlined">
+        Today
+        <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+      </button>
+      <button class="tb-btn outlined">
+        Sort: Score ↓
+        <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+      </button>
+      <button class="tb-btn outlined">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="1"/><circle cx="6" cy="6" r="4"/></svg>
+        Options
+      </button>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <span class="f-chip active">
+        <span class="label-key">band:</span> All
+        <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+      </span>
+      <span class="f-chip">
+        <span class="label-key">score</span> ≥ 70
+      </span>
+      <span class="f-chip">
+        <span class="label-key">industry:</span> SaaS, Fintech
+        <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+      </span>
+      <span class="f-chip">
+        <span class="label-key">delta_7d:</span> ▲ any
+      </span>
+      <span class="f-chip">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2v8M2 6h8"/></svg>
+        Add filter
+      </span>
+      <div class="spacer"></div>
+      <span style="font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono);">
+        247 accounts · 12 selected
+      </span>
+    </div>
+
+    <!-- Kanban -->
+    <div class="kanban-wrap">
+      <div class="kanban">
+
+        <!-- Cold -->
+        <div class="kcol">
+          <div class="kcol-head">
+            <span class="indicator" style="background:var(--cold);"></span>
+            <span class="name">Cold</span>
+            <span class="count">191</span>
+            <span class="meta">avg 28</span>
+            <span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span>
+          </div>
+          <div class="kcards">
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2099</span>
+                <span class="priority pri-low"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-5">M</div><div class="name">Mixpanel</div></div>
+              <div class="summary">No new signals 14d. Domain authority dropped 3 pts.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--cyan);"></span>fund:21</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--hot);"></span>hire:32</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>38</span>
+                  <span class="when">1d</span>
+                </div>
+                <div class="meta-right"><span class="av av-3">DM</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2098</span>
+                <span class="priority pri-low"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-2">H</div><div class="name">Heap</div></div>
+              <div class="summary">Stable hiring. Tech stack unchanged 90 days.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>32</span>
+                  <span class="when">2d</span>
+                </div>
+                <div class="meta-right"><span class="av av-7">JS</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2071</span>
+                <span class="priority pri-low"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-4">A</div><div class="name">Amplitude</div></div>
+              <div class="summary">Layoff news flagged. Re-score paused 30d.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>28</span>
+                  <span class="when">5d</span>
+                </div>
+                <div class="meta-right"><span class="av av-1">RB</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2065</span>
+                <span class="priority pri-low"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-7">P</div><div class="name">Pendo</div></div>
+              <div class="summary">Recent layoffs. Hiring frozen since Mar.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>24</span>
+                  <span class="when">1w</span>
+                </div>
+                <div class="meta-right"><span class="av av-3">DM</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watching -->
+        <div class="kcol">
+          <div class="kcol-head">
+            <span class="indicator" style="background:#62666d;"></span>
+            <span class="name">Watching</span>
+            <span class="count">28</span>
+            <span class="meta">avg 48</span>
+            <span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span>
+          </div>
+          <div class="kcards">
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2087</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-8">P</div><div class="name">PostHog</div></div>
+              <div class="summary">+8 RevOps roles posted. Tier change to enterprise plan.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--hot);"></span>hire:62</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--accent-2);"></span>tech:54</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>55</span>
+                  <span class="when">4h</span>
+                </div>
+                <div class="meta-right"><span class="av av-6">AC</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2080</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-2">S</div><div class="name">Segment</div></div>
+              <div class="summary">Earnings beat. Slow but steady news cadence.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>52</span>
+                  <span class="when">9h</span>
+                </div>
+                <div class="meta-right"><span class="av av-5">RB</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2075</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-9">C</div><div class="name">ClickHouse</div></div>
+              <div class="summary">New OSS-to-cloud pricing. 6 new infra hires.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-cold"><span class="dot"></span>48</span>
+                  <span class="when">1d</span>
+                </div>
+                <div class="meta-right"><span class="av av-1">JS</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warming -->
+        <div class="kcol">
+          <div class="kcol-head">
+            <span class="indicator" style="background:var(--warm);"></span>
+            <span class="name">Warming</span>
+            <span class="count">38</span>
+            <span class="meta">avg 63</span>
+            <span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span>
+          </div>
+          <div class="kcards">
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2095</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-7">V</div><div class="name">Vercel</div></div>
+              <div class="summary">Detected Segment + Snowflake. Hiring up 12% MoM.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--accent-2);"></span>tech:88</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--pink);"></span>web:71</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-warm"><span class="dot"></span>67</span>
+                  <span class="when">1h</span>
+                </div>
+                <div class="meta-right"><span class="av av-3">DM</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2094</span>
+                <span class="priority pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-8">F</div><div class="name">Figma</div></div>
+              <div class="summary">Config '26 keynote pricing pivot. Press cycle ramping.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--warm);"></span>news:88</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--pink);"></span>web:78</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-warm"><span class="dot"></span>71</span>
+                  <span class="when">3h</span>
+                </div>
+                <div class="meta-right"><span class="av av-1">JS</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2092</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-6">D</div><div class="name">Datadog</div></div>
+              <div class="summary">+34 SE openings. Q2 earnings beat by 11%.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--hot);"></span>hire:79</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--warm);"></span>news:71</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-warm"><span class="dot"></span>64</span>
+                  <span class="when">4h</span>
+                </div>
+                <div class="meta-right"><span class="av av-6">AC</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2089</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-4">R</div><div class="name">Retool</div></div>
+              <div class="summary">Pricing page redesign. Segment integration shipped.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-warm"><span class="dot"></span>58</span>
+                  <span class="when">6h</span>
+                </div>
+                <div class="meta-right"><span class="av av-5">RB</span></div>
+              </div>
+            </div>
+            <div class="kcard">
+              <div class="top">
+                <span class="iq">IQ-2086</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-10">A</div><div class="name">Airtable</div></div>
+              <div class="summary">New CRO joined from Snowflake. 18 new postings.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-warm"><span class="dot"></span>61</span>
+                  <span class="when">8h</span>
+                </div>
+                <div class="meta-right"><span class="av av-2">JS</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hot -->
+        <div class="kcol">
+          <div class="kcol-head">
+            <span class="indicator" style="background:var(--hot);box-shadow:0 0 8px var(--hot);"></span>
+            <span class="name">Hot</span>
+            <span class="count">12</span>
+            <span class="meta">avg 87</span>
+            <span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span>
+          </div>
+          <div class="kcards">
+            <div class="kcard hot">
+              <div class="top">
+                <span class="iq">IQ-2046</span>
+                <span class="priority pri-urgent"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="3"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-1">S</div><div class="name">Stripe</div></div>
+              <div class="summary">Series H · $6.5B. Auto‑routed to D. Marwan via Autopilot.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--cyan);"></span>fund:96</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--warm);"></span>news:92</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--hot);"></span>hire:88</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>94</span>
+                  <span class="when">3m</span>
+                </div>
+                <div class="meta-right"><span class="av av-3">DM</span></div>
+              </div>
+            </div>
+            <div class="kcard hot">
+              <div class="top">
+                <span class="iq">IQ-2041</span>
+                <span class="priority pri-urgent"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="3"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-2">A</div><div class="name">Anthropic</div></div>
+              <div class="summary">Press + funding + hiring all 90+. Five axes lit.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--cyan);"></span>fund:98</span>
+                <span class="signal-tag"><span class="sw" style="background:var(--warm);"></span>news:99</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>96</span>
+                  <span class="when">14m</span>
+                </div>
+                <div class="meta-right"><span class="av av-6">AC</span></div>
+              </div>
+            </div>
+            <div class="kcard hot">
+              <div class="top">
+                <span class="iq">IQ-2034</span>
+                <span class="priority pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-4">L</div><div class="name">Linear</div></div>
+              <div class="summary">+18 hires this quarter. Crossed 80 yesterday.</div>
+              <div class="signal-tags">
+                <span class="signal-tag"><span class="sw" style="background:var(--hot);"></span>hire:91</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>82</span>
+                  <span class="when">9m</span>
+                </div>
+                <div class="meta-right"><span class="av av-1">JS</span></div>
+              </div>
+            </div>
+            <div class="kcard hot">
+              <div class="top">
+                <span class="iq">IQ-2030</span>
+                <span class="priority pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-3">N</div><div class="name">Notion</div></div>
+              <div class="summary">Pricing page traffic +96%. Just shipped enterprise tier.</div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>78</span>
+                  <span class="when">2h</span>
+                </div>
+                <div class="meta-right"><span class="av av-5">RB</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Engaged -->
+        <div class="kcol">
+          <div class="kcol-head">
+            <span class="indicator" style="background:var(--accent-2);"></span>
+            <span class="name">Engaged</span>
+            <span class="count">6</span>
+            <span class="meta">avg 89</span>
+            <span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span>
+          </div>
+          <div class="kcards">
+            <div class="kcard engaged">
+              <div class="top">
+                <span class="iq">IQ-1998</span>
+                <span class="priority pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-6">D</div><div class="name">Databricks</div></div>
+              <div class="summary">Reply received. Discovery call set for Thu.</div>
+              <div class="signal-tags">
+                <span class="signal-tag" style="background:var(--accent-soft);color:#c9c4ff;">stage: discovery</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>87</span>
+                  <span class="when">5d</span>
+                </div>
+                <div class="meta-right"><span class="av av-3">DM</span></div>
+              </div>
+            </div>
+            <div class="kcard engaged">
+              <div class="top">
+                <span class="iq">IQ-1987</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-8">I</div><div class="name">Intercom</div></div>
+              <div class="summary">In second-meeting. Procurement looped.</div>
+              <div class="signal-tags">
+                <span class="signal-tag" style="background:var(--accent-soft);color:#c9c4ff;">stage: eval</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>88</span>
+                  <span class="when">1w</span>
+                </div>
+                <div class="meta-right"><span class="av av-1">JS</span></div>
+              </div>
+            </div>
+            <div class="kcard engaged">
+              <div class="top">
+                <span class="iq">IQ-1971</span>
+                <span class="priority pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+              </div>
+              <div class="row-head"><div class="co-av av-9">P</div><div class="name">Plaid</div></div>
+              <div class="summary">Closed–won pending. Contract sent.</div>
+              <div class="signal-tags">
+                <span class="signal-tag" style="background:rgba(74,222,128,0.12);color:var(--hot);">stage: closing</span>
+              </div>
+              <div class="meta">
+                <div class="meta-left">
+                  <span class="band band-hot"><span class="dot"></span>91</span>
+                  <span class="when">2w</span>
+                </div>
+                <div class="meta-right"><span class="av av-6">AC</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

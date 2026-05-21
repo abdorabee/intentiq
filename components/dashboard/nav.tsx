@@ -10,7 +10,7 @@ import {
   LayoutGrid,
   Flame,
   Gauge,
-  GitBranch,
+  History,
   UserSearch,
   Eye,
   Zap,
@@ -24,7 +24,6 @@ import {
   ChevronDown,
   Search,
   Plus,
-  MessageSquare,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -41,10 +40,9 @@ interface NavItem {
 
 const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/analyze", label: "Analyze", icon: MessageSquare },
   { href: "/pipeline", label: "Intent Hub", icon: Flame, count: "●12", hotCount: true },
   { href: "/score", label: "Score", icon: Gauge },
-  { href: "/history", label: "Pipeline", icon: GitBranch },
+  { href: "/history", label: "History", icon: History },
   { href: "/people", label: "People", icon: UserSearch, beta: true },
   { href: "/watchlist", label: "Watchlist", icon: Eye, count: "24" },
   { href: "/autopilot", label: "Autopilot", icon: Zap, indicator: true },
