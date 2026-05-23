@@ -45,7 +45,7 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/history", label: "History", icon: History },
   { href: "/people", label: "People", icon: UserSearch, beta: true },
   { href: "/watchlist", label: "Watchlist", icon: Eye, count: "24" },
-  { href: "/autopilot", label: "Autopilot", icon: Zap, indicator: true },
+  { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
   { href: "/memory", label: "Inbox", icon: Inbox, count: "12" },
 ];
 

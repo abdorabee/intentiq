@@ -596,49 +596,18 @@ export default function DashboardHomeView({
         <div className="card-head">
           <div>
             <div className="card-title">Autopilot · status</div>
-            <div className="card-sub">
-              {autopilotWorkflows.filter((w) => w.active).length} active workflows
-            </div>
-          </div>
-          <div className="card-actions">
-            <Link href="/autopilot" className="card-mini-tab active">+ New workflow</Link>
+            <div className="card-sub">Coming soon</div>
           </div>
         </div>
-        {autopilotWorkflows.length === 0 ? (
-          <div style={{ padding: "16px", color: "var(--text-quaternary)", fontSize: 12 }}>
-            No workflows yet —{" "}
-            <Link href="/autopilot" style={{ color: "var(--accent-2)" }}>create one</Link>
-          </div>
-        ) : (
-          autopilotWorkflows.map((a) => (
-            <div key={a.n} className="ap-row">
-              <span className={`pulse${a.active ? "" : " paused"}`} />
-              <div style={{ minWidth: 0 }}>
-                <div className="name">{a.n}</div>
-                <div className="desc">{a.active ? "active" : "paused"}</div>
-              </div>
-              <div className="col-num">
-                {a.fires}
-                <span className="label-small">Fires</span>
-              </div>
-              <div className="col-num">
-                {a.rate}
-                <span className="label-small">Rate</span>
-              </div>
-              <div>
-                <span className={`band ${a.active ? "band-hot" : "band-cold"}`}>
-                  <span className="dot" />
-                  {a.active ? "Active" : "Paused"}
-                </span>
-              </div>
-            </div>
-          ))
-        )}
+        <div style={{ padding: "16px", color: "var(--text-tertiary)", fontSize: 13, lineHeight: 1.5 }}>
+          Automated workflows that score your watchlist and fire actions when intent signals match.{" "}
+          <Link href="/autopilot" style={{ color: "var(--accent-2)" }}>Learn more</Link>
+        </div>
         <div className="card-foot">
           <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-quaternary)" }}>
-            {autopilotWorkflows.length} workflows configured
+            Launching after v1
           </span>
-          <Link href="/autopilot">Open Autopilot <span className="arrow">→</span></Link>
+          <Link href="/autopilot">View roadmap <span className="arrow">→</span></Link>
         </div>
       </div>
     </div>

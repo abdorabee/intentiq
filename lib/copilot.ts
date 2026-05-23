@@ -444,7 +444,7 @@ export async function executeTool(
         .order("created_at", { ascending: false });
 
       if (!workflows || workflows.length === 0) {
-        return { workflows: [], message: "No Autopilot workflows configured. Create one at /autopilot." };
+        return { workflows: [], message: "Autopilot workflows are coming soon." };
       }
 
       return {
