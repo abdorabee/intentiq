@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autopilot · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="intentiq.css">
+<style>
+.ap-shell {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+.ap-list-pane {
+  border-right: 1px solid var(--border);
+  background: rgba(255,255,255,0.012);
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.ap-list-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ap-list-head .title {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.ap-list-head .pill {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 1px 6px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+}
+.ap-list-head .new-btn {
+  margin-left: auto;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.ap-list-head .new-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.ap-search-wrap {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ap-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 13px; color: var(--text-tertiary);
+}
+.ap-search .ic { width: 12px; height: 12px; }
+.ap-search input {
+  flex: 1; min-width: 0;
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.ap-search input::placeholder { color: var(--text-tertiary); }
+
+.ap-filter-tabs {
+  display: flex; padding: 8px 12px;
+  gap: 4px; border-bottom: 1px solid var(--border-subtle);
+}
+.ap-filter-tab {
+  font-size: 11px;
+  padding: 3px 8px; border-radius: 4px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.ap-filter-tab.active { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+
+.ap-list {
+  flex: 1; overflow-y: auto;
+  padding: 6px 8px;
+}
+.ap-item {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  align-items: start;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+.ap-item:hover { background: rgba(255,255,255,0.02); }
+.ap-item.active {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--border);
+}
+.ap-item .pulse {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--hot); box-shadow: 0 0 6px var(--hot);
+  margin-top: 4px;
+}
+.ap-item .pulse.paused { background: var(--text-quaternary); box-shadow: none; }
+.ap-item .pulse.draft { background: var(--warm); box-shadow: none; }
+
+.ap-item .body { min-width: 0; }
+.ap-item .name {
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.006em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ap-item .desc {
+  font-size: 11px; color: var(--text-tertiary);
+  margin-top: 2px; letter-spacing: -0.006em;
+  line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ap-item .meta {
+  display: flex; gap: 8px;
+  margin-top: 6px;
+  font-size: 10px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+}
+.ap-item .meta .dot { color: var(--text-quaternary); }
+.ap-item .fires {
+  text-align: right;
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.ap-item .fires-label {
+  font-size: 10px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-top: 1px;
+  font-weight: 400; font-family: var(--font-sans);
+}
+
+/* Detail pane */
+.ap-detail {
+  display: flex; flex-direction: column;
+  min-width: 0; min-height: 0;
+  overflow: hidden;
+}
+.ap-detail-head {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ap-detail-top {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+}
+.ap-detail-name {
+  font-family: var(--font-mono); font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.ap-detail-name .editable-hint {
+  font-family: var(--font-sans); font-size: 11px;
+  color: var(--text-quaternary);
+  margin-left: 6px;
+  letter-spacing: -0.006em;
+}
+.ap-detail-actions { margin-left: auto; display: flex; gap: 6px; }
+
+.ap-stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+}
+.ap-stat .label {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.ap-stat .val {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 18px; letter-spacing: -0.022em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.ap-stat .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot);
+}
+
+.ap-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+.ap-tab {
+  padding: 10px 14px;
+  font-size: 13px; color: var(--text-tertiary);
+  border-bottom: 1px solid transparent;
+  cursor: pointer; letter-spacing: -0.011em;
+  margin-bottom: -1px;
+}
+.ap-tab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+
+/* Canvas */
+.ap-canvas {
+  flex: 1; overflow: auto;
+  background: var(--bg);
+  position: relative;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+.ap-canvas-inner {
+  min-height: 100%;
+  padding: 40px 36px;
+  display: flex; flex-direction: column; gap: 24px;
+  align-items: stretch;
+}
+
+.ap-flow {
+  display: flex; flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.ap-node {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.ap-node.trigger { border-color: rgba(245,181,68,0.3); box-shadow: inset 4px 0 0 var(--warm); }
+.ap-node.condition { border-color: rgba(94,106,210,0.3); box-shadow: inset 4px 0 0 var(--accent); }
+.ap-node.action { border-color: rgba(74,222,128,0.3); box-shadow: inset 4px 0 0 var(--hot); }
+
+.ap-node-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px 8px;
+}
+.ap-node-head .ic {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  color: #0a0b0f;
+}
+.ap-node.trigger .ic { background: linear-gradient(135deg, #f5b544, #ec4899); }
+.ap-node.condition .ic { background: linear-gradient(135deg, #7170ff, #5e6ad2); }
+.ap-node.action .ic { background: linear-gradient(135deg, #4ade80, #22c55e); }
+.ap-node-head .type-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+.ap-node-head .title {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  display: block;
+  margin-top: 1px;
+}
+.ap-node-head .actions {
+  margin-left: auto;
+  display: flex; gap: 4px;
+}
+.ap-node-head .actions .icon-btn {
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.ap-node-head .actions .icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.ap-node-body { padding: 0 16px 14px 48px; }
+
+.ap-cond-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+.ap-cond-row:first-child { padding-top: 4px; }
+.ap-cond-row:last-child { border-bottom: none; padding-bottom: 4px; }
+.ap-token {
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono); font-size: 12px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  letter-spacing: -0.006em;
+}
+.ap-token.key { color: #c9c4ff; background: var(--accent-soft); border-color: rgba(94,106,210,0.25); }
+.ap-token.op {
+  background: transparent; border: none;
+  color: var(--text-tertiary);
+  padding: 2px 4px;
+}
+.ap-token.val { color: var(--cyan); }
+.ap-token.val-hot { color: var(--hot); }
+
+.ap-action-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  letter-spacing: -0.006em;
+  margin-bottom: 6px;
+}
+.ap-action-pill:last-child { margin-bottom: 0; }
+.ap-action-pill .ic {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.ap-action-pill .label {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-secondary);
+}
+.ap-action-pill .target { color: var(--text-primary); font-weight: 500; }
+.ap-action-pill .badge {
+  margin-left: auto;
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-tertiary);
+}
+
+/* Connector */
+.ap-edge {
+  display: flex; flex-direction: column; align-items: center;
+  margin: -4px 0;
+  min-height: 24px;
+}
+.ap-edge::before {
+  content: '';
+  width: 1px; flex: 1;
+  background: var(--border-strong);
+}
+.ap-edge .arrow {
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  background: var(--bg);
+  border-radius: 999px;
+  color: var(--text-tertiary);
+}
+
+.ap-add {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.02);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  width: max-content;
+  margin: 4px auto 0;
+  letter-spacing: -0.006em;
+}
+.ap-add:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+/* History chart */
+.ap-history {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin: 0 auto;
+  width: 100%;
+  max-width: 760px;
+}
+.ap-history-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.ap-history-head .title {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-primary);
+}
+.ap-history-svg-wrap { padding: 12px 16px; }
+.ap-history-svg { width: 100%; height: 90px; display: block; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">Acme Sales<span class="role">Workspace · Growth</span></div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span><span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-item" href="IntentIQ Dashboard.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>Dashboard</a>
+    <a class="sb-item" href="IntentIQ Intent Hub.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>Intent Hub<span class="count hot">●12</span></a>
+    <a class="sb-item" href="IntentIQ Account.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>Score</a>
+    <a class="sb-item" href="IntentIQ Pipeline.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>Pipeline</a>
+    <a class="sb-item" href="IntentIQ People.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>People</a>
+    <a class="sb-item" href="IntentIQ Watchlist.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>Watchlist<span class="count">24</span></a>
+    <a class="sb-item active" href="IntentIQ Autopilot.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>Autopilot<span class="indicator"></span></a>
+    <a class="sb-item" href="IntentIQ Inbox.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>Inbox<span class="count">12</span></a>
+    <div class="sb-section">Lists<span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--hot)" stroke="none"/></svg>Q1 Targets<span class="count">42</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--accent-2)" stroke="none"/></svg>Enterprise SaaS<span class="count">86</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row"><div><span class="val">1,548</span><span class="of"> / 2,500</span></div><a class="topup">Top up</a></div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info"><div class="name">Dahlia Marwan</div><div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="711510191d18103110121c1402101d14025f181e">[email&#160;protected]</a></div></div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>
+        <span>Workspace</span><span class="sep">/</span>
+        <span class="current">Autopilot</span>
+      </div>
+      <div class="spacer"></div>
+      <button class="tb-btn"><svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>Search<span class="kbd">⌘K</span></button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+        New workflow
+      </button>
+    </div>
+
+    <!-- Two-pane shell -->
+    <div class="ap-shell">
+
+      <!-- Workflow list -->
+      <div class="ap-list-pane">
+        <div class="ap-list-head">
+          <div class="title">Workflows</div>
+          <div class="pill">4/5</div>
+          <div class="new-btn">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+          </div>
+        </div>
+        <div class="ap-search-wrap">
+          <div class="ap-search">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+            <input type="text" placeholder="Search workflows…">
+          </div>
+        </div>
+        <div class="ap-filter-tabs">
+          <span class="ap-filter-tab active">All</span>
+          <span class="ap-filter-tab">Active</span>
+          <span class="ap-filter-tab">Paused</span>
+          <span class="ap-filter-tab">Draft</span>
+        </div>
+
+        <div class="ap-list">
+
+          <div class="ap-item active">
+            <div class="pulse"></div>
+            <div class="body">
+              <div class="name">when_account_goes_hot</div>
+              <div class="desc">band → HOT · ICP fit ≥ 70 → route + draft + notify</div>
+              <div class="meta">
+                <span>3 actions</span>
+                <span class="dot">·</span>
+                <span>94% match</span>
+                <span class="dot">·</span>
+                <span>last fire 14m</span>
+              </div>
+            </div>
+            <div>
+              <div class="fires">128</div>
+              <div class="fires-label">Fires</div>
+            </div>
+          </div>
+
+          <div class="ap-item">
+            <div class="pulse"></div>
+            <div class="body">
+              <div class="name">funding_announced</div>
+              <div class="desc">signal: Series A+ · industry ∈ {Fintech, SaaS} → Slack + assign</div>
+              <div class="meta">
+                <span>2 actions</span>
+                <span class="dot">·</span>
+                <span>88%</span>
+                <span class="dot">·</span>
+                <span>4d</span>
+              </div>
+            </div>
+            <div>
+              <div class="fires">42</div>
+              <div class="fires-label">Fires</div>
+            </div>
+          </div>
+
+          <div class="ap-item">
+            <div class="pulse"></div>
+            <div class="body">
+              <div class="name">snowflake_detected</div>
+              <div class="desc">tech-stack add: Snowflake → tag + add to "Detected" list</div>
+              <div class="meta">
+                <span>2 actions</span>
+                <span class="dot">·</span>
+                <span>100%</span>
+                <span class="dot">·</span>
+                <span>2h</span>
+              </div>
+            </div>
+            <div>
+              <div class="fires">242</div>
+              <div class="fires-label">Fires</div>
+            </div>
+          </div>
+
+          <div class="ap-item">
+            <div class="pulse paused"></div>
+            <div class="body">
+              <div class="name">cold_pause_sequence</div>
+              <div class="desc">band → COLD for 14d → pause Outreach sequences</div>
+              <div class="meta">
+                <span>1 action</span>
+                <span class="dot">·</span>
+                <span>76%</span>
+                <span class="dot">·</span>
+                <span>paused 3d</span>
+              </div>
+            </div>
+            <div>
+              <div class="fires">17</div>
+              <div class="fires-label">Fires</div>
+            </div>
+          </div>
+
+          <div class="ap-item">
+            <div class="pulse draft"></div>
+            <div class="body">
+              <div class="name">people_change_alert</div>
+              <div class="desc">person changes role at HOT account → notify owner</div>
+              <div class="meta">
+                <span>Draft</span>
+                <span class="dot">·</span>
+                <span>not yet tested</span>
+              </div>
+            </div>
+            <div>
+              <div class="fires">—</div>
+              <div class="fires-label">Draft</div>
+            </div>
+          </div>
+
+          <!-- Suggested templates -->
+          <div style="margin: 14px 4px 8px;font-size:11px;font-weight:500;color:var(--text-quaternary);text-transform:uppercase;letter-spacing:0.04em;padding:0 8px;">Templates</div>
+
+          <div class="ap-item" style="opacity:0.85;">
+            <div class="pulse draft"></div>
+            <div class="body">
+              <div class="name">layoff_signal_pause</div>
+              <div class="desc">news: layoff at account → mark sensitive · pause outreach</div>
+            </div>
+            <div>
+              <div class="fires">+</div>
+              <div class="fires-label">Add</div>
+            </div>
+          </div>
+
+          <div class="ap-item" style="opacity:0.85;">
+            <div class="pulse draft"></div>
+            <div class="body">
+              <div class="name">hot_to_ceo_brief</div>
+              <div class="desc">band → HOT for $50M+ ARR account → daily Slack to CEO</div>
+            </div>
+            <div>
+              <div class="fires">+</div>
+              <div class="fires-label">Add</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Detail pane -->
+      <div class="ap-detail">
+
+        <div class="ap-detail-head">
+          <div class="ap-detail-top">
+            <span class="band band-hot"><span class="dot"></span>Active</span>
+            <div class="ap-detail-name">
+              when_account_goes_hot
+              <span class="editable-hint">Click to rename</span>
+            </div>
+            <div class="ap-detail-actions">
+              <button class="tb-btn outlined">
+                <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018-1M10 6a4 4 0 01-8 1M9 2v3h-3M3 10V7h3"/></svg>
+                Test run
+              </button>
+              <button class="tb-btn outlined">
+                <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="2" height="6"/><rect x="7" y="3" width="2" height="6"/></svg>
+                Pause
+              </button>
+              <button class="tb-btn outlined">
+                <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="ap-stats-row">
+            <div class="ap-stat">
+              <div class="label">Fires · month</div>
+              <div class="val">128</div>
+              <div class="delta">▲ 23 vs prev</div>
+            </div>
+            <div class="ap-stat">
+              <div class="label">Match rate</div>
+              <div class="val">94%</div>
+              <div class="delta">▲ 2.1</div>
+            </div>
+            <div class="ap-stat">
+              <div class="label">Avg latency</div>
+              <div class="val">1.4s</div>
+              <div class="delta" style="color:var(--text-tertiary);">stable</div>
+            </div>
+            <div class="ap-stat">
+              <div class="label">Last fire</div>
+              <div class="val" style="font-size:14px;">Anthropic</div>
+              <div class="delta" style="color:var(--text-tertiary);">14m ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ap-tabs">
+          <div class="ap-tab active">Builder</div>
+          <div class="ap-tab">Runs <span class="kbd" style="margin-left:4px;">412</span></div>
+          <div class="ap-tab">Logs</div>
+          <div class="ap-tab">Versions</div>
+          <div class="ap-tab">Settings</div>
+        </div>
+
+        <div class="ap-canvas">
+          <div class="ap-canvas-inner">
+
+            <div class="ap-flow">
+
+              <!-- Trigger -->
+              <div class="ap-node trigger">
+                <div class="ap-node-head">
+                  <div class="ic">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 1v5l3 2"/></svg>
+                  </div>
+                  <div>
+                    <span class="type-label">Trigger</span>
+                    <span class="title">Score crosses threshold</span>
+                  </div>
+                  <div class="actions">
+                    <div class="icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><path d="M3 8l1-3 5-5 2 2-5 5z M2 10h8"/></svg></div>
+                    <div class="icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+                  </div>
+                </div>
+                <div class="ap-node-body">
+                  <div class="ap-cond-row">
+                    <span class="ap-token key">band</span>
+                    <span class="ap-token op">=</span>
+                    <span class="ap-token val-hot">HOT</span>
+                    <span class="ap-token op">·</span>
+                    <span class="ap-token key">delta_7d</span>
+                    <span class="ap-token op">≥</span>
+                    <span class="ap-token val">+5</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-edge">
+                <div class="arrow">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M3 7l3 3 3-3"/></svg>
+                </div>
+              </div>
+
+              <!-- Condition -->
+              <div class="ap-node condition">
+                <div class="ap-node-head">
+                  <div class="ic">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M2 4h8M2 7h8M2 10h4"/></svg>
+                  </div>
+                  <div>
+                    <span class="type-label">Condition · ALL of</span>
+                    <span class="title">ICP fit + segment match</span>
+                  </div>
+                  <div class="actions">
+                    <div class="icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><path d="M3 8l1-3 5-5 2 2-5 5z M2 10h8"/></svg></div>
+                    <div class="icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+                  </div>
+                </div>
+                <div class="ap-node-body">
+                  <div class="ap-cond-row">
+                    <span class="ap-token key">icp_fit</span>
+                    <span class="ap-token op">≥</span>
+                    <span class="ap-token val">70</span>
+                  </div>
+                  <div class="ap-cond-row">
+                    <span class="ap-token key">industry</span>
+                    <span class="ap-token op">∈</span>
+                    <span class="ap-token val">{Fintech</span>
+                    <span class="ap-token op">,</span>
+                    <span class="ap-token val">SaaS}</span>
+                  </div>
+                  <div class="ap-cond-row">
+                    <span class="ap-token key">employees</span>
+                    <span class="ap-token op">≥</span>
+                    <span class="ap-token val">200</span>
+                  </div>
+                  <div class="ap-cond-row">
+                    <span class="ap-token op">+</span>
+                    <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono);">Add condition</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-edge">
+                <div class="arrow">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M3 7l3 3 3-3"/></svg>
+                </div>
+              </div>
+
+              <!-- Action -->
+              <div class="ap-node action">
+                <div class="ap-node-head">
+                  <div class="ic">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M2 6l3 3 5-7"/></svg>
+                  </div>
+                  <div>
+                    <span class="type-label">Action · 3 steps in sequence</span>
+                    <span class="title">Route, draft, notify</span>
+                  </div>
+                  <div class="actions">
+                    <div class="icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><path d="M3 8l1-3 5-5 2 2-5 5z M2 10h8"/></svg></div>
+                    <div class="icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+                  </div>
+                </div>
+                <div class="ap-node-body">
+                  <div class="ap-action-pill">
+                    <div class="ic" style="background:rgba(94,106,210,0.15);color:#c9c4ff;">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="9" height="9"><circle cx="6" cy="4" r="2"/><path d="M2 11c0-2 1-3 4-3s4 1 4 3"/></svg>
+                    </div>
+                    <span class="label">route_to_owner →</span>
+                    <span class="target">segment closer</span>
+                    <span class="badge">salesforce</span>
+                  </div>
+                  <div class="ap-action-pill">
+                    <div class="ic" style="background:rgba(74,222,128,0.15);color:var(--hot);">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="9" height="9"><rect x="1" y="3" width="10" height="6" rx="1"/><path d="M1 5l5 3 5-3"/></svg>
+                    </div>
+                    <span class="label">draft_email →</span>
+                    <span class="target">"AE-personal, anchor on funding"</span>
+                    <span class="badge">claude</span>
+                  </div>
+                  <div class="ap-action-pill">
+                    <div class="ic" style="background:rgba(245,181,68,0.15);color:var(--warm);">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="9" height="9"><path d="M2 4h8v6H2z M2 4l4 3 4-3"/></svg>
+                    </div>
+                    <span class="label">slack_notify →</span>
+                    <span class="target">#pipeline-hot</span>
+                    <span class="badge">slack</span>
+                  </div>
+                  <div class="ap-action-pill" style="border-style:dashed;background:rgba(255,255,255,0.01);">
+                    <div class="ic" style="background:rgba(255,255,255,0.06);color:var(--text-tertiary);">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="9" height="9"><path d="M6 2v8M2 6h8"/></svg>
+                    </div>
+                    <span class="label" style="color:var(--text-tertiary);">Add action</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-add">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                Add step
+              </div>
+            </div>
+
+            <!-- History chart -->
+            <div class="ap-history">
+              <div class="ap-history-head">
+                <div class="title">Fire history · 30 days</div>
+                <div style="margin-left:auto;font-size:11px;font-family:var(--font-mono);color:var(--text-tertiary);">
+                  Peak 14 fires on Mar 18
+                </div>
+              </div>
+              <div class="ap-history-svg-wrap">
+                <svg class="ap-history-svg" viewBox="0 0 600 90" preserveAspectRatio="none">
+                  <!-- 30 bars -->
+                  <g fill="#4ade80" fill-opacity="0.7">
+                    <rect x="0" y="55" width="14" height="35"/>
+                    <rect x="20" y="60" width="14" height="30"/>
+                    <rect x="40" y="48" width="14" height="42"/>
+                    <rect x="60" y="65" width="14" height="25"/>
+                    <rect x="80" y="40" width="14" height="50"/>
+                    <rect x="100" y="32" width="14" height="58"/>
+                    <rect x="120" y="55" width="14" height="35"/>
+                    <rect x="140" y="50" width="14" height="40"/>
+                    <rect x="160" y="42" width="14" height="48"/>
+                    <rect x="180" y="36" width="14" height="54"/>
+                    <rect x="200" y="28" width="14" height="62"/>
+                    <rect x="220" y="22" width="14" height="68"/>
+                    <rect x="240" y="34" width="14" height="56"/>
+                    <rect x="260" y="30" width="14" height="60"/>
+                    <rect x="280" y="20" width="14" height="70"/>
+                    <rect x="300" y="14" width="14" height="76"/>
+                    <rect x="320" y="8" width="14" height="82"/>
+                    <rect x="340" y="18" width="14" height="72"/>
+                    <rect x="360" y="24" width="14" height="66"/>
+                    <rect x="380" y="32" width="14" height="58"/>
+                    <rect x="400" y="28" width="14" height="62"/>
+                    <rect x="420" y="22" width="14" height="68"/>
+                    <rect x="440" y="18" width="14" height="72"/>
+                    <rect x="460" y="20" width="14" height="70"/>
+                    <rect x="480" y="14" width="14" height="76"/>
+                    <rect x="500" y="22" width="14" height="68"/>
+                    <rect x="520" y="18" width="14" height="72"/>
+                    <rect x="540" y="12" width="14" height="78"/>
+                    <rect x="560" y="14" width="14" height="76"/>
+                    <rect x="580" y="6" width="14" height="84"/>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>
