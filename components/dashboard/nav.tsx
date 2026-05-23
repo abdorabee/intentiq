@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { PLAN_CREDITS, type DbUser } from "@/lib/types";
 import {
@@ -23,7 +24,6 @@ import {
   PanelLeft,
   ChevronDown,
   Search,
-  Plus,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -49,13 +49,6 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/memory", label: "Inbox", icon: Inbox, count: "12" },
 ];
 
-const LIST_ITEMS: (Omit<NavItem, "icon"> & { dotClass: string })[] = [
-  { href: "/watchlist", label: "Q1 Targets", dotClass: "bg-[#4ade80]", count: "42" },
-  { href: "/watchlist", label: "Enterprise SaaS", dotClass: "bg-[#7170ff]", count: "86" },
-  { href: "/watchlist", label: "Just funded ('26)", dotClass: "bg-[#f5b544]", count: "31" },
-  { href: "/watchlist", label: "Detected: Snowflake", dotClass: "bg-[#4ec9d8]", count: "119" },
-];
-
 const BOTTOM_ITEMS: NavItem[] = [
   { href: "/billing", label: "Billing", icon: CreditCard },
   { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
@@ -77,7 +70,6 @@ export default function DashboardNav({
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { user } = useUser();
-
   const creditCap = PLAN_CREDITS[plan] ?? PLAN_CREDITS.free;
   const creditPct = creditCap > 0 ? Math.min(100, Math.round((creditsRemaining / creditCap) * 100)) : 0;
   const displayName = user?.fullName || user?.firstName || "Account";
@@ -150,30 +142,6 @@ export default function DashboardNav({
         );
       })}
 
-      {/* Lists */}
-      {!collapsed && (
-        <>
-          <div className="sb-section">
-            <span>Lists</span>
-            <span className="add">
-              <Plus style={{ width: 12, height: 12 }} />
-            </span>
-          </div>
-          {LIST_ITEMS.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="sb-item"
-            >
-              <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", item.dotClass)} />
-              <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {item.label}
-              </span>
-              {item.count && <span className="count">{item.count}</span>}
-            </Link>
-          ))}
-        </>
-      )}
 
       <div className="sb-divider" />
 

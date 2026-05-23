@@ -104,7 +104,7 @@ export default function DashboardHomeView({
   pipeline,
   signalMix,
   watchlist,
-  autopilotWorkflows,
+  autopilotWorkflows: _autopilotWorkflows,
 }: DashboardHomeViewProps) {
   const [rangeTab, setRangeTab] = useState("7D");
   const [moversTab, setMoversTab] = useState<"Up" | "Down">("Up");
@@ -225,7 +225,7 @@ export default function DashboardHomeView({
           <div className="kpi-row">
             <span className="kpi-num">{autopilotFires}</span>
           </div>
-          <div className="kpi-meta">last 30 days · {autopilotWorkflows.filter((w) => w.active).length} active workflows</div>
+          <div className="kpi-meta">Coming soon</div>
           <div className="kpi-spark">
             {[40, 55, 48, 62, 71, 78, 88].map((h, i) => (
               <div key={i} className={`b${i >= 3 ? " warm" : ""}`} style={{ height: `${h}%` }} />
