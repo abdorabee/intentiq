@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
+import { SearchProvider } from "@/components/dashboard/search-provider";
 import type { DbUser } from "@/lib/types";
 
 interface DashboardShellProps {
@@ -30,20 +31,22 @@ export default function DashboardShell({ children, creditsRemaining, plan }: Das
   }
 
   return (
-    <div
-      className="app"
-      style={{ gridTemplateColumns: collapsed ? "56px 1fr" : "232px 1fr" }}
-    >
-      <DashboardNav
-        creditsRemaining={creditsRemaining}
-        plan={plan}
-        collapsed={collapsed}
-        onToggle={toggle}
-      />
-      <div className="main">
-        <DashboardTopbar />
-        <main className={pageClass}>{children}</main>
+    <SearchProvider>
+      <div
+        className="app"
+        style={{ gridTemplateColumns: collapsed ? "56px 1fr" : "232px 1fr" }}
+      >
+        <DashboardNav
+          creditsRemaining={creditsRemaining}
+          plan={plan}
+          collapsed={collapsed}
+          onToggle={toggle}
+        />
+        <div className="main">
+          <DashboardTopbar />
+          <main className={pageClass}>{children}</main>
+        </div>
       </div>
-    </div>
+    </SearchProvider>
   );
 }

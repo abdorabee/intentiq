@@ -26,6 +26,7 @@ import {
   Search,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useDashboardSearch } from "@/components/dashboard/search-provider";
 
 interface NavItem {
   href: string;
@@ -69,6 +70,7 @@ export default function DashboardNav({
 }: DashboardNavProps) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { open: openSearch } = useDashboardSearch();
   const { user } = useUser();
   const creditCap = PLAN_CREDITS[plan] ?? PLAN_CREDITS.free;
   const creditPct = creditCap > 0 ? Math.min(100, Math.round((creditsRemaining / creditCap) * 100)) : 0;
@@ -95,11 +97,11 @@ export default function DashboardNav({
 
       {/* Search */}
       {!collapsed && (
-        <div className="sb-search">
+        <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
           <Search className="ic" />
           <span>Search</span>
           <kbd className="kbd">⌘K</kbd>
-        </div>
+        </button>
       )}
 
       {/* Workspace nav */}

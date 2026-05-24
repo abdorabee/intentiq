@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import type { PersonIntentScore, DbPersonScore } from "@/lib/types";
 
 interface PeopleViewProps {
@@ -68,6 +69,7 @@ function parsePersonInput(input: string): { email?: string; linkedin?: string; n
 }
 
 export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewProps) {
+  const searchParams = useSearchParams();
   const [pageState, setPageState] = useState<PeopleState>("list");
   const [input, setInput] = useState("");
   const [inputType, setInputType] = useState<"email" | "linkedin" | "name">("email");
@@ -78,6 +80,11 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [stepIndex, setStepIndex] = useState(0);
+
+  useEffect(() => {
+    const q = searchParams.get("q")?.trim();
+    if (q) setSearch(q);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!loading) return;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import type { IntentScore } from "@/lib/types";
 
 export interface RecentScore {
@@ -632,6 +633,8 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
 // ─── ScoreView (main export) ──────────────────────────────────────────────────
 
 export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
+  const searchParams = useSearchParams();
+  const autoScoredRef = useRef<string | null>(null);
   const [domain, setDomain] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<IntentScore | null>(null);
@@ -641,6 +644,37 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   const [watchlistAdded, setWatchlistAdded] = useState(false);
   const [watchlistAdding, setWatchlistAdding] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
+
+  useEffect(() => {
+    const d = searchParams.get("domain")?.trim();
+    if (!d) return;
+    setDomain(d);
+    if (autoScoredRef.current === d) return;
+    autoScoredRef.current = d;
+
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      setResult(null);
+      try {
+        const res = await fetch(`/api/v1/score?domain=${encodeURIComponent(d)}`);
+        if (!res.ok) {
+          const err = (await res.json()) as { error?: string };
+          throw new Error(err.error ?? "Scoring failed");
+        }
+        if (!cancelled) setResult((await res.json()) as IntentScore);
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   useEffect(() => {
     setWatchlistAdded(false);

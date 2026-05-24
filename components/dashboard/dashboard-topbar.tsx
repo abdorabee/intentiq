@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutGrid, Search, Filter, Bell, Plus, List, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useDashboardSearch } from "@/components/dashboard/search-provider";
+import { focusWatchlistAdd } from "@/lib/watchlist-events";
 
 const CRUMB: Record<string, { parent: string; current: string }> = {
   "/dashboard": { parent: "Workspace", current: "Dashboard" },
-  "/analyze": { parent: "Workspace", current: "Analyze" },
   "/memory": { parent: "Workspace", current: "Memory" },
   "/pipeline": { parent: "Workspace", current: "Intent Hub" },
   "/people": { parent: "Workspace", current: "People" },
@@ -36,8 +37,10 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
   const pathname = usePathname();
   const isLists = pathname === "/lists" || pathname.startsWith("/lists/");
   const isBilling = pathname === "/billing";
+  const isWatchlist = pathname === "/watchlist";
   const listDetailMatch = pathname.match(/^\/lists\/([^/]+)$/);
   const [listName, setListName] = useState<string | null>(null);
+  const { open: openSearch } = useDashboardSearch();
 
   useEffect(() => {
     if (!listDetailMatch) {
@@ -107,7 +110,7 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
 
       <span className="spacer" />
 
-      <button type="button" className="tb-btn">
+      <button type="button" className="tb-btn" onClick={openSearch} aria-label="Search">
         <Search className="ic" aria-hidden />
         Search
         <kbd className="kbd">⌘K</kbd>
@@ -130,6 +133,11 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
       ) : isBilling ? (
         <button type="button" className="tb-btn outlined">
           Export
+        </button>
+      ) : isWatchlist ? (
+        <button type="button" className="btn-primary" onClick={focusWatchlistAdd}>
+          <Plus className="ic" style={{ strokeWidth: 2.2 }} />
+          Add to watchlist
         </button>
       ) : (
         <Link href="/score" className="btn-primary">
