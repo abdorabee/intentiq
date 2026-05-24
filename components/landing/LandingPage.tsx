@@ -128,6 +128,8 @@ export default function LandingPage() {
                   Billing
                 </div>
 
+                <div className="sb-spacer" />
+
                 <div className="sb-credits">
                   <div className="label">Credits</div>
                   <div className="row">
