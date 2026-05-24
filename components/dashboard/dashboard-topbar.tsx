@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Search, Filter, Bell, Plus, List } from "lucide-react";
+import { LayoutGrid, Search, Filter, Bell, Plus, List, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const CRUMB: Record<string, { parent: string; current: string }> = {
@@ -35,6 +35,7 @@ interface DashboardTopbarProps {
 export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
   const pathname = usePathname();
   const isLists = pathname === "/lists" || pathname.startsWith("/lists/");
+  const isBilling = pathname === "/billing";
   const listDetailMatch = pathname.match(/^\/lists\/([^/]+)$/);
   const [listName, setListName] = useState<string | null>(null);
 
@@ -67,7 +68,13 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
   return (
     <header className="topbar">
       <div className="crumb">
-        {isLists ? <List className="ic" aria-hidden /> : <LayoutGrid className="ic" aria-hidden />}
+        {isLists ? (
+          <List className="ic" aria-hidden />
+        ) : isBilling ? (
+          <CreditCard className="ic" aria-hidden />
+        ) : (
+          <LayoutGrid className="ic" aria-hidden />
+        )}
         <span>{crumb.parent}</span>
         <span className="sep">/</span>
         {listDetailMatch ? (
@@ -81,7 +88,7 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
         )}
       </div>
 
-      {!isLists && (
+      {!isLists && !isBilling && (
         <>
           <span className="band band-hot">
             <span className="dot" />
@@ -105,7 +112,7 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
         Search
         <kbd className="kbd">⌘K</kbd>
       </button>
-      {!isLists && (
+      {!isLists && !isBilling && (
         <button type="button" className="tb-btn outlined">
           <Filter className="ic" aria-hidden />
           Filter
@@ -119,6 +126,10 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
         <button type="button" className="btn-primary" onClick={openNewListModal}>
           <Plus className="ic" style={{ strokeWidth: 2.2 }} />
           New list
+        </button>
+      ) : isBilling ? (
+        <button type="button" className="tb-btn outlined">
+          Export
         </button>
       ) : (
         <Link href="/score" className="btn-primary">

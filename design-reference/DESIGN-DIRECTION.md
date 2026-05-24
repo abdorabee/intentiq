@@ -30,6 +30,7 @@ IntentIQ is moving from a **generic shadcn card-grid dashboard** to a **Linear-i
 | [`IntentIQ Intent Hub.html`](../IntentIQ%20Intent%20Hub.html) | `/pipeline` | Partial / in progress |
 | [`IntentIQ Autopilot.html`](../IntentIQ%20Autopilot.html) | `/autopilot` | **Coming soon** (UI built but gated; re-enable post-launch) |
 | [`IntentIQ Lists.html`](../IntentIQ%20Lists.html) | `/lists` | Ported |
+| [`IntentIQ Billing.html`](../IntentIQ%20Billing.html) | `/billing` | Ported |
 | [`IntentIQ Linear.html`](../IntentIQ%20Linear.html) | `/` landing | Ported |
 | [`design-reference/FIGMA.md`](./FIGMA.md) | Marketing / landing | Figma file key for landing |
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
 import type { DbUser } from "@/lib/types";
@@ -12,6 +13,8 @@ interface DashboardShellProps {
 }
 
 export default function DashboardShell({ children, creditsRemaining, plan }: DashboardShellProps) {
+  const pathname = usePathname();
+  const pageClass = pathname === "/billing" ? "page page-flush" : "page";
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -39,7 +42,7 @@ export default function DashboardShell({ children, creditsRemaining, plan }: Das
       />
       <div className="main">
         <DashboardTopbar />
-        <main className="page">{children}</main>
+        <main className={pageClass}>{children}</main>
       </div>
     </div>
   );

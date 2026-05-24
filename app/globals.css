@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -97,7 +97,7 @@
   --sidebar-ring: oklch(0.715 0.143 200);
 }
 
-/* Dark — Linear-inspired (IntentIQ HTML references) */
+/* Dark â€” Linear-inspired (IntentIQ HTML references) */
 .dark {
   --radius: 0.5rem;
   --background: #08090a;
@@ -153,7 +153,7 @@
     border-color: var(--border-subtle);
   }
 
-  /* Glass panel — base frosted glass */
+  /* Glass panel â€” base frosted glass */
   .glass {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -188,7 +188,7 @@
     box-shadow: 0 0 40px rgba(245, 158, 11, 0.2), 0 0 80px rgba(245, 158, 11, 0.08);
   }
 
-  /* Gradient text — violet to cyan (reference) */
+  /* Gradient text â€” violet to cyan (reference) */
   .text-gradient {
     background: linear-gradient(135deg, #c9c4ff 0%, #7170ff 40%, #4ec9d8 100%);
     -webkit-background-clip: text;
@@ -282,7 +282,7 @@
   width: max-content;
 }
 
-/* ─── Giulio-style utilities ─────────────────────────────── */
+/* â”€â”€â”€ Giulio-style utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Scanline hover overlay */
 .scanline-hover {
@@ -360,7 +360,7 @@
   background: radial-gradient(ellipse at 50% 40%, rgba(94, 106, 210, 0.14) 0%, transparent 60%);
 }
 
-/* Marketing hero — subtle grid + violet/cyan radial (landing reference) */
+/* Marketing hero â€” subtle grid + violet/cyan radial (landing reference) */
 .landing-hero-grid {
   background-color: #08090a;
   background-image:
@@ -483,12 +483,12 @@ details.nav-dd[open] .nav-chevron {
 }
 
 /* ================================================================
-   Landing page CSS — ported from IntentIQ Linear.html
+   Landing page CSS â€” ported from IntentIQ Linear.html
    ================================================================ */
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Linear-inspired tokens, adapted to the IntentIQ palette
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   /* Surface */
   --bg:           #08090a;
@@ -497,7 +497,7 @@ details.nav-dd[open] .nav-chevron {
   --surface:      #131517;
   --surface-2:    #1a1d20;
 
-  /* Text — Linear's exact greys */
+  /* Text â€” Linear's exact greys */
   --text-primary:  #f7f8f8;
   --text-secondary:#b4bbc8;
   --text-tertiary: #8a8f98;
@@ -508,7 +508,7 @@ details.nav-dd[open] .nav-chevron {
   --border-strong: rgba(255,255,255,0.13);
   --border-subtle: rgba(255,255,255,0.04);
 
-  /* Accent — IntentIQ's cyan, used sparingly */
+  /* Accent â€” IntentIQ's cyan, used sparingly */
   --accent:        #5e6ad2; /* Linear-style violet for primary */
   --accent-2:      #7170ff;
   --cyan:          #4ec9d8;
@@ -540,11 +540,15 @@ details.nav-dd[open] .nav-chevron {
   --shadow-card: 0 0 0 1px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.3);
   --shadow-elevated: 0 0 0 1px rgba(255,255,255,0.08), 0 24px 48px -12px rgba(0,0,0,0.6);
   --shadow-screen: 0 0 0 1px rgba(255,255,255,0.06), 0 50px 100px -20px rgba(0,0,0,0.5), 0 30px 60px -30px rgba(0,0,0,0.6);
+
+  /* Misc tokens used across components */
+  --red:         #f87171;
+  --accent-soft: rgba(94,106,210,0.14);
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Reset
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -568,9 +572,9 @@ img, svg { display: block; max-width: 100%; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Type roles
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
   font-size: 13px; font-weight: 500;
@@ -627,9 +631,9 @@ img, svg { display: block; max-width: 100%; }
   -webkit-text-fill-color: transparent; color: transparent;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Layout primitives
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .container {
   width: 100%; max-width: 1200px;
   margin: 0 auto; padding: 0 24px;
@@ -641,9 +645,9 @@ img, svg { display: block; max-width: 100%; }
   height: 1px; background: var(--border-subtle);
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Top banner + nav (Linear style)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .top-banner {
   height: 36px; display: flex; align-items: center; justify-content: center;
   font-size: 13px; color: var(--text-secondary);
@@ -746,9 +750,9 @@ nav.primary .row {
 .btn .arrow { width: 12px; height: 12px; transition: transform 0.18s; }
 .btn:hover .arrow { transform: translateX(2px); }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Hero
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero {
   position: relative;
   padding: 120px 0 64px;
@@ -838,9 +842,9 @@ nav.primary .row {
 }
 .hero-meta strong { color: var(--text-tertiary); font-weight: 500; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Hero product mockup (the showpiece)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero-screen-wrap {
   position: relative;
   margin: 80px auto 0;
@@ -865,9 +869,9 @@ nav.primary .row {
   border: 1px solid var(--border-strong);
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Product surface — IntentIQ app shell (mock)
-   ───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Product surface â€” IntentIQ app shell (mock)
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .app {
   display: grid;
   grid-template-columns: 224px 1fr;
@@ -1155,9 +1159,9 @@ nav.primary .row {
   color: #0a0b0f;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Trust strip
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .trust {
   border-bottom: 1px solid var(--border);
   padding: 56px 0;
@@ -1187,9 +1191,9 @@ nav.primary .row {
 .trust-row .logo.italic { font-style: italic; font-weight: 700; }
 .trust-row .logo.mono { font-family: var(--font-mono); font-size: 16px; letter-spacing: 0.04em; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Section header (label + huge title)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .section-head {
   text-align: left;
   max-width: 760px;
@@ -1216,9 +1220,9 @@ nav.primary .row {
 }
 .section-head.center p { margin-left: auto; margin-right: auto; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Pillars grid
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .pillars {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 1px;
@@ -1247,9 +1251,9 @@ nav.primary .row {
   letter-spacing: -0.006em;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Score detail surface (Feature 1)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .feature {
   display: grid; grid-template-columns: 1fr;
   gap: 56px;
@@ -1525,9 +1529,9 @@ nav.primary .row {
 }
 .sd-ai-text strong { color: var(--text-primary); font-weight: 500; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Kanban / Hub mockup (Feature 2)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hub {
   display: flex; flex-direction: column;
   height: 540px;
@@ -1664,9 +1668,9 @@ nav.primary .row {
 .pri-med { color: var(--text-tertiary); }
 .pri-low { color: var(--text-quaternary); }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Autopilot section (feature 3)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .autopilot-canvas {
   height: 480px;
   background: var(--bg-elevated);
@@ -1787,9 +1791,9 @@ nav.primary .row {
   color: var(--text-secondary);
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Two-column features (smaller)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1936,9 +1940,9 @@ nav.primary .row {
   opacity: 0.7;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Quotes
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .quotes {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 24px;
@@ -1976,9 +1980,9 @@ nav.primary .row {
   letter-spacing: -0.006em;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Stats strip
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stats {
   display: grid; grid-template-columns: repeat(4, 1fr);
   border: 1px solid var(--border);
@@ -2008,9 +2012,9 @@ nav.primary .row {
   line-height: 1.4;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Pricing
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .pricing-grid {
   display: grid; grid-template-columns: repeat(4, 1fr);
   border: 1px solid var(--border);
@@ -2080,9 +2084,9 @@ nav.primary .row {
 .price-card.featured .price-feat .chk { color: var(--accent-2); }
 .price-card .btn { margin-top: auto; width: 100%; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CTA Closer
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .cta {
   position: relative; overflow: hidden;
   text-align: center;
@@ -2136,9 +2140,9 @@ nav.primary .row {
 }
 .cta-actions { display: flex; gap: 10px; justify-content: center; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Footer
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 footer.site-footer {
   padding: 64px 0 36px;
   border-top: 1px solid var(--border);
@@ -2190,9 +2194,9 @@ footer.site-footer {
   background: var(--hot); box-shadow: 0 0 6px var(--hot);
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Utilities & avatar colors
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .av-1 { background: linear-gradient(135deg, #4ec9d8, #5e6ad2); }
 .av-2 { background: linear-gradient(135deg, #4ade80, #22c55e); }
 .av-3 { background: linear-gradient(135deg, #f5b544, #ec4899); }
@@ -2202,9 +2206,9 @@ footer.site-footer {
 .av-7 { background: linear-gradient(135deg, #f87171, #f5b544); }
 .av-8 { background: linear-gradient(135deg, #c9c4ff, #4ec9d8); }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Responsive
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 980px) {
   .nav-links { display: none; }
   .pillars, .quotes, .pricing-grid { grid-template-columns: 1fr; }
@@ -2221,11 +2225,11 @@ footer.site-footer {
   .autopilot-canvas .ap-edge { transform: rotate(90deg); height: 40px; }
 }
 
-/* ── Dashboard CSS ── */
+/* â”€â”€ Dashboard CSS â”€â”€ */
 
-/* ─────────────────────────────────────────────────────────────
-   App shell (dashboard grid — overrides landing mock .app)
-   ───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   App shell (dashboard grid â€” overrides landing mock .app)
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .app {
   display: grid;
   grid-template-columns: 232px 1fr;
@@ -2562,7 +2566,7 @@ footer.site-footer {
   .hm-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── Intent Hub CSS ── */
+/* â”€â”€ Intent Hub CSS â”€â”€ */
 .hub-tools {
   display: flex; align-items: center; gap: 8px;
   padding: 10px 20px;
@@ -2785,10 +2789,10 @@ footer.site-footer {
   background: rgba(255,255,255,0.06); color: var(--text-primary);
 }
 
-/* ── Score CSS ── */
-/* ─────────────────────────────────────────────────────────────
-   Score page — domain prompt + result + competitive analysis
-   ───────────────────────────────────────────────────────────── */
+/* â”€â”€ Score CSS â”€â”€ */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Score page â€” domain prompt + result + competitive analysis
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* State toggle (demo) */
 .state-toggle {
@@ -2816,7 +2820,7 @@ footer.site-footer {
   color: var(--text-primary);
 }
 
-/* ─── Prompt holder (empty state) ─── */
+/* â”€â”€â”€ Prompt holder (empty state) â”€â”€â”€ */
 .prompt-stage {
   position: relative;
   flex: 1;
@@ -3074,9 +3078,9 @@ footer.site-footer {
   flex-shrink: 0;
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Result state (scrollable column)
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .result-page {
   flex: 1; overflow-y: auto;
   padding: 18px 28px 60px;
@@ -3309,9 +3313,9 @@ footer.site-footer {
 }
 .signal-card .bar .fill { height: 100%; border-radius: 999px; }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Competitive analysis
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ca-block {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -3534,7 +3538,7 @@ footer.site-footer {
 .ca-delta.down { color: var(--red); }
 .ca-delta.flat { color: var(--text-tertiary); }
 
-/* ─── Peer picker: how the user chooses competitors ─── */
+/* â”€â”€â”€ Peer picker: how the user chooses competitors â”€â”€â”€ */
 .ca-source-bar {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 18px;
@@ -3911,13 +3915,13 @@ footer.site-footer {
   align-items: baseline;
 }
 .sg-col.win .list .it::before {
-  content: '▲';
+  content: 'â–²';
   color: var(--hot);
   font-size: 9px;
   font-family: var(--font-mono);
 }
 .sg-col.gap .list .it::before {
-  content: '▼';
+  content: 'â–¼';
   color: var(--warm);
   font-size: 9px;
   font-family: var(--font-mono);
@@ -3927,7 +3931,7 @@ footer.site-footer {
   color: var(--text-primary); font-weight: 500;
 }
 
-/* ── People CSS ── */
+/* â”€â”€ People CSS â”€â”€ */
 .people-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
 .result-page { flex: 1; overflow-y: auto; padding: 18px 28px 60px; }
@@ -4372,7 +4376,7 @@ footer.site-footer {
 .pl-foot .page-btn.active { background: rgba(255,255,255,0.08); color: var(--text-primary); }
 
 @layer components {
-/* ── History CSS ── */
+/* â”€â”€ History CSS â”€â”€ */
 
 .hist-page { padding-bottom: 24px; }
 
@@ -5073,10 +5077,10 @@ footer.site-footer {
 }
 .range-tab.active { background: rgba(255,255,255,0.06); color: var(--text-primary); }
 
-} /* end @layer components — History CSS */
+} /* end @layer components â€” History CSS */
 
 @layer components {
-/* ── Autopilot dashboard CSS ── */
+/* â”€â”€ Autopilot dashboard CSS â”€â”€ */
 .ap-shell {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
@@ -6358,3 +6362,1199 @@ footer.site-footer {
   .lists-page .hero-divider { display: none; }
 }
 } /* end Lists CSS */
+
+/* â”€â”€ Billing page CSS (ported from IntentIQ Billing.html) â€” unlayered â”€â”€ */
+
+/* page-flush fill + reset landing .section-head leakage */
+.billing-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.billing-page .section-head {
+  max-width: none;
+  width: 100%;
+  text-align: left;
+  margin: 26px 2px 12px;
+}
+.billing-page .section-head .h,
+.billing-page .section-head .s {
+  margin-top: 0;
+  max-width: none;
+}
+.billing-page .section-head .h {
+  font-size: 13px;
+  font-weight: 600;
+}
+.billing-page .section-head .s {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Billing page â€” dedicated billing & credits surface
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+.billing-page .bill-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1; min-height: 0;
+}
+.billing-page .bill-content {
+  overflow-y: auto;
+  padding: 24px 28px 60px;
+  min-width: 0;
+}
+.billing-page .bill-inner { max-width: 1280px; margin: 0 auto; }
+
+/* â”€â”€ Page head â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .bill-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 16px;
+}
+.billing-page .bill-head .title-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 4px;
+}
+.billing-page .bill-head .title {
+  font-size: 24px; font-weight: 500;
+  letter-spacing: -0.026em; line-height: 1.1;
+  color: var(--text-primary);
+}
+.billing-page .bill-head .sub {
+  font-size: 13px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .bill-head .sub .mono { color: var(--text-secondary); }
+.billing-page .bill-head .ws-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px 3px 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.billing-page .bill-head .ws-pill .lg {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(140deg, #4ec9d8, #5e6ad2 70%, #7170ff);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: 800;
+  font-size: 9px; color: #0a0b0f;
+}
+
+/* â”€â”€ Hero row: 3 cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .bill-hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.billing-page .hero-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  min-height: 196px;
+}
+.billing-page .hero-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.billing-page .hero-card.plan::before {
+  background: radial-gradient(ellipse 55% 100% at 100% 0%, rgba(94,106,210,0.16), transparent 55%);
+}
+.billing-page .hero-card.credits::before {
+  background: radial-gradient(ellipse 60% 90% at 0% 100%, rgba(78,201,216,0.10), transparent 55%);
+}
+.billing-page .hero-card.invoice::before {
+  background: radial-gradient(ellipse 60% 90% at 50% 100%, rgba(245,181,68,0.06), transparent 60%);
+}
+.billing-page .hero-card > * { position: relative; z-index: 1; }
+
+.billing-page .hc-eyebrow {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 12px;
+}
+.billing-page .hc-eyebrow .pin {
+  width: 5px; height: 5px; border-radius: 999px;
+  background: var(--hot); box-shadow: 0 0 6px var(--hot);
+}
+.billing-page .hc-eyebrow .pin.warn { background: var(--warm); box-shadow: 0 0 6px var(--warm); }
+
+/* Plan card */
+.billing-page .plan-tier-row {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 4px;
+}
+.billing-page .plan-tier-name {
+  font-size: 32px; font-weight: 500;
+  letter-spacing: -0.034em; line-height: 1;
+  color: var(--text-primary);
+}
+.billing-page .plan-price {
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .plan-price strong { color: var(--text-secondary); font-weight: 500; }
+.billing-page .plan-summary {
+  font-size: 13px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.billing-page .plan-summary .b { color: var(--text-primary); font-weight: 500; }
+.billing-page .plan-feats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4px 14px;
+  font-size: 12px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  margin-bottom: 14px;
+}
+.billing-page .plan-feats li {
+  list-style: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.billing-page .plan-feats li svg { color: var(--hot); flex-shrink: 0; }
+
+.billing-page .plan-cta-row {
+  display: flex; gap: 6px;
+  margin-top: auto;
+}
+
+/* Credit balance card */
+.billing-page .cb-balance {
+  display: flex; align-items: baseline; gap: 6px;
+  margin-bottom: 6px;
+}
+.billing-page .cb-num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 48px; letter-spacing: -0.05em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .cb-of {
+  font-family: var(--font-mono); font-weight: 500;
+  font-size: 18px; color: var(--text-quaternary);
+  letter-spacing: -0.02em;
+}
+.billing-page .cb-cap {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-bottom: 12px;
+  letter-spacing: -0.006em;
+}
+.billing-page .cb-cap .b { color: var(--text-secondary); }
+
+.billing-page .cb-bar-wrap {
+  margin-bottom: 10px;
+}
+.billing-page .cb-bar {
+  height: 8px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+  position: relative;
+}
+.billing-page .cb-bar .used {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--accent), var(--accent-2));
+  box-shadow: 0 0 12px -2px var(--accent);
+  position: relative;
+}
+.billing-page .cb-bar .proj {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: repeating-linear-gradient(45deg, rgba(245,181,68,0.18), rgba(245,181,68,0.18) 3px, transparent 3px, transparent 6px);
+  border-right: 1.5px solid var(--warm);
+}
+.billing-page .cb-bar-leg {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 8px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+.billing-page .cb-bar-leg .it { display: inline-flex; align-items: center; gap: 5px; }
+.billing-page .cb-bar-leg .sw {
+  width: 9px; height: 9px; border-radius: 2px;
+}
+.billing-page .cb-bar-leg .sw.used { background: var(--accent); }
+.billing-page .cb-bar-leg .sw.proj { background: repeating-linear-gradient(45deg, var(--warm), var(--warm) 2px, transparent 2px, transparent 4px); border: 1px solid var(--warm); }
+.billing-page .cb-bar-leg .sw.free { background: rgba(255,255,255,0.12); }
+
+.billing-page .cb-burn {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .cb-burn .stat {
+  display: flex; flex-direction: column;
+  gap: 1px;
+}
+.billing-page .cb-burn .v {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 14px; color: var(--text-primary);
+  letter-spacing: -0.014em;
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .cb-burn .v.warn { color: var(--warm); }
+.billing-page .cb-burn .l {
+  font-size: 11px; color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.billing-page .cb-burn .div {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border-subtle);
+}
+
+/* Next invoice card */
+.billing-page .ni-amount-row {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.billing-page .ni-amount {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 36px; letter-spacing: -0.04em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .ni-amount .cur { font-size: 18px; color: var(--text-tertiary); font-weight: 500; }
+.billing-page .ni-date {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-top: 6px;
+  letter-spacing: -0.006em;
+}
+.billing-page .ni-date .b { color: var(--text-primary); font-weight: 500; }
+.billing-page .ni-lines {
+  margin-top: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.billing-page .ni-line {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .ni-line .b { color: var(--text-secondary); }
+.billing-page .ni-line .v {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .ni-pm {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .ni-pm .card-mini {
+  width: 30px; height: 20px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #1a1f71, #4ec9d8 130%);
+  display: grid; place-items: center;
+  font-size: 8px; font-weight: 800;
+  color: #fff;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.billing-page .ni-pm .b { color: var(--text-primary); }
+
+/* â”€â”€ Plans row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .section-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between;
+  margin: 26px 2px 12px;
+  gap: 12px;
+}
+.billing-page .section-head .h {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.billing-page .section-head .s {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-top: 2px;
+}
+.billing-page .section-head .right {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.billing-page .plans-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.billing-page .plan-card-c {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 16px 14px;
+  display: flex; flex-direction: column;
+  position: relative;
+  transition: border-color 0.15s, transform 0.15s;
+  cursor: pointer;
+  overflow: hidden;
+}
+.billing-page .plan-card-c:hover { border-color: var(--border-strong); }
+.billing-page .plan-card-c.current {
+  border-color: rgba(94,106,210,0.5);
+  background:
+    linear-gradient(180deg, rgba(94,106,210,0.07), transparent 60%),
+    var(--bg-elevated);
+  box-shadow: 0 0 0 1px rgba(94,106,210,0.25),
+              0 8px 32px -8px rgba(94,106,210,0.25);
+}
+.billing-page .plan-card-c.recommended::after {
+  content: 'RECOMMENDED';
+  position: absolute;
+  top: 12px; right: 12px;
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 2px 6px; border-radius: 3px;
+  background: rgba(245,181,68,0.14);
+  color: var(--warm);
+  font-weight: 600;
+}
+
+.billing-page .pc-current-tag {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 2px 6px; border-radius: 3px;
+  background: var(--accent-soft);
+  color: #c9c4ff;
+  font-weight: 600;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.billing-page .pc-current-tag .d {
+  width: 4px; height: 4px; border-radius: 999px;
+  background: var(--accent-2);
+  box-shadow: 0 0 4px var(--accent-2);
+}
+
+.billing-page .pc-name {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 12px;
+}
+.billing-page .pc-name .sw { width: 6px; height: 6px; border-radius: 999px; }
+.billing-page .pc-price-row {
+  display: flex; align-items: baseline; gap: 4px;
+  margin-bottom: 4px;
+}
+.billing-page .pc-price {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 26px; letter-spacing: -0.034em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .pc-price .cur { font-size: 14px; color: var(--text-tertiary); font-weight: 500; }
+.billing-page .pc-per { font-size: 12px; color: var(--text-tertiary); letter-spacing: -0.006em; }
+.billing-page .pc-strike {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary);
+  text-decoration: line-through;
+  margin-top: 2px;
+  margin-bottom: 10px;
+}
+.billing-page .pc-credits {
+  display: flex; align-items: baseline; gap: 5px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  margin: 10px 0 12px;
+}
+.billing-page .pc-credits .num {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 16px; color: var(--text-primary);
+  letter-spacing: -0.018em;
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .pc-credits .lab {
+  font-size: 11px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .pc-credits .unit {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-quaternary);
+  margin-left: auto;
+  letter-spacing: 0.02em;
+}
+
+.billing-page .pc-feats {
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  display: flex; flex-direction: column; gap: 5px;
+  flex: 1;
+  margin-bottom: 14px;
+}
+.billing-page .pc-feats li {
+  list-style: none;
+  display: flex; gap: 6px;
+  line-height: 1.4;
+}
+.billing-page .pc-feats li::before {
+  content: '';
+  width: 3px; height: 3px; border-radius: 999px;
+  background: var(--text-quaternary);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+.billing-page .pc-feats li.hi { color: var(--text-primary); }
+.billing-page .pc-feats li.hi::before { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+
+.billing-page .pc-cta {
+  width: 100%;
+  padding: 7px 0;
+  border-radius: var(--r-md);
+  font-size: 12px; font-weight: 500;
+  text-align: center;
+  letter-spacing: -0.006em;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.billing-page .pc-cta.outline {
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  background: transparent;
+}
+.billing-page .pc-cta.outline:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); border-color: var(--text-quaternary); }
+.billing-page .pc-cta.solid {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+}
+.billing-page .pc-cta.solid:hover { background: var(--accent-2); }
+.billing-page .pc-cta.current {
+  background: rgba(94,106,210,0.08);
+  color: #c9c4ff;
+  border: 1px solid rgba(94,106,210,0.3);
+  cursor: default;
+}
+
+/* â”€â”€ Topup + Cost split â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .split-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.billing-page .panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.billing-page .panel-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.billing-page .panel-head .t {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.billing-page .panel-head .s {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-top: 2px;
+}
+.billing-page .panel-head .right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.billing-page .panel-body { padding: 16px 18px; }
+
+/* Top-up packs */
+.billing-page .topup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 14px 16px;
+}
+.billing-page .topup-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s;
+  display: flex; flex-direction: column;
+  background: rgba(255,255,255,0.012);
+}
+.billing-page .topup-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.billing-page .topup-card.best {
+  border-color: rgba(74,222,128,0.35);
+  background:
+    radial-gradient(ellipse 50% 100% at 50% 0%, rgba(74,222,128,0.08), transparent 60%),
+    rgba(255,255,255,0.012);
+}
+.billing-page .topup-card.best::after {
+  content: 'BEST VALUE';
+  position: absolute;
+  top: -7px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 2px 7px; border-radius: 999px;
+  background: var(--hot-bg);
+  border: 1px solid var(--hot-border);
+  color: var(--hot);
+  font-weight: 600;
+}
+.billing-page .tu-credits {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 22px; letter-spacing: -0.028em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .tu-credits .unit {
+  font-size: 11px; color: var(--text-tertiary);
+  font-weight: 500;
+  margin-left: 4px;
+  letter-spacing: 0.02em;
+}
+.billing-page .tu-price {
+  font-family: var(--font-mono);
+  font-size: 13px; color: var(--text-secondary);
+  margin-top: 6px;
+  letter-spacing: -0.006em;
+}
+.billing-page .tu-rate {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+.billing-page .tu-rate .save { color: var(--hot); }
+.billing-page .tu-cta {
+  margin-top: 12px;
+  padding: 6px 0;
+  border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500;
+  text-align: center;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  letter-spacing: -0.006em;
+  cursor: pointer;
+}
+.billing-page .topup-card:hover .tu-cta { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.billing-page .topup-foot {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .topup-foot .ic {
+  width: 14px; height: 14px;
+  color: var(--text-quaternary);
+  flex-shrink: 0;
+}
+
+/* Cost breakdown */
+.billing-page .cost-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 70px 56px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 18px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  letter-spacing: -0.006em;
+}
+.billing-page .cost-row:last-child { border-bottom: none; }
+.billing-page .cost-row .lbl {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--text-primary);
+}
+.billing-page .cost-row .lbl .sw {
+  width: 8px; height: 8px; border-radius: 2px;
+  flex-shrink: 0;
+}
+.billing-page .cost-row .bar-wrap {
+  height: 6px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.billing-page .cost-row .bar { height: 100%; border-radius: 999px; }
+.billing-page .cost-row .v {
+  font-family: var(--font-mono);
+  text-align: right;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.billing-page .cost-row .pct {
+  font-family: var(--font-mono);
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.billing-page .cost-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,0.015);
+}
+.billing-page .cost-foot .tot-label {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+}
+.billing-page .cost-foot .tot {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 14px; color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.014em;
+}
+.billing-page .cost-foot .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot);
+  letter-spacing: 0.02em;
+}
+.billing-page .cost-foot .delta.down { color: var(--warm); }
+
+/* â”€â”€ Usage chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .usage-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.billing-page .usage-head {
+  display: flex; align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.billing-page .usage-head .t {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.billing-page .usage-head .s {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: -0.006em;
+}
+.billing-page .usage-head .right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+.billing-page .usage-body { padding: 18px 18px 16px; }
+.billing-page .usage-legend {
+  display: flex; flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-bottom: 14px;
+}
+.billing-page .usage-legend .leg {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.billing-page .usage-legend .leg .sw { width: 8px; height: 8px; border-radius: 2px; }
+.billing-page .usage-legend .leg .v {
+  font-family: var(--font-mono); font-weight: 600;
+  color: var(--text-primary); font-variant-numeric: tabular-nums;
+  letter-spacing: -0.011em;
+}
+
+.billing-page .usage-chart-wrap {
+  position: relative;
+  height: 180px;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 8px;
+}
+.billing-page .usage-yax {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.02em;
+  padding-bottom: 18px;
+  text-align: right;
+}
+.billing-page .usage-chart {
+  position: relative;
+}
+.billing-page .usage-svg {
+  width: 100%; height: 162px; display: block;
+}
+.billing-page .usage-xax {
+  display: flex; justify-content: space-between;
+  margin-top: 4px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.02em;
+}
+
+/* â”€â”€ Ledger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .ledger {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.billing-page .ledger-head {
+  display: flex; align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.billing-page .ledger-head .t {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.billing-page .ledger-head .s {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-top: 2px;
+}
+.billing-page .ledger-head .right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+.billing-page .ledger-thead {
+  display: grid;
+  grid-template-columns: 130px 36px 1fr 130px 110px 110px;
+  gap: 14px;
+  padding: 0 18px;
+  height: 32px;
+  align-items: center;
+  background: rgba(255,255,255,0.012);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.billing-page .ledger-row {
+  display: grid;
+  grid-template-columns: 130px 36px 1fr 130px 110px 110px;
+  gap: 14px;
+  padding: 12px 18px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.billing-page .ledger-row:last-child { border-bottom: none; }
+.billing-page .ledger-row:hover { background: rgba(255,255,255,0.018); }
+
+.billing-page .ledger-row .date {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+.billing-page .ledger-row .date .t {
+  font-size: 10px; color: var(--text-quaternary);
+  display: block;
+}
+.billing-page .ledger-row .icon {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.billing-page .ledger-row .icon.debit {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-tertiary);
+}
+.billing-page .ledger-row .icon.credit-add {
+  background: rgba(74,222,128,0.10);
+  color: var(--hot);
+}
+.billing-page .ledger-row .icon.topup {
+  background: rgba(245,181,68,0.10);
+  color: var(--warm);
+}
+.billing-page .ledger-row .desc {
+  min-width: 0;
+}
+.billing-page .ledger-row .desc .top {
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.billing-page .ledger-row .desc .bot {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+.billing-page .ledger-row .src {
+  display: inline-flex; align-items: center;
+  gap: 6px;
+  font-size: 12px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.billing-page .ledger-row .src .sw { width: 6px; height: 6px; border-radius: 2px; }
+.billing-page .ledger-row .amt {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 14px;
+  text-align: right;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.014em;
+}
+.billing-page .ledger-row .amt.credit { color: var(--hot); }
+.billing-page .ledger-row .amt.debit { color: var(--text-primary); }
+.billing-page .ledger-row .amt .unit { font-size: 10px; color: var(--text-tertiary); margin-left: 3px; }
+.billing-page .ledger-row .bal {
+  font-family: var(--font-mono); font-size: 12px;
+  text-align: right;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.billing-page .ledger-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .ledger-foot a {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.billing-page .ledger-foot a:hover { color: var(--text-primary); }
+
+/* â”€â”€ Payment + invoices row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .bot-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* Payment method */
+.billing-page .pm-list {
+  padding: 14px 18px;
+  display: flex; flex-direction: column;
+  gap: 10px;
+}
+.billing-page .pm-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.015);
+}
+.billing-page .pm-row.default { border-color: rgba(94,106,210,0.3); }
+.billing-page .pm-card {
+  width: 42px; height: 30px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.billing-page .pm-card.visa { background: linear-gradient(135deg, #1a1f71 0%, #4ec9d8 200%); }
+.billing-page .pm-card.amex { background: linear-gradient(135deg, #006fcf, #00224f); }
+.billing-page .pm-info {
+  flex: 1; min-width: 0;
+}
+.billing-page .pm-info .l1 {
+  font-size: 13px; color: var(--text-primary);
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  display: flex; align-items: center; gap: 6px;
+}
+.billing-page .pm-info .l1 .tag {
+  font-family: var(--font-mono); font-size: 9px;
+  padding: 1px 5px; border-radius: 3px;
+  background: var(--accent-soft);
+  color: #c9c4ff;
+  letter-spacing: 0.04em;
+}
+.billing-page .pm-info .l2 {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+.billing-page .pm-edit {
+  font-size: 12px; color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  letter-spacing: -0.006em;
+}
+.billing-page .pm-edit:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.billing-page .pm-add {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.billing-page .pm-add:hover { color: var(--text-primary); border-color: var(--text-quaternary); background: rgba(255,255,255,0.018); }
+
+.billing-page .billto {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border-subtle);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
+}
+.billing-page .billto .it {
+  font-size: 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.billing-page .billto .it .l {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.billing-page .billto .it .v {
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.billing-page .billto .it .v.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.billing-page .billto .full { grid-column: 1 / -1; }
+
+/* Invoices */
+.billing-page .inv-thead {
+  display: grid;
+  grid-template-columns: 110px 1fr 90px 110px 90px 70px;
+  gap: 14px;
+  padding: 0 18px;
+  height: 32px;
+  align-items: center;
+  background: rgba(255,255,255,0.012);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.billing-page .inv-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 90px 110px 90px 70px;
+  gap: 14px;
+  padding: 12px 18px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.billing-page .inv-row:last-child { border-bottom: none; }
+.billing-page .inv-row:hover { background: rgba(255,255,255,0.018); }
+.billing-page .inv-row .date {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+.billing-page .inv-row .num {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+.billing-page .inv-row .amt {
+  font-family: var(--font-mono); font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.014em;
+}
+.billing-page .inv-row .pill {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  width: max-content;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.billing-page .inv-row .pill.paid {
+  background: var(--hot-bg); color: var(--hot);
+}
+.billing-page .inv-row .pill.paid .d { width: 4px; height: 4px; border-radius: 999px; background: var(--hot); }
+.billing-page .inv-row .pill.refund {
+  background: rgba(78,201,216,0.10);
+  color: var(--cyan);
+}
+.billing-page .inv-row .actions {
+  display: flex; gap: 4px;
+  justify-content: flex-end;
+}
+.billing-page .inv-row .ic-btn {
+  width: 24px; height: 24px;
+  border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.billing-page .inv-row .ic-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.billing-page .inv-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.billing-page .inv-foot a { color: var(--text-secondary); font-weight: 500; }
+.billing-page .inv-foot a:hover { color: var(--text-primary); }
+
+/* â”€â”€ Danger zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .danger {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.billing-page .danger-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.billing-page .danger-row:last-child { border-bottom: none; }
+.billing-page .danger-row .l {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.billing-page .danger-row .h {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-top: 2px;
+}
+.billing-page .btn-danger {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid rgba(248,113,113,0.28);
+  background: rgba(248,113,113,0.06);
+  color: var(--red);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.billing-page .btn-danger:hover { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.45); }
+
+/* â”€â”€ Help row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.billing-page .help-row {
+  display: flex; gap: 16px;
+  align-items: center;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.billing-page .help-row .ic {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: grid; place-items: center;
+  background: rgba(94,106,210,0.08);
+  color: #c9c4ff;
+  flex-shrink: 0;
+}
+.billing-page .help-row .txt {
+  flex: 1;
+}
+.billing-page .help-row .txt strong { color: var(--text-primary); font-weight: 500; }
+.billing-page .help-row .lk {
+  color: var(--accent-2);
+  cursor: pointer;
+}
+.billing-page .help-row .lk:hover { color: #c9c4ff; }
+
+/* Mini icon button */
+.billing-page .mini-ic {
+  width: 26px; height: 26px;
+  border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.billing-page .mini-ic:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+@media (max-width: 1280px) {
+  .billing-page .plans-grid { grid-template-columns: repeat(3, 1fr); }
+  .billing-page .plan-card-c:nth-child(4), .billing-page .plan-card-c:nth-child(5) { display: none; }
+}
+@media (max-width: 1100px) {
+  .billing-page .bill-hero { grid-template-columns: 1fr; }
+  .billing-page .split-row, .billing-page .bot-row { grid-template-columns: 1fr; }
+}
+
+
+/* form reset for plan/topup CTAs */
+.billing-page form { margin: 0; }
+.billing-page button.pc-cta,
+.billing-page a.pc-cta { display: block; text-decoration: none; border: none; font-family: inherit; cursor: pointer; }
+.billing-page button.tu-cta {
+  font-family: inherit;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.billing-page .plan-card-c { cursor: default; }
+.billing-page .plan-card-c .pc-cta,
+.billing-page .plan-card-c form { cursor: pointer; }
+.billing-page .help-row .tb-btn { flex-shrink: 0; cursor: pointer; }
+.billing-page button.range-tab {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  padding: 4px 10px;
+  margin: 0;
+}
+.billing-page button.tb-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+
+/* end Billing CSS */
