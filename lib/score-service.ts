@@ -10,6 +10,7 @@ import { getMockSignals } from "@/lib/signals/mock";
 import { computeIntentScore, generateScoreExplanation, buildScoredSignals } from "@/lib/scorer";
 import { generateReasoning } from "@/lib/reasoning";
 import { updatePipelineStage } from "@/lib/pipeline";
+import { createInboxNotification } from "@/lib/inbox";
 import type { IntentScore, SignalSet, BusinessProfile } from "@/lib/types";
 
 const USE_MOCK = process.env.MOCK_SIGNALS === "true";
@@ -185,6 +186,50 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<IntentSco
   if (!skipCredits) {
     const { error: creditError } = await supabase.rpc("deduct_credit", { p_user_id: userId });
     if (creditError) console.error("[score-service] deduct_credit error:", creditError);
+  }
+
+  // ── HOT crossing: check previous band before pipeline update ────────────
+  if (result.score_band === "HOT") {
+    const { data: watchlistEntry } = await supabase
+      .from("watchlist")
+      .select("score_band")
+      .eq("user_id", userId)
+      .eq("domain", lookupDomain)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (watchlistEntry && watchlistEntry.score_band !== "HOT") {
+      const activeSources: string[] = [];
+      if (signals.funding.score > 0) activeSources.push("funding");
+      if (signals.news.score > 0) activeSources.push("news");
+      if (signals.hiring.score > 0) activeSources.push("hiring");
+      if (signals.technology.score > 0) activeSources.push("tech");
+      if (signals.web.score > 0) activeSources.push("web");
+
+      await createInboxNotification({
+        user_id: userId,
+        event_type: "hot_crossing",
+        domain: lookupDomain,
+        company_name: lookupCompany,
+        title: `${lookupCompany} crossed HOT — score moved to ${result.intent_score}`,
+        summary: result.ai_summary ?? `Score reached ${result.intent_score}/100 with ${activeSources.length} active signals.`,
+        metadata: {
+          score_before: watchlistEntry.score_band,
+          score_after: result.intent_score,
+          score_band: "HOT",
+          ai_thesis: result.ai_summary,
+          recommended_action: result.recommended_action,
+          signal_deltas: {
+            funding: signals.funding.score,
+            news: signals.news.score,
+            hiring: signals.hiring.score,
+            technology: signals.technology.score,
+            web: signals.web.score,
+          },
+        },
+        tags: ["HOT", ...activeSources],
+      });
+    }
   }
 
   // ── Update pipeline stage if on watchlist ────────────────────────────────

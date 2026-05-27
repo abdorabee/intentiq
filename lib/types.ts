@@ -408,3 +408,31 @@ export const PLAN_AUTOPILOT_LIMIT: Record<DbUser["plan"], number | null> = {
   pro: 50,
   agency: null, // unlimited
 };
+
+export type InboxEventType =
+  | "hot_crossing"
+  | "stage_change"
+  | "autopilot_fire"
+  | "bulk_job_complete"
+  | "tech_signal"
+  | "score_drop"
+  | "system"
+  | "reply_activity";
+
+export interface InboxNotification {
+  id: string;
+  user_id: string;
+  event_type: InboxEventType;
+  domain: string;
+  company_name: string;
+  title: string;
+  summary: string;
+  metadata: Record<string, unknown>;
+  tags: string[];
+  list_id: string | null;
+  is_read: boolean;
+  is_archived: boolean;
+  is_snoozed: boolean;
+  snoozed_until: string | null;
+  created_at: string;
+}

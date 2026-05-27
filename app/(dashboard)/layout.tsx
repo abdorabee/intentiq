@@ -44,11 +44,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const onboardingCompleted = profile?.onboarding_completed ?? true;
   const plan = (profile?.plan as "free" | "starter" | "growth" | "pro" | "agency" | undefined) ?? "free";
 
+  const { count: inboxCount } = await admin
+    .from("inbox_notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("is_read", false)
+    .eq("is_archived", false);
+
   return (
     <OnboardingGate completed={onboardingCompleted}>
       {onboardingCompleted ? (
         <>
-          <DashboardShell creditsRemaining={creditsRemaining} plan={plan}>
+          <DashboardShell creditsRemaining={creditsRemaining} plan={plan} inboxCount={inboxCount ?? 0}>
             {children}
           </DashboardShell>
         </>

@@ -17,7 +17,7 @@ create index if not exists lists_user_updated_idx on public.lists (user_id, upda
 
 alter table public.lists enable row level security;
 create policy "lists: own rows" on public.lists
-  for all using (auth.uid() = user_id);
+  for all using (auth.uid()::text = user_id);
 
 -- ─── List members (manual lists) ─────────────────────────────────────────────
 create table if not exists public.list_members (
@@ -35,7 +35,7 @@ create index if not exists list_members_user_domain_idx on public.list_members (
 
 alter table public.list_members enable row level security;
 create policy "list_members: own rows" on public.list_members
-  for all using (auth.uid() = user_id);
+  for all using (auth.uid()::text = user_id);
 
 -- Backfill: one manual "My Watchlist" list per user with existing watchlist rows
 insert into public.lists (user_id, name, description, list_type, color, icon_initials)

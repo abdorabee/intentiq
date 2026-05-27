@@ -11,11 +11,13 @@ interface DashboardShellProps {
   children: React.ReactNode;
   creditsRemaining: number;
   plan: DbUser["plan"];
+  inboxCount?: number;
 }
 
-export default function DashboardShell({ children, creditsRemaining, plan }: DashboardShellProps) {
+export default function DashboardShell({ children, creditsRemaining, plan, inboxCount }: DashboardShellProps) {
   const pathname = usePathname();
-  const pageClass = pathname === "/billing" ? "page page-flush" : "page";
+  const flushPages = ["/billing", "/inbox"];
+  const pageClass = flushPages.includes(pathname) ? "page page-flush" : "page";
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function DashboardShell({ children, creditsRemaining, plan }: Das
           plan={plan}
           collapsed={collapsed}
           onToggle={toggle}
+          inboxCount={inboxCount}
         />
         <div className="main">
           <DashboardTopbar />

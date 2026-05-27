@@ -47,7 +47,7 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/people", label: "People", icon: UserSearch, beta: true },
   { href: "/watchlist", label: "Watchlist", icon: Eye, count: "24" },
   { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
-  { href: "/memory", label: "Inbox", icon: Inbox, count: "12" },
+  { href: "/inbox", label: "Inbox", icon: Inbox },
 ];
 
 const BOTTOM_ITEMS: NavItem[] = [
@@ -60,6 +60,7 @@ interface DashboardNavProps {
   plan: DbUser["plan"];
   collapsed?: boolean;
   onToggle?: () => void;
+  inboxCount?: number;
 }
 
 export default function DashboardNav({
@@ -67,6 +68,7 @@ export default function DashboardNav({
   plan,
   collapsed = false,
   onToggle,
+  inboxCount,
 }: DashboardNavProps) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
@@ -111,6 +113,9 @@ export default function DashboardNav({
       {WORKSPACE_ITEMS.map((item) => {
         const Icon = item.icon;
         const active = pathname === item.href;
+        const displayCount = item.href === "/inbox"
+          ? (inboxCount && inboxCount > 0 ? String(inboxCount) : undefined)
+          : item.count;
         return (
           <Link
             key={`${item.href}-${item.label}`}
@@ -134,8 +139,8 @@ export default function DashboardNav({
                     Beta
                   </span>
                 )}
-                {item.count && (
-                  <span className={cn("count", item.hotCount && "hot")}>{item.count}</span>
+                {displayCount && (
+                  <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
                 )}
                 {item.indicator && <span className="indicator" />}
               </>
