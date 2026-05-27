@@ -27,8 +27,8 @@ interface InboxListProps {
 
 function tagClass(tag: string) {
   if (tag === "HOT") return "tag hot";
-  if (tag === "funding" || tag === "news") return "tag blue";
-  if (tag === "WARM" || tag === "hiring") return "tag warm";
+  if (tag === "funding" || tag === "news" || tag === "autopilot") return "tag blue";
+  if (tag === "WARM" || tag === "hiring" || tag === "tech" || tag === "web") return "tag warm";
   return "tag";
 }
 
@@ -44,19 +44,29 @@ export function InboxList({
     <div className="msg-list-pane">
       <div className="mlp-head">
         <span className="title">{VIEW_LABELS[activeView]}</span>
-        {unreadCount > 0 && <span className="count-pill">{unreadCount}</span>}
+        {unreadCount > 0 && (
+          <span className="count-pill">{unreadCount} unread</span>
+        )}
         <div className="mlp-actions">
-          <button type="button" className="tb-btn" title="Refresh" disabled={loading}>
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
-          </button>
-          <button type="button" className="tb-btn" title="Filter">
-            <Filter className="h-3.5 w-3.5" />
-          </button>
+          <div
+            className="icon-btn"
+            role="button"
+            tabIndex={0}
+            title="Refresh"
+            style={{ opacity: loading ? 0.5 : 1 }}
+          >
+            <RefreshCw className={cn("h-[11px] w-[11px]", loading && "animate-spin")} />
+          </div>
+          <div className="icon-btn" role="button" tabIndex={0} title="Filter">
+            <Filter className="h-[11px] w-[11px]" />
+          </div>
         </div>
       </div>
 
       <div className="mlp-tabs">
-        <button type="button" className="mlp-tab active">All</button>
+        <button type="button" className="mlp-tab active">
+          All {unreadCount > 0 && <span className="pill">{unreadCount}</span>}
+        </button>
         <button type="button" className="mlp-tab">Mentions</button>
         <button type="button" className="mlp-tab">Activity</button>
       </div>
@@ -65,17 +75,17 @@ export function InboxList({
         {notifications.length === 0 ? (
           <div className="inbox-empty">
             <div style={{ fontSize: 32, marginBottom: 8 }}>✓</div>
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>All caught up</div>
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>
+              All caught up
+            </div>
             <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>
-              {activeView === "inbox"
-                ? "No new notifications"
-                : "Nothing here yet"}
+              {activeView === "inbox" ? "No new notifications" : "Nothing here yet"}
             </div>
           </div>
         ) : (
           notifications.map((n) => {
             const hotTag = n.tags.includes("HOT");
-            const relTime = formatDistanceToNow(new Date(n.created_at), { addSuffix: true });
+            const relTime = formatDistanceToNow(new Date(n.created_at), { addSuffix: false });
             const visibleTags = n.tags.slice(0, 3);
             return (
               <div
@@ -90,18 +100,17 @@ export function InboxList({
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && onSelect(n.id)}
               >
-                <span
+                <div
                   className="indicator"
-                  style={hotTag ? { background: "var(--hot)" } : undefined}
+                  style={hotTag ? { background: "var(--hot)", boxShadow: "0 0 6px var(--hot)" } : undefined}
                 />
                 <div className="body">
                   <div className="top">
-                    <span className="subj">{n.company_name}</span>
-                    <span style={{ fontSize: 11, color: "var(--text-quaternary)", flexShrink: 0 }}>
-                      {relTime}
-                    </span>
+                    <span className="from">{n.company_name}</span>
+                    <span className="ts">{relTime}</span>
                   </div>
-                  <div className="preview">{n.title}</div>
+                  <div className="subj">{n.title}</div>
+                  <div className="preview">{n.summary}</div>
                   <div className="tags">
                     {visibleTags.map((tag) => (
                       <span key={tag} className={tagClass(tag)}>{tag}</span>

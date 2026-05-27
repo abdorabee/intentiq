@@ -1,6 +1,6 @@
 "use client";
 
-import { Inbox, Zap, TrendingUp, Radio, Star, Archive, Clock, Tag } from "lucide-react";
+import { Inbox, Star, Clock, CheckCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { InboxNotification } from "@/lib/types";
 import type { DbList } from "@/lib/lists-types";
@@ -28,89 +28,132 @@ export function InboxSidebar({
   const hotCount = notifications.filter((n) => n.tags.includes("HOT")).length;
 
   const byType = (type: string) => notifications.filter((n) => n.event_type === type).length;
+  const isActive = (view: ViewFilter, type: string | null, listId: string | null) =>
+    activeView === view && activeType === type && activeListId === listId;
 
   return (
-    <div className="inbox-cats">
+    <aside className="inbox-cats">
       <div className="cat-section">All</div>
-      <button
-        type="button"
-        className={cn("cat-item", activeView === "inbox" && !activeType && !activeListId && "active")}
+
+      <div
+        className={cn("cat-item", isActive("inbox", null, null) && "active")}
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect("inbox", null, null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("inbox", null, null)}
       >
         <Inbox className="ic" />
         Inbox
         {unread > 0 && <span className={cn("count", hotCount > 0 && "hot")}>{unread}</span>}
-      </button>
-      <button
-        type="button"
-        className={cn("cat-item", activeView === "subscribed" && !activeType && "active")}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", null, null) && "active")}
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect("subscribed", null, null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", null, null)}
       >
         <Star className="ic" />
-        All Activity
-      </button>
-      <button
-        type="button"
-        className={cn("cat-item", activeView === "snoozed" && "active")}
+        Subscribed
+        {notifications.length > 0 && <span className="count">{notifications.length}</span>}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("read", null, null) && "active")}
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelect("read", null, null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("read", null, null)}
+      >
+        <CheckCheck className="ic" />
+        Read
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("snoozed", null, null) && "active")}
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect("snoozed", null, null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("snoozed", null, null)}
       >
         <Clock className="ic" />
         Snoozed
-      </button>
-      <button
-        type="button"
-        className={cn("cat-item", activeView === "read" && "active")}
-        onClick={() => onSelect("read", null, null)}
-      >
-        <Archive className="ic" />
-        Read
-      </button>
+      </div>
 
-      <div className="cat-section" style={{ marginTop: 12 }}>By Type</div>
-      <button
-        type="button"
-        className={cn("cat-item", activeType === "hot_crossing" && "active")}
+      <div className="cat-section" style={{ marginTop: 12 }}>By type</div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", "hot_crossing", null) && "active")}
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect("subscribed", "hot_crossing", null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "hot_crossing", null)}
       >
-        <span className="swatch" style={{ background: "var(--hot)" }} />
-        HOT Crossings
-        {byType("hot_crossing") > 0 && (
-          <span className="count hot">{byType("hot_crossing")}</span>
-        )}
-      </button>
-      <button
-        type="button"
-        className={cn("cat-item", activeType === "stage_change" && "active")}
-        onClick={() => onSelect("subscribed", "stage_change", null)}
-      >
-        <TrendingUp className="ic" />
-        Stage Changes
-        {byType("stage_change") > 0 && (
-          <span className="count">{byType("stage_change")}</span>
-        )}
-      </button>
-      <button
-        type="button"
-        className={cn("cat-item", activeType === "autopilot_fire" && "active")}
+        <span className="swatch" style={{ background: "var(--hot)", boxShadow: "0 0 6px var(--hot)" }} />
+        HOT crossings
+        {byType("hot_crossing") > 0 && <span className="count hot">{byType("hot_crossing")}</span>}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", "autopilot_fire", null) && "active")}
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect("subscribed", "autopilot_fire", null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "autopilot_fire", null)}
       >
-        <Zap className="ic" />
-        Autopilot
-        {byType("autopilot_fire") > 0 && (
-          <span className="count">{byType("autopilot_fire")}</span>
-        )}
-      </button>
-      <button
-        type="button"
-        className={cn("cat-item", activeType === "tech_signal" && "active")}
-        onClick={() => onSelect("subscribed", "tech_signal", null)}
+        <span className="swatch" style={{ background: "var(--accent-2)" }} />
+        Autopilot fires
+        {byType("autopilot_fire") > 0 && <span className="count">{byType("autopilot_fire")}</span>}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", "stage_change", null) && "active")}
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelect("subscribed", "stage_change", null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "stage_change", null)}
       >
-        <Radio className="ic" />
-        Tech Signals
-        {byType("tech_signal") > 0 && (
-          <span className="count">{byType("tech_signal")}</span>
-        )}
-      </button>
+        <span className="swatch" style={{ background: "var(--warm)" }} />
+        Signal events
+        {byType("stage_change") > 0 && <span className="count">{byType("stage_change")}</span>}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", "reply_activity", null) && "active")}
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelect("subscribed", "reply_activity", null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "reply_activity", null)}
+      >
+        <span className="swatch" style={{ background: "var(--cyan)" }} />
+        Replies + activity
+        {byType("reply_activity") > 0 && <span className="count">{byType("reply_activity")}</span>}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", "score_drop", null) && "active")}
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelect("subscribed", "score_drop", null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "score_drop", null)}
+      >
+        <span className="swatch" style={{ background: "var(--cold)" }} />
+        Score drops
+        {byType("score_drop") > 0 && <span className="count">{byType("score_drop")}</span>}
+      </div>
+
+      <div
+        className={cn("cat-item", isActive("subscribed", "system", null) && "active")}
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelect("subscribed", "system", null)}
+        onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "system", null)}
+      >
+        <span className="swatch" style={{ background: "var(--pink, #ec4899)" }} />
+        System
+        {byType("system") > 0 && <span className="count">{byType("system")}</span>}
+      </div>
 
       {lists.length > 0 && (
         <>
@@ -118,34 +161,26 @@ export function InboxSidebar({
           {lists.map((list) => {
             const count = notifications.filter((n) => n.list_id === list.id).length;
             return (
-              <button
+              <div
                 key={list.id}
-                type="button"
-                className={cn("cat-item", activeListId === list.id && "active")}
+                className={cn("cat-item", isActive("subscribed", null, list.id) && "active")}
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelect("subscribed", null, list.id)}
+                onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", null, list.id)}
               >
-                <span
-                  className="swatch"
-                  style={{ background: list.color || "var(--accent)" }}
-                />
+                <svg className="ic" viewBox="0 0 14 14" fill="none" width="14" height="14">
+                  <circle cx="7" cy="7" r="3" fill={list.color || "var(--accent)"} stroke="none" />
+                </svg>
                 <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {list.name}
                 </span>
                 {count > 0 && <span className="count">{count}</span>}
-              </button>
+              </div>
             );
           })}
         </>
       )}
-
-      {lists.length === 0 && (
-        <>
-          <div className="cat-section" style={{ marginTop: 12 }}>Lists</div>
-          <div style={{ padding: "6px 10px", fontSize: 12, color: "var(--text-quaternary)" }}>
-            No lists yet
-          </div>
-        </>
-      )}
-    </div>
+    </aside>
   );
 }
