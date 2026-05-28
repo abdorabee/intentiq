@@ -20,9 +20,8 @@ const COLS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "Terms",         href: "/terms" },
       { label: "Privacy",       href: "/privacy" },
-      { label: "DPA",           href: "#"      },
-      { label: "Security",      href: "#"      },
-      { label: "Subprocessors", href: "#"      },
+      { label: "DPA",           href: "/legal/dpa" },
+      { label: "Security",      href: "/legal/security" },
     ],
   },
 ];

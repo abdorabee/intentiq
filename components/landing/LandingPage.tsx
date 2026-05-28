@@ -1474,9 +1474,8 @@ export default function LandingPage() {
               <ul>
                 <li><a href="/terms">Terms</a></li>
                 <li><a href="/privacy">Privacy</a></li>
-                <li><a href="#">DPA</a></li>
-                <li><a href="#">Security</a></li>
-                <li><a href="#">Subprocessors</a></li>
+                <li><a href="/legal/dpa">DPA</a></li>
+                <li><a href="/legal/security">Security</a></li>
               </ul>
             </div>
           </div>
