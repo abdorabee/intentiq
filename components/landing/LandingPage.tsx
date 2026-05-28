@@ -1472,7 +1472,7 @@ export default function LandingPage() {
             <div className="footer-col">
               <h4>Legal</h4>
               <ul>
-                <li><a href="#">Terms</a></li>
+                <li><a href="/terms">Terms</a></li>
                 <li><a href="#">Privacy</a></li>
                 <li><a href="#">DPA</a></li>
                 <li><a href="#">Security</a></li>

@@ -47,3 +47,7 @@ next-env.d.ts
 # Claude Code — local settings and git worktrees (may contain secrets / nested repos)
 .claude/settings.local.json
 .claude/worktrees/
+design-v2-extracted
+design-v2.bin
+design-v2.tar
+Dprojectsintentiq.claude

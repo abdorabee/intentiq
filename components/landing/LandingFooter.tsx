@@ -1,6 +1,8 @@
 import Link from "next/link";
 
-const COLS = [
+type FooterLink = string | { label: string; href: string };
+
+const COLS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
     links: ["Score", "Intent Hub", "Autopilot", "People scoring", "Watchlist", "Changelog"],
@@ -15,7 +17,13 @@ const COLS = [
   },
   {
     title: "Legal",
-    links: ["Terms", "Privacy", "DPA", "Security", "Subprocessors"],
+    links: [
+      { label: "Terms",         href: "/terms" },
+      { label: "Privacy",       href: "#"      },
+      { label: "DPA",           href: "#"      },
+      { label: "Security",      href: "#"      },
+      { label: "Subprocessors", href: "#"      },
+    ],
   },
 ];
 
@@ -40,13 +48,17 @@ export default function LandingFooter() {
             <div key={col.title}>
               <h4 className="text-[12px] font-semibold uppercase tracking-wider text-[#f7f8f8]">{col.title}</h4>
               <ul className="mt-3 space-y-2">
-                {col.links.map((label) => (
-                  <li key={label}>
-                    <Link href="#" className="text-[13px] text-[#8a8f98] hover:text-[#f7f8f8]">
-                      {label}
-                    </Link>
-                  </li>
-                ))}
+                {col.links.map((link) => {
+                  const label = typeof link === "string" ? link : link.label;
+                  const href  = typeof link === "string" ? "#"   : link.href;
+                  return (
+                    <li key={label}>
+                      <Link href={href} className="text-[13px] text-[#8a8f98] hover:text-[#f7f8f8]">
+                        {label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
