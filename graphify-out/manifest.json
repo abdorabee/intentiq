@@ -1,0 +1,1062 @@
+{
+  "D:\\projects\\intentiq\\app\\layout.tsx": {
+    "mtime": 1778859183.621878,
+    "ast_hash": "05c29301a461f4c9b124cf791686642c",
+    "semantic_hash": "05c29301a461f4c9b124cf791686642c"
+  },
+  "D:\\projects\\intentiq\\app\\opengraph-image.tsx": {
+    "mtime": 1776353674.5365312,
+    "ast_hash": "d8b3de90ae26e13287f38e980b9bafed",
+    "semantic_hash": "d8b3de90ae26e13287f38e980b9bafed"
+  },
+  "D:\\projects\\intentiq\\app\\page.tsx": {
+    "mtime": 1776354555.4598155,
+    "ast_hash": "dfcca759a90dacbfebb24f10c57f56e8",
+    "semantic_hash": "dfcca759a90dacbfebb24f10c57f56e8"
+  },
+  "D:\\projects\\intentiq\\app\\robots.ts": {
+    "mtime": 1776353674.537531,
+    "ast_hash": "6b9b4eedaf3ea7fa73df8dd03c8c3847",
+    "semantic_hash": "6b9b4eedaf3ea7fa73df8dd03c8c3847"
+  },
+  "D:\\projects\\intentiq\\app\\sitemap.ts": {
+    "mtime": 1776353674.53853,
+    "ast_hash": "2aabb8d975b364e7bb60ca6dbb41c9b9",
+    "semantic_hash": "2aabb8d975b364e7bb60ca6dbb41c9b9"
+  },
+  "D:\\projects\\intentiq\\app\\(auth)\\layout.tsx": {
+    "mtime": 1779913980.4301653,
+    "ast_hash": "89e3680b6416445b54552af626246220",
+    "semantic_hash": "89e3680b6416445b54552af626246220"
+  },
+  "D:\\projects\\intentiq\\app\\(auth)\\login\\page.tsx": {
+    "mtime": 1779913980.4301653,
+    "ast_hash": "06afca2701f5d3bf184f8db9632ae3be",
+    "semantic_hash": "06afca2701f5d3bf184f8db9632ae3be"
+  },
+  "D:\\projects\\intentiq\\app\\(auth)\\login\\sso-callback\\page.tsx": {
+    "mtime": 1774183092.1487129,
+    "ast_hash": "2042c69a709c7fc9d64dcb8ea9a421cd",
+    "semantic_hash": "2042c69a709c7fc9d64dcb8ea9a421cd"
+  },
+  "D:\\projects\\intentiq\\app\\(auth)\\signup\\page.tsx": {
+    "mtime": 1779913980.429165,
+    "ast_hash": "55d535faf574fd60347590cae53c1b02",
+    "semantic_hash": "55d535faf574fd60347590cae53c1b02"
+  },
+  "D:\\projects\\intentiq\\app\\(auth)\\signup\\sso-callback\\page.tsx": {
+    "mtime": 1774183092.1497138,
+    "ast_hash": "dc5649c995a861171d1a6c9a864d8444",
+    "semantic_hash": "dc5649c995a861171d1a6c9a864d8444"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\layout.tsx": {
+    "mtime": 1779754983.1417346,
+    "ast_hash": "b02c139034b2fc79f5281ceadb92bf8f",
+    "semantic_hash": "b02c139034b2fc79f5281ceadb92bf8f"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\analyze\\page.tsx": {
+    "mtime": 1779657402.1638274,
+    "ast_hash": "45e97ea22848923da0e3382f77bee551",
+    "semantic_hash": "45e97ea22848923da0e3382f77bee551"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\api-keys\\page.tsx": {
+    "mtime": 1779656383.9312258,
+    "ast_hash": "491aa4993b06fe5fcb17099eac882709",
+    "semantic_hash": "491aa4993b06fe5fcb17099eac882709"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\autopilot\\autopilot-view.tsx": {
+    "mtime": 1779549994.293378,
+    "ast_hash": "fa56e7d63f578f9f4987851d25c3ac69",
+    "semantic_hash": "fa56e7d63f578f9f4987851d25c3ac69"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\autopilot\\page.tsx": {
+    "mtime": 1779550338.2078047,
+    "ast_hash": "26ae162b763380c9f3f53ddc96907e7f",
+    "semantic_hash": "26ae162b763380c9f3f53ddc96907e7f"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\billing\\billing-notification.tsx": {
+    "mtime": 1775938019.0234504,
+    "ast_hash": "117af652a6277a2aa90d3554cf628006",
+    "semantic_hash": "117af652a6277a2aa90d3554cf628006"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\billing\\billing-view.tsx": {
+    "mtime": 1779645808.8961675,
+    "ast_hash": "2d36a3d810d4abe5e60f3ee8ecba99b2",
+    "semantic_hash": "2d36a3d810d4abe5e60f3ee8ecba99b2"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\billing\\page.tsx": {
+    "mtime": 1779642942.281544,
+    "ast_hash": "cf83158b5ec938dd89f0de792a61bae7",
+    "semantic_hash": "cf83158b5ec938dd89f0de792a61bae7"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\bulk\\page.tsx": {
+    "mtime": 1776353674.5330713,
+    "ast_hash": "53bd2bbe86646d8b2b3d2586ab5ba2a0",
+    "semantic_hash": "53bd2bbe86646d8b2b3d2586ab5ba2a0"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\dashboard\\page.tsx": {
+    "mtime": 1778895162.6830611,
+    "ast_hash": "adbf97f49e21b2c6d702d7290760c7ec",
+    "semantic_hash": "adbf97f49e21b2c6d702d7290760c7ec"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\history\\history-view.tsx": {
+    "mtime": 1779327322.1802633,
+    "ast_hash": "86c1736fb3f65052e765a3289d1d4b26",
+    "semantic_hash": "86c1736fb3f65052e765a3289d1d4b26"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\history\\page.tsx": {
+    "mtime": 1779327155.8383458,
+    "ast_hash": "7451f5925208665e954052186fc6406c",
+    "semantic_hash": "7451f5925208665e954052186fc6406c"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\inbox\\inbox-view.tsx": {
+    "mtime": 1779755294.0551414,
+    "ast_hash": "7e64b764aac84df8afc66fb0f011f635",
+    "semantic_hash": "7e64b764aac84df8afc66fb0f011f635"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\inbox\\page.tsx": {
+    "mtime": 1779755277.6656046,
+    "ast_hash": "9581862ec5cce1b10779fd3230d51b16",
+    "semantic_hash": "9581862ec5cce1b10779fd3230d51b16"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\lists\\lists-view.tsx": {
+    "mtime": 1779552859.423107,
+    "ast_hash": "6a9fd9f24f2fa63f43cee95c314a4b41",
+    "semantic_hash": "6a9fd9f24f2fa63f43cee95c314a4b41"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\lists\\page.tsx": {
+    "mtime": 1779552839.9457405,
+    "ast_hash": "401e705b611b5e341582fb0734708d35",
+    "semantic_hash": "401e705b611b5e341582fb0734708d35"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\lists\\[id]\\list-detail-client.tsx": {
+    "mtime": 1779552859.4251065,
+    "ast_hash": "475ee29464feb886638b84adb8f95539",
+    "semantic_hash": "475ee29464feb886638b84adb8f95539"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\lists\\[id]\\page.tsx": {
+    "mtime": 1779552841.1433082,
+    "ast_hash": "e2db990b3759a9306b3569391a1a31ef",
+    "semantic_hash": "e2db990b3759a9306b3569391a1a31ef"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\memory\\page.tsx": {
+    "mtime": 1776037155.578686,
+    "ast_hash": "9d3272076c8dc5e1ba1fffa9a5fcb1f5",
+    "semantic_hash": "9d3272076c8dc5e1ba1fffa9a5fcb1f5"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\onboarding\\layout.tsx": {
+    "mtime": 1774710120.5453558,
+    "ast_hash": "e4abb566ebd28d99e45fae2bda372ab1",
+    "semantic_hash": "e4abb566ebd28d99e45fae2bda372ab1"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\onboarding\\page.tsx": {
+    "mtime": 1775574589.736824,
+    "ast_hash": "7af215ab31bfbcad78917c8f3f46cac4",
+    "semantic_hash": "7af215ab31bfbcad78917c8f3f46cac4"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\people\\page.tsx": {
+    "mtime": 1779284777.9599364,
+    "ast_hash": "ebca0b46a598df040ec4517e83b758a9",
+    "semantic_hash": "ebca0b46a598df040ec4517e83b758a9"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\people\\people-view.tsx": {
+    "mtime": 1779647654.5011902,
+    "ast_hash": "bd628e134642441f2b1a0dc00ceda010",
+    "semantic_hash": "bd628e134642441f2b1a0dc00ceda010"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\pipeline\\page.tsx": {
+    "mtime": 1778897455.0539782,
+    "ast_hash": "c7c05f6a1e673705d6ef7e45d1662148",
+    "semantic_hash": "c7c05f6a1e673705d6ef7e45d1662148"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\score\\page.tsx": {
+    "mtime": 1779218581.2792006,
+    "ast_hash": "a0360e8404d124b20353497e8a1ab798",
+    "semantic_hash": "a0360e8404d124b20353497e8a1ab798"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\score\\score-view.tsx": {
+    "mtime": 1779647644.5940454,
+    "ast_hash": "3ea4b8e0d6c2f3662baede169c452d07",
+    "semantic_hash": "3ea4b8e0d6c2f3662baede169c452d07"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\settings\\page.tsx": {
+    "mtime": 1776037155.5796857,
+    "ast_hash": "1ae9cafdfa1e9d833694f4b042fa2086",
+    "semantic_hash": "1ae9cafdfa1e9d833694f4b042fa2086"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\watchlist\\page.tsx": {
+    "mtime": 1779656956.1154976,
+    "ast_hash": "9a1065d3abda28000266ee7ca3841d14",
+    "semantic_hash": "9a1065d3abda28000266ee7ca3841d14"
+  },
+  "D:\\projects\\intentiq\\app\\(dashboard)\\watchlist\\watchlist-view.tsx": {
+    "mtime": 1779657056.619226,
+    "ast_hash": "3bd24b08905c3d0cbb2d1db4cddc172e",
+    "semantic_hash": "3bd24b08905c3d0cbb2d1db4cddc172e"
+  },
+  "D:\\projects\\intentiq\\app\\api\\autopilot\\execute\\route.ts": {
+    "mtime": 1775128569.2127695,
+    "ast_hash": "b5c9b97d1571a83e0c4e38e0073a713f",
+    "semantic_hash": "b5c9b97d1571a83e0c4e38e0073a713f"
+  },
+  "D:\\projects\\intentiq\\app\\api\\autopilot\\runs\\route.ts": {
+    "mtime": 1775128560.21377,
+    "ast_hash": "e9cff5b0e95b0e4879ba4e67bc700b64",
+    "semantic_hash": "e9cff5b0e95b0e4879ba4e67bc700b64"
+  },
+  "D:\\projects\\intentiq\\app\\api\\autopilot\\runs\\[id]\\route.ts": {
+    "mtime": 1775128560.21377,
+    "ast_hash": "2faf1fb4918188d71ca73dd5e8394cc0",
+    "semantic_hash": "2faf1fb4918188d71ca73dd5e8394cc0"
+  },
+  "D:\\projects\\intentiq\\app\\api\\autopilot\\test\\route.ts": {
+    "mtime": 1775128560.2147686,
+    "ast_hash": "f107f1f2d8619806b6a23ca25f75c064",
+    "semantic_hash": "f107f1f2d8619806b6a23ca25f75c064"
+  },
+  "D:\\projects\\intentiq\\app\\api\\autopilot\\workflows\\route.ts": {
+    "mtime": 1775128560.2157686,
+    "ast_hash": "7e5f3193da727d9382466c323e9a93d7",
+    "semantic_hash": "7e5f3193da727d9382466c323e9a93d7"
+  },
+  "D:\\projects\\intentiq\\app\\api\\autopilot\\workflows\\[id]\\route.ts": {
+    "mtime": 1775128560.2147686,
+    "ast_hash": "1480e177aba27984c887dbf3b97dbe59",
+    "semantic_hash": "1480e177aba27984c887dbf3b97dbe59"
+  },
+  "D:\\projects\\intentiq\\app\\api\\billing\\checkout\\route.ts": {
+    "mtime": 1776160070.555584,
+    "ast_hash": "9de8d7711dfd778bb7245da236c7bd60",
+    "semantic_hash": "9de8d7711dfd778bb7245da236c7bd60"
+  },
+  "D:\\projects\\intentiq\\app\\api\\billing\\portal\\route.ts": {
+    "mtime": 1776160070.4475856,
+    "ast_hash": "89dbecc787538f373e31514ea2c4cdc3",
+    "semantic_hash": "89dbecc787538f373e31514ea2c4cdc3"
+  },
+  "D:\\projects\\intentiq\\app\\api\\billing\\topup\\route.ts": {
+    "mtime": 1776160070.4495857,
+    "ast_hash": "e823b17445a13c28ab2136908ba842fd",
+    "semantic_hash": "e823b17445a13c28ab2136908ba842fd"
+  },
+  "D:\\projects\\intentiq\\app\\api\\billing\\webhook\\route.ts": {
+    "mtime": 1775942820.9717183,
+    "ast_hash": "317b7f5feacb14ad2fdb2b83a36ab2b7",
+    "semantic_hash": "317b7f5feacb14ad2fdb2b83a36ab2b7"
+  },
+  "D:\\projects\\intentiq\\app\\api\\chat\\route.ts": {
+    "mtime": 1776037162.580685,
+    "ast_hash": "31abe40335bf9dc48b5cd4527bb65334",
+    "semantic_hash": "31abe40335bf9dc48b5cd4527bb65334"
+  },
+  "D:\\projects\\intentiq\\app\\api\\chat\\sessions\\route.ts": {
+    "mtime": 1773828291.1669831,
+    "ast_hash": "c9b6879f55122e7f40f48cc8a276bffb",
+    "semantic_hash": "c9b6879f55122e7f40f48cc8a276bffb"
+  },
+  "D:\\projects\\intentiq\\app\\api\\chat\\sessions\\[id]\\route.ts": {
+    "mtime": 1773828291.1659863,
+    "ast_hash": "7fb380cefbd69bc938dbcf3dab5296ae",
+    "semantic_hash": "7fb380cefbd69bc938dbcf3dab5296ae"
+  },
+  "D:\\projects\\intentiq\\app\\api\\contact\\route.ts": {
+    "mtime": 1779988407.8749752,
+    "ast_hash": "95b54a9be621a221ca28b1f3e6f53343",
+    "semantic_hash": "95b54a9be621a221ca28b1f3e6f53343"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\lists\\route.ts": {
+    "mtime": 1779552760.7609541,
+    "ast_hash": "309c58f6a330f2937badb19f637b6f40",
+    "semantic_hash": "309c58f6a330f2937badb19f637b6f40"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\lists\\[id]\\route.ts": {
+    "mtime": 1779552763.3821442,
+    "ast_hash": "321cf8447bd7c7993d3b89a2c0d5ab85",
+    "semantic_hash": "321cf8447bd7c7993d3b89a2c0d5ab85"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\lists\\[id]\\members\\route.ts": {
+    "mtime": 1779552767.5300324,
+    "ast_hash": "0dfde874e25778cded2017b98dba6dd7",
+    "semantic_hash": "0dfde874e25778cded2017b98dba6dd7"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\person-scores\\route.ts": {
+    "mtime": 1774710129.5513551,
+    "ast_hash": "f845c956cac7b6935d37b7ffc6dd4b3a",
+    "semantic_hash": "f845c956cac7b6935d37b7ffc6dd4b3a"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\pipeline\\route.ts": {
+    "mtime": 1778897423.7472613,
+    "ast_hash": "05139d2f926d92dab3153a4f53c8afb6",
+    "semantic_hash": "05139d2f926d92dab3153a4f53c8afb6"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\pipeline\\stages\\route.ts": {
+    "mtime": 1773828291.1703155,
+    "ast_hash": "261925fbc0245d5947211c135266f130",
+    "semantic_hash": "261925fbc0245d5947211c135266f130"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\scores\\route.ts": {
+    "mtime": 1774354494.6525888,
+    "ast_hash": "c2dbd9a9fc7d515362778337f3889aac",
+    "semantic_hash": "c2dbd9a9fc7d515362778337f3889aac"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\search\\route.ts": {
+    "mtime": 1779655938.2131517,
+    "ast_hash": "d4061faea0d7958ab5980c21d9da5b93",
+    "semantic_hash": "d4061faea0d7958ab5980c21d9da5b93"
+  },
+  "D:\\projects\\intentiq\\app\\api\\dashboard\\watchlist\\route.ts": {
+    "mtime": 1773559922.694462,
+    "ast_hash": "c3dc0328b4995b50ffc4177ec7557768",
+    "semantic_hash": "c3dc0328b4995b50ffc4177ec7557768"
+  },
+  "D:\\projects\\intentiq\\app\\api\\inbox\\route.ts": {
+    "mtime": 1779754907.8484173,
+    "ast_hash": "259696fe4714f633fc34e0185b5053b4",
+    "semantic_hash": "259696fe4714f633fc34e0185b5053b4"
+  },
+  "D:\\projects\\intentiq\\app\\api\\inbox\\[id]\\route.ts": {
+    "mtime": 1779754911.6395009,
+    "ast_hash": "31b2c0e8a121219f473ea5bf93e048a9",
+    "semantic_hash": "31b2c0e8a121219f473ea5bf93e048a9"
+  },
+  "D:\\projects\\intentiq\\app\\api\\onboarding\\chat\\route.ts": {
+    "mtime": 1775574597.7388208,
+    "ast_hash": "5e394ad8bc78b92df4284fb81252a1bd",
+    "semantic_hash": "5e394ad8bc78b92df4284fb81252a1bd"
+  },
+  "D:\\projects\\intentiq\\app\\api\\user\\api-keys\\route.ts": {
+    "mtime": 1772852580.0518816,
+    "ast_hash": "1ce8f826fbe55864e03d66f2561183b3",
+    "semantic_hash": "1ce8f826fbe55864e03d66f2561183b3"
+  },
+  "D:\\projects\\intentiq\\app\\api\\user\\profile\\route.ts": {
+    "mtime": 1774710120.5513556,
+    "ast_hash": "f91f48b23dbeeca806aa7f0ce8c47e71",
+    "semantic_hash": "f91f48b23dbeeca806aa7f0ce8c47e71"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\prioritize\\route.ts": {
+    "mtime": 1775128560.2417686,
+    "ast_hash": "9d9432a147921f62a2d1caafd8331eb9",
+    "semantic_hash": "9d9432a147921f62a2d1caafd8331eb9"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\score\\route.ts": {
+    "mtime": 1774710129.5533552,
+    "ast_hash": "f63435c755cf3d9fbbaa7da340303adf",
+    "semantic_hash": "f63435c755cf3d9fbbaa7da340303adf"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\score\\bulk\\route.ts": {
+    "mtime": 1772759538.7544377,
+    "ast_hash": "2368ad1cccf12febfb3fc94d6ecbad6d",
+    "semantic_hash": "2368ad1cccf12febfb3fc94d6ecbad6d"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\score\\bulk-inline\\route.ts": {
+    "mtime": 1775128569.2417696,
+    "ast_hash": "10a4631d9056cb13f5cdc42a7a9be186",
+    "semantic_hash": "10a4631d9056cb13f5cdc42a7a9be186"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\score\\history\\route.ts": {
+    "mtime": 1772759538.755438,
+    "ast_hash": "19857de39b212d09db538d8dd489bdb7",
+    "semantic_hash": "19857de39b212d09db538d8dd489bdb7"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\score\\person\\route.ts": {
+    "mtime": 1774710129.5533552,
+    "ast_hash": "5fa1e027f0cc5b3b74aa63b80846664e",
+    "semantic_hash": "5fa1e027f0cc5b3b74aa63b80846664e"
+  },
+  "D:\\projects\\intentiq\\app\\api\\v1\\watchlist\\route.ts": {
+    "mtime": 1772759538.755438,
+    "ast_hash": "13aca9d98030495a76711a8c96f36eb0",
+    "semantic_hash": "13aca9d98030495a76711a8c96f36eb0"
+  },
+  "D:\\projects\\intentiq\\app\\contact\\contact-view.tsx": {
+    "mtime": 1779988568.8934839,
+    "ast_hash": "8c83300f901da879964cf1c1d6791bac",
+    "semantic_hash": "8c83300f901da879964cf1c1d6791bac"
+  },
+  "D:\\projects\\intentiq\\app\\contact\\page.tsx": {
+    "mtime": 1779988414.6670415,
+    "ast_hash": "d2af62df79443df35253580558189c51",
+    "semantic_hash": "d2af62df79443df35253580558189c51"
+  },
+  "D:\\projects\\intentiq\\app\\docs\\page.tsx": {
+    "mtime": 1774339400.5623634,
+    "ast_hash": "a02e760e3ff1486b2267f215d06b3b5b",
+    "semantic_hash": "a02e760e3ff1486b2267f215d06b3b5b"
+  },
+  "D:\\projects\\intentiq\\app\\legal\\dpa\\dpa-view.tsx": {
+    "mtime": 1779989575.6313858,
+    "ast_hash": "e9f1dc4fe612080053905927d86e2281",
+    "semantic_hash": "e9f1dc4fe612080053905927d86e2281"
+  },
+  "D:\\projects\\intentiq\\app\\legal\\dpa\\page.tsx": {
+    "mtime": 1779989409.1382089,
+    "ast_hash": "862e79c58839c61513951987d5436e11",
+    "semantic_hash": "862e79c58839c61513951987d5436e11"
+  },
+  "D:\\projects\\intentiq\\app\\legal\\security\\page.tsx": {
+    "mtime": 1779989729.2648456,
+    "ast_hash": "6e53b2138171bb51ff9cff98c9f6fbdc",
+    "semantic_hash": "6e53b2138171bb51ff9cff98c9f6fbdc"
+  },
+  "D:\\projects\\intentiq\\app\\legal\\security\\security-view.tsx": {
+    "mtime": 1779989929.537681,
+    "ast_hash": "2f5eaff5ed191e9ba8ea5530f9a261a9",
+    "semantic_hash": "2f5eaff5ed191e9ba8ea5530f9a261a9"
+  },
+  "D:\\projects\\intentiq\\app\\privacy\\page.tsx": {
+    "mtime": 1779987066.5235112,
+    "ast_hash": "53e7a6be0537d781e4172ac93a4a7e7e",
+    "semantic_hash": "53e7a6be0537d781e4172ac93a4a7e7e"
+  },
+  "D:\\projects\\intentiq\\app\\privacy\\privacy-view.tsx": {
+    "mtime": 1779987223.8407726,
+    "ast_hash": "258f10fb2387a3b2f63d8aec539d96da",
+    "semantic_hash": "258f10fb2387a3b2f63d8aec539d96da"
+  },
+  "D:\\projects\\intentiq\\app\\terms\\page.tsx": {
+    "mtime": 1779917811.3517947,
+    "ast_hash": "fb0dab9684158d44429ece7ccff41bce",
+    "semantic_hash": "fb0dab9684158d44429ece7ccff41bce"
+  },
+  "D:\\projects\\intentiq\\app\\terms\\terms-view.tsx": {
+    "mtime": 1779923056.6153405,
+    "ast_hash": "6e76fb923563fda03d1156ff13b482b9",
+    "semantic_hash": "6e76fb923563fda03d1156ff13b482b9"
+  },
+  "D:\\projects\\intentiq\\components\\landing.tsx": {
+    "mtime": 1778860713.8954616,
+    "ast_hash": "073013d750bcf8e7bea51dd7f6342430",
+    "semantic_hash": "073013d750bcf8e7bea51dd7f6342430"
+  },
+  "D:\\projects\\intentiq\\components\\onboarding-gate.tsx": {
+    "mtime": 1774710120.555354,
+    "ast_hash": "22fe390c9560c85599db63923734480c",
+    "semantic_hash": "22fe390c9560c85599db63923734480c"
+  },
+  "D:\\projects\\intentiq\\components\\theme-provider.tsx": {
+    "mtime": 1773828291.194021,
+    "ast_hash": "1ca8ad44e5604226e3134b12e7564d4a",
+    "semantic_hash": "1ca8ad44e5604226e3134b12e7564d4a"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\action-row.tsx": {
+    "mtime": 1775128560.2427688,
+    "ast_hash": "4be28dae549b7525e38ce79497b46b3d",
+    "semantic_hash": "4be28dae549b7525e38ce79497b46b3d"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\condition-row.tsx": {
+    "mtime": 1775128560.2427688,
+    "ast_hash": "83fd71b3fa2379bccf629f6f1f814e8e",
+    "semantic_hash": "83fd71b3fa2379bccf629f6f1f814e8e"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\fire-history-chart.tsx": {
+    "mtime": 1779548646.85817,
+    "ast_hash": "6a9a885c0275bd994ea07a3b62b82870",
+    "semantic_hash": "6a9a885c0275bd994ea07a3b62b82870"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\flow-canvas.tsx": {
+    "mtime": 1779550022.3031118,
+    "ast_hash": "c5411716de68058a33ae7b13a1a0004a",
+    "semantic_hash": "c5411716de68058a33ae7b13a1a0004a"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\run-history.tsx": {
+    "mtime": 1779548646.7661717,
+    "ast_hash": "e31c99937b8e7ecae137fe4d6d8b06b7",
+    "semantic_hash": "e31c99937b8e7ecae137fe4d6d8b06b7"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\workflow-builder.tsx": {
+    "mtime": 1775128560.2437687,
+    "ast_hash": "b67e5ae53eb9b6dd4cfdb7997f4b5b01",
+    "semantic_hash": "b67e5ae53eb9b6dd4cfdb7997f4b5b01"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\workflow-card.tsx": {
+    "mtime": 1775128560.2437687,
+    "ast_hash": "4b1726086fc634e4d711cae19d667587",
+    "semantic_hash": "4b1726086fc634e4d711cae19d667587"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\workflow-detail-pane.tsx": {
+    "mtime": 1779550070.5618572,
+    "ast_hash": "1cda79e100bd7c25631ce23b18681dc0",
+    "semantic_hash": "1cda79e100bd7c25631ce23b18681dc0"
+  },
+  "D:\\projects\\intentiq\\components\\autopilot\\workflow-list-pane.tsx": {
+    "mtime": 1779548647.1987767,
+    "ast_hash": "cb7d75edc786f106d602ef6d72b1e61a",
+    "semantic_hash": "cb7d75edc786f106d602ef6d72b1e61a"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-cost-breakdown.tsx": {
+    "mtime": 1779645767.6395314,
+    "ast_hash": "2bb831ad59c82f3a48fcf5333b48c31b",
+    "semantic_hash": "2bb831ad59c82f3a48fcf5333b48c31b"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-danger-zone.tsx": {
+    "mtime": 1779645795.833364,
+    "ast_hash": "4bb9b84c7056d26cd65b08e9331cb4d9",
+    "semantic_hash": "4bb9b84c7056d26cd65b08e9331cb4d9"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-help-row.tsx": {
+    "mtime": 1779645778.0225482,
+    "ast_hash": "081235cf95fd1234742c73ccd7ef07b9",
+    "semantic_hash": "081235cf95fd1234742c73ccd7ef07b9"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-hero.tsx": {
+    "mtime": 1779645812.9117656,
+    "ast_hash": "aaca1aa4c1998fb0952d28436e30547d",
+    "semantic_hash": "aaca1aa4c1998fb0952d28436e30547d"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-invoices.tsx": {
+    "mtime": 1779645792.633895,
+    "ast_hash": "111e7c8a4725f9e0b68f4349e54ff6ec",
+    "semantic_hash": "111e7c8a4725f9e0b68f4349e54ff6ec"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-ledger.tsx": {
+    "mtime": 1779645785.8774178,
+    "ast_hash": "34fa4610f0d86ae4ff68f6de6e5bac1c",
+    "semantic_hash": "34fa4610f0d86ae4ff68f6de6e5bac1c"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-page-head.tsx": {
+    "mtime": 1779642921.4686515,
+    "ast_hash": "f9045110e04510bcb764827e655c1bd5",
+    "semantic_hash": "f9045110e04510bcb764827e655c1bd5"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-payment-details.tsx": {
+    "mtime": 1779645786.9602754,
+    "ast_hash": "4cc46229f4be672b0106ad9ec9d23cd2",
+    "semantic_hash": "4cc46229f4be672b0106ad9ec9d23cd2"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-plans-grid.tsx": {
+    "mtime": 1779647003.8706093,
+    "ast_hash": "a9c030e74c1709987e23666acf95ed18",
+    "semantic_hash": "a9c030e74c1709987e23666acf95ed18"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-topups-panel.tsx": {
+    "mtime": 1779645769.6759002,
+    "ast_hash": "cbcd5c932725b4bf9145beabadc8bd7b",
+    "semantic_hash": "cbcd5c932725b4bf9145beabadc8bd7b"
+  },
+  "D:\\projects\\intentiq\\components\\billing\\billing-usage-chart.tsx": {
+    "mtime": 1779645805.5989497,
+    "ast_hash": "90ca9247b513e86502aef8701db41017",
+    "semantic_hash": "90ca9247b513e86502aef8701db41017"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\dashboard-page-shell.tsx": {
+    "mtime": 1778859183.6268804,
+    "ast_hash": "bb46fe8fa83b878fa2f83bfe6d53246d",
+    "semantic_hash": "bb46fe8fa83b878fa2f83bfe6d53246d"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\dashboard-shell.tsx": {
+    "mtime": 1779754953.0873494,
+    "ast_hash": "661fa12e3c58fd11707b3f527e5d6c78",
+    "semantic_hash": "661fa12e3c58fd11707b3f527e5d6c78"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\dashboard-topbar.tsx": {
+    "mtime": 1779657414.6644273,
+    "ast_hash": "15bbb6efa778fa3c1db31ac2fef561cf",
+    "semantic_hash": "15bbb6efa778fa3c1db31ac2fef561cf"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\lists-topbar-context.tsx": {
+    "mtime": 1779552804.2787683,
+    "ast_hash": "d3ab9044e45cf222a5ba57146607a8aa",
+    "semantic_hash": "d3ab9044e45cf222a5ba57146607a8aa"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\nav.tsx": {
+    "mtime": 1779754974.2256205,
+    "ast_hash": "2e0e137093240f4230b76a3ba61bec92",
+    "semantic_hash": "2e0e137093240f4230b76a3ba61bec92"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\quick-score.tsx": {
+    "mtime": 1773559922.6984613,
+    "ast_hash": "33597fc9ffb70c9cdf5c702f27b2a3d6",
+    "semantic_hash": "33597fc9ffb70c9cdf5c702f27b2a3d6"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\search-palette.tsx": {
+    "mtime": 1779655946.7545984,
+    "ast_hash": "a583df15ea34c7e0d161aeb13a3a57c8",
+    "semantic_hash": "a583df15ea34c7e0d161aeb13a3a57c8"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\search-provider.tsx": {
+    "mtime": 1779647567.3648794,
+    "ast_hash": "2ec43cb77dfdf5f7a27508b6aaa356a0",
+    "semantic_hash": "2ec43cb77dfdf5f7a27508b6aaa356a0"
+  },
+  "D:\\projects\\intentiq\\components\\dashboard\\home\\dashboard-home.tsx": {
+    "mtime": 1779550518.9677894,
+    "ast_hash": "56c4b4bf9675239f73ca7eae0da5ab04",
+    "semantic_hash": "56c4b4bf9675239f73ca7eae0da5ab04"
+  },
+  "D:\\projects\\intentiq\\components\\inbox\\inbox-detail.tsx": {
+    "mtime": 1779914176.191301,
+    "ast_hash": "9101814aa95067c8dd2bc48f90d565c3",
+    "semantic_hash": "9101814aa95067c8dd2bc48f90d565c3"
+  },
+  "D:\\projects\\intentiq\\components\\inbox\\inbox-list.tsx": {
+    "mtime": 1779914130.8340893,
+    "ast_hash": "1999a13c883915a794e196b7833e5831",
+    "semantic_hash": "1999a13c883915a794e196b7833e5831"
+  },
+  "D:\\projects\\intentiq\\components\\inbox\\inbox-sidebar.tsx": {
+    "mtime": 1779914221.8823009,
+    "ast_hash": "5dc3e85188bff3af86eb85d3e366d655",
+    "semantic_hash": "5dc3e85188bff3af86eb85d3e366d655"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\AutopilotFeatureSection.tsx": {
+    "mtime": 1778859183.6308773,
+    "ast_hash": "ca8c340d538cb4092d9c3ae54a14fa6d",
+    "semantic_hash": "ca8c340d538cb4092d9c3ae54a14fa6d"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\BracketButton.tsx": {
+    "mtime": 1773559922.700461,
+    "ast_hash": "7487cb0fc38c68ec06d7633cc28ec376",
+    "semantic_hash": "7487cb0fc38c68ec06d7633cc28ec376"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\CodeDemo.tsx": {
+    "mtime": 1778859183.632877,
+    "ast_hash": "3b371590386ee0c3424188201b12fad8",
+    "semantic_hash": "3b371590386ee0c3424188201b12fad8"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\CTAFooter.tsx": {
+    "mtime": 1778859183.631876,
+    "ast_hash": "b3821b8d9a93d4be56ee343091b96f65",
+    "semantic_hash": "b3821b8d9a93d4be56ee343091b96f65"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\data.ts": {
+    "mtime": 1776597195.1358926,
+    "ast_hash": "7cae921e06e80dd537bb06a6dca8abbf",
+    "semantic_hash": "7cae921e06e80dd537bb06a6dca8abbf"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\DevelopersSection.tsx": {
+    "mtime": 1778859183.632877,
+    "ast_hash": "a302757c38f87a5cf8d8efd76b7c8b6b",
+    "semantic_hash": "a302757c38f87a5cf8d8efd76b7c8b6b"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\FinalCtaSection.tsx": {
+    "mtime": 1778859183.6338756,
+    "ast_hash": "4a7b39a2007e3cc6c57960fc1c32bf3e",
+    "semantic_hash": "4a7b39a2007e3cc6c57960fc1c32bf3e"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\HeroSection.tsx": {
+    "mtime": 1778859183.6348753,
+    "ast_hash": "9022c8cfa6ccc4d4b05d2db312212c01",
+    "semantic_hash": "9022c8cfa6ccc4d4b05d2db312212c01"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\HowItWorks.tsx": {
+    "mtime": 1778859183.6358776,
+    "ast_hash": "5073d5dc2750101fbacf3b6340e79d9b",
+    "semantic_hash": "5073d5dc2750101fbacf3b6340e79d9b"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\HUD.tsx": {
+    "mtime": 1778859183.6348753,
+    "ast_hash": "6b1172b29048999eca21c761a07a6832",
+    "semantic_hash": "6b1172b29048999eca21c761a07a6832"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\LandingBanner.tsx": {
+    "mtime": 1778859183.6368778,
+    "ast_hash": "038daec76b0dcb5c406b50e56fc58953",
+    "semantic_hash": "038daec76b0dcb5c406b50e56fc58953"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\LandingFooter.tsx": {
+    "mtime": 1779990265.6882243,
+    "ast_hash": "0e54853fe6a56830f646c9b0089526bd",
+    "semantic_hash": "0e54853fe6a56830f646c9b0089526bd"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\LandingPage.tsx": {
+    "mtime": 1779990265.043772,
+    "ast_hash": "590141cc019e0aeccb4dff46b987bf97",
+    "semantic_hash": "590141cc019e0aeccb4dff46b987bf97"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\Loader.tsx": {
+    "mtime": 1778859183.6388755,
+    "ast_hash": "db9de50e14b593c131d5004413c8b999",
+    "semantic_hash": "db9de50e14b593c131d5004413c8b999"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\LogoStrip.tsx": {
+    "mtime": 1778859183.6398768,
+    "ast_hash": "140f2374539fbea4180999a62db81c62",
+    "semantic_hash": "140f2374539fbea4180999a62db81c62"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\PillarsSection.tsx": {
+    "mtime": 1778859183.6418786,
+    "ast_hash": "744d04fadce140df917fda816df9904e",
+    "semantic_hash": "744d04fadce140df917fda816df9904e"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\PipelineFeatureSection.tsx": {
+    "mtime": 1778859183.642876,
+    "ast_hash": "41a40ff9196debc46248f9106add6aa4",
+    "semantic_hash": "41a40ff9196debc46248f9106add6aa4"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\PricingSection.tsx": {
+    "mtime": 1778859183.643879,
+    "ast_hash": "9859b8e6ab1a33a362f07114bdd15139",
+    "semantic_hash": "9859b8e6ab1a33a362f07114bdd15139"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\PricingV2Section.tsx": {
+    "mtime": 1778859183.643879,
+    "ast_hash": "db67aa888939c03fa9d38a65e3d3a023",
+    "semantic_hash": "db67aa888939c03fa9d38a65e3d3a023"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\ScanlineRow.tsx": {
+    "mtime": 1778859183.6448758,
+    "ast_hash": "e4ae8291fc9cd3f38f47a3b7eee576f6",
+    "semantic_hash": "e4ae8291fc9cd3f38f47a3b7eee576f6"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\ScoreFeatureSection.tsx": {
+    "mtime": 1778859183.6458802,
+    "ast_hash": "e4acac95bd3e656b8dd1355181bf2682",
+    "semantic_hash": "e4acac95bd3e656b8dd1355181bf2682"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\SectionLabel.tsx": {
+    "mtime": 1778859183.6458802,
+    "ast_hash": "fc2393875fc39602a9d4a7b08281cd4e",
+    "semantic_hash": "fc2393875fc39602a9d4a7b08281cd4e"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\SignalsShowcase.tsx": {
+    "mtime": 1778859183.6468804,
+    "ast_hash": "7c0a1e9ad20e7d9f6c5000326a89d02c",
+    "semantic_hash": "7c0a1e9ad20e7d9f6c5000326a89d02c"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\StatsSection.tsx": {
+    "mtime": 1778859183.6478808,
+    "ast_hash": "6a59b362b9d2c6308439c18b7107ae09",
+    "semantic_hash": "6a59b362b9d2c6308439c18b7107ae09"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\TestimonialsSection.tsx": {
+    "mtime": 1778859183.6478808,
+    "ast_hash": "4611d99ab4e7a9f7a48dd61e66b30f4f",
+    "semantic_hash": "4611d99ab4e7a9f7a48dd61e66b30f4f"
+  },
+  "D:\\projects\\intentiq\\components\\landing\\TrustStrip.tsx": {
+    "mtime": 1778859183.64888,
+    "ast_hash": "5380e205e828cabffdf3fb6769b8a40f",
+    "semantic_hash": "5380e205e828cabffdf3fb6769b8a40f"
+  },
+  "D:\\projects\\intentiq\\components\\lists\\create-list-modal.tsx": {
+    "mtime": 1779555708.0204544,
+    "ast_hash": "e32c9ae3f88e46e6b0c7c9b646c290e6",
+    "semantic_hash": "e32c9ae3f88e46e6b0c7c9b646c290e6"
+  },
+  "D:\\projects\\intentiq\\components\\lists\\list-card.tsx": {
+    "mtime": 1779555242.1947775,
+    "ast_hash": "695d73219a10a42526f729e1a80b8923",
+    "semantic_hash": "695d73219a10a42526f729e1a80b8923"
+  },
+  "D:\\projects\\intentiq\\components\\lists\\list-detail-view.tsx": {
+    "mtime": 1779553055.6410296,
+    "ast_hash": "5f5899bf3dd6c9360cd37f618bfb2d7a",
+    "semantic_hash": "5f5899bf3dd6c9360cd37f618bfb2d7a"
+  },
+  "D:\\projects\\intentiq\\components\\lists\\list-overview.tsx": {
+    "mtime": 1779555269.0522268,
+    "ast_hash": "e3b8ec764565a0510744b893728cdbd2",
+    "semantic_hash": "e3b8ec764565a0510744b893728cdbd2"
+  },
+  "D:\\projects\\intentiq\\components\\score\\reasoning-visuals.tsx": {
+    "mtime": 1778865639.790814,
+    "ast_hash": "775eaa307c769416596e23a01c9c9e4b",
+    "semantic_hash": "775eaa307c769416596e23a01c9c9e4b"
+  },
+  "D:\\projects\\intentiq\\components\\score\\score-result.tsx": {
+    "mtime": 1776353674.5415306,
+    "ast_hash": "f4e1026f6198bdfbbefb5aa91e367ace",
+    "semantic_hash": "f4e1026f6198bdfbbefb5aa91e367ace"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\badge.tsx": {
+    "mtime": 1773559922.7084634,
+    "ast_hash": "b1e3f78487d83ec60d5282638c4f7397",
+    "semantic_hash": "b1e3f78487d83ec60d5282638c4f7397"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\button.tsx": {
+    "mtime": 1773559922.709465,
+    "ast_hash": "d1b446b8ed54edf46887d2c1c4e11dbc",
+    "semantic_hash": "d1b446b8ed54edf46887d2c1c4e11dbc"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\card.tsx": {
+    "mtime": 1773559922.709465,
+    "ast_hash": "91f7f33912af29a92f2b684fc4db2fad",
+    "semantic_hash": "91f7f33912af29a92f2b684fc4db2fad"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\dialog.tsx": {
+    "mtime": 1772759538.7624383,
+    "ast_hash": "bbce23076770bdd97ab2dd516472c75c",
+    "semantic_hash": "bbce23076770bdd97ab2dd516472c75c"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\input.tsx": {
+    "mtime": 1772759538.7624383,
+    "ast_hash": "1bc799ce4f1d0f424aa009ae9b6d9b83",
+    "semantic_hash": "1bc799ce4f1d0f424aa009ae9b6d9b83"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\label.tsx": {
+    "mtime": 1772759538.7624383,
+    "ast_hash": "83a4dee523e5fa680b528a13f6cea20f",
+    "semantic_hash": "83a4dee523e5fa680b528a13f6cea20f"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\progress.tsx": {
+    "mtime": 1772759538.76344,
+    "ast_hash": "a951da12ebef7b8073f5e4f6313e9b3b",
+    "semantic_hash": "a951da12ebef7b8073f5e4f6313e9b3b"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\select.tsx": {
+    "mtime": 1772759538.76344,
+    "ast_hash": "7aefeb7332b8ed62fb379b26e300c46c",
+    "semantic_hash": "7aefeb7332b8ed62fb379b26e300c46c"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\sonner.tsx": {
+    "mtime": 1772759538.76444,
+    "ast_hash": "b7f913557c5305c5642266e62a64f3c4",
+    "semantic_hash": "b7f913557c5305c5642266e62a64f3c4"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\table.tsx": {
+    "mtime": 1772759538.76444,
+    "ast_hash": "9583bc34e7453bd8693e730c10ffac07",
+    "semantic_hash": "9583bc34e7453bd8693e730c10ffac07"
+  },
+  "D:\\projects\\intentiq\\components\\ui\\tabs.tsx": {
+    "mtime": 1772759538.76444,
+    "ast_hash": "17aeb9571d843184ceba8e8f0bdd6f6b",
+    "semantic_hash": "17aeb9571d843184ceba8e8f0bdd6f6b"
+  },
+  "D:\\projects\\intentiq\\components\\watchlist\\watchlist-alert-strip.tsx": {
+    "mtime": 1779656933.8765173,
+    "ast_hash": "7a54980d20e8a468fc28a7a71600e2dc",
+    "semantic_hash": "7a54980d20e8a468fc28a7a71600e2dc"
+  },
+  "D:\\projects\\intentiq\\components\\watchlist\\watchlist-list-tabs.tsx": {
+    "mtime": 1779656935.0257342,
+    "ast_hash": "d9d6ce9abd95731f8915e471702fb093",
+    "semantic_hash": "d9d6ce9abd95731f8915e471702fb093"
+  },
+  "D:\\projects\\intentiq\\components\\watchlist\\watchlist-page-head.tsx": {
+    "mtime": 1779656931.6818724,
+    "ast_hash": "2a54bace29c63759dbad27a1957a00a4",
+    "semantic_hash": "2a54bace29c63759dbad27a1957a00a4"
+  },
+  "D:\\projects\\intentiq\\components\\watchlist\\watchlist-quick-add.tsx": {
+    "mtime": 1779656938.2420278,
+    "ast_hash": "d8d527e160d03b72df5957e999425a09",
+    "semantic_hash": "d8d527e160d03b72df5957e999425a09"
+  },
+  "D:\\projects\\intentiq\\components\\watchlist\\watchlist-table.tsx": {
+    "mtime": 1779657000.3222203,
+    "ast_hash": "0329bdc3de0cfeb9dc4c20eba68c72ba",
+    "semantic_hash": "0329bdc3de0cfeb9dc4c20eba68c72ba"
+  },
+  "D:\\projects\\intentiq\\lib\\apollo.ts": {
+    "mtime": 1775942061.8786545,
+    "ast_hash": "293e29cdc0c0897776a39d44a16f9242",
+    "semantic_hash": "293e29cdc0c0897776a39d44a16f9242"
+  },
+  "D:\\projects\\intentiq\\lib\\autopilot-display.ts": {
+    "mtime": 1779550094.6887326,
+    "ast_hash": "984bd6c050b7cbc29c67ba9a91b4d4db",
+    "semantic_hash": "984bd6c050b7cbc29c67ba9a91b4d4db"
+  },
+  "D:\\projects\\intentiq\\lib\\autopilot.ts": {
+    "mtime": 1775128569.244773,
+    "ast_hash": "4f18740676493e091e52f87c2eac1168",
+    "semantic_hash": "4f18740676493e091e52f87c2eac1168"
+  },
+  "D:\\projects\\intentiq\\lib\\billing-plans.ts": {
+    "mtime": 1779645732.4174433,
+    "ast_hash": "69290a350e3692eb60cc7aadfd78ddbb",
+    "semantic_hash": "69290a350e3692eb60cc7aadfd78ddbb"
+  },
+  "D:\\projects\\intentiq\\lib\\billing-stats.ts": {
+    "mtime": 1779645752.2090096,
+    "ast_hash": "20e8de208a975b9150604e23f8ec4f14",
+    "semantic_hash": "20e8de208a975b9150604e23f8ec4f14"
+  },
+  "D:\\projects\\intentiq\\lib\\copilot.ts": {
+    "mtime": 1779914005.3040645,
+    "ast_hash": "dbd3600f7013201fd143c035a818b0ca",
+    "semantic_hash": "dbd3600f7013201fd143c035a818b0ca"
+  },
+  "D:\\projects\\intentiq\\lib\\csv.ts": {
+    "mtime": 1775128560.2457733,
+    "ast_hash": "b94e23ff52e83765e47d3ae1cfe3e55a",
+    "semantic_hash": "b94e23ff52e83765e47d3ae1cfe3e55a"
+  },
+  "D:\\projects\\intentiq\\lib\\dashboard-search.ts": {
+    "mtime": 1779655929.2089844,
+    "ast_hash": "ec1d7cdeb1d2aaec56f0ede262786024",
+    "semantic_hash": "ec1d7cdeb1d2aaec56f0ede262786024"
+  },
+  "D:\\projects\\intentiq\\lib\\inbox.ts": {
+    "mtime": 1779754885.7417607,
+    "ast_hash": "40f6f6b9c56b65e8fb170c4ee1cb706d",
+    "semantic_hash": "40f6f6b9c56b65e8fb170c4ee1cb706d"
+  },
+  "D:\\projects\\intentiq\\lib\\lists-data.ts": {
+    "mtime": 1779552753.2744277,
+    "ast_hash": "f7e7f65778bc84b9f7982123e7b6ed64",
+    "semantic_hash": "f7e7f65778bc84b9f7982123e7b6ed64"
+  },
+  "D:\\projects\\intentiq\\lib\\lists-display.ts": {
+    "mtime": 1779552740.598426,
+    "ast_hash": "9b69a48c1d42a232e6ced4dd3196995f",
+    "semantic_hash": "9b69a48c1d42a232e6ced4dd3196995f"
+  },
+  "D:\\projects\\intentiq\\lib\\lists-evaluator.ts": {
+    "mtime": 1779552734.9125447,
+    "ast_hash": "710dd0cceed3fc8b9ab6791cd9770bd0",
+    "semantic_hash": "710dd0cceed3fc8b9ab6791cd9770bd0"
+  },
+  "D:\\projects\\intentiq\\lib\\lists-types.ts": {
+    "mtime": 1779552732.4318247,
+    "ast_hash": "1fccc3b6983a23165115e7af4a185dea",
+    "semantic_hash": "1fccc3b6983a23165115e7af4a185dea"
+  },
+  "D:\\projects\\intentiq\\lib\\onboarding-prompt.ts": {
+    "mtime": 1775574589.7398205,
+    "ast_hash": "a066842d347c35fc91b7f4459b5b26f2",
+    "semantic_hash": "a066842d347c35fc91b7f4459b5b26f2"
+  },
+  "D:\\projects\\intentiq\\lib\\pdl.ts": {
+    "mtime": 1774710129.5563536,
+    "ast_hash": "9ade0dd793b9750164fc08231fde7f02",
+    "semantic_hash": "9ade0dd793b9750164fc08231fde7f02"
+  },
+  "D:\\projects\\intentiq\\lib\\person-reasoning.ts": {
+    "mtime": 1779285750.2544065,
+    "ast_hash": "0d6302a581426131de5951b623e8a8dc",
+    "semantic_hash": "0d6302a581426131de5951b623e8a8dc"
+  },
+  "D:\\projects\\intentiq\\lib\\person-score-service.ts": {
+    "mtime": 1774710129.5573535,
+    "ast_hash": "6e4155a28eba737030802237295c31bc",
+    "semantic_hash": "6e4155a28eba737030802237295c31bc"
+  },
+  "D:\\projects\\intentiq\\lib\\person-scorer.ts": {
+    "mtime": 1774710120.5573535,
+    "ast_hash": "4dab44e84435c47f5e2ccdb49f32431a",
+    "semantic_hash": "4dab44e84435c47f5e2ccdb49f32431a"
+  },
+  "D:\\projects\\intentiq\\lib\\pipeline.ts": {
+    "mtime": 1773828302.1950784,
+    "ast_hash": "18604a2a5be0c6da5d07843b7762cd4b",
+    "semantic_hash": "18604a2a5be0c6da5d07843b7762cd4b"
+  },
+  "D:\\projects\\intentiq\\lib\\polar-invoices.ts": {
+    "mtime": 1779645843.7353525,
+    "ast_hash": "f24543ebcc5c64a1e5446dc5b4e9c37a",
+    "semantic_hash": "f24543ebcc5c64a1e5446dc5b4e9c37a"
+  },
+  "D:\\projects\\intentiq\\lib\\polar.ts": {
+    "mtime": 1776160070.4475856,
+    "ast_hash": "90e4c96299dd8e6064cf8dcdcb89f285",
+    "semantic_hash": "90e4c96299dd8e6064cf8dcdcb89f285"
+  },
+  "D:\\projects\\intentiq\\lib\\reasoning.ts": {
+    "mtime": 1779285750.2544065,
+    "ast_hash": "ef238b9eb26005e38820fddd6d67afdd",
+    "semantic_hash": "ef238b9eb26005e38820fddd6d67afdd"
+  },
+  "D:\\projects\\intentiq\\lib\\redis.ts": {
+    "mtime": 1774710120.558354,
+    "ast_hash": "45ccdc96964d4ac03691008c80f03ae6",
+    "semantic_hash": "45ccdc96964d4ac03691008c80f03ae6"
+  },
+  "D:\\projects\\intentiq\\lib\\score-service.ts": {
+    "mtime": 1779754938.1400883,
+    "ast_hash": "48c58ba3df4ed40fc754bce273057afb",
+    "semantic_hash": "48c58ba3df4ed40fc754bce273057afb"
+  },
+  "D:\\projects\\intentiq\\lib\\scorer.ts": {
+    "mtime": 1778859183.6528747,
+    "ast_hash": "c943ebbca9cb9a9dba8388c59671f652",
+    "semantic_hash": "c943ebbca9cb9a9dba8388c59671f652"
+  },
+  "D:\\projects\\intentiq\\lib\\supabase.ts": {
+    "mtime": 1772852580.0588808,
+    "ast_hash": "037371af22439706cfefa4122cfe2de4",
+    "semantic_hash": "037371af22439706cfefa4122cfe2de4"
+  },
+  "D:\\projects\\intentiq\\lib\\types.ts": {
+    "mtime": 1779754896.647218,
+    "ast_hash": "c60382c9b76e9e2ef6573c04319f1967",
+    "semantic_hash": "c60382c9b76e9e2ef6573c04319f1967"
+  },
+  "D:\\projects\\intentiq\\lib\\utils.ts": {
+    "mtime": 1772759538.7789602,
+    "ast_hash": "1d8011eb18769078bf77502b220daa5e",
+    "semantic_hash": "1d8011eb18769078bf77502b220daa5e"
+  },
+  "D:\\projects\\intentiq\\lib\\watchlist-events.ts": {
+    "mtime": 1779657037.972394,
+    "ast_hash": "73e27c2c90fb2b3fded06b16a6077326",
+    "semantic_hash": "73e27c2c90fb2b3fded06b16a6077326"
+  },
+  "D:\\projects\\intentiq\\lib\\watchlist-stats.ts": {
+    "mtime": 1779656986.014493,
+    "ast_hash": "7eb9aab4f9d11865d1973f16a0e9b2aa",
+    "semantic_hash": "7eb9aab4f9d11865d1973f16a0e9b2aa"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\funding.ts": {
+    "mtime": 1772852580.05588,
+    "ast_hash": "9d69aaf2f95fea8b1b4cc9801ee5f9da",
+    "semantic_hash": "9d69aaf2f95fea8b1b4cc9801ee5f9da"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\github.ts": {
+    "mtime": 1778859183.6528747,
+    "ast_hash": "3c2b5ee25669114e29039414493bef92",
+    "semantic_hash": "3c2b5ee25669114e29039414493bef92"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\hiring.ts": {
+    "mtime": 1772852580.0568812,
+    "ast_hash": "59c5d4d67b3e3074041a940c9b3c978b",
+    "semantic_hash": "59c5d4d67b3e3074041a940c9b3c978b"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\mock.ts": {
+    "mtime": 1778865646.2958553,
+    "ast_hash": "ae1c8b68e030f02ea1cc64ed6e8bfeee",
+    "semantic_hash": "ae1c8b68e030f02ea1cc64ed6e8bfeee"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\news.ts": {
+    "mtime": 1772852580.0568812,
+    "ast_hash": "4b0307f258cbe360ec3e457250d13b72",
+    "semantic_hash": "4b0307f258cbe360ec3e457250d13b72"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\technology.ts": {
+    "mtime": 1772852580.0578809,
+    "ast_hash": "209c240295868a3163b14767ec74fee0",
+    "semantic_hash": "209c240295868a3163b14767ec74fee0"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\web.ts": {
+    "mtime": 1772852580.0578809,
+    "ast_hash": "3c297e815fac26c67a242bcca480c2e2",
+    "semantic_hash": "3c297e815fac26c67a242bcca480c2e2"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\person\\career-change.ts": {
+    "mtime": 1774710120.5593545,
+    "ast_hash": "fbd49b22ffc6a85a2bb05ca95434ddbc",
+    "semantic_hash": "fbd49b22ffc6a85a2bb05ca95434ddbc"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\person\\company-intent.ts": {
+    "mtime": 1774710129.5593553,
+    "ast_hash": "7a87b392b5594d8a63688530689c2ed7",
+    "semantic_hash": "7a87b392b5594d8a63688530689c2ed7"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\person\\mock.ts": {
+    "mtime": 1774710120.5603552,
+    "ast_hash": "871b1c780c2924b51f2ba66947af5bfb",
+    "semantic_hash": "871b1c780c2924b51f2ba66947af5bfb"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\person\\news-mentions.ts": {
+    "mtime": 1774710129.5603552,
+    "ast_hash": "e34a0b4475865b5f6542072d41e38f40",
+    "semantic_hash": "e34a0b4475865b5f6542072d41e38f40"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\person\\seniority-fit.ts": {
+    "mtime": 1774710120.5613568,
+    "ast_hash": "87e9d482d564028a4341ac0e0818f868",
+    "semantic_hash": "87e9d482d564028a4341ac0e0818f868"
+  },
+  "D:\\projects\\intentiq\\lib\\signals\\person\\social-presence.ts": {
+    "mtime": 1774710120.5613568,
+    "ast_hash": "09d582be617b8dd5b0150ab3f3aae79b",
+    "semantic_hash": "09d582be617b8dd5b0150ab3f3aae79b"
+  },
+  "D:\\projects\\intentiq\\app\\icon.svg": {
+    "mtime": 1775661010.0151825,
+    "ast_hash": "21c7d2f6b5ae89ac9fac7770d6e894db",
+    "semantic_hash": "21c7d2f6b5ae89ac9fac7770d6e894db"
+  }
+}

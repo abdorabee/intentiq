@@ -9,7 +9,7 @@ const COLS: { title: string; links: FooterLink[] }[] = [
   },
   {
     title: "Developers",
-    links: ["API reference", "Webhooks", "SDKs", "Status", "Integrations"],
+    links: [{ label: "API reference", href: "/docs" }, "Webhooks", "SDKs", "Status", "Integrations"],
   },
   {
     title: "Company",
