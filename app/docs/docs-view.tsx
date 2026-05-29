@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import LandingFooter from "@/components/landing/LandingFooter";
 
 /* ─── Design tokens ──────────────────────────────────────────── */
 const T = {
@@ -910,7 +909,50 @@ export default function DocsView() {
         </main>
       </div>
 
-      <LandingFooter />
+      {/* ── Site footer ── */}
+      <footer style={{ background: T.bgEl, borderTop: `1px solid ${T.borderSubtle}` }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 24px 32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4, 1fr)", gap: "40px", marginBottom: "40px" }}>
+            {/* Brand */}
+            <div>
+              <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+                <span style={{ display: "flex", height: "32px", width: "32px", alignItems: "center", justifyContent: "center", borderRadius: "8px", background: T.accent, fontSize: "12px", fontWeight: 700, color: "#fff" }}>IQ</span>
+                <span style={{ fontWeight: 600, color: T.txt }}>IntentIQ</span>
+              </Link>
+              <p style={{ marginTop: "16px", maxWidth: "200px", fontSize: "14px", lineHeight: 1.6, color: T.txtTert }}>
+                B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the train.
+              </p>
+            </div>
+            {/* Link columns */}
+            {([
+              { title: "Product",    links: [["Score","#"],["Intent Hub","#"],["Autopilot","#"],["People scoring","#"],["Watchlist","#"],["Changelog","#"]] },
+              { title: "Developers", links: [["API reference","/docs"],["Webhooks","#"],["SDKs","#"],["Status","#"],["Integrations","#"]] },
+              { title: "Company",    links: [["About","#"],["Customers","#"],["Pricing","#"],["Careers","#"],["Blog","#"],["Contact","/contact"]] },
+              { title: "Legal",      links: [["Terms","/terms"],["Privacy","/privacy"],["DPA","/legal/dpa"],["Security","/legal/security"]] },
+            ] as { title: string; links: [string, string][] }[]).map(col => (
+              <div key={col.title}>
+                <h4 style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: T.txt, marginBottom: "12px" }}>{col.title}</h4>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {col.links.map(([label, href]) => (
+                    <li key={label}>
+                      <Link href={href} style={{ fontSize: "13px", color: T.txtTert, textDecoration: "none" }}>{label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {/* Bottom bar */}
+          <div style={{ borderTop: `1px solid ${T.borderSubtle}`, paddingTop: "24px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "12px", color: T.txtQ }}>
+            <span>© {new Date().getFullYear()} IntentIQ Labs, Inc. All rights reserved.</span>
+            <div style={{ display: "flex", gap: "24px" }}>
+              <Link href="/login"  style={{ color: T.txtQ, textDecoration: "none" }}>Sign in</Link>
+              <Link href="/signup" style={{ color: T.txtQ, textDecoration: "none" }}>Sign up</Link>
+              <Link href="/docs"   style={{ color: T.txtQ, textDecoration: "none" }}>Docs</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
