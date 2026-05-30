@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Score · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="intentiq.css">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Score page — domain prompt + result + competitive analysis
+   ───────────────────────────────────────────────────────────── */
+
+/* State toggle (demo) */
+.state-toggle {
+  position: fixed;
+  top: 56px; right: 24px;
+  z-index: 50;
+  display: inline-flex;
+  background: rgba(8,9,10,0.92);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px;
+  backdrop-filter: blur(10px);
+}
+.state-toggle .st {
+  padding: 4px 10px;
+  font-size: 11px; color: var(--text-tertiary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.state-toggle .st.active {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-primary);
+}
+
+/* ─── Prompt holder (empty state) ─── */
+.prompt-stage {
+  position: relative;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 32px;
+  overflow: hidden;
+}
+.prompt-bg {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.prompt-bg::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px; height: 500px;
+  background:
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(94,106,210,0.22), transparent 60%),
+    radial-gradient(ellipse 40% 70% at 20% 30%, rgba(78,201,216,0.18), transparent 70%),
+    radial-gradient(ellipse 35% 55% at 80% 70%, rgba(245,181,68,0.10), transparent 70%);
+  filter: blur(40px);
+}
+.prompt-bg .grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, #000 30%, transparent 80%);
+}
+
+.prompt-inner {
+  position: relative; z-index: 2;
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+}
+.prompt-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 5px 5px 5px 12px;
+  font-size: 12px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  letter-spacing: -0.006em;
+  margin-bottom: 22px;
+}
+.prompt-eyebrow .badge {
+  font-size: 10px; font-weight: 600;
+  background: rgba(94,106,210,0.15);
+  color: #c9c4ff;
+  padding: 1px 7px; border-radius: 999px;
+  border: 1px solid rgba(94,106,210,0.25);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.prompt-h1 {
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.038em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  text-wrap: balance;
+  margin-bottom: 14px;
+}
+.prompt-h1 .grad {
+  background: linear-gradient(110deg, #ffffff 0%, #d9d6ff 50%, #7170ff 75%, #4ec9d8 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.prompt-sub {
+  font-size: 15px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin: 0 auto 32px;
+  max-width: 520px;
+  line-height: 1.55;
+}
+
+/* The prompt holder itself */
+.prompt-holder {
+  background: rgba(14,16,17,0.85);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(94,106,210,0.18),
+    0 24px 48px -16px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: box-shadow 0.2s;
+}
+.prompt-holder:focus-within {
+  border-color: rgba(94,106,210,0.5);
+  box-shadow:
+    0 0 0 1px rgba(94,106,210,0.4),
+    0 0 0 4px rgba(94,106,210,0.08),
+    0 24px 48px -16px rgba(0,0,0,0.6);
+}
+.prompt-prefix {
+  display: grid; place-items: center;
+  width: 22px; height: 22px;
+  margin-left: 8px;
+  color: var(--text-tertiary);
+}
+.prompt-input {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--text-primary);
+  width: 100%;
+  letter-spacing: -0.006em;
+  padding: 8px 0;
+  caret-color: var(--accent-2);
+}
+.prompt-input::placeholder { color: var(--text-quaternary); }
+.prompt-mode {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-secondary);
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.prompt-mode:hover { background: rgba(255,255,255,0.07); }
+.prompt-mode .ic { width: 12px; height: 12px; opacity: 0.85; }
+.prompt-mode .chev { width: 10px; height: 10px; color: var(--text-tertiary); }
+
+.prompt-go {
+  padding: 6px 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px; font-weight: 500;
+  border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+  letter-spacing: -0.006em;
+}
+.prompt-go:hover { background: var(--accent-2); }
+.prompt-go .kbd-inline {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 0 4px; border-radius: 3px;
+  background: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85);
+}
+
+.prompt-meta {
+  margin-top: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  padding: 0 4px;
+}
+.prompt-meta .left { display: inline-flex; gap: 12px; }
+.prompt-meta .right { display: inline-flex; gap: 14px; }
+.prompt-meta strong { color: var(--text-tertiary); font-weight: 500; }
+
+/* Suggestions */
+.prompt-section-label {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 500;
+  margin: 32px 0 10px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono);
+}
+.prompt-section-label .line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.suggestion-row {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.sugg {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px 6px 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.sugg:hover { background: rgba(255,255,255,0.06); border-color: var(--border-strong); color: var(--text-primary); }
+.sugg .av {
+  width: 16px; height: 16px; border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.sugg .mono-sm {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.recent-row {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.recent {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px 5px 7px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.recent:hover { color: var(--text-primary); border-color: var(--border); }
+.recent .av {
+  width: 14px; height: 14px; border-radius: 3px;
+  display: grid; place-items: center;
+  font-size: 8px; font-weight: 700; color: #0a0b0f;
+}
+.recent .score-mini {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-left: 4px;
+  padding: 0 5px; border-radius: 999px;
+  font-size: 10px; font-weight: 600;
+}
+
+/* Footer pills under prompt */
+.prompt-feature-row {
+  display: flex; gap: 14px;
+  margin-top: 36px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.prompt-feature-row .feat {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.prompt-feature-row .feat .ic {
+  width: 14px; height: 14px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Result state (scrollable column)
+   ───────────────────────────────────────────────────────────── */
+.result-page {
+  flex: 1; overflow-y: auto;
+  padding: 18px 28px 60px;
+}
+
+/* Live progress bar */
+.live-progress {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px;
+  background: rgba(94,106,210,0.05);
+  border: 1px solid rgba(94,106,210,0.2);
+  border-radius: var(--r-md);
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.live-progress .pulse {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--accent-2);
+  box-shadow: 0 0 8px var(--accent-2);
+  animation: pulse-glow 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.live-progress .steps {
+  display: flex; gap: 10px;
+  flex: 1; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 11px;
+}
+.live-progress .step {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+.live-progress .step.done { color: var(--hot); }
+.live-progress .step.active { color: var(--accent-2); }
+.live-progress .step.pending { color: var(--text-quaternary); }
+.live-progress .step .check {
+  width: 12px; height: 12px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+}
+.live-progress .step.done .check { background: var(--hot-bg); color: var(--hot); }
+.live-progress .step.active .check { background: rgba(94,106,210,0.15); color: var(--accent-2); }
+.live-progress .step.pending .check {
+  background: rgba(255,255,255,0.04);
+  border: 1px dashed var(--border-strong);
+  color: transparent;
+}
+.live-progress .timing {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary);
+  letter-spacing: 0.04em;
+}
+
+/* Result account head */
+.result-head {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.result-avatar {
+  width: 48px; height: 48px; border-radius: 10px;
+  display: grid; place-items: center;
+  font-size: 18px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.result-title-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px;
+}
+.result-title {
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.024em; line-height: 1.2;
+  color: var(--text-primary);
+}
+.result-id {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.result-meta {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.result-meta .dot {
+  width: 3px; height: 3px; border-radius: 999px;
+  background: var(--text-quaternary);
+}
+.result-actions { margin-left: auto; display: flex; gap: 6px; }
+
+/* Score + thesis block (compact) */
+.overview-block {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: 22px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.overview-block::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(74,222,128,0.08), transparent 60%);
+  pointer-events: none;
+}
+.score-ring {
+  position: relative;
+  width: 200px; height: 200px;
+}
+.score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.score-ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring-band {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px;
+  background: var(--hot-bg); border: 1px solid var(--hot-border);
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  color: var(--hot); font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.score-ring-band .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.score-ring-num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 60px; letter-spacing: -0.04em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.score-ring-of {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px; letter-spacing: 0.04em;
+}
+.score-ring-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 4px;
+  font-size: 12px; font-family: var(--font-mono);
+  color: var(--hot);
+}
+
+.thesis-block { min-width: 0; }
+.thesis-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.thesis-head .ic {
+  width: 16px; height: 16px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+  flex-shrink: 0;
+}
+.thesis-text {
+  font-size: 15px; line-height: 1.55;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  margin-bottom: 12px;
+}
+.thesis-text strong {
+  font-weight: 500;
+  background: linear-gradient(180deg, transparent 60%, rgba(94,106,210,0.18) 60%);
+}
+.thesis-meta {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono); letter-spacing: 0.04em;
+}
+.thesis-meta .dot { width: 2px; height: 2px; border-radius: 999px; background: var(--text-quaternary); }
+
+/* Signal grid */
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin: 28px 0 12px;
+}
+.section-label .line { flex: 1; height: 1px; background: var(--border-subtle); }
+.section-label .ic { width: 5px; height: 5px; border-radius: 999px; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.section-label strong { color: var(--text-primary); font-weight: 500; }
+
+.signal-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 8px; margin-bottom: 20px;
+}
+.signal-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.signal-card .name {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600; margin-bottom: 10px;
+}
+.signal-card .name .swatch { width: 8px; height: 8px; border-radius: 999px; }
+.signal-card .num {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 26px; letter-spacing: -0.035em;
+  color: var(--text-primary); line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
+}
+.signal-card .delta {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot); margin-bottom: 8px;
+}
+.signal-card .bar {
+  height: 3px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.signal-card .bar .fill { height: 100%; border-radius: 999px; }
+
+/* ─────────────────────────────────────────────────────────────
+   Competitive analysis
+   ───────────────────────────────────────────────────────────── */
+.ca-block {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.ca-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.ca-head .title {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.ca-head .sub {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: -0.006em;
+}
+.ca-head .actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+/* Competitor chips */
+.ca-chips {
+  display: flex; gap: 6px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ca-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  cursor: pointer;
+}
+.ca-chip.you {
+  border-color: rgba(94,106,210,0.4);
+  background: rgba(94,106,210,0.08);
+  color: var(--text-primary);
+}
+.ca-chip:hover { background: rgba(255,255,255,0.05); }
+.ca-chip .av {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.ca-chip .x {
+  width: 10px; height: 10px;
+  color: var(--text-tertiary);
+  margin-left: 2px;
+}
+.ca-chip .you-tag {
+  font-family: var(--font-mono); font-size: 9px;
+  padding: 0 4px; border-radius: 3px;
+  background: rgba(94,106,210,0.2);
+  color: #c9c4ff;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.ca-add {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px; color: var(--text-tertiary);
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.ca-add:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+
+/* Comparison table */
+.ca-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ca-table thead th {
+  font-size: 11px; font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+.ca-table thead th.you {
+  background: rgba(94,106,210,0.06);
+  color: #c9c4ff;
+}
+.ca-table thead th .co-head {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-sans); font-weight: 500;
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  text-transform: none;
+}
+.ca-table thead th .co-head .av {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.ca-table thead th .co-head .you-tag {
+  margin-left: 4px;
+  font-family: var(--font-mono); font-size: 9px;
+  padding: 0 5px; border-radius: 3px;
+  background: rgba(94,106,210,0.2);
+  color: #c9c4ff;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.ca-table tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  vertical-align: middle;
+}
+.ca-table tbody td.you-col {
+  background: rgba(94,106,210,0.04);
+}
+.ca-table tbody tr:hover td:not(.row-label) { background: rgba(255,255,255,0.015); }
+.ca-table tbody tr:hover td.you-col { background: rgba(94,106,210,0.07); }
+.ca-table .row-label {
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  width: 200px;
+}
+.ca-table .row-label .sub {
+  font-size: 11px; font-weight: 400;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  letter-spacing: -0.006em;
+}
+.ca-table tbody tr:last-child td { border-bottom: none; }
+
+/* Score cell */
+.ca-score-cell {
+  display: flex; align-items: center; gap: 10px;
+}
+.ca-score-cell .num {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 15px; letter-spacing: -0.022em;
+  font-variant-numeric: tabular-nums;
+  min-width: 26px;
+}
+.ca-score-cell .num.hot { color: var(--hot); }
+.ca-score-cell .num.warm { color: var(--warm); }
+.ca-score-cell .num.cold { color: var(--cold); }
+.ca-score-cell .bar {
+  flex: 1; height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  max-width: 80px;
+}
+.ca-score-cell .bar .fill { height: 100%; border-radius: 999px; }
+
+/* Yes / No */
+.ca-yes {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--hot); font-weight: 600;
+}
+.ca-yes .ic {
+  width: 14px; height: 14px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: var(--hot-bg);
+  border: 1px solid var(--hot-border);
+}
+.ca-no {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary); font-weight: 500;
+}
+.ca-no .ic {
+  width: 14px; height: 14px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+}
+
+/* Mini sparkline */
+.ca-spark {
+  display: flex; align-items: end; gap: 1px;
+  height: 18px;
+  width: 64px;
+}
+.ca-spark .b {
+  flex: 1; min-width: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 1px;
+}
+.ca-spark .b.up { background: var(--hot); }
+.ca-spark .b.warm { background: var(--warm); }
+.ca-spark .b.cold { background: var(--cold); }
+
+/* Delta cell */
+.ca-delta {
+  font-family: var(--font-mono); font-size: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.ca-delta.up { color: var(--hot); }
+.ca-delta.down { color: var(--red); }
+.ca-delta.flat { color: var(--text-tertiary); }
+
+/* ─── Peer picker: how the user chooses competitors ─── */
+.ca-source-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px;
+  background: rgba(94,106,210,0.04);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.ca-source-bar .ic {
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.ca-source-bar .ic::after {
+  content: '';
+  width: 7px; height: 7px; border-radius: 999px;
+  background: linear-gradient(135deg, #ffffff, #d9d6ff);
+}
+.ca-source-bar .body { flex: 1; min-width: 0; }
+.ca-source-bar .body strong { color: var(--text-primary); font-weight: 500; }
+.ca-source-bar .mode-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 2px;
+  flex-shrink: 0;
+}
+.ca-source-bar .mode-toggle .mt {
+  padding: 3px 9px;
+  font-size: 11px; color: var(--text-tertiary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ca-source-bar .mode-toggle .mt.active {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-primary);
+}
+.ca-source-bar .why {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-decoration: underline;
+  text-decoration-color: var(--border-subtle);
+  cursor: pointer;
+  letter-spacing: -0.006em;
+}
+.ca-source-bar .why:hover { color: var(--text-primary); }
+
+/* Picker popover */
+.ca-add-wrap { position: relative; display: inline-block; }
+.ca-add { user-select: none; }
+
+.picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  box-shadow: 0 24px 56px -16px rgba(0,0,0,0.6), 0 0 0 1px rgba(94,106,210,0.18);
+  z-index: 30;
+  overflow: hidden;
+  display: none;
+  animation: pop-in 0.16s ease-out;
+}
+.picker.open { display: block; }
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.picker-search {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.012);
+}
+.picker-search .ic {
+  width: 14px; height: 14px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.picker-search input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+  background: transparent;
+  border: none; outline: none;
+}
+.picker-search input::placeholder { color: var(--text-quaternary); }
+.picker-search .esc {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+}
+
+.picker-section {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.picker-section:last-child { border-bottom: none; }
+.picker-section .head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 14px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+}
+.picker-section .head .ai-dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+  box-shadow: 0 0 4px rgba(94,106,210,0.6);
+}
+.picker-section .head .count {
+  margin-left: auto;
+  color: var(--text-quaternary);
+}
+
+.picker-row {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  gap: 10px;
+  padding: 8px 14px;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.picker-row:hover { background: rgba(94,106,210,0.08); }
+.picker-row .av {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.picker-row .body { min-width: 0; }
+.picker-row .name-row {
+  display: flex; align-items: baseline; gap: 8px;
+}
+.picker-row .name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.picker-row .domain {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+}
+.picker-row .reason {
+  font-size: 11px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.picker-row .score-mini {
+  font-family: var(--font-mono); font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.picker-row .score-mini.hot { background: var(--hot-bg); color: var(--hot); }
+.picker-row .score-mini.warm { background: var(--warm-bg); color: var(--warm); }
+.picker-row .score-mini.cold { background: var(--cold-bg); color: var(--cold); }
+.picker-row .add-tick {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-tertiary);
+  transition: all 0.12s;
+}
+.picker-row:hover .add-tick {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.picker-row.picked .add-tick {
+  background: var(--hot-bg);
+  color: var(--hot);
+  border-color: var(--hot-border);
+}
+.picker-row.picked { opacity: 0.55; pointer-events: none; }
+
+.picker-foot {
+  padding: 8px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--text-tertiary);
+  background: rgba(255,255,255,0.012);
+  border-top: 1px solid var(--border);
+}
+.picker-foot .left {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.picker-foot .left strong { color: var(--text-primary); font-weight: 500; }
+.picker-foot .done-btn {
+  padding: 4px 10px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--r-sm);
+  border: none;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+.picker-foot .done-btn:hover { background: var(--accent-2); }
+
+.picker-empty {
+  padding: 24px 18px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.picker-empty .add-domain {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px;
+  padding: 5px 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-sm);
+  background: rgba(94,106,210,0.08);
+  color: #c9c4ff;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.picker-empty .add-domain:hover { background: rgba(94,106,210,0.15); }
+
+/* Verdict footer */
+.ca-verdict {
+  padding: 16px 18px;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(94,106,210,0.04), transparent);
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.ca-verdict .ai-dot {
+  width: 14px; height: 14px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+  margin-top: 3px;
+}
+.ca-verdict .text {
+  font-size: 13px; line-height: 1.55;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+  text-wrap: pretty;
+}
+.ca-verdict .text strong {
+  font-weight: 500;
+  background: linear-gradient(180deg, transparent 60%, rgba(94,106,210,0.18) 60%);
+}
+.ca-verdict .text .label {
+  font-size: 10px; color: #c9c4ff;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  display: block;
+}
+.ca-verdict .verdict-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* Signal radar */
+.ca-radar-block {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.ca-radar-wrap {
+  padding: 18px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+}
+.ca-radar-svg { width: 240px; height: 240px; }
+
+.ca-radar-legend {
+  padding: 18px 20px;
+  display: flex; flex-direction: column;
+  gap: 8px;
+}
+.ca-legend-row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  letter-spacing: -0.006em;
+}
+.ca-legend-row .swatch {
+  width: 12px; height: 12px; border-radius: 3px;
+}
+.ca-legend-row .name {
+  display: flex; align-items: center; gap: 8px;
+}
+.ca-legend-row .name .co-av {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+}
+.ca-legend-row .name .label {
+  color: var(--text-primary); font-weight: 500;
+}
+.ca-legend-row .name .you-tag {
+  font-family: var(--font-mono); font-size: 9px;
+  padding: 0 5px; border-radius: 3px;
+  background: rgba(94,106,210,0.2);
+  color: #c9c4ff;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.ca-legend-row .avg {
+  font-family: var(--font-mono); font-weight: 600;
+  color: var(--text-primary);
+  font-size: 13px;
+  letter-spacing: -0.011em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Strengths/gaps two-col under radar */
+.sg-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+  width: 100%;
+}
+.sg-col {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.sg-col .head {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+}
+.sg-col.win .head { color: var(--hot); }
+.sg-col.gap .head { color: var(--warm); }
+.sg-col .list {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  letter-spacing: -0.006em;
+}
+.sg-col .list .it {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 6px;
+  align-items: baseline;
+}
+.sg-col.win .list .it::before {
+  content: '▲';
+  color: var(--hot);
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+.sg-col.gap .list .it::before {
+  content: '▼';
+  color: var(--warm);
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+.sg-col .list .it span { display: block; }
+.sg-col .list .it strong {
+  color: var(--text-primary); font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">Acme Sales<span class="role">Workspace · Growth</span></div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span><span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-item" href="IntentIQ Dashboard.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>Dashboard</a>
+    <a class="sb-item" href="IntentIQ Intent Hub.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>Intent Hub<span class="count hot">●12</span></a>
+    <a class="sb-item active" href="IntentIQ Score.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>Score</a>
+    <a class="sb-item" href="IntentIQ Pipeline.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>Pipeline</a>
+    <a class="sb-item" href="IntentIQ People.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>People</a>
+    <a class="sb-item" href="IntentIQ Watchlist.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>Watchlist<span class="count">24</span></a>
+    <a class="sb-item" href="IntentIQ Autopilot.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>Autopilot<span class="indicator"></span></a>
+    <a class="sb-item" href="IntentIQ Inbox.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>Inbox<span class="count">12</span></a>
+    <div class="sb-spacer"></div>
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row"><div><span class="val">1,548</span><span class="of"> / 2,500</span></div><a class="topup">Top up</a></div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info"><div class="name">Dahlia Marwan</div><div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0662676e6a6f674667656b6375676a6375286f69">[email&#160;protected]</a></div></div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>
+        <span>Workspace</span><span class="sep">/</span>
+        <span class="current">Score</span>
+      </div>
+      <div class="spacer"></div>
+      <button class="tb-btn"><svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>Search<span class="kbd">⌘K</span></button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- State toggle (demo) -->
+    <div class="state-toggle">
+      <span class="st" data-state="empty">Empty</span>
+      <span class="st active" data-state="result">Result</span>
+    </div>
+
+    <!-- ─── EMPTY STATE / Prompt ─── -->
+    <div class="prompt-stage" id="state-empty" style="display:none;">
+      <div class="prompt-bg">
+        <div class="grid"></div>
+      </div>
+
+      <div class="prompt-inner">
+        <div class="prompt-eyebrow">
+          <span class="badge">Score</span>
+          <span>Drop in a domain — we'll do the rest in &lt; 3 seconds</span>
+        </div>
+        <h1 class="prompt-h1">
+          What account do you want to <span class="grad">score</span>?
+        </h1>
+        <p class="prompt-sub">
+          Paste any company domain. IntentIQ scans funding, hiring, news, tech stack, and web presence — then returns a 0–100 buying-intent score with AI reasoning and competitive context.
+        </p>
+
+        <!-- The prompt holder -->
+        <div class="prompt-holder">
+          <div class="prompt-prefix">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="7" cy="7" r="5"/><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10"/></svg>
+          </div>
+          <input class="prompt-input" type="text" placeholder="stripe.com" value="">
+          <div class="prompt-mode">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z"/></svg>
+            Full scan
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+          </div>
+          <div class="prompt-go">
+            Score
+            <span class="kbd-inline">↵</span>
+          </div>
+        </div>
+
+        <div class="prompt-meta">
+          <div class="left">
+            <span><strong>1</strong> credit · refunded if no signals found</span>
+            <span>Cached for <strong>6h</strong></span>
+          </div>
+          <div class="right">
+            <span><strong>&lt; 3s</strong> typical</span>
+            <span><strong>14</strong> sources</span>
+          </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="prompt-section-label">
+          <span>Try a hot pick</span>
+          <span class="line"></span>
+        </div>
+        <div class="suggestion-row">
+          <div class="sugg"><div class="av av-1">S</div>stripe.com<span class="mono-sm">▲ funding</span></div>
+          <div class="sugg"><div class="av av-2">A</div>anthropic.com<span class="mono-sm">▲ news</span></div>
+          <div class="sugg"><div class="av av-4">L</div>linear.app<span class="mono-sm">▲ hiring</span></div>
+          <div class="sugg"><div class="av av-3">N</div>notion.so<span class="mono-sm">▲ traffic</span></div>
+          <div class="sugg"><div class="av av-6">D</div>databricks.com<span class="mono-sm">▲ tech</span></div>
+        </div>
+
+        <!-- Recent -->
+        <div class="prompt-section-label">
+          <span>Recent</span>
+          <span class="line"></span>
+        </div>
+        <div class="recent-row">
+          <div class="recent"><div class="av av-7">V</div>vercel.com<span class="score-mini" style="background:var(--warm-bg);color:var(--warm);">67</span></div>
+          <div class="recent"><div class="av av-8">F</div>figma.com<span class="score-mini" style="background:var(--warm-bg);color:var(--warm);">71</span></div>
+          <div class="recent"><div class="av av-5">M</div>mixpanel.com<span class="score-mini" style="background:var(--cold-bg);color:var(--cold);">38</span></div>
+          <div class="recent"><div class="av av-9">P</div>plaid.com<span class="score-mini" style="background:var(--hot-bg);color:var(--hot);">91</span></div>
+        </div>
+
+        <!-- Feature pills -->
+        <div class="prompt-feature-row">
+          <div class="feat">
+            <span class="ic" style="background:rgba(78,201,216,0.12);color:var(--cyan);">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M2 8l3-3 2 2 3-4"/></svg>
+            </span>
+            5 signal axes
+          </div>
+          <div class="feat">
+            <span class="ic" style="background:rgba(94,106,210,0.12);color:#c9c4ff;">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><circle cx="6" cy="6" r="4"/><path d="M6 4v3l2 1"/></svg>
+            </span>
+            AI thesis from Claude
+          </div>
+          <div class="feat">
+            <span class="ic" style="background:rgba(74,222,128,0.12);color:var(--hot);">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M2 9V5m3 4V3m3 6V6"/></svg>
+            </span>
+            Competitive analysis · 4 peers
+          </div>
+          <div class="feat">
+            <span class="ic" style="background:rgba(245,181,68,0.12);color:var(--warm);">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M3 6l3 3 5-7"/></svg>
+            </span>
+            Recommended next action
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── RESULT STATE ─── -->
+    <div class="result-page" id="state-result">
+
+      <!-- Live progress (just completed) -->
+      <div class="live-progress">
+        <span class="pulse"></span>
+        <div class="steps">
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Domain resolved</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Funding signal</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Hiring + news</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Tech + web</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Competitive context</span>
+          <span class="step done"><span class="check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>AI thesis</span>
+        </div>
+        <span class="timing">2.41s · 1 credit</span>
+      </div>
+
+      <!-- Mini prompt re-runner -->
+      <div class="prompt-holder" style="margin-bottom:18px;">
+        <div class="prompt-prefix">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="7" cy="7" r="5"/><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10"/></svg>
+        </div>
+        <input class="prompt-input" type="text" value="stripe.com" style="font-size: 14px;">
+        <div class="prompt-mode">
+          <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z"/></svg>
+          Full scan
+          <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+        </div>
+        <div class="prompt-go">
+          Re-score
+        </div>
+      </div>
+
+      <!-- Account head -->
+      <div class="result-head">
+        <div class="result-avatar av-1">S</div>
+        <div style="flex:1;min-width:0;">
+          <div class="result-title-row">
+            <span class="result-id">IQ-2046</span>
+            <span class="band band-hot"><span class="dot"></span>HOT</span>
+            <span class="band band-blue"><span class="dot"></span>Auto-routed</span>
+            <span class="result-title">Stripe</span>
+          </div>
+          <div class="result-meta">
+            <span style="color:var(--text-secondary);">stripe.com</span>
+            <span class="dot"></span>
+            <span>Payments · Fintech</span>
+            <span class="dot"></span>
+            <span>8,400 employees</span>
+            <span class="dot"></span>
+            <span>San Francisco, US</span>
+            <span class="dot"></span>
+            <span>Founded 2010</span>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="tb-btn outlined">Save to list</button>
+          <button class="tb-btn outlined">Subscribe</button>
+          <button class="btn-primary" style="height:30px;padding:0 12px;">Open account →</button>
+        </div>
+      </div>
+
+      <!-- Score + AI thesis -->
+      <div class="overview-block">
+        <div class="score-ring">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="scoreGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4ade80"/>
+                <stop offset="55%" stop-color="#4ec9d8"/>
+                <stop offset="100%" stop-color="#7170ff"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.05)" stroke-width="6" fill="none"/>
+            <circle cx="50" cy="50" r="42" stroke="url(#scoreGrad)" stroke-width="6" fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="263.9"
+              stroke-dashoffset="15.8"/>
+          </svg>
+          <div class="score-ring-center">
+            <span class="score-ring-band"><span class="dot"></span>HOT</span>
+            <div class="score-ring-num">94</div>
+            <div class="score-ring-of">/ 100</div>
+            <div class="score-ring-delta">▲ 12 vs 7d</div>
+          </div>
+        </div>
+
+        <div class="thesis-block">
+          <div class="thesis-head">
+            <span class="ic"></span>
+            AI thesis · Claude
+          </div>
+          <div class="thesis-text">
+            Stripe is showing all five intent axes lit. The combination of <strong>fresh capital</strong>,
+            <strong>aggressive RevOps hiring</strong>, and a <strong>positive news cycle</strong> historically
+            precedes a tooling refresh inside 60–90 days at Stripe's scale.
+          </div>
+          <div class="thesis-meta">
+            <span>Generated just now</span>
+            <span class="dot"></span>
+            <span>Confidence 0.92</span>
+            <span class="dot"></span>
+            <span>14 sources</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signal axes -->
+      <div class="section-label">
+        <span class="ic"></span>
+        <strong>Signal axes</strong>
+        <span style="color:var(--text-tertiary);">· 5 contributing inputs</span>
+        <span class="line"></span>
+      </div>
+
+      <div class="signal-grid">
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#4ec9d8;"></span>Funding</div>
+          <div class="num">96</div>
+          <div class="delta">▲ 24</div>
+          <div class="bar"><div class="fill" style="width:96%;background:linear-gradient(90deg,#4ec9d8,#38a3b3);"></div></div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#4ade80;"></span>Hiring</div>
+          <div class="num">88</div>
+          <div class="delta">▲ 11</div>
+          <div class="bar"><div class="fill" style="width:88%;background:linear-gradient(90deg,#4ade80,#22c55e);"></div></div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#f5b544;"></span>News</div>
+          <div class="num">92</div>
+          <div class="delta">▲ 18</div>
+          <div class="bar"><div class="fill" style="width:92%;background:linear-gradient(90deg,#f5b544,#d49530);"></div></div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#7170ff;"></span>Tech</div>
+          <div class="num">78</div>
+          <div class="delta">▲ 4</div>
+          <div class="bar"><div class="fill" style="width:78%;background:linear-gradient(90deg,#7170ff,#5e6ad2);"></div></div>
+        </div>
+        <div class="signal-card">
+          <div class="name"><span class="swatch" style="background:#ec4899;"></span>Web</div>
+          <div class="num">84</div>
+          <div class="delta">▲ 6</div>
+          <div class="bar"><div class="fill" style="width:84%;background:linear-gradient(90deg,#ec4899,#c0367f);"></div></div>
+        </div>
+      </div>
+
+      <!-- ─── Competitive analysis ─── -->
+      <div class="section-label" style="margin-top: 32px;">
+        <span class="ic" style="background:var(--accent-2);box-shadow:0 0 6px var(--accent-2);"></span>
+        <strong>Competitive analysis</strong>
+        <span style="color:var(--text-tertiary);">· how Stripe stacks against 4 peers in payments + fintech infra</span>
+        <span class="line"></span>
+      </div>
+
+      <!-- Radar block -->
+      <div class="ca-radar-block">
+        <div class="ca-radar-wrap">
+          <svg class="ca-radar-svg" viewBox="-130 -130 260 260">
+            <!-- Concentric pentagons -->
+            <g fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1">
+              <!-- 25, 50, 75, 100 rings — 5 vertices at 90°, 162°, 234°, 306°, 18° -->
+              <polygon points="0,-25 23.78,-7.72 14.70,20.22 -14.70,20.22 -23.78,-7.72"/>
+              <polygon points="0,-50 47.55,-15.45 29.39,40.45 -29.39,40.45 -47.55,-15.45"/>
+              <polygon points="0,-75 71.33,-23.17 44.09,60.67 -44.09,60.67 -71.33,-23.17"/>
+              <polygon points="0,-100 95.11,-30.90 58.78,80.90 -58.78,80.90 -95.11,-30.90"/>
+            </g>
+            <!-- Axis lines -->
+            <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+              <line x1="0" y1="0" x2="0" y2="-100"/>
+              <line x1="0" y1="0" x2="95.11" y2="-30.90"/>
+              <line x1="0" y1="0" x2="58.78" y2="80.90"/>
+              <line x1="0" y1="0" x2="-58.78" y2="80.90"/>
+              <line x1="0" y1="0" x2="-95.11" y2="-30.90"/>
+            </g>
+
+            <!-- Industry avg polygon (cold) -->
+            <polygon points="0,-58 56,-18 36,49 -34,46 -56,-18"
+              fill="rgba(138,143,152,0.15)" stroke="#8a8f98" stroke-width="1.2" stroke-dasharray="2 3"/>
+
+            <!-- Best peer (warm) -->
+            <polygon points="0,-72 67,-21 41,57 -38,52 -62,-20"
+              fill="rgba(245,181,68,0.10)" stroke="#f5b544" stroke-width="1.2"/>
+
+            <!-- Stripe (you) -->
+            <polygon points="0,-92 84,-27 49,68 -56,77 -75,-24"
+              fill="rgba(74,222,128,0.18)" stroke="#4ade80" stroke-width="2"/>
+            <!-- Vertex dots -->
+            <g fill="#4ade80">
+              <circle cx="0" cy="-92" r="3"/>
+              <circle cx="84" cy="-27" r="3"/>
+              <circle cx="49" cy="68" r="3"/>
+              <circle cx="-56" cy="77" r="3"/>
+              <circle cx="-75" cy="-24" r="3"/>
+            </g>
+
+            <!-- Axis labels -->
+            <g font-family="JetBrains Mono" font-size="9" fill="#8a8f98">
+              <text x="0" y="-112" text-anchor="middle">Funding</text>
+              <text x="108" y="-30" text-anchor="start">Hiring</text>
+              <text x="66" y="100" text-anchor="middle">News</text>
+              <text x="-66" y="100" text-anchor="middle">Tech</text>
+              <text x="-108" y="-30" text-anchor="end">Web</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="ca-radar-legend">
+          <div class="ca-legend-row">
+            <span class="swatch" style="background:#4ade80;"></span>
+            <span class="name">
+              <span class="co-av av-1">S</span>
+              <span class="label">Stripe</span>
+              <span class="you-tag">You</span>
+            </span>
+            <span class="avg">87.6</span>
+          </div>
+          <div class="ca-legend-row">
+            <span class="swatch" style="background:#f5b544;"></span>
+            <span class="name">
+              <span class="co-av av-9">P</span>
+              <span class="label">Plaid</span>
+            </span>
+            <span class="avg">72.4</span>
+          </div>
+          <div class="ca-legend-row">
+            <span class="swatch" style="background:#8a8f98;border-style:dashed;border-width:1px;border-color:rgba(255,255,255,0.2);background:transparent;"></span>
+            <span class="name">
+              <span class="label" style="color:var(--text-tertiary);">Peer average</span>
+            </span>
+            <span class="avg" style="color:var(--text-tertiary);">58.0</span>
+          </div>
+
+          <div class="sg-grid">
+            <div class="sg-col win">
+              <div class="head">Where Stripe leads</div>
+              <div class="list">
+                <div class="it"><span><strong>Funding</strong> · 96 vs peer avg 58 · just-raised Series H drives the gap</span></div>
+                <div class="it"><span><strong>News</strong> · 92 vs avg 64 · sustained authority-weighted press cycle</span></div>
+                <div class="it"><span><strong>Hiring velocity</strong> · 88 vs avg 56 · +28 in 30 days outpaces Plaid (+11)</span></div>
+              </div>
+            </div>
+            <div class="sg-col gap">
+              <div class="head">Where peers are catching up</div>
+              <div class="list">
+                <div class="it"><span><strong>Tech adoption</strong> · 78 vs Plaid 81 · Plaid added Looker + dbt this month</span></div>
+                <div class="it"><span><strong>Web traffic</strong> · 84 vs Adyen 88 · Adyen's pricing page traffic up 22%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side-by-side comparison table -->
+      <div class="ca-block">
+        <div class="ca-head">
+          <div>
+            <div class="title">Head-to-head</div>
+            <div class="sub">Side-by-side comparison across signals, firmographics, and buying readiness</div>
+          </div>
+          <div class="actions">
+            <button class="tb-btn outlined">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="8" height="6"/></svg>
+              Export
+            </button>
+            <button class="tb-btn outlined">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h6M6 3v6"/></svg>
+              Re-pick peers
+            </button>
+          </div>
+        </div>
+
+        <!-- How peers are picked -->
+        <div class="ca-source-bar">
+          <div class="ic"></div>
+          <div class="body">
+            <strong>4 peers auto-picked</strong> from <strong>Payments + Fintech infra</strong> · matched on industry, ICP fit, and current intent score range
+            <span class="why" id="why-peers" style="margin-left:8px;">How?</span>
+          </div>
+          <div class="mode-toggle">
+            <span class="mt active" data-mode="auto">Auto</span>
+            <span class="mt" data-mode="manual">Manual</span>
+          </div>
+        </div>
+
+        <!-- Selected competitors -->
+        <div class="ca-chips" id="peer-chips">
+          <span style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-family:var(--font-mono);margin-right:4px;">Comparing:</span>
+          <span class="ca-chip you" data-peer="stripe">
+            <span class="av av-1">S</span>
+            Stripe
+            <span class="you-tag">You</span>
+          </span>
+          <span class="ca-chip" data-peer="plaid">
+            <span class="av av-9">P</span>
+            Plaid
+            <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+          </span>
+          <span class="ca-chip" data-peer="adyen">
+            <span class="av av-3">A</span>
+            Adyen
+            <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+          </span>
+          <span class="ca-chip" data-peer="checkout">
+            <span class="av av-8">C</span>
+            Checkout
+            <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+          </span>
+          <span class="ca-chip" data-peer="brex">
+            <span class="av av-6">B</span>
+            Brex
+            <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+          </span>
+          <div class="ca-add-wrap">
+            <span class="ca-add" id="add-peer-btn">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+              Add competitor
+            </span>
+
+            <!-- Picker popover -->
+            <div class="picker" id="peer-picker">
+              <div class="picker-search">
+                <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3.5"/><path d="M8.5 8.5l3 3"/></svg>
+                <input id="peer-search-input" type="text" placeholder="Add by domain — e.g. revolut.com">
+                <span class="esc">esc</span>
+              </div>
+
+              <div class="picker-section" id="picker-suggested">
+                <div class="head">
+                  <span class="ai-dot"></span>
+                  Suggested by Claude
+                  <span class="count">5 picks</span>
+                </div>
+                <div class="picker-row" data-peer="revolut">
+                  <div class="av av-2">R</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Revolut</span><span class="domain">revolut.com</span></div>
+                    <div class="reason">Same Fintech tier · just shipped business payments</div>
+                  </div>
+                  <span class="score-mini hot">89</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+                <div class="picker-row" data-peer="wise">
+                  <div class="av av-4">W</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Wise</span><span class="domain">wise.com</span></div>
+                    <div class="reason">Cross-border payments · public · steady news cycle</div>
+                  </div>
+                  <span class="score-mini warm">68</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+                <div class="picker-row" data-peer="mollie">
+                  <div class="av av-7">M</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Mollie</span><span class="domain">mollie.com</span></div>
+                    <div class="reason">EU payments · matches your ICP fit on motion</div>
+                  </div>
+                  <span class="score-mini warm">61</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+                <div class="picker-row" data-peer="square">
+                  <div class="av av-5">Sq</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Square (Block)</span><span class="domain">squareup.com</span></div>
+                    <div class="reason">Closest peer by ACV band · score has drifted cold</div>
+                  </div>
+                  <span class="score-mini cold">42</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+                <div class="picker-row" data-peer="ramp">
+                  <div class="av av-10">Ra</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Ramp</span><span class="domain">ramp.com</span></div>
+                    <div class="reason">Adjacent (spend mgmt) · also in your "Just funded" list</div>
+                  </div>
+                  <span class="score-mini hot">84</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+              </div>
+
+              <div class="picker-section" id="picker-recent">
+                <div class="head">
+                  From your workspace
+                  <span class="count">3 recent</span>
+                </div>
+                <div class="picker-row" data-peer="anthropic">
+                  <div class="av av-2">A</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Anthropic</span><span class="domain">anthropic.com</span></div>
+                    <div class="reason">Scored 14m ago · already in Q1 Targets</div>
+                  </div>
+                  <span class="score-mini hot">96</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+                <div class="picker-row" data-peer="linear">
+                  <div class="av av-4">L</div>
+                  <div class="body">
+                    <div class="name-row"><span class="name">Linear</span><span class="domain">linear.app</span></div>
+                    <div class="reason">Scored 9m ago · different industry — may add noise</div>
+                  </div>
+                  <span class="score-mini hot">82</span>
+                  <span class="add-tick">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg>
+                  </span>
+                </div>
+              </div>
+
+              <div class="picker-foot">
+                <div class="left">
+                  <span><strong id="peer-count">4</strong> selected · max 6</span>
+                </div>
+                <button class="done-btn" id="picker-done">Done</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison table -->
+        <table class="ca-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th class="you">
+                <div class="co-head">
+                  <div class="av av-1">S</div>
+                  Stripe
+                  <span class="you-tag">You</span>
+                </div>
+              </th>
+              <th>
+                <div class="co-head">
+                  <div class="av av-9">P</div>
+                  Plaid
+                </div>
+              </th>
+              <th>
+                <div class="co-head">
+                  <div class="av av-3">A</div>
+                  Adyen
+                </div>
+              </th>
+              <th>
+                <div class="co-head">
+                  <div class="av av-8">C</div>
+                  Checkout
+                </div>
+              </th>
+              <th>
+                <div class="co-head">
+                  <div class="av av-6">B</div>
+                  Brex
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label">
+                Intent score
+                <div class="sub">Composite 0–100</div>
+              </td>
+              <td class="you-col">
+                <div class="ca-score-cell"><span class="num hot">94</span><div class="bar"><div class="fill" style="width:94%;background:var(--hot);"></div></div></div>
+              </td>
+              <td>
+                <div class="ca-score-cell"><span class="num hot">91</span><div class="bar"><div class="fill" style="width:91%;background:var(--hot);"></div></div></div>
+              </td>
+              <td>
+                <div class="ca-score-cell"><span class="num warm">72</span><div class="bar"><div class="fill" style="width:72%;background:var(--warm);"></div></div></div>
+              </td>
+              <td>
+                <div class="ca-score-cell"><span class="num warm">58</span><div class="bar"><div class="fill" style="width:58%;background:var(--warm);"></div></div></div>
+              </td>
+              <td>
+                <div class="ca-score-cell"><span class="num cold">44</span><div class="bar"><div class="fill" style="width:44%;background:var(--cold);"></div></div></div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Score trend
+                <div class="sub">Last 7 days</div>
+              </td>
+              <td class="you-col">
+                <div class="ca-spark">
+                  <div class="b" style="height:62%"></div><div class="b" style="height:65%"></div>
+                  <div class="b" style="height:71%"></div><div class="b" style="height:73%"></div>
+                  <div class="b" style="height:78%"></div><div class="b" style="height:82%"></div>
+                  <div class="b up" style="height:94%"></div>
+                </div>
+              </td>
+              <td>
+                <div class="ca-spark">
+                  <div class="b" style="height:78%"></div><div class="b" style="height:82%"></div>
+                  <div class="b" style="height:85%"></div><div class="b" style="height:84%"></div>
+                  <div class="b" style="height:88%"></div><div class="b" style="height:90%"></div>
+                  <div class="b up" style="height:91%"></div>
+                </div>
+              </td>
+              <td>
+                <div class="ca-spark">
+                  <div class="b" style="height:70%"></div><div class="b" style="height:72%"></div>
+                  <div class="b" style="height:69%"></div><div class="b" style="height:71%"></div>
+                  <div class="b" style="height:73%"></div><div class="b" style="height:71%"></div>
+                  <div class="b warm" style="height:72%"></div>
+                </div>
+              </td>
+              <td>
+                <div class="ca-spark">
+                  <div class="b" style="height:55%"></div><div class="b" style="height:58%"></div>
+                  <div class="b" style="height:61%"></div><div class="b" style="height:60%"></div>
+                  <div class="b" style="height:62%"></div><div class="b" style="height:60%"></div>
+                  <div class="b warm" style="height:58%"></div>
+                </div>
+              </td>
+              <td>
+                <div class="ca-spark">
+                  <div class="b" style="height:62%"></div><div class="b" style="height:58%"></div>
+                  <div class="b" style="height:52%"></div><div class="b" style="height:51%"></div>
+                  <div class="b" style="height:48%"></div><div class="b" style="height:46%"></div>
+                  <div class="b cold" style="height:44%"></div>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                7-day delta
+              </td>
+              <td class="you-col"><span class="ca-delta up">▲ 12</span></td>
+              <td><span class="ca-delta up">▲ 3</span></td>
+              <td><span class="ca-delta flat">— 0</span></td>
+              <td><span class="ca-delta flat">— 1</span></td>
+              <td><span class="ca-delta down">▼ 6</span></td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Recent funding
+                <div class="sub">Last 90 days</div>
+              </td>
+              <td class="you-col" style="color:var(--text-primary);">Series H · $6.5B<div style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:2px;">4d ago</div></td>
+              <td>—</td>
+              <td>—</td>
+              <td>Series D ext · $300M<div style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:2px;">62d ago</div></td>
+              <td>Down round flagged<div style="font-size:11px;color:var(--red);font-family:var(--font-mono);margin-top:2px;">38d ago</div></td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Hiring velocity
+                <div class="sub">Net roles · 30d</div>
+              </td>
+              <td class="you-col" style="font-family:var(--font-mono);color:var(--hot);">+28 (+18%)</td>
+              <td style="font-family:var(--font-mono);color:var(--hot);">+11 (+8%)</td>
+              <td style="font-family:var(--font-mono);">+4 (+2%)</td>
+              <td style="font-family:var(--font-mono);">+2 (+1%)</td>
+              <td style="font-family:var(--font-mono);color:var(--red);">−14 (−9%)</td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                News authority
+                <div class="sub">7-day mentions · sentiment</div>
+              </td>
+              <td class="you-col" style="font-family:var(--font-mono);">12 · <span style="color:var(--hot);">+0.74</span></td>
+              <td style="font-family:var(--font-mono);">8 · <span style="color:var(--hot);">+0.61</span></td>
+              <td style="font-family:var(--font-mono);">5 · <span style="color:var(--warm);">+0.18</span></td>
+              <td style="font-family:var(--font-mono);">3 · <span style="color:var(--text-tertiary);">+0.04</span></td>
+              <td style="font-family:var(--font-mono);">7 · <span style="color:var(--red);">−0.32</span></td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Tech: Snowflake
+              </td>
+              <td class="you-col"><span class="ca-yes"><span class="ic"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Detected</span></td>
+              <td><span class="ca-yes"><span class="ic"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Detected</span></td>
+              <td><span class="ca-no"><span class="ic">·</span>Not detected</span></td>
+              <td><span class="ca-yes"><span class="ic"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Detected</span></td>
+              <td><span class="ca-no"><span class="ic">·</span>Not detected</span></td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Tech: Segment
+              </td>
+              <td class="you-col"><span class="ca-yes"><span class="ic"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Detected</span></td>
+              <td><span class="ca-no"><span class="ic">·</span>Not detected</span></td>
+              <td><span class="ca-yes"><span class="ic"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="7" height="7"><path d="M2 5l2 2 4-4"/></svg></span>Detected</span></td>
+              <td><span class="ca-no"><span class="ic">·</span>Not detected</span></td>
+              <td><span class="ca-no"><span class="ic">·</span>Not detected</span></td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Web traffic
+                <div class="sub">Pricing page · MoM</div>
+              </td>
+              <td class="you-col" style="font-family:var(--font-mono);color:var(--hot);">▲ 18%</td>
+              <td style="font-family:var(--font-mono);color:var(--hot);">▲ 11%</td>
+              <td style="font-family:var(--font-mono);color:var(--hot);">▲ 22%</td>
+              <td style="font-family:var(--font-mono);color:var(--text-tertiary);">▲ 3%</td>
+              <td style="font-family:var(--font-mono);color:var(--red);">▼ 8%</td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Best contact
+                <div class="sub">By ICP fit + role</div>
+              </td>
+              <td class="you-col">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                  <span style="width:18px;height:18px;border-radius:999px;background:linear-gradient(135deg,#4ec9d8,#5e6ad2);display:grid;place-items:center;font-size:9px;font-weight:700;color:#0a0b0f;">EM</span>
+                  <span><span style="color:var(--text-primary);font-weight:500;">E. Marwa</span> · VP RevOps</span>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                  <span style="width:18px;height:18px;border-radius:999px;background:linear-gradient(135deg,#c9c4ff,#4ec9d8);display:grid;place-items:center;font-size:9px;font-weight:700;color:#0a0b0f;">TN</span>
+                  <span>T. Nakamura · VP RevOps</span>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                  <span style="width:18px;height:18px;border-radius:999px;background:linear-gradient(135deg,#f5b544,#ec4899);display:grid;place-items:center;font-size:9px;font-weight:700;color:#0a0b0f;">JL</span>
+                  <span>J. Larsen · Dir. Sales Ops</span>
+                </div>
+              </td>
+              <td><span style="font-size:12px;color:var(--text-tertiary);">No champions found</span></td>
+              <td><span style="font-size:12px;color:var(--text-tertiary);">Stale data · re-scan</span></td>
+            </tr>
+
+            <tr>
+              <td class="row-label">
+                Recommended play
+                <div class="sub">If you outreach today</div>
+              </td>
+              <td class="you-col">
+                <span class="pill" style="background:var(--accent-soft);color:#c9c4ff;">RevOps anchor on Series H</span>
+              </td>
+              <td>
+                <span class="pill" style="background:var(--accent-soft);color:#c9c4ff;">Champion warm-intro</span>
+              </td>
+              <td>
+                <span class="pill" style="background:var(--warm-bg);color:var(--warm);">Nurture · Q3 timing</span>
+              </td>
+              <td>
+                <span class="pill" style="background:var(--cold-bg);color:var(--cold);">Hold · no champion</span>
+              </td>
+              <td>
+                <span class="pill" style="background:var(--cold-bg);color:var(--cold);">Hold · negative news</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- AI verdict -->
+        <div class="ca-verdict">
+          <div class="ai-dot"></div>
+          <div class="text">
+            <span class="label">AI verdict · Claude</span>
+            <strong>Stripe is the clearest move</strong> in this cohort. Stripe and Plaid are both HOT, but Stripe's
+            <strong>+12 delta</strong> and fresh Series H create a sharper window than Plaid's flatter trajectory. Adyen is the right account to <strong>nurture for Q3</strong> when their Adyen-One launch press starts. Skip Checkout and Brex this cycle.
+          </div>
+          <div class="verdict-actions">
+            <button class="tb-btn outlined">Save analysis</button>
+            <button class="btn-primary" style="height:30px;padding:0 12px;">Draft Stripe outreach →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Tiny state toggle for demo
+  const toggle = document.querySelector('.state-toggle');
+  const empty = document.getElementById('state-empty');
+  const result = document.getElementById('state-result');
+  toggle.addEventListener('click', (e) => {
+    const t = e.target.closest('.st'); if (!t) return;
+    toggle.querySelectorAll('.st').forEach(s => s.classList.remove('active'));
+    t.classList.add('active');
+    if (t.dataset.state === 'empty') {
+      empty.style.display = 'flex';
+      result.style.display = 'none';
+    } else {
+      empty.style.display = 'none';
+      result.style.display = 'block';
+    }
+  });
+
+  // ─── Peer picker ─────────────────────────────────────────
+  const addBtn = document.getElementById('add-peer-btn');
+  const picker = document.getElementById('peer-picker');
+  const pickerInput = document.getElementById('peer-search-input');
+  const peerCount = document.getElementById('peer-count');
+  const chipsContainer = document.getElementById('peer-chips');
+  const doneBtn = document.getElementById('picker-done');
+  const whyLink = document.getElementById('why-peers');
+  const suggested = document.getElementById('picker-suggested');
+  const recent = document.getElementById('picker-recent');
+
+  // Peer name → avatar class map (for added peers)
+  const PEER_LIB = {
+    revolut:   { name: 'Revolut',        domain: 'revolut.com',  av: 'av-2',  initial: 'R'  },
+    wise:      { name: 'Wise',           domain: 'wise.com',     av: 'av-4',  initial: 'W'  },
+    mollie:    { name: 'Mollie',         domain: 'mollie.com',   av: 'av-7',  initial: 'M'  },
+    square:    { name: 'Square',         domain: 'squareup.com', av: 'av-5',  initial: 'Sq' },
+    ramp:      { name: 'Ramp',           domain: 'ramp.com',     av: 'av-10', initial: 'Ra' },
+    anthropic: { name: 'Anthropic',      domain: 'anthropic.com',av: 'av-2',  initial: 'A'  },
+    linear:    { name: 'Linear',         domain: 'linear.app',   av: 'av-4',  initial: 'L'  },
+  };
+
+  function getPickedPeerSet() {
+    return new Set(
+      [...chipsContainer.querySelectorAll('.ca-chip[data-peer]')]
+        .map(c => c.dataset.peer)
+        .filter(p => p && p !== 'stripe')
+    );
+  }
+
+  function syncPicker() {
+    const picked = getPickedPeerSet();
+    peerCount.textContent = picked.size;
+    document.querySelectorAll('.picker-row').forEach(row => {
+      if (picked.has(row.dataset.peer)) row.classList.add('picked');
+      else row.classList.remove('picked');
+    });
+  }
+
+  function openPicker() {
+    picker.classList.add('open');
+    pickerInput.focus();
+    syncPicker();
+  }
+  function closePicker() {
+    picker.classList.remove('open');
+    pickerInput.value = '';
+    suggested.style.display = '';
+    recent.style.display = '';
+  }
+  addBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (picker.classList.contains('open')) closePicker();
+    else openPicker();
+  });
+  doneBtn.addEventListener('click', closePicker);
+
+  // Click outside to close
+  document.addEventListener('click', (e) => {
+    if (!picker.contains(e.target) && e.target !== addBtn && !addBtn.contains(e.target)) {
+      if (picker.classList.contains('open')) closePicker();
+    }
+  });
+  pickerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closePicker(); return; }
+    if (e.key === 'Enter') {
+      const q = pickerInput.value.trim();
+      if (!q) return;
+      // Treat as new domain
+      const slug = q.toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/[^a-z0-9]/g, '');
+      const fakeName = q.replace(/^https?:\/\//, '').replace(/\.[a-z]+$/, '').split(/[.\/]/)[0];
+      const display = fakeName.charAt(0).toUpperCase() + fakeName.slice(1);
+      addPeerChip({
+        peerKey: slug || 'custom-' + Date.now(),
+        name: display,
+        domain: q,
+        av: 'av-' + (1 + Math.floor(Math.random() * 10)),
+        initial: display.slice(0, 1).toUpperCase()
+      });
+      closePicker();
+    }
+  });
+  // Live filter
+  pickerInput.addEventListener('input', () => {
+    const q = pickerInput.value.trim().toLowerCase();
+    let visibleAny = false;
+    document.querySelectorAll('.picker-row').forEach(row => {
+      const t = row.textContent.toLowerCase();
+      const show = !q || t.includes(q);
+      row.style.display = show ? '' : 'none';
+      if (show) visibleAny = true;
+    });
+    if (q.length > 0) {
+      // hide section heads if their sections are fully empty
+      [suggested, recent].forEach(sec => {
+        const anyVisible = [...sec.querySelectorAll('.picker-row')].some(r => r.style.display !== 'none');
+        sec.style.display = anyVisible ? '' : 'none';
+      });
+    } else {
+      suggested.style.display = '';
+      recent.style.display = '';
+    }
+  });
+
+  // Add via picker row
+  document.querySelectorAll('.picker-row').forEach(row => {
+    row.addEventListener('click', () => {
+      if (row.classList.contains('picked')) return;
+      const key = row.dataset.peer;
+      const data = PEER_LIB[key] || { name: row.querySelector('.name').textContent, domain: row.querySelector('.domain').textContent, av: 'av-1', initial: key.charAt(0).toUpperCase() };
+      addPeerChip({ peerKey: key, ...data });
+      syncPicker();
+    });
+  });
+
+  function addPeerChip({ peerKey, name, domain, av, initial }) {
+    const picked = getPickedPeerSet();
+    if (picked.size >= 6) {
+      alert('Max 6 competitors — remove one to add another.');
+      return;
+    }
+    if (picked.has(peerKey)) return;
+
+    const chip = document.createElement('span');
+    chip.className = 'ca-chip';
+    chip.dataset.peer = peerKey;
+    chip.innerHTML = `
+      <span class="av ${av}">${escapeForChip(initial)}</span>
+      ${escapeForChip(name)}
+      <svg class="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg>
+    `;
+    chip.querySelector('.x').addEventListener('click', (e) => {
+      e.stopPropagation();
+      chip.remove();
+      syncPicker();
+    });
+    // Insert before the add-wrap
+    const addWrap = chipsContainer.querySelector('.ca-add-wrap');
+    chipsContainer.insertBefore(chip, addWrap);
+  }
+
+  function escapeForChip(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  // Wire existing X buttons
+  chipsContainer.querySelectorAll('.ca-chip .x').forEach(x => {
+    x.addEventListener('click', (e) => {
+      e.stopPropagation();
+      x.closest('.ca-chip').remove();
+      syncPicker();
+    });
+  });
+
+  // Why peers — small popover
+  whyLink.addEventListener('click', () => {
+    alert(
+      "How peers are picked:\n\n" +
+      "• Matched on industry (Payments + Fintech infra)\n" +
+      "• Within ±20 pts of Stripe's intent score range\n" +
+      "• ICP-fit score above your floor (70)\n" +
+      "• De-duplicated against your existing pipeline\n\n" +
+      "Switch to Manual to pick anyone — including outside the cohort."
+    );
+  });
+
+  // Mode toggle
+  document.querySelectorAll('.ca-source-bar .mt').forEach(mt => {
+    mt.addEventListener('click', () => {
+      document.querySelectorAll('.ca-source-bar .mt').forEach(x => x.classList.remove('active'));
+      mt.classList.add('active');
+      if (mt.dataset.mode === 'manual') {
+        openPicker();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

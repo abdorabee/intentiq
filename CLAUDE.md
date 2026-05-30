@@ -50,7 +50,11 @@ GNEWS_API_KEY=             # gnews.io — free tier, 100 req/day
 BUILTWITH_API_KEY=         # api.builtwith.com — free tier, tech stack
 OPEN_PAGE_RANK_API_KEY=    # domcop.com/openpagerank — free, 100 req/day
 APIFY_API_KEY=             # apify.com — $5 free credit, LinkedIn jobs
+GITHUB_TOKEN=              # github.com — free, 5000 req/hr; Settings → Developer settings → Personal access tokens (public repo read)
 # Person enrichment uses smart input mode (no external API needed)
+
+# Resend (contact form email delivery — free tier 3,000 emails/mo at resend.com)
+RESEND_API_KEY=            # optional in dev; logs to console if not set
 
 # Dev mode — use mock signals instead of real API calls
 MOCK_SIGNALS=true

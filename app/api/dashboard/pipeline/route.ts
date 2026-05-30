@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
+export interface PipelineSignals {
+  funding?: { score: number; max: number };
+  hiring?: { score: number; max: number };
+  news?: { score: number; max: number };
+  technology?: { score: number; max: number };
+  web?: { score: number; max: number };
+}
+
 export interface PipelineCompany {
   id: string;
   domain: string;
@@ -16,6 +24,7 @@ export interface PipelineCompany {
   key_triggers: string[] | null;
   urgency: string | null;
   pipeline_stage: string;
+  signals: PipelineSignals | null;
 }
 
 export async function GET() {
@@ -42,14 +51,14 @@ export async function GET() {
   // Fetch last 3 scores per domain (for trend computation + AI fields)
   const { data: recentScores } = await supabase
     .from("scores")
-    .select("domain, score, created_at, email_subject, talk_track, ai_summary, key_triggers, urgency")
+    .select("domain, score, created_at, email_subject, talk_track, ai_summary, key_triggers, urgency, signals")
     .eq("user_id", userId)
     .in("domain", domains)
     .order("created_at", { ascending: false })
     .limit(domains.length * 3);
 
   // Group scores by domain (already sorted newest first)
-  const scoresByDomain = new Map<string, Array<{ score: number; email_subject: string | null; talk_track: string | null; ai_summary: string | null; key_triggers: string[] | null; urgency: string | null }>>();
+  const scoresByDomain = new Map<string, Array<{ score: number; email_subject: string | null; talk_track: string | null; ai_summary: string | null; key_triggers: string[] | null; urgency: string | null; signals: PipelineSignals | null }>>();
   for (const s of recentScores ?? []) {
     if (!scoresByDomain.has(s.domain)) scoresByDomain.set(s.domain, []);
     const arr = scoresByDomain.get(s.domain)!;
@@ -77,6 +86,7 @@ export async function GET() {
       key_triggers: latest?.key_triggers ?? null,
       urgency: latest?.urgency ?? null,
       pipeline_stage: w.pipeline_stage ?? "cold",
+      signals: latest?.signals ?? null,
     };
   });
 

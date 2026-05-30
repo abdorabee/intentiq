@@ -1,0 +1,3243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntentIQ — Pipeline intelligence for B2B sales teams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Linear-inspired tokens, adapted to the IntentIQ palette
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Surface */
+  --bg:           #08090a;
+  --bg-elevated:  #0e1011;
+  --bg-translucent: rgba(10,10,10,0.55);
+  --surface:      #131517;
+  --surface-2:    #1a1d20;
+
+  /* Text — Linear's exact greys */
+  --text-primary:  #f7f8f8;
+  --text-secondary:#b4bbc8;
+  --text-tertiary: #8a8f98;
+  --text-quaternary:#62666d;
+
+  /* Borders */
+  --border:        rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.13);
+  --border-subtle: rgba(255,255,255,0.04);
+
+  /* Accent — IntentIQ's cyan, used sparingly */
+  --accent:        #5e6ad2; /* Linear-style violet for primary */
+  --accent-2:      #7170ff;
+  --cyan:          #4ec9d8;
+  --cyan-soft:     rgba(78,201,216,0.16);
+
+  /* Score band colors */
+  --hot:           #4ade80;
+  --hot-bg:        rgba(74,222,128,0.10);
+  --hot-border:    rgba(74,222,128,0.25);
+  --warm:          #f5b544;
+  --warm-bg:       rgba(245,181,68,0.10);
+  --warm-border:   rgba(245,181,68,0.25);
+  --cold:          #8a8f98;
+  --cold-bg:       rgba(138,143,152,0.08);
+  --cold-border:   rgba(138,143,152,0.22);
+
+  /* Type scale */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Radii */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 12px;
+  --r-2xl: 16px;
+
+  /* Shadows */
+  --shadow-card: 0 0 0 1px rgba(255,255,255,0.06), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-elevated: 0 0 0 1px rgba(255,255,255,0.08), 0 24px 48px -12px rgba(0,0,0,0.6);
+  --shadow-screen: 0 0 0 1px rgba(255,255,255,0.06), 0 50px 100px -20px rgba(0,0,0,0.5), 0 30px 60px -30px rgba(0,0,0,0.6);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Reset
+   ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+
+::selection { background: rgba(94,106,210,0.45); color: var(--text-primary); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+/* ─────────────────────────────────────────────────────────────
+   Type roles
+   ───────────────────────────────────────────────────────────── */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary); letter-spacing: -0.011em;
+}
+.eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+.eyebrow-tag {
+  font-size: 11px; font-weight: 600;
+  color: var(--accent-2); background: rgba(94,106,210,0.12);
+  padding: 2px 7px; border-radius: 999px;
+  border: 1px solid rgba(94,106,210,0.25);
+  letter-spacing: 0;
+}
+
+.h-display {
+  font-family: var(--font-sans);
+  font-weight: 500; letter-spacing: -0.045em; line-height: 0.96;
+  color: var(--text-primary);
+  font-size: clamp(40px, 7vw, 88px);
+  text-wrap: balance;
+}
+.h1 {
+  font-weight: 500; letter-spacing: -0.035em; line-height: 1.05;
+  font-size: clamp(34px, 5.2vw, 64px);
+  text-wrap: balance;
+}
+.h2 {
+  font-weight: 500; letter-spacing: -0.028em; line-height: 1.1;
+  font-size: clamp(26px, 3.4vw, 44px);
+  text-wrap: balance;
+}
+.h3 {
+  font-weight: 500; letter-spacing: -0.018em; line-height: 1.2;
+  font-size: 20px;
+}
+.lead {
+  font-size: 18px; line-height: 1.55;
+  color: var(--text-secondary); letter-spacing: -0.011em;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+.body { font-size: 15px; line-height: 1.6; color: var(--text-secondary); }
+.caption { font-size: 13px; color: var(--text-tertiary); }
+.mono { font-family: var(--font-mono); font-feature-settings: "tnum", "ss01"; }
+
+/* Gradient text */
+.grad-text {
+  background: linear-gradient(135deg, #c9c4ff 0%, #7170ff 40%, #4ec9d8 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Layout primitives
+   ───────────────────────────────────────────────────────────── */
+.container {
+  width: 100%; max-width: 1200px;
+  margin: 0 auto; padding: 0 24px;
+}
+.container-wide { max-width: 1320px; }
+.section { padding: 120px 0; position: relative; }
+.section-tight { padding: 80px 0; }
+.divider {
+  height: 1px; background: var(--border-subtle);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Top banner + nav (Linear style)
+   ───────────────────────────────────────────────────────────── */
+.top-banner {
+  height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--text-secondary);
+  background: linear-gradient(90deg, rgba(94,106,210,0.05) 0%, rgba(78,201,216,0.05) 100%);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: -0.011em;
+  position: relative; z-index: 5;
+}
+.top-banner strong { color: var(--text-primary); font-weight: 500; }
+.top-banner .pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-right: 10px;
+  font-size: 11px; font-weight: 600;
+  color: var(--cyan); background: var(--cyan-soft);
+  padding: 1px 8px; border-radius: 999px;
+  letter-spacing: 0;
+}
+.top-banner .arrow { color: var(--text-tertiary); transition: transform 0.2s; }
+.top-banner a:hover .arrow { transform: translateX(2px); color: var(--text-primary); }
+
+nav.primary {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(8,9,10,0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+nav.primary .row {
+  display: flex; align-items: center;
+  height: 56px; padding: 0 24px;
+  max-width: 1320px; margin: 0 auto; gap: 28px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 600; letter-spacing: -0.022em;
+  font-size: 15px; color: var(--text-primary);
+}
+.brand .logo {
+  width: 22px; height: 22px;
+  display: grid; place-items: center; border-radius: 5px;
+  background: linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%);
+  color: #0a0b0f; font-weight: 800; font-size: 11px;
+  font-family: var(--font-mono);
+  box-shadow: 0 2px 8px rgba(94,106,210,0.4);
+}
+.nav-links {
+  display: flex; gap: 4px; align-items: center;
+}
+.nav-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 14px; color: var(--text-secondary);
+  padding: 6px 10px; border-radius: var(--r-md);
+  transition: color 0.15s, background 0.15s;
+  letter-spacing: -0.011em;
+}
+.nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+.nav-link .chev {
+  width: 10px; height: 10px; opacity: 0.6;
+  transition: transform 0.15s;
+}
+.nav-spacer { flex: 1; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 14px; font-weight: 500;
+  letter-spacing: -0.006em;
+  padding: 0 14px; height: 32px;
+  border-radius: var(--r-md);
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.06s;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(0.5px); }
+.btn-ghost {
+  color: var(--text-secondary);
+}
+.btn-ghost:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+.btn-secondary {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.08); border-color: var(--border-strong);
+}
+.btn-primary {
+  background: var(--text-primary); color: #0a0b0f;
+}
+.btn-primary:hover { background: #ffffff; }
+.btn-accent {
+  background: var(--accent); color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3), 0 0 0 0 rgba(94,106,210,0);
+}
+.btn-accent:hover {
+  background: var(--accent-2);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), 0 4px 16px rgba(94,106,210,0.45);
+}
+.btn-lg { height: 40px; padding: 0 18px; font-size: 14px; border-radius: var(--r-md); }
+.btn .arrow { width: 12px; height: 12px; transition: transform 0.18s; }
+.btn:hover .arrow { transform: translateX(2px); }
+
+/* ─────────────────────────────────────────────────────────────
+   Hero
+   ───────────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  padding: 120px 0 64px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: -240px;
+  width: 1200px; height: 800px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(94,106,210,0.30), transparent 60%),
+    radial-gradient(ellipse 40% 70% at 30% 30%, rgba(78,201,216,0.18), transparent 70%),
+    radial-gradient(ellipse 35% 55% at 70% 65%, rgba(255,90,160,0.12), transparent 70%);
+  filter: blur(40px);
+  opacity: 0.9;
+}
+.hero-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 100% at 50% -20%, rgba(94,106,210,0.06), transparent 60%);
+}
+.grid-overlay {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%);
+}
+
+.hero-inner {
+  position: relative; z-index: 2;
+  text-align: center;
+  max-width: 980px; margin: 0 auto; padding: 0 24px;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-bottom: 28px;
+  padding: 5px 5px 5px 14px;
+  font-size: 13px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  letter-spacing: -0.006em;
+}
+.hero-eyebrow .badge {
+  font-size: 11px; font-weight: 600;
+  background: rgba(94,106,210,0.15);
+  color: #c9c4ff;
+  padding: 2px 9px; border-radius: 999px;
+  border: 1px solid rgba(94,106,210,0.25);
+  letter-spacing: 0;
+}
+
+.hero h1 {
+  font-weight: 500; letter-spacing: -0.045em; line-height: 0.98;
+  font-size: clamp(44px, 7.5vw, 88px);
+  margin-bottom: 26px;
+  text-wrap: balance;
+}
+.hero h1 .grad {
+  background: linear-gradient(110deg, #ffffff 0%, #d9d6ff 40%, #7170ff 75%, #4ec9d8 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  display: inline;
+}
+.hero p.lead {
+  font-size: clamp(17px, 1.4vw, 20px);
+  max-width: 620px; margin: 0 auto 36px;
+  color: var(--text-secondary);
+}
+.hero-actions {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.hero-meta {
+  font-size: 12px; color: var(--text-quaternary);
+  letter-spacing: -0.006em;
+}
+.hero-meta strong { color: var(--text-tertiary); font-weight: 500; }
+
+/* ─────────────────────────────────────────────────────────────
+   Hero product mockup (the showpiece)
+   ───────────────────────────────────────────────────────────── */
+.hero-screen-wrap {
+  position: relative;
+  margin: 80px auto 0;
+  max-width: 1200px;
+  padding: 0 24px;
+  z-index: 2;
+}
+.hero-screen-glow {
+  position: absolute; inset: -60px -60px 80px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(94,106,210,0.22), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 20% 50%, rgba(78,201,216,0.14), transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+.app-screen {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-screen);
+  border: 1px solid var(--border-strong);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Product surface — IntentIQ app shell (mock)
+   ───────────────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 224px 1fr;
+  height: 640px;
+  background: var(--bg-elevated);
+  font-size: 13px;
+}
+.app-sidebar {
+  background: #0c0d0f;
+  border-right: 1px solid var(--border);
+  padding: 12px 8px;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow: hidden;
+}
+.app-sb-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px 12px;
+  margin-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.app-sb-head .ws-logo {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%);
+  display: grid; place-items: center; color: #0a0b0f; font-weight: 800; font-size: 11px;
+  font-family: var(--font-mono);
+}
+.app-sb-head .ws-name {
+  flex: 1; font-weight: 500; font-size: 13px; letter-spacing: -0.011em;
+}
+.app-sb-head .chev { color: var(--text-tertiary); width: 12px; height: 12px; }
+
+.sb-section {
+  padding: 10px 6px 4px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-quaternary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px; border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-size: 13px; letter-spacing: -0.006em;
+  cursor: pointer;
+}
+.sb-item .ic { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+.sb-item:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+.sb-item.active { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.sb-item .count {
+  margin-left: auto; font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+}
+.sb-item .hot-count { color: var(--hot); }
+
+.sb-divider {
+  height: 1px; background: var(--border); margin: 8px 0;
+}
+.sb-credits {
+  margin-top: auto;
+  padding: 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.02);
+}
+.sb-credits .label {
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.sb-credits .row { display: flex; align-items: baseline; justify-content: space-between; }
+.sb-credits .val {
+  font-family: var(--font-mono); font-size: 18px; font-weight: 600;
+  color: var(--text-primary); letter-spacing: -0.02em;
+}
+.sb-credits .of { font-size: 12px; color: var(--text-tertiary); margin-left: 2px; }
+.sb-credits .bar {
+  margin-top: 6px;
+  height: 3px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+.sb-credits .fill {
+  height: 100%; width: 62%;
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--accent) 100%);
+}
+
+/* App main */
+.app-main {
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.app-toolbar {
+  height: 44px; display: flex; align-items: center;
+  padding: 0 16px; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.crumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  letter-spacing: -0.011em;
+}
+.crumb .sep { color: var(--text-quaternary); }
+.crumb .current { color: var(--text-primary); font-weight: 500; }
+
+.toolbar-spacer { flex: 1; }
+.toolbar-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  padding: 4px 10px; border-radius: var(--r-md);
+  border: 1px solid transparent;
+  cursor: pointer; transition: all 0.15s;
+}
+.toolbar-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+.toolbar-btn.outlined { border-color: var(--border); }
+.toolbar-btn.outlined:hover { border-color: var(--border-strong); }
+.toolbar-btn .kbd {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+}
+
+/* Score row table */
+.app-content {
+  display: flex; flex-direction: column;
+  flex: 1; overflow: hidden;
+}
+.filter-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--text-secondary);
+  background: var(--bg-elevated);
+}
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 12px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+}
+.filter-chip:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.filter-chip .ic { width: 11px; height: 11px; opacity: 0.7; }
+.filter-chip.active {
+  background: rgba(94,106,210,0.12);
+  border-color: rgba(94,106,210,0.3);
+  color: #c9c4ff;
+}
+.filter-chip .x { color: var(--text-tertiary); margin-left: 2px; }
+
+.list-header, .list-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.6fr) 0.9fr 0.7fr 1.2fr 0.8fr 110px;
+  gap: 16px;
+  padding: 0 16px;
+  align-items: center;
+}
+.list-header {
+  height: 36px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+.list-row {
+  height: 52px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.list-row:hover { background: rgba(255,255,255,0.02); }
+
+.co {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.co-avatar {
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 700;
+  color: #0a0b0f; flex-shrink: 0;
+}
+.co-name {
+  font-size: 14px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.co-domain { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+
+/* Band pill */
+.band {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.band .dot { width: 6px; height: 6px; border-radius: 999px; }
+.band-hot { background: var(--hot-bg); border-color: var(--hot-border); color: var(--hot); }
+.band-hot .dot { background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.band-warm { background: var(--warm-bg); border-color: var(--warm-border); color: var(--warm); }
+.band-warm .dot { background: var(--warm); }
+.band-cold { background: var(--cold-bg); border-color: var(--cold-border); color: var(--cold); }
+.band-cold .dot { background: var(--cold); }
+
+/* Score number */
+.score-cell {
+  display: flex; align-items: center; gap: 10px;
+}
+.score-num {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 15px; letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+}
+.score-bar {
+  flex: 1; height: 4px; max-width: 60px;
+  background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;
+}
+.score-bar .fill { height: 100%; border-radius: 999px; }
+
+/* Signal axes */
+.signals-cell {
+  display: flex; gap: 4px;
+}
+.sig-bar {
+  flex: 1; height: 16px; min-width: 6px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.04);
+  position: relative;
+  overflow: hidden;
+}
+.sig-bar .fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+}
+.sig-funding   .fill { background: linear-gradient(180deg, #4ec9d8, #38a3b3); }
+.sig-hiring    .fill { background: linear-gradient(180deg, #4ade80, #22c55e); }
+.sig-news      .fill { background: linear-gradient(180deg, #f5b544, #d49530); }
+.sig-tech      .fill { background: linear-gradient(180deg, #7170ff, #5e6ad2); }
+.sig-web       .fill { background: linear-gradient(180deg, #ec4899, #c0367f); }
+
+.signal-label {
+  font-size: 13px; color: var(--text-secondary);
+  display: inline-flex; align-items: center; gap: 6px;
+  letter-spacing: -0.011em;
+}
+.signal-label .ic { width: 12px; height: 12px; }
+.signal-tag {
+  font-size: 11px; color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.delta {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-family: var(--font-mono); font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.delta-up { color: var(--hot); }
+.delta-down { color: #f87171; }
+.delta-flat { color: var(--text-tertiary); }
+
+.row-actions {
+  display: flex; align-items: center; gap: 6px;
+  justify-content: flex-end;
+}
+.icon-btn {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer; transition: all 0.12s;
+}
+.icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+.assignee {
+  width: 22px; height: 22px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 700;
+  color: #0a0b0f;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Trust strip
+   ───────────────────────────────────────────────────────────── */
+.trust {
+  border-bottom: 1px solid var(--border);
+  padding: 56px 0;
+}
+.trust-label {
+  text-align: center; font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.16em;
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+.trust-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 36px;
+  align-items: center;
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 24px;
+}
+.trust-row .logo {
+  font-family: var(--font-sans); font-weight: 600;
+  font-size: 18px; letter-spacing: -0.022em;
+  color: var(--text-tertiary);
+  text-align: center;
+  opacity: 0.85;
+}
+.trust-row .logo.italic { font-style: italic; font-weight: 700; }
+.trust-row .logo.mono { font-family: var(--font-mono); font-size: 16px; letter-spacing: 0.04em; }
+
+/* ─────────────────────────────────────────────────────────────
+   Section header (label + huge title)
+   ───────────────────────────────────────────────────────────── */
+.section-head {
+  text-align: left;
+  max-width: 760px;
+  margin-bottom: 64px;
+}
+.section-head.center { text-align: center; margin-left: auto; margin-right: auto; }
+.section-head .label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary); letter-spacing: -0.011em;
+  margin-bottom: 18px;
+}
+.section-head .label .accent {
+  width: 5px; height: 5px; border-radius: 999px;
+  background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
+}
+.section-head h2 { color: var(--text-primary); }
+.section-head h2 .muted { color: var(--text-tertiary); }
+.section-head p {
+  margin-top: 18px;
+  font-size: 18px; line-height: 1.55;
+  color: var(--text-secondary); letter-spacing: -0.011em;
+  max-width: 540px;
+}
+.section-head.center p { margin-left: auto; margin-right: auto; }
+
+/* ─────────────────────────────────────────────────────────────
+   Pillars grid
+   ───────────────────────────────────────────────────────────── */
+.pillars {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.pillar {
+  background: var(--bg);
+  padding: 36px 28px 32px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.pillar-num {
+  font-family: var(--font-mono);
+  font-size: 12px; font-weight: 500;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.pillar h3 {
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.022em; line-height: 1.15;
+  color: var(--text-primary);
+}
+.pillar p {
+  font-size: 14px; line-height: 1.6;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Score detail surface (Feature 1)
+   ───────────────────────────────────────────────────────────── */
+.feature {
+  display: grid; grid-template-columns: 1fr;
+  gap: 56px;
+  align-items: start;
+}
+
+.feature-screen {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-elevated);
+  background: var(--bg-elevated);
+}
+.feature-glow {
+  position: absolute; inset: -40px;
+  background:
+    radial-gradient(ellipse 50% 60% at 50% 100%, rgba(94,106,210,0.25), transparent 60%);
+  filter: blur(40px);
+  pointer-events: none; z-index: 0;
+}
+
+/* Score detail */
+.score-detail {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  height: 560px;
+  background: var(--bg-elevated);
+  font-size: 13px;
+}
+.sd-left {
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  min-width: 0; overflow: hidden;
+}
+.sd-header {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sd-header-top {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+}
+.sd-id {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.sd-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px;
+  background: var(--hot-bg); border: 1px solid var(--hot-border);
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  color: var(--hot); font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.sd-status .dot { width: 5px; height: 5px; border-radius: 999px; background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.sd-co {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 8px;
+}
+.sd-co-avatar {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  font-size: 20px; font-weight: 700;
+  color: #0a0b0f;
+}
+.sd-co-name { font-size: 22px; font-weight: 500; letter-spacing: -0.022em; }
+.sd-co-meta {
+  display: flex; gap: 14px; align-items: center;
+  font-size: 12px; color: var(--text-tertiary);
+}
+.sd-co-meta .dot {
+  width: 3px; height: 3px; border-radius: 999px;
+  background: var(--text-quaternary);
+}
+
+.sd-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+}
+.sd-tab {
+  padding: 10px 14px;
+  font-size: 13px; color: var(--text-tertiary);
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  letter-spacing: -0.011em;
+}
+.sd-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+.sd-tab .pill {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+  margin-left: 6px;
+}
+
+.sd-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+}
+
+.signal-row {
+  display: grid; grid-template-columns: 110px 1fr 60px 70px;
+  align-items: center; gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.signal-row:last-child { border-bottom: none; }
+.signal-row .name {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.signal-row .ic {
+  width: 14px; height: 14px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.signal-row .ic-funding { background: linear-gradient(135deg, #4ec9d8, #38a3b3); }
+.signal-row .ic-hiring { background: linear-gradient(135deg, #4ade80, #22c55e); }
+.signal-row .ic-news { background: linear-gradient(135deg, #f5b544, #d49530); }
+.signal-row .ic-tech { background: linear-gradient(135deg, #7170ff, #5e6ad2); }
+.signal-row .ic-web { background: linear-gradient(135deg, #ec4899, #c0367f); }
+.signal-row .desc {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.signal-row .signal-bar {
+  height: 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.06); overflow: hidden;
+}
+.signal-row .signal-bar .fill { height: 100%; }
+.signal-row .num {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 14px; color: var(--text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.signal-row .weight {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-quaternary); text-align: right;
+}
+
+/* Right rail with score ring */
+.sd-right {
+  display: flex; flex-direction: column;
+  background: rgba(255,255,255,0.012);
+  min-width: 0; overflow: hidden;
+}
+.sd-ring-wrap {
+  padding: 32px 28px 24px;
+  display: flex; flex-direction: column; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.sd-ring {
+  position: relative;
+  width: 180px; height: 180px;
+  margin-bottom: 18px;
+}
+.sd-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.sd-ring .ring-track { stroke: rgba(255,255,255,0.05); }
+.sd-ring .ring-fill { stroke: url(#scoreGradHot); transition: stroke-dashoffset 0.6s ease; }
+.sd-ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.sd-ring-num {
+  font-family: var(--font-mono); font-size: 48px;
+  font-weight: 700; letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.sd-ring-of {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary); margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.sd-ring-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 2px;
+  font-size: 12px; font-family: var(--font-mono);
+  color: var(--hot);
+}
+
+.sd-meta-list {
+  display: grid; grid-template-columns: 1fr;
+  padding: 18px 28px;
+  gap: 14px;
+  font-size: 13px;
+}
+.sd-meta-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.sd-meta-row .key {
+  width: 96px; flex-shrink: 0;
+  font-size: 12px; color: var(--text-tertiary);
+}
+.sd-meta-row .val {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.sd-meta-row .val .person-av {
+  width: 18px; height: 18px; border-radius: 999px;
+  background: linear-gradient(135deg, #f5b544, #ec4899);
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+}
+
+.sd-action {
+  margin: 14px 28px 22px;
+  padding: 14px 16px;
+  background: rgba(94,106,210,0.06);
+  border: 1px solid rgba(94,106,210,0.2);
+  border-radius: var(--r-md);
+}
+.sd-action .label {
+  font-size: 11px; color: #c9c4ff;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 6px; font-weight: 600;
+}
+.sd-action .text {
+  font-size: 13px; line-height: 1.5;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.sd-action .row {
+  display: flex; gap: 6px; margin-top: 12px;
+}
+.sd-action-btn {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 28px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.sd-action-btn.primary {
+  background: var(--accent); color: #fff;
+  border-color: var(--accent);
+}
+.sd-action-btn:hover { background: rgba(255,255,255,0.1); }
+.sd-action-btn.primary:hover { background: var(--accent-2); }
+
+/* AI summary card */
+.sd-ai {
+  margin: 0 28px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.02);
+}
+.sd-ai-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px; color: var(--text-tertiary);
+}
+.sd-ai-dot {
+  width: 14px; height: 14px; border-radius: 999px;
+  background: linear-gradient(135deg, #c9c4ff, #5e6ad2);
+}
+.sd-ai-text {
+  font-size: 13px; line-height: 1.55;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+}
+.sd-ai-text strong { color: var(--text-primary); font-weight: 500; }
+
+/* ─────────────────────────────────────────────────────────────
+   Kanban / Hub mockup (Feature 2)
+   ───────────────────────────────────────────────────────────── */
+.hub {
+  display: flex; flex-direction: column;
+  height: 540px;
+  background: var(--bg-elevated);
+  font-size: 13px;
+  overflow: hidden;
+}
+.hub-tools {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.hub-tabs { display: flex; gap: 2px; }
+.hub-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: var(--r-sm);
+  font-size: 13px; color: var(--text-tertiary);
+  cursor: pointer;
+}
+.hub-tab.active {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+}
+.hub-tab .ic { width: 12px; height: 12px; opacity: 0.7; }
+
+.hub-scroll {
+  flex: 1; overflow: auto;
+  padding: 16px;
+}
+.hub-cols {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; min-height: 100%;
+}
+.hub-col {
+  background: rgba(255,255,255,0.014);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  display: flex; flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.hub-col-head {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 8px;
+}
+.hub-col-head .indicator {
+  width: 8px; height: 8px; border-radius: 999px;
+  flex-shrink: 0;
+}
+.hub-col-head .name {
+  font-size: 13px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.hub-col-head .count {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  background: rgba(255,255,255,0.04);
+  padding: 1px 6px; border-radius: 999px;
+}
+.hub-col-head .add {
+  margin-left: auto; color: var(--text-tertiary);
+  cursor: pointer;
+  width: 18px; height: 18px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+}
+.hub-col-head .add:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+.hub-cards {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px;
+}
+.hub-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  cursor: grab;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.hub-card:hover { border-color: var(--border-strong); }
+.hub-card .top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.hub-card .iq {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary); letter-spacing: 0.04em;
+}
+.hub-card .name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.011em;
+}
+.hub-card .summary {
+  font-size: 12px; color: var(--text-tertiary);
+  line-height: 1.4; margin-bottom: 8px;
+  letter-spacing: -0.006em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hub-card .meta {
+  display: flex; align-items: center; gap: 8px;
+}
+.hub-card .meta .left {
+  display: flex; align-items: center; gap: 6px;
+  flex: 1; min-width: 0;
+}
+.hub-card .meta .score {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: -0.011em;
+  font-variant-numeric: tabular-nums;
+}
+.hub-card .meta .when {
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+}
+.hub-card .right { display: flex; align-items: center; gap: 4px; }
+.hub-card .av {
+  width: 18px; height: 18px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 9px; font-weight: 700; color: #0a0b0f;
+}
+
+.priority-flag {
+  width: 10px; height: 10px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.pri-urgent { color: #f87171; }
+.pri-high { color: var(--warm); }
+.pri-med { color: var(--text-tertiary); }
+.pri-low { color: var(--text-quaternary); }
+
+/* ─────────────────────────────────────────────────────────────
+   Autopilot section (feature 3)
+   ───────────────────────────────────────────────────────────── */
+.autopilot-canvas {
+  height: 480px;
+  background: var(--bg-elevated);
+  position: relative;
+  overflow: hidden;
+}
+.ap-bg {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+.ap-toolbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+  position: relative; z-index: 2;
+}
+.ap-name {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.ap-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 1px 8px;
+  background: var(--hot-bg);
+  border: 1px solid var(--hot-border);
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  color: var(--hot); font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.ap-status .dot { width: 5px; height: 5px; border-radius: 999px; background: var(--hot); animation: pulse 2s infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.ap-canvas {
+  position: relative; z-index: 1;
+  height: calc(100% - 49px);
+  padding: 28px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ap-flow {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px 1fr 220px;
+  align-items: center;
+  gap: 0;
+  width: 100%; max-width: 980px;
+  position: relative;
+}
+.ap-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  min-width: 0;
+  position: relative;
+  z-index: 2;
+}
+.ap-node-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.ap-node-head .ic {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+}
+.ap-node h4 {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+  margin-bottom: 4px;
+}
+.ap-node p {
+  font-size: 12px; color: var(--text-tertiary);
+  line-height: 1.4; letter-spacing: -0.006em;
+}
+.ap-node .kbd-list {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  margin-top: 8px;
+}
+.ap-node .kbd-list .kbd {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 3px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.ap-trigger .ic { background: rgba(245,181,68,0.12); color: var(--warm); }
+.ap-condition .ic { background: rgba(94,106,210,0.12); color: #c9c4ff; }
+.ap-action .ic { background: rgba(74,222,128,0.12); color: var(--hot); }
+
+.ap-edge {
+  position: relative;
+  height: 32px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ap-edge::before {
+  content: '';
+  position: absolute; top: 50%; left: -8px; right: -8px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--text-quaternary) 0%, var(--text-quaternary) 50%, var(--text-tertiary) 100%);
+  background-image: repeating-linear-gradient(90deg, var(--text-quaternary) 0 4px, transparent 4px 8px);
+}
+.ap-edge .arrow {
+  position: relative; z-index: 1;
+  width: 16px; height: 16px;
+  display: grid; place-items: center;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Two-column features (smaller)
+   ───────────────────────────────────────────────────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.feat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  min-height: 380px;
+}
+.feat-card .feat-head {
+  padding: 32px 32px 0;
+}
+.feat-card .feat-head h3 {
+  font-size: 22px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.022em; line-height: 1.2;
+  margin-bottom: 8px;
+}
+.feat-card .feat-head p {
+  font-size: 14px; line-height: 1.55;
+  color: var(--text-secondary); letter-spacing: -0.006em;
+}
+.feat-card .feat-visual {
+  flex: 1; padding: 28px 32px;
+  position: relative; min-height: 200px;
+  display: flex; align-items: flex-end;
+  overflow: hidden;
+}
+
+/* Code/API surface */
+.code-surface {
+  background: #0b0d10;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  width: 100%;
+  overflow: hidden;
+}
+.code-surface .head {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+.code-surface .head .dots { display: flex; gap: 4px; margin-right: 6px; }
+.code-surface .head .dots i {
+  width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.12);
+}
+.code-surface .body {
+  padding: 12px 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.code-surface .body .cm-key { color: #c9c4ff; }
+.code-surface .body .cm-str { color: #4ec9d8; }
+.code-surface .body .cm-num { color: var(--warm); }
+.code-surface .body .cm-com { color: var(--text-quaternary); font-style: italic; }
+.code-surface .body .cm-bool { color: var(--hot); }
+
+/* Person scoring mini */
+.person-list {
+  display: flex; flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+.person-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+.person-row:last-child { border-bottom: none; }
+.person-row .av {
+  width: 28px; height: 28px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.person-row .info { flex: 1; min-width: 0; }
+.person-row .name {
+  font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.person-row .role {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+.person-row .score {
+  font-family: var(--font-mono);
+  font-size: 13px; font-weight: 600;
+  letter-spacing: -0.011em;
+  font-variant-numeric: tabular-nums;
+}
+.person-row .badge {
+  font-family: var(--font-mono); font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+/* Watchlist mini */
+.watch-list {
+  width: 100%;
+  display: flex; flex-direction: column;
+  gap: 4px;
+}
+.watch-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 60px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+}
+.watch-row .co { gap: 8px; }
+.watch-row .av { width: 18px; height: 18px; border-radius: 4px; font-size: 9px; }
+.watch-row .name { font-size: 12px; font-weight: 500; }
+.watch-row .ts {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+.watch-spark {
+  display: flex; align-items: end; gap: 1px;
+  height: 16px;
+}
+.watch-spark .b {
+  flex: 1; max-width: 3px;
+  background: var(--accent);
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Quotes
+   ───────────────────────────────────────────────────────────── */
+.quotes {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.quote-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  background: var(--bg-elevated);
+}
+.quote-card blockquote {
+  font-size: 16px; line-height: 1.55;
+  letter-spacing: -0.011em;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+  text-wrap: pretty;
+}
+.quote-author {
+  display: flex; align-items: center; gap: 10px;
+}
+.quote-author .av {
+  width: 28px; height: 28px; border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.quote-author .meta { line-height: 1.3; }
+.quote-author .name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.quote-author .role {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Stats strip
+   ───────────────────────────────────────────────────────────── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+.stat {
+  padding: 28px 24px;
+  border-right: 1px solid var(--border);
+}
+.stat:last-child { border-right: none; }
+.stat .num {
+  font-family: var(--font-sans); font-weight: 500;
+  font-size: 36px; letter-spacing: -0.035em; line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+.stat .num .grad {
+  background: linear-gradient(110deg, #c9c4ff 0%, #7170ff 60%, #4ec9d8 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.stat .label {
+  font-size: 13px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  line-height: 1.4;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Pricing
+   ───────────────────────────────────────────────────────────── */
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+.price-card {
+  padding: 28px 24px 24px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 14px;
+  position: relative;
+}
+.price-card:last-child { border-right: none; }
+.price-card.featured {
+  background: rgba(94,106,210,0.04);
+}
+.price-card.featured::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(94,106,210,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+.price-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: -0.011em;
+  display: flex; align-items: center; gap: 8px;
+}
+.price-name .featured-pill {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 999px;
+  background: rgba(94,106,210,0.18);
+  color: #c9c4ff;
+  border: 1px solid rgba(94,106,210,0.3);
+  font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.price-amt {
+  display: flex; align-items: baseline; gap: 4px;
+  font-weight: 500; letter-spacing: -0.035em;
+  color: var(--text-primary);
+}
+.price-amt .num { font-size: 40px; line-height: 1; }
+.price-amt .per { font-size: 14px; color: var(--text-tertiary); font-weight: 400; }
+.price-credits {
+  font-size: 13px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.price-credits strong { color: var(--text-primary); font-weight: 500; }
+.price-feats {
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.price-feat {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  letter-spacing: -0.006em; line-height: 1.5;
+}
+.price-feat .chk {
+  width: 14px; height: 14px;
+  flex-shrink: 0; margin-top: 2px;
+  color: var(--text-tertiary);
+}
+.price-card.featured .price-feat .chk { color: var(--accent-2); }
+.price-card .btn { margin-top: auto; width: 100%; }
+
+/* ─────────────────────────────────────────────────────────────
+   CTA Closer
+   ───────────────────────────────────────────────────────────── */
+.cta {
+  position: relative; overflow: hidden;
+  text-align: center;
+  padding: 140px 24px 120px;
+  border-top: 1px solid var(--border);
+}
+.cta-bg {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.cta-bg::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 1100px; height: 700px;
+  background:
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(94,106,210,0.25), transparent 60%),
+    radial-gradient(ellipse 30% 40% at 30% 30%, rgba(78,201,216,0.18), transparent 70%),
+    radial-gradient(ellipse 30% 40% at 70% 70%, rgba(255,90,160,0.12), transparent 70%);
+  filter: blur(40px);
+}
+.cta-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 30%, transparent 80%);
+}
+.cta-inner {
+  position: relative; z-index: 2;
+  max-width: 760px; margin: 0 auto;
+}
+.cta h2 {
+  font-weight: 500; letter-spacing: -0.045em; line-height: 0.98;
+  font-size: clamp(40px, 6vw, 76px);
+  margin-bottom: 22px;
+  text-wrap: balance;
+}
+.cta h2 .grad {
+  background: linear-gradient(110deg, #ffffff 0%, #d9d6ff 50%, #4ec9d8 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.cta p {
+  font-size: 18px;
+  color: var(--text-secondary);
+  letter-spacing: -0.011em;
+  margin: 0 auto 32px;
+  max-width: 480px;
+}
+.cta-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* ─────────────────────────────────────────────────────────────
+   Footer
+   ───────────────────────────────────────────────────────────── */
+footer.site-footer {
+  padding: 64px 0 36px;
+  border-top: 1px solid var(--border);
+  background: #050608;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 32px;
+  margin-bottom: 56px;
+}
+.footer-brand .brand { font-size: 16px; }
+.footer-brand p {
+  margin-top: 16px;
+  font-size: 13px; line-height: 1.55;
+  color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  max-width: 260px;
+}
+.footer-col h4 {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  margin-bottom: 14px;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer-col a {
+  font-size: 13px; color: var(--text-tertiary);
+  letter-spacing: -0.006em;
+  transition: color 0.12s;
+}
+.footer-col a:hover { color: var(--text-primary); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 28px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px; color: var(--text-quaternary);
+  letter-spacing: -0.006em;
+}
+.footer-bottom .links {
+  display: flex; gap: 18px;
+}
+.footer-bottom a:hover { color: var(--text-secondary); }
+.footer-status {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.footer-status .dot {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--hot); box-shadow: 0 0 6px var(--hot);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Utilities & avatar colors
+   ───────────────────────────────────────────────────────────── */
+.av-1 { background: linear-gradient(135deg, #4ec9d8, #5e6ad2); }
+.av-2 { background: linear-gradient(135deg, #4ade80, #22c55e); }
+.av-3 { background: linear-gradient(135deg, #f5b544, #ec4899); }
+.av-4 { background: linear-gradient(135deg, #7170ff, #c9c4ff); }
+.av-5 { background: linear-gradient(135deg, #ec4899, #f87171); }
+.av-6 { background: linear-gradient(135deg, #4ec9d8, #4ade80); }
+.av-7 { background: linear-gradient(135deg, #f87171, #f5b544); }
+.av-8 { background: linear-gradient(135deg, #c9c4ff, #4ec9d8); }
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 980px) {
+  .nav-links { display: none; }
+  .pillars, .quotes, .pricing-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat:nth-child(2) { border-right: 1px solid var(--border); }
+  .two-col { grid-template-columns: 1fr; }
+  .trust-row { grid-template-columns: repeat(3, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .app { grid-template-columns: 1fr; }
+  .app-sidebar { display: none; }
+  .score-detail { grid-template-columns: 1fr; }
+  .ap-flow { grid-template-columns: 1fr; }
+  .ap-edge { transform: rotate(90deg); height: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top banner ─────────────────────────────────────────────── -->
+<div class="top-banner">
+  <a href="#autopilot" style="display:inline-flex;align-items:center;">
+    <span class="pill">NEW</span>
+    <span><strong>Autopilot</strong> — workflows that fire when intent crosses your threshold</span>
+    <span class="arrow" style="margin-left:8px;">→</span>
+  </a>
+</div>
+
+<!-- Nav ────────────────────────────────────────────────────── -->
+<nav class="primary">
+  <div class="row">
+    <a href="#" class="brand">
+      <div class="logo">IQ</div>
+      <span>IntentIQ</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#product">
+        Product
+        <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+      </a>
+      <a class="nav-link" href="#autopilot">Autopilot</a>
+      <a class="nav-link" href="#api">Developers</a>
+      <a class="nav-link" href="#pricing">Pricing</a>
+      <a class="nav-link" href="#customers">Customers</a>
+      <a class="nav-link" href="#">
+        Company
+        <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+      </a>
+    </div>
+    <div class="nav-spacer"></div>
+    <a href="#" class="btn btn-ghost">Log in</a>
+    <a href="#" class="btn btn-secondary">
+      Sign up
+      <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- Hero ───────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <span class="badge">Spring '26</span>
+      <span>People scoring + warm-account routing →</span>
+    </div>
+    <h1>
+      <span class="grad">Pipeline intelligence</span><br>
+      for B2B sales teams.
+    </h1>
+    <p class="lead">
+      IntentIQ scores every account in your pipeline on a 0–100 buying‑intent scale —
+      live signals, AI reasoning, and the next move, in one place.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-accent btn-lg">
+        Start scoring free
+        <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
+      </a>
+      <a href="#" class="btn btn-secondary btn-lg">
+        Book a demo
+      </a>
+    </div>
+    <div class="hero-meta">
+      <strong>20 free credits</strong> · No credit card · Results in &lt; 3 seconds
+    </div>
+  </div>
+
+  <!-- Hero product screen -->
+  <div class="hero-screen-wrap">
+    <div class="hero-screen-glow"></div>
+    <div class="app-screen">
+      <div class="app">
+        <!-- Sidebar -->
+        <aside class="app-sidebar">
+          <div class="app-sb-head">
+            <div class="ws-logo">IQ</div>
+            <div class="ws-name">Acme Sales</div>
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+          </div>
+
+          <div class="sb-section">Workspace</div>
+          <div class="sb-item active">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>
+            Intent Hub
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>
+            Score
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>
+            Pipeline
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>
+            People
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>
+            Watchlist
+            <span class="count">24</span>
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>
+            Autopilot
+            <span class="count hot-count">●3</span>
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>
+            Inbox
+            <span class="count">12</span>
+          </div>
+
+          <div class="sb-section" style="margin-top: 4px;">Settings</div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="2"/><path d="M7 1v2 M7 11v2 M1 7h2 M11 7h2"/></svg>
+            Settings
+          </div>
+          <div class="sb-item">
+            <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="10" height="6" rx="1"/><path d="M2 7h10"/></svg>
+            Billing
+          </div>
+
+          <div class="sb-credits">
+            <div class="label">Credits</div>
+            <div class="row">
+              <div><span class="val">1,548</span><span class="of"> / 2,500</span></div>
+              <a class="caption" style="color:var(--accent-2);font-weight:500;font-size:12px;text-decoration:none;">Top up</a>
+            </div>
+            <div class="bar"><div class="fill"></div></div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <div class="app-main">
+          <div class="app-toolbar">
+            <div class="crumb">
+              <span>Workspace</span><span class="sep">/</span>
+              <span class="current">Intent Hub</span>
+            </div>
+            <span class="band band-hot" style="margin-left:8px;"><span class="dot"></span>HOT 12</span>
+            <span class="band band-warm"><span class="dot"></span>WARM 38</span>
+            <div class="toolbar-spacer"></div>
+            <button class="toolbar-btn">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+              Search
+              <span class="kbd">⌘K</span>
+            </button>
+            <button class="toolbar-btn outlined">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6h8M4 3h4M5 9h2"/></svg>
+              Filter
+            </button>
+            <button class="toolbar-btn outlined">
+              Today
+              <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><path d="M3 4.5l3 3 3-3"/></svg>
+            </button>
+            <button class="btn btn-accent" style="height:28px;font-size:13px;padding:0 12px;">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" width="11" height="11"><path d="M6 2v8M2 6h8"/></svg>
+              Score account
+            </button>
+          </div>
+
+          <div class="filter-row">
+            <span class="filter-chip active">
+              All accounts
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10" class="x"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+            </span>
+            <span class="filter-chip">
+              <span class="band-hot" style="width:5px;height:5px;border-radius:999px;background:var(--hot);"></span>
+              Score ≥ 75
+            </span>
+            <span class="filter-chip">
+              Industry: SaaS
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10" class="x"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+            </span>
+            <span class="filter-chip">+ Add filter</span>
+            <div style="margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary);">
+              247 results
+            </div>
+          </div>
+
+          <div class="app-content">
+            <div class="list-header">
+              <div>Account</div>
+              <div>Signal</div>
+              <div>Score</div>
+              <div>Signal mix</div>
+              <div>Owner</div>
+              <div style="text-align:right;">Updated</div>
+            </div>
+
+            <!-- Row 1 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-1">S</div>
+                <div>
+                  <div class="co-name">Stripe</div>
+                  <div class="co-domain">stripe.com</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="var(--cyan)" stroke-width="1.6"><path d="M2 11V7m4 4V4m4 7V2"/></svg>
+                  Series H · $6.5B
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num">94</span>
+                <div class="score-bar"><div class="fill" style="width:94%;background:var(--hot);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:96%;"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:88%;"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:92%;"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:78%;"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:84%;"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+                  <span class="assignee av-3">DM</span> D. Marwan
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">3m</span>
+                <span class="delta delta-up" style="margin-left:6px;">▲ 12</span>
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-4">L</div>
+                <div>
+                  <div class="co-name">Linear</div>
+                  <div class="co-domain">linear.app</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="var(--hot)" stroke-width="1.6"><path d="M3 13c0-3 1.5-5 4-5s4 2 4 5M7 7a3 3 0 100-6 3 3 0 000 6z"/></svg>
+                  +18 Eng. hires this quarter
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num">82</span>
+                <div class="score-bar"><div class="fill" style="width:82%;background:var(--hot);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:62%;"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:91%;"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:74%;"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:88%;"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:81%;"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+                  <span class="assignee av-1">JS</span> J. Sato
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">9m</span>
+                <span class="delta delta-up" style="margin-left:6px;">▲ 4</span>
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-2">A</div>
+                <div>
+                  <div class="co-name">Anthropic</div>
+                  <div class="co-domain">anthropic.com</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="var(--warm)" stroke-width="1.6"><path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z"/></svg>
+                  TechCrunch coverage
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num">96</span>
+                <div class="score-bar"><div class="fill" style="width:96%;background:var(--hot);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:98%;"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:95%;"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:99%;"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:90%;"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:94%;"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+                  <span class="assignee av-6">AC</span> A. Chen
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">14m</span>
+                <span class="delta delta-up" style="margin-left:6px;">▲ 7</span>
+              </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-7">V</div>
+                <div>
+                  <div class="co-name">Vercel</div>
+                  <div class="co-domain">vercel.com</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="var(--accent-2)" stroke-width="1.6"><rect x="1" y="2" width="12" height="10" rx="1"/><path d="M4 6h6M4 9h4"/></svg>
+                  Detected: Segment, Snowflake
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num">67</span>
+                <div class="score-bar"><div class="fill" style="width:67%;background:var(--warm);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:55%;"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:48%;"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:62%;"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:88%;"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:71%;"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+                  <span class="assignee av-3">DM</span> D. Marwan
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">1h</span>
+                <span class="delta delta-up" style="margin-left:6px;">▲ 2</span>
+              </div>
+            </div>
+
+            <!-- Row 5 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-3">N</div>
+                <div>
+                  <div class="co-name">Notion</div>
+                  <div class="co-domain">notion.so</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="#ec4899" stroke-width="1.6"><path d="M2 7l3 3 7-7"/></svg>
+                  Pricing-page traffic spike
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num">78</span>
+                <div class="score-bar"><div class="fill" style="width:78%;background:var(--hot);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:42%;"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:67%;"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:71%;"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:74%;"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:96%;"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+                  <span class="assignee av-5">RB</span> R. Becker
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">2h</span>
+                <span class="delta delta-flat" style="margin-left:6px;">— 0</span>
+              </div>
+            </div>
+
+            <!-- Row 6 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-8">F</div>
+                <div>
+                  <div class="co-name">Figma</div>
+                  <div class="co-domain">figma.com</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="var(--warm)" stroke-width="1.6"><path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z"/></svg>
+                  Config '26 keynote
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num">71</span>
+                <div class="score-bar"><div class="fill" style="width:71%;background:var(--warm);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:38%;"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:62%;"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:88%;"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:69%;"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:78%;"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">
+                  <span class="assignee av-1">JS</span> J. Sato
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">3h</span>
+                <span class="delta delta-up" style="margin-left:6px;">▲ 5</span>
+              </div>
+            </div>
+
+            <!-- Row 7 -->
+            <div class="list-row">
+              <div class="co">
+                <div class="co-avatar av-5">M</div>
+                <div>
+                  <div class="co-name">Mixpanel</div>
+                  <div class="co-domain">mixpanel.com</div>
+                </div>
+              </div>
+              <div>
+                <span class="signal-label" style="color:var(--text-tertiary);">
+                  <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/></svg>
+                  No new signals
+                </span>
+              </div>
+              <div class="score-cell">
+                <span class="score-num" style="color:var(--text-tertiary);">38</span>
+                <div class="score-bar"><div class="fill" style="width:38%;background:var(--cold);"></div></div>
+              </div>
+              <div class="signals-cell">
+                <div class="sig-bar sig-funding"><div class="fill" style="height:21%;background:rgba(255,255,255,0.15);"></div></div>
+                <div class="sig-bar sig-hiring"><div class="fill" style="height:32%;background:rgba(255,255,255,0.15);"></div></div>
+                <div class="sig-bar sig-news"><div class="fill" style="height:28%;background:rgba(255,255,255,0.15);"></div></div>
+                <div class="sig-bar sig-tech"><div class="fill" style="height:54%;background:rgba(255,255,255,0.15);"></div></div>
+                <div class="sig-bar sig-web"><div class="fill" style="height:42%;background:rgba(255,255,255,0.15);"></div></div>
+              </div>
+              <div>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-tertiary);">
+                  <span class="assignee av-2">—</span> Unassigned
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="caption mono">1d</span>
+                <span class="delta delta-down" style="margin-left:6px;">▼ 3</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust strip ────────────────────────────────────────────── -->
+<section class="trust">
+  <div class="trust-label">Powering pipelines at sales orgs you've heard of</div>
+  <div class="trust-row">
+    <div class="logo italic">Roundwave</div>
+    <div class="logo">▲ Signaltree</div>
+    <div class="logo mono">// MERIDIAN</div>
+    <div class="logo italic">Carbide</div>
+    <div class="logo">◆ Northbeam</div>
+    <div class="logo mono">[ HALCYON ]</div>
+  </div>
+</section>
+
+<!-- Pillars ────────────────────────────────────────────────── -->
+<section class="section" id="product">
+  <div class="container">
+    <div class="section-head center">
+      <div class="label"><span class="accent"></span>Made for sales teams who close</div>
+      <h2 class="h1">Stop guessing.<br><span class="muted">Start scoring.</span></h2>
+      <p>Every signal that a deal is heating up — funding rounds, hiring spikes, news, tech adoption, traffic — fused into one number, with the reasoning to back it up.</p>
+    </div>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-num">01 — Signal</div>
+      <h3>Five live data streams, in parallel.</h3>
+      <p>Funding, hiring velocity, news mentions, tech‑stack changes, web presence. Pulled fresh, decayed by recency, weighted by what predicted closes for your team last quarter.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">02 — Reason</div>
+      <h3>An AI summary you'd actually paste to your boss.</h3>
+      <p>Claude reads the signals and writes a two‑line buying thesis, the most relevant talk track, and a recommended next action — for every account, every refresh.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">03 — Act</div>
+      <h3>Workflows that fire while the window's open.</h3>
+      <p>Cross 75 and an account routes to the closer who owns the segment. Drop below 50 and it pauses sequences. No more dashboards your team forgets to open.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats ──────────────────────────────────────────────────── -->
+<section style="padding: 0 24px 80px;">
+  <div class="container">
+    <div class="stats">
+      <div class="stat">
+        <div class="num"><span class="grad">2.4M</span></div>
+        <div class="label">Accounts scored to date</div>
+      </div>
+      <div class="stat">
+        <div class="num">&lt;<span style="color:var(--cyan);">3s</span></div>
+        <div class="label">Median time to first score</div>
+      </div>
+      <div class="stat">
+        <div class="num">+<span style="color:var(--hot);">38%</span></div>
+        <div class="label">Avg lift in HOT‑band reply rate</div>
+      </div>
+      <div class="stat">
+        <div class="num">99.97<span style="color:var(--text-tertiary);font-size:24px;">%</span></div>
+        <div class="label">API uptime, last 90 days</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Feature 1: Score detail ────────────────────────────────── -->
+<section class="section" id="score-section" style="padding-top: 80px;">
+  <div class="container">
+    <div class="section-head">
+      <div class="label"><span class="accent"></span>The Score</div>
+      <h2 class="h1">A 0–100 number<br>your AE doesn't have to interpret.</h2>
+      <p>One score per account, per refresh. Click in for the signals that produced it, an AI summary, and the play to run next.</p>
+    </div>
+
+    <div class="feature">
+      <div style="position: relative;">
+        <div class="feature-glow"></div>
+        <div class="feature-screen">
+          <div class="score-detail">
+            <!-- LEFT: signals & reasoning -->
+            <div class="sd-left">
+              <div class="sd-header">
+                <div class="sd-header-top">
+                  <span class="sd-id">IQ-2046</span>
+                  <span class="sd-status"><span class="dot"></span>HOT · Auto-routed</span>
+                  <div style="margin-left:auto;display:flex;gap:6px;">
+                    <button class="icon-btn">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M3 7l3 3 5-7"/></svg>
+                    </button>
+                    <button class="icon-btn">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><circle cx="3" cy="7" r="1"/><circle cx="7" cy="7" r="1"/><circle cx="11" cy="7" r="1"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="sd-co">
+                  <div class="sd-co-avatar av-1">S</div>
+                  <div>
+                    <div class="sd-co-name">Stripe</div>
+                    <div class="sd-co-meta">
+                      <span>stripe.com</span>
+                      <span class="dot"></span>
+                      <span>Payments · 8,400 emp.</span>
+                      <span class="dot"></span>
+                      <span>San Francisco, US</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sd-tabs">
+                <div class="sd-tab active">Signals <span class="pill">5</span></div>
+                <div class="sd-tab">Activity</div>
+                <div class="sd-tab">People <span class="pill">12</span></div>
+                <div class="sd-tab">Notes</div>
+                <div class="sd-tab">Raw</div>
+              </div>
+
+              <div class="sd-body">
+                <div class="signal-row">
+                  <div class="name"><span class="ic ic-funding"></span>Funding</div>
+                  <div>
+                    <div class="desc" style="margin-bottom:6px;">Series H, $6.5B at $91.5B valuation · 4 days ago</div>
+                    <div class="signal-bar"><div class="fill" style="width:96%;background:linear-gradient(90deg,#4ec9d8,#38a3b3);"></div></div>
+                  </div>
+                  <div class="num">96</div>
+                  <div class="weight">25%</div>
+                </div>
+                <div class="signal-row">
+                  <div class="name"><span class="ic ic-hiring"></span>Hiring</div>
+                  <div>
+                    <div class="desc" style="margin-bottom:6px;">+182 open roles in Eng / RevOps · +28 vs last 30 days</div>
+                    <div class="signal-bar"><div class="fill" style="width:88%;background:linear-gradient(90deg,#4ade80,#22c55e);"></div></div>
+                  </div>
+                  <div class="num">88</div>
+                  <div class="weight">20%</div>
+                </div>
+                <div class="signal-row">
+                  <div class="name"><span class="ic ic-news"></span>News</div>
+                  <div>
+                    <div class="desc" style="margin-bottom:6px;">12 high‑authority mentions in 7 days · sentiment +0.74</div>
+                    <div class="signal-bar"><div class="fill" style="width:92%;background:linear-gradient(90deg,#f5b544,#d49530);"></div></div>
+                  </div>
+                  <div class="num">92</div>
+                  <div class="weight">20%</div>
+                </div>
+                <div class="signal-row">
+                  <div class="name"><span class="ic ic-tech"></span>Tech</div>
+                  <div>
+                    <div class="desc" style="margin-bottom:6px;">Detected: Snowflake, Segment, Datadog · 2 new this month</div>
+                    <div class="signal-bar"><div class="fill" style="width:78%;background:linear-gradient(90deg,#7170ff,#5e6ad2);"></div></div>
+                  </div>
+                  <div class="num">78</div>
+                  <div class="weight">20%</div>
+                </div>
+                <div class="signal-row">
+                  <div class="name"><span class="ic ic-web"></span>Web</div>
+                  <div>
+                    <div class="desc" style="margin-bottom:6px;">Domain authority 92 · pricing‑page traffic +18%</div>
+                    <div class="signal-bar"><div class="fill" style="width:84%;background:linear-gradient(90deg,#ec4899,#c0367f);"></div></div>
+                  </div>
+                  <div class="num">84</div>
+                  <div class="weight">15%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: ring + meta + AI action -->
+            <div class="sd-right">
+              <div class="sd-ring-wrap">
+                <div class="sd-ring">
+                  <svg viewBox="0 0 100 100">
+                    <defs>
+                      <linearGradient id="scoreGradHot" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#4ade80"/>
+                        <stop offset="55%" stop-color="#4ec9d8"/>
+                        <stop offset="100%" stop-color="#7170ff"/>
+                      </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="42" class="ring-track" stroke-width="6" fill="none"/>
+                    <circle cx="50" cy="50" r="42" class="ring-fill" stroke-width="6" fill="none"
+                      stroke-linecap="round"
+                      stroke-dasharray="263.9"
+                      stroke-dashoffset="15.8"/>
+                  </svg>
+                  <div class="sd-ring-center">
+                    <div class="sd-ring-num">94</div>
+                    <div class="sd-ring-of">/ 100</div>
+                    <div class="sd-ring-delta">▲ 12 vs last week</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sd-meta-list">
+                <div class="sd-meta-row"><div class="key">Owner</div><div class="val"><span class="person-av">DM</span> D. Marwan</div></div>
+                <div class="sd-meta-row"><div class="key">Stage</div><div class="val">Discovery → Qualified</div></div>
+                <div class="sd-meta-row"><div class="key">Last touch</div><div class="val">2 days ago · Email</div></div>
+                <div class="sd-meta-row"><div class="key">Next refresh</div><div class="val mono" style="font-size:12px;color:var(--text-secondary);">in 6h 12m</div></div>
+              </div>
+
+              <div class="sd-ai">
+                <div class="sd-ai-head">
+                  <span class="sd-ai-dot"></span>
+                  <span>AI summary · Claude</span>
+                </div>
+                <div class="sd-ai-text">
+                  Stripe is showing all five intent axes lit. The combination of <strong>fresh capital</strong>,
+                  <strong>aggressive RevOps hiring</strong>, and a <strong>positive news cycle</strong> historically
+                  precedes a tooling refresh inside 60–90 days.
+                </div>
+              </div>
+
+              <div class="sd-action">
+                <div class="label">Recommended next action</div>
+                <div class="text">Send AE‑authored email referencing the Series H — anchor on RevOps tooling pain at $90B+ scale.</div>
+                <div class="row">
+                  <button class="sd-action-btn primary">Draft in Gmail</button>
+                  <button class="sd-action-btn">Save play</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Feature 2: Hub / Pipeline ───────────────────────────────── -->
+<section class="section" style="padding-top: 60px;">
+  <div class="container">
+    <div class="section-head">
+      <div class="label"><span class="accent"></span>Intent Hub</div>
+      <h2 class="h1">Your pipeline, ranked by<br>buying intent — not last‑touch.</h2>
+      <p>Every account flows across stages by score. HOT bubbles up. COLD drops out. Owners see only what's worth a call this week.</p>
+    </div>
+
+    <div class="feature-screen">
+      <div class="hub">
+        <div class="hub-tools">
+          <div class="hub-tabs">
+            <div class="hub-tab active">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="3" height="8"/><rect x="5" y="2" width="3" height="6"/><rect x="9" y="2" width="2" height="9"/></svg>
+              Board
+            </div>
+            <div class="hub-tab">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M2 6h8M2 9h8"/></svg>
+              List
+            </div>
+            <div class="hub-tab">
+              <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M6 2v4l3 1"/></svg>
+              Timeline
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn outlined">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 6h8M4 3h4M5 9h2"/></svg>
+            Filter
+          </button>
+          <button class="toolbar-btn outlined">
+            Group: Owner
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10"><path d="M3 4.5l3 3 3-3"/></svg>
+          </button>
+        </div>
+
+        <div class="hub-scroll">
+          <div class="hub-cols">
+
+            <!-- COLD -->
+            <div class="hub-col">
+              <div class="hub-col-head">
+                <span class="indicator" style="background:var(--cold);"></span>
+                <span class="name">Cold</span>
+                <span class="count">14</span>
+                <span class="add">+</span>
+              </div>
+              <div class="hub-cards">
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2099</span>
+                    <span class="priority-flag pri-low">
+                      <svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg>
+                    </span>
+                  </div>
+                  <div class="name">Mixpanel</div>
+                  <div class="summary">No new signals. Domain authority dropped 3 pts last week.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-cold"><span class="dot"></span>38</span>
+                      <span class="when">1d</span>
+                    </div>
+                    <div class="right"><span class="av av-2">RB</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2098</span>
+                    <span class="priority-flag pri-low">
+                      <svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg>
+                    </span>
+                  </div>
+                  <div class="name">Heap</div>
+                  <div class="summary">Stable hiring, no funding signals. Tech stack unchanged 90 days.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-cold"><span class="dot"></span>32</span>
+                      <span class="when">2d</span>
+                    </div>
+                    <div class="right"><span class="av av-7">JS</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2071</span>
+                    <span class="priority-flag pri-low"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="6" width="2" height="3"/></svg></span>
+                  </div>
+                  <div class="name">Amplitude</div>
+                  <div class="summary">Layoff news flagged. Re-score paused for 30 days.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-cold"><span class="dot"></span>28</span>
+                      <span class="when">5d</span>
+                    </div>
+                    <div class="right"><span class="av av-3">DM</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- WARM -->
+            <div class="hub-col">
+              <div class="hub-col-head">
+                <span class="indicator" style="background:var(--warm);"></span>
+                <span class="name">Warming</span>
+                <span class="count">38</span>
+                <span class="add">+</span>
+              </div>
+              <div class="hub-cards">
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2095</span>
+                    <span class="priority-flag pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+                  </div>
+                  <div class="name">Vercel</div>
+                  <div class="summary">Detected Segment + Snowflake. Hiring up 12% MoM.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-warm"><span class="dot"></span>67</span>
+                      <span class="when">1h</span>
+                    </div>
+                    <div class="right"><span class="av av-3">DM</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2094</span>
+                    <span class="priority-flag pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+                  </div>
+                  <div class="name">Figma</div>
+                  <div class="summary">Config '26 keynote pricing pivot. Press cycle ramping.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-warm"><span class="dot"></span>71</span>
+                      <span class="when">3h</span>
+                    </div>
+                    <div class="right"><span class="av av-1">JS</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2092</span>
+                    <span class="priority-flag pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+                  </div>
+                  <div class="name">Datadog</div>
+                  <div class="summary">+34 SE openings. Q2 earnings beat consensus by 11%.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-warm"><span class="dot"></span>64</span>
+                      <span class="when">4h</span>
+                    </div>
+                    <div class="right"><span class="av av-6">AC</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2089</span>
+                    <span class="priority-flag pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+                  </div>
+                  <div class="name">Retool</div>
+                  <div class="summary">Pricing page redesign. Segment integration shipped.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-warm"><span class="dot"></span>58</span>
+                      <span class="when">6h</span>
+                    </div>
+                    <div class="right"><span class="av av-5">RB</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HOT -->
+            <div class="hub-col">
+              <div class="hub-col-head">
+                <span class="indicator" style="background:var(--hot);box-shadow:0 0 8px var(--hot);"></span>
+                <span class="name">Hot</span>
+                <span class="count">12</span>
+                <span class="add">+</span>
+              </div>
+              <div class="hub-cards">
+                <div class="hub-card" style="border-color: rgba(74,222,128,0.2);background: linear-gradient(180deg, rgba(74,222,128,0.03), var(--surface));">
+                  <div class="top">
+                    <span class="iq">IQ-2046</span>
+                    <span class="priority-flag pri-urgent"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="3"/></svg></span>
+                  </div>
+                  <div class="name">Stripe</div>
+                  <div class="summary">Series H · $6.5B. Auto‑routed to D. Marwan via Autopilot.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>94</span>
+                      <span class="when">3m</span>
+                    </div>
+                    <div class="right"><span class="av av-3">DM</span></div>
+                  </div>
+                </div>
+                <div class="hub-card" style="border-color: rgba(74,222,128,0.2);">
+                  <div class="top">
+                    <span class="iq">IQ-2041</span>
+                    <span class="priority-flag pri-urgent"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="3"/></svg></span>
+                  </div>
+                  <div class="name">Anthropic</div>
+                  <div class="summary">Press + funding + hiring all 90+. Five axes lit.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>96</span>
+                      <span class="when">14m</span>
+                    </div>
+                    <div class="right"><span class="av av-6">AC</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2034</span>
+                    <span class="priority-flag pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+                  </div>
+                  <div class="name">Linear</div>
+                  <div class="summary">+18 hires this quarter. Crossed 80 yesterday.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>82</span>
+                      <span class="when">9m</span>
+                    </div>
+                    <div class="right"><span class="av av-1">JS</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-2030</span>
+                    <span class="priority-flag pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+                  </div>
+                  <div class="name">Notion</div>
+                  <div class="summary">Pricing page traffic +96%. Just shipped enterprise tier.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>78</span>
+                      <span class="when">2h</span>
+                    </div>
+                    <div class="right"><span class="av av-5">RB</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ENGAGED -->
+            <div class="hub-col">
+              <div class="hub-col-head">
+                <span class="indicator" style="background:var(--accent-2);"></span>
+                <span class="name">Engaged</span>
+                <span class="count">6</span>
+                <span class="add">+</span>
+              </div>
+              <div class="hub-cards">
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-1998</span>
+                    <span class="priority-flag pri-high"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/><rect x="8" y="1" width="2" height="8"/></svg></span>
+                  </div>
+                  <div class="name">Databricks</div>
+                  <div class="summary">Reply received. Discovery call set for Thu.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>87</span>
+                      <span class="when">5d</span>
+                    </div>
+                    <div class="right"><span class="av av-3">DM</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-1987</span>
+                    <span class="priority-flag pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+                  </div>
+                  <div class="name">Intercom</div>
+                  <div class="summary">In second-meeting. Procurement looped.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>88</span>
+                      <span class="when">1w</span>
+                    </div>
+                    <div class="right"><span class="av av-1">JS</span></div>
+                  </div>
+                </div>
+                <div class="hub-card">
+                  <div class="top">
+                    <span class="iq">IQ-1971</span>
+                    <span class="priority-flag pri-med"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="2" y="5" width="2" height="4"/><rect x="5" y="3" width="2" height="6"/></svg></span>
+                  </div>
+                  <div class="name">Plaid</div>
+                  <div class="summary">Closed–won pending. Contract sent.</div>
+                  <div class="meta">
+                    <div class="left">
+                      <span class="band band-hot"><span class="dot"></span>91</span>
+                      <span class="when">2w</span>
+                    </div>
+                    <div class="right"><span class="av av-6">AC</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Feature 3: Autopilot ───────────────────────────────────── -->
+<section class="section" id="autopilot" style="padding-top: 40px;">
+  <div class="container">
+    <div class="section-head">
+      <div class="label"><span class="accent"></span>Autopilot</div>
+      <h2 class="h1">Workflows that fire while<br>the buying window is open.</h2>
+      <p>Trigger on score crossings, signal spikes, or pipeline events. Branch on conditions. Route, draft, notify — without leaving IntentIQ.</p>
+    </div>
+
+    <div class="feature-screen">
+      <div class="autopilot-canvas">
+        <div class="ap-toolbar">
+          <span class="ap-name">when_account_goes_hot</span>
+          <span class="ap-status"><span class="dot"></span>Active · 412 fires this month</span>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn outlined">Test</button>
+          <button class="toolbar-btn outlined">History</button>
+          <button class="btn btn-secondary" style="height:28px;font-size:13px;padding:0 12px;">Edit</button>
+        </div>
+
+        <div class="ap-canvas">
+          <div class="ap-bg"></div>
+          <div class="ap-flow">
+            <div class="ap-node ap-trigger">
+              <div class="ap-node-head">
+                <span class="ic"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M7 2v5l3 2"/></svg></span>
+                Trigger
+              </div>
+              <h4>Score crosses threshold</h4>
+              <p>Account moves from WARM into HOT band</p>
+              <div class="kbd-list">
+                <span class="kbd">band → HOT</span>
+                <span class="kbd">delta ≥ +5</span>
+              </div>
+            </div>
+
+            <div class="ap-edge">
+              <div class="arrow"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M3 7h7M8 4l3 3-3 3"/></svg></div>
+            </div>
+
+            <div class="ap-node ap-condition">
+              <div class="ap-node-head">
+                <span class="ic"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M2 4h10M2 7h10M2 10h10"/></svg></span>
+                Condition · all
+              </div>
+              <h4>If ICP fit + segment match</h4>
+              <p>ICP score ≥ 70 AND industry ∈ {Fintech, SaaS}</p>
+              <div class="kbd-list">
+                <span class="kbd">icp_fit ≥ 70</span>
+                <span class="kbd">industry: 2</span>
+              </div>
+            </div>
+
+            <div class="ap-edge">
+              <div class="arrow"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M3 7h7M8 4l3 3-3 3"/></svg></div>
+            </div>
+
+            <div class="ap-node ap-action">
+              <div class="ap-node-head">
+                <span class="ic"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M2 7l3 3 7-7"/></svg></span>
+                Actions · 3
+              </div>
+              <h4>Route, draft, notify</h4>
+              <p>Owner: segment closer · Email draft from Claude · Slack #pipeline</p>
+              <div class="kbd-list">
+                <span class="kbd">route_to_owner</span>
+                <span class="kbd">draft_email</span>
+                <span class="kbd">slack_notify</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Feature 4 + 5: two-col (API + People + Watchlist) ──────── -->
+<section class="section" id="api" style="padding-top: 40px;">
+  <div class="container">
+    <div class="section-head">
+      <div class="label"><span class="accent"></span>Developers + People</div>
+      <h2 class="h1">Built for sales ops<br>that actually ship.</h2>
+      <p>One REST endpoint. Bulk CSV. People scoring. Watchlists. Webhooks for the systems your team already lives in.</p>
+    </div>
+
+    <div class="two-col">
+      <!-- API card -->
+      <div class="feat-card">
+        <div class="feat-head">
+          <h3>One API call. Any company.</h3>
+          <p>POST a domain. Get back a 0–100 score, the five signals it was built from, and an AI summary in under three seconds. Bulk endpoints up to 1,000 companies per job.</p>
+        </div>
+        <div class="feat-visual">
+          <div class="code-surface">
+            <div class="head">
+              <div class="dots"><i></i><i></i><i></i></div>
+              <span>POST /v1/score</span>
+              <span style="margin-left:auto;color:var(--text-quaternary);">curl</span>
+            </div>
+            <div class="body">
+<span class="cm-com">// 200 OK · 1,420 ms</span>
+<br>{
+<br>&nbsp;&nbsp;<span class="cm-key">"domain"</span>: <span class="cm-str">"stripe.com"</span>,
+<br>&nbsp;&nbsp;<span class="cm-key">"score"</span>: <span class="cm-num">94</span>,
+<br>&nbsp;&nbsp;<span class="cm-key">"band"</span>: <span class="cm-str">"HOT"</span>,
+<br>&nbsp;&nbsp;<span class="cm-key">"delta_30d"</span>: <span class="cm-num">+12</span>,
+<br>&nbsp;&nbsp;<span class="cm-key">"signals"</span>: {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-key">"funding"</span>: <span class="cm-num">96</span>, <span class="cm-key">"hiring"</span>: <span class="cm-num">88</span>,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm-key">"news"</span>: <span class="cm-num">92</span>, <span class="cm-key">"tech"</span>: <span class="cm-num">78</span>, <span class="cm-key">"web"</span>: <span class="cm-num">84</span>
+<br>&nbsp;&nbsp;},
+<br>&nbsp;&nbsp;<span class="cm-key">"action"</span>: <span class="cm-str">"Reference Series H. Anchor on RevOps."</span>,
+<br>&nbsp;&nbsp;<span class="cm-key">"cached"</span>: <span class="cm-bool">false</span>
+<br>}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- People card -->
+      <div class="feat-card">
+        <div class="feat-head">
+          <h3>Score the human, not just the logo.</h3>
+          <p>Email or LinkedIn. Get back career trajectory, seniority fit, and how their company's intent backs them up. Built on Apollo + PDL fallback.</p>
+        </div>
+        <div class="feat-visual">
+          <div class="person-list">
+            <div class="person-row">
+              <div class="av av-1">EM</div>
+              <div class="info">
+                <div class="name">Elif Marwa</div>
+                <div class="role">VP Revenue Ops · Stripe</div>
+              </div>
+              <div class="badge band-hot">HOT</div>
+              <div class="score">88</div>
+            </div>
+            <div class="person-row">
+              <div class="av av-3">JN</div>
+              <div class="info">
+                <div class="name">Jamal Norris</div>
+                <div class="role">Head of GTM Systems · Linear</div>
+              </div>
+              <div class="badge band-hot">HOT</div>
+              <div class="score">81</div>
+            </div>
+            <div class="person-row">
+              <div class="av av-6">PT</div>
+              <div class="info">
+                <div class="name">Priya Tan</div>
+                <div class="role">Director, RevOps · Notion</div>
+              </div>
+              <div class="badge band-warm">WARM</div>
+              <div class="score">72</div>
+            </div>
+            <div class="person-row">
+              <div class="av av-7">DK</div>
+              <div class="info">
+                <div class="name">Daniel Kovács</div>
+                <div class="role">Senior Manager, Sales Ops · Vercel</div>
+              </div>
+              <div class="badge band-warm">WARM</div>
+              <div class="score">64</div>
+            </div>
+            <div class="person-row">
+              <div class="av av-5">AB</div>
+              <div class="info">
+                <div class="name">Aisha Bello</div>
+                <div class="role">Sr. RevOps Analyst · Mixpanel</div>
+              </div>
+              <div class="badge band-cold">COLD</div>
+              <div class="score">41</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watchlist + Webhook minor cards -->
+    <div class="two-col" style="margin-top: 24px;">
+      <div class="feat-card" style="min-height:auto;">
+        <div class="feat-head">
+          <h3>Watchlist that pings you, not the other way around.</h3>
+          <p>Pin the 250 accounts that matter. Get a tap on the shoulder the moment one crosses your band threshold.</p>
+        </div>
+        <div class="feat-visual">
+          <div class="watch-list">
+            <div class="watch-row">
+              <div class="co"><div class="co-avatar av-2 av" style="width:18px;height:18px;border-radius:4px;font-size:9px;">A</div><div class="name">Anthropic</div></div>
+              <div class="watch-spark">
+                <div class="b" style="height:30%"></div><div class="b" style="height:42%"></div>
+                <div class="b" style="height:51%"></div><div class="b" style="height:58%"></div>
+                <div class="b" style="height:67%"></div><div class="b" style="height:79%"></div>
+                <div class="b" style="height:88%;background:var(--hot);"></div><div class="b" style="height:96%;background:var(--hot);"></div>
+              </div>
+              <div class="ts">▲ now</div>
+            </div>
+            <div class="watch-row">
+              <div class="co"><div class="co-avatar av-1 av" style="width:18px;height:18px;border-radius:4px;font-size:9px;">S</div><div class="name">Stripe</div></div>
+              <div class="watch-spark">
+                <div class="b" style="height:62%"></div><div class="b" style="height:65%"></div>
+                <div class="b" style="height:71%"></div><div class="b" style="height:73%"></div>
+                <div class="b" style="height:78%"></div><div class="b" style="height:82%"></div>
+                <div class="b" style="height:90%;background:var(--hot);"></div><div class="b" style="height:94%;background:var(--hot);"></div>
+              </div>
+              <div class="ts">3m</div>
+            </div>
+            <div class="watch-row">
+              <div class="co"><div class="co-avatar av-4 av" style="width:18px;height:18px;border-radius:4px;font-size:9px;">L</div><div class="name">Linear</div></div>
+              <div class="watch-spark">
+                <div class="b" style="height:70%"></div><div class="b" style="height:74%"></div>
+                <div class="b" style="height:69%"></div><div class="b" style="height:72%"></div>
+                <div class="b" style="height:76%"></div><div class="b" style="height:78%"></div>
+                <div class="b" style="height:81%;background:var(--hot);"></div><div class="b" style="height:82%;background:var(--hot);"></div>
+              </div>
+              <div class="ts">9m</div>
+            </div>
+            <div class="watch-row">
+              <div class="co"><div class="co-avatar av-7 av" style="width:18px;height:18px;border-radius:4px;font-size:9px;">V</div><div class="name">Vercel</div></div>
+              <div class="watch-spark">
+                <div class="b" style="height:48%"></div><div class="b" style="height:52%"></div>
+                <div class="b" style="height:55%"></div><div class="b" style="height:59%"></div>
+                <div class="b" style="height:62%;background:var(--warm);"></div><div class="b" style="height:65%;background:var(--warm);"></div>
+                <div class="b" style="height:67%;background:var(--warm);"></div><div class="b" style="height:67%;background:var(--warm);"></div>
+              </div>
+              <div class="ts">1h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-card" style="min-height:auto;">
+        <div class="feat-head">
+          <h3>Lives where your team lives.</h3>
+          <p>Webhooks, Slack, HubSpot, Salesforce, Gmail, Outreach, Apollo. Score events flow out. Pipeline updates flow back in.</p>
+        </div>
+        <div class="feat-visual" style="padding:24px 32px 32px;">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;">
+            <!-- Integration tiles -->
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#4A154B;display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;">#</div>
+              Slack
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#FF7A59;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;">Hub</div>
+              HubSpot
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#00A1E0;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;">SF</div>
+              Salesforce
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#EA4335;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;">G</div>
+              Gmail
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#5849BE;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;">Ot</div>
+              Outreach
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#1B68F1;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;">Ap</div>
+              Apollo
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:#0070E0;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;">Zp</div>
+              Zapier
+            </div>
+            <div class="integration-tile" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+              <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);border:1px dashed var(--border-strong);display:grid;place-items:center;color:var(--text-tertiary);font-weight:700;font-size:14px;">+</div>
+              Webhook
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quotes ─────────────────────────────────────────────────── -->
+<section class="section-tight" id="customers">
+  <div class="container">
+    <div class="section-head center">
+      <div class="label"><span class="accent"></span>What teams are saying</div>
+      <h2 class="h2">"Finally, a number my AEs<br>actually pay attention to."</h2>
+    </div>
+
+    <div class="quotes">
+      <div class="quote-card">
+        <blockquote>
+          We replaced our 6sense seat with IntentIQ for a tenth of the cost. The AE adoption was the surprise — they read the AI summary, they don't read the dashboard.
+        </blockquote>
+        <div class="quote-author">
+          <div class="av av-1">SK</div>
+          <div class="meta">
+            <div class="name">Sana Kapoor</div>
+            <div class="role">VP Sales · Roundwave</div>
+          </div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <blockquote>
+          Autopilot caught a Series B announcement and routed the account to my closer at 4:42 AM. Meeting was booked by 9. That's the entire pitch.
+        </blockquote>
+        <div class="quote-author">
+          <div class="av av-3">MN</div>
+          <div class="meta">
+            <div class="name">Marcus Ng</div>
+            <div class="role">Head of GTM · Northbeam</div>
+          </div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <blockquote>
+          The 0–100 score is the only signal we put in our Mondays now. Reps trust it because the reasoning shows up next to the number.
+        </blockquote>
+        <div class="quote-author">
+          <div class="av av-6">RD</div>
+          <div class="meta">
+            <div class="name">Rhea Doshi</div>
+            <div class="role">Sales Ops Lead · Halcyon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing ────────────────────────────────────────────────── -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-head center">
+      <div class="label"><span class="accent"></span>Pricing</div>
+      <h2 class="h1">Start free.<br>Pay when you close.</h2>
+      <p>One credit = one account scored. Bulk and re‑scores included. Cancel anytime — no annual contracts, no setup calls.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amt"><span class="num">$0</span><span class="per">/ mo</span></div>
+        <div class="price-credits"><strong>20</strong> account scores</div>
+        <div class="price-feats">
+          <div class="price-feat">
+            <svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>
+            Dashboard access
+          </div>
+          <div class="price-feat">
+            <svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>
+            5 watchlist accounts
+          </div>
+          <div class="price-feat">
+            <svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>
+            AI summary on every score
+          </div>
+        </div>
+        <a href="#" class="btn btn-secondary">Start free</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-amt"><span class="num">$29</span><span class="per">/ mo</span></div>
+        <div class="price-credits"><strong>500</strong> account scores · <span class="caption mono">$0.058 each</span></div>
+        <div class="price-feats">
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>Everything in Free</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>50 watchlist accounts</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>API + CSV exports</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>Slack integration</div>
+        </div>
+        <a href="#" class="btn btn-secondary">Get Starter</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-name">Growth <span class="featured-pill">Most popular</span></div>
+        <div class="price-amt"><span class="num">$79</span><span class="per">/ mo</span></div>
+        <div class="price-credits"><strong>2,500</strong> account scores · <span class="caption mono">$0.032 each</span></div>
+        <div class="price-feats">
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>Everything in Starter</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>250 watchlist accounts</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>5 Autopilot workflows</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>Bulk scoring (1,000 / job)</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>HubSpot + Salesforce</div>
+        </div>
+        <a href="#" class="btn btn-accent">Get Growth →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Pro</div>
+        <div class="price-amt"><span class="num">$199</span><span class="per">/ mo</span></div>
+        <div class="price-credits"><strong>8,000</strong> account scores · <span class="caption mono">$0.025 each</span></div>
+        <div class="price-feats">
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>Everything in Growth</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>1,000 watchlist accounts</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>People scoring</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>50 Autopilot workflows</div>
+          <div class="price-feat"><svg class="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l3 3 5-7"/></svg>Priority support</div>
+        </div>
+        <a href="#" class="btn btn-secondary">Get Pro</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:18px;font-size:12px;color:var(--text-quaternary);font-family:var(--font-mono);letter-spacing:0.04em;">
+      Need 25k+ scores? <a href="#" style="color:var(--text-secondary);text-decoration:underline;text-decoration-color:var(--border-strong);">See Agency plan →</a>
+    </p>
+  </div>
+</section>
+
+<!-- CTA ────────────────────────────────────────────────────── -->
+<section class="cta">
+  <div class="cta-bg"></div>
+  <div class="cta-grid"></div>
+  <div class="cta-inner">
+    <h2><span class="grad">Set the pace<br>of your pipeline.</span></h2>
+    <p>Every day you wait, a competitor scores your best prospects and books the meeting first.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-accent btn-lg">
+        Start scoring free
+        <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
+      </a>
+      <a href="#" class="btn btn-secondary btn-lg">Talk to sales</a>
+    </div>
+    <p style="margin-top:24px;font-size:12px;color:var(--text-quaternary);font-family:var(--font-mono);letter-spacing:0.04em;">
+      20 FREE CREDITS · NO CARD · &lt; 3s TO FIRST SCORE
+    </p>
+  </div>
+</section>
+
+<!-- Footer ─────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="brand">
+          <div class="logo">IQ</div>
+          <span>IntentIQ</span>
+        </a>
+        <p>B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the train.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">Score</a></li>
+          <li><a href="#">Intent Hub</a></li>
+          <li><a href="#">Autopilot</a></li>
+          <li><a href="#">People scoring</a></li>
+          <li><a href="#">Watchlist</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="#">API reference</a></li>
+          <li><a href="#">Webhooks</a></li>
+          <li><a href="#">SDKs</a></li>
+          <li><a href="#">Status</a></li>
+          <li><a href="#">Integrations</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Customers</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">DPA</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Subprocessors</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 IntentIQ Labs, Inc. All rights reserved.</span>
+      <div class="footer-status">
+        <span class="dot"></span>
+        <span>All systems operational</span>
+      </div>
+      <div class="links">
+        <a href="#">Twitter</a>
+        <a href="#">GitHub</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

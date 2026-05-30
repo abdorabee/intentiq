@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchlist · IntentIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="intentiq.css">
+<style>
+/* Watchlist tabs */
+.wl-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.wl-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px; color: var(--text-tertiary);
+  border-bottom: 1px solid transparent;
+  cursor: pointer; letter-spacing: -0.011em;
+  margin-bottom: -1px;
+}
+.wl-tab:hover { color: var(--text-primary); }
+.wl-tab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+.wl-tab .swatch { width: 8px; height: 8px; border-radius: 999px; }
+.wl-tab .pill {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-tertiary);
+}
+
+/* Alert strip */
+.alert-strip {
+  background: linear-gradient(90deg, rgba(74,222,128,0.06), rgba(94,106,210,0.04));
+  border: 1px solid rgba(74,222,128,0.18);
+  border-radius: var(--r-lg);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.alert-strip .icon {
+  width: 32px; height: 32px;
+  border-radius: 999px;
+  background: var(--hot-bg);
+  border: 1px solid var(--hot-border);
+  display: grid; place-items: center;
+  color: var(--hot);
+  flex-shrink: 0;
+}
+.alert-strip .body { flex: 1; min-width: 0; }
+.alert-strip .title {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.011em;
+}
+.alert-strip .sub {
+  font-size: 12px; color: var(--text-tertiary);
+  margin-top: 2px; letter-spacing: -0.006em;
+}
+.alert-strip .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* Table */
+.wl-table {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.wl-head {
+  display: grid;
+  grid-template-columns: 22px minmax(200px, 1.4fr) 70px 110px 110px 1fr 0.6fr 100px;
+  gap: 14px;
+  padding: 0 16px;
+  height: 36px;
+  align-items: center;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+.wl-row {
+  display: grid;
+  grid-template-columns: 22px minmax(200px, 1.4fr) 70px 110px 110px 1fr 0.6fr 100px;
+  gap: 14px;
+  padding: 0 16px;
+  height: 56px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.wl-row:last-child { border-bottom: none; }
+.wl-row:hover { background: rgba(255,255,255,0.02); }
+
+.checkbox {
+  width: 14px; height: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px; cursor: pointer;
+  display: grid; place-items: center;
+}
+.checkbox.checked {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff;
+}
+
+.wl-co {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.wl-co .av {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #0a0b0f;
+  flex-shrink: 0;
+}
+.wl-co .name {
+  font-size: 14px; font-weight: 500; color: var(--text-primary);
+  letter-spacing: -0.011em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wl-co .domain {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.wl-score-cell {
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: 16px; letter-spacing: -0.024em;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.wl-spark {
+  display: flex; align-items: end; gap: 1px;
+  height: 26px;
+  position: relative;
+}
+.wl-spark .b {
+  flex: 1; min-width: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 1px;
+  position: relative;
+}
+.wl-spark .b.cur {
+  background: var(--text-primary);
+}
+
+.wl-mix {
+  display: flex; gap: 3px;
+  height: 22px;
+  align-items: end;
+}
+.wl-mix .seg {
+  flex: 1; min-width: 4px;
+  border-radius: 2px;
+}
+
+.wl-threshold {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-secondary);
+  letter-spacing: -0.006em;
+  font-family: var(--font-mono);
+}
+.wl-threshold .arrow { color: var(--text-tertiary); }
+.wl-threshold .hit {
+  color: var(--hot);
+}
+.wl-threshold .ic {
+  width: 12px; height: 12px;
+  opacity: 0.8;
+}
+.threshold-bar {
+  position: relative;
+  height: 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  overflow: visible;
+}
+.threshold-bar .fill {
+  height: 100%; border-radius: 999px;
+}
+.threshold-bar .marker {
+  position: absolute; top: -2px; bottom: -2px;
+  width: 1px;
+  background: var(--text-primary);
+}
+.threshold-bar .marker::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 3px solid var(--text-primary);
+}
+
+.wl-actions { display: flex; gap: 4px; justify-content: flex-end; }
+.wl-icon-btn {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer; transition: all 0.12s;
+}
+.wl-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+
+/* Watchlist sidebar widget */
+.wl-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px; color: var(--text-tertiary);
+}
+.wl-foot .left { font-family: var(--font-mono); }
+
+/* Quick add */
+.quick-add {
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-top: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.quick-add-input {
+  flex: 1;
+  background: transparent;
+  border: none; outline: none;
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--text-primary);
+  letter-spacing: -0.006em;
+}
+.quick-add-input::placeholder { color: var(--text-tertiary); }
+.quick-add .hint {
+  font-size: 11px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="ws-logo">IQ</div>
+      <div class="ws-name">Acme Sales<span class="role">Workspace · Growth</span></div>
+      <svg class="ws-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+    <div class="sb-search">
+      <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>
+      <span>Search</span><span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-item" href="IntentIQ Dashboard.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>Dashboard</a>
+    <a class="sb-item" href="IntentIQ Intent Hub.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5-5 5 5M7 2v10"/></svg>Intent Hub<span class="count hot">●12</span></a>
+    <a class="sb-item" href="IntentIQ Account.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>Score</a>
+    <a class="sb-item" href="IntentIQ Pipeline.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l3-3 2 2 5-6"/></svg>Pipeline</a>
+    <a class="sb-item" href="IntentIQ People.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><path d="M2 12c0-2 2-3.5 3-3.5s3 1.5 3 3.5M9 7l1.5 1.5L13 6"/></svg>People</a>
+    <a class="sb-item active" href="IntentIQ Watchlist.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>Watchlist<span class="count">24</span></a>
+    <a class="sb-item" href="IntentIQ Autopilot.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l5 5 5-5M2 3l5 5 5-5"/></svg>Autopilot<span class="indicator"></span></a>
+    <a class="sb-item" href="IntentIQ Inbox.html"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10v8H2z M2 4l5 4 5-4"/></svg>Inbox<span class="count">12</span></a>
+    <div class="sb-section">Lists<span class="add"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--hot)" stroke="none"/></svg>Q1 Targets<span class="count">42</span></div>
+    <div class="sb-item"><svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3" fill="var(--accent-2)" stroke="none"/></svg>Enterprise SaaS<span class="count">86</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-credits">
+      <div class="label">Credits this month</div>
+      <div class="row"><div><span class="val">1,548</span><span class="of"> / 2,500</span></div><a class="topup">Top up</a></div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-user">
+      <div class="av">DM</div>
+      <div class="info"><div class="name">Dahlia Marwan</div><div class="email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5632373e3a3f371637353b3325373a3325783f39">[email&#160;protected]</a></div></div>
+      <svg style="width:12px;height:12px;color:var(--text-tertiary);flex-shrink:0;" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <div class="topbar">
+      <div class="crumb">
+        <svg class="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8v10H3z M5 5h4M5 7h4M5 9h2"/></svg>
+        <span>Workspace</span><span class="sep">/</span>
+        <span class="current">Watchlist</span>
+      </div>
+      <div class="spacer"></div>
+      <button class="tb-btn"><svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>Search<span class="kbd">⌘K</span></button>
+      <div class="notif">
+        <svg style="width:14px;height:14px;" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        <span class="dot"></span>
+      </div>
+      <button class="btn-primary">
+        <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+        Add to watchlist
+      </button>
+    </div>
+
+    <div class="page">
+
+      <div class="page-head">
+        <div>
+          <div class="page-title">Watchlist</div>
+          <div class="page-sub">
+            24 accounts · 4 thresholds tripped today · last refresh <span class="mono" style="color:var(--text-secondary);">3 min</span> ago
+          </div>
+        </div>
+        <div class="page-actions">
+          <div class="range-tabs">
+            <span class="range-tab">24H</span>
+            <span class="range-tab active">7D</span>
+            <span class="range-tab">30D</span>
+            <span class="range-tab">90D</span>
+          </div>
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h8v6H2z M2 4l4 3 4-3"/></svg>
+            Alert prefs
+          </button>
+          <button class="tb-btn outlined">
+            <svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="8" height="6"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Threshold alert -->
+      <div class="alert-strip">
+        <div class="icon">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M3 6a4 4 0 018 0v3l1 2H2l1-2V6z M5 11v1a2 2 0 004 0v-1"/></svg>
+        </div>
+        <div class="body">
+          <div class="title">3 accounts crossed your HOT threshold in the last 6 hours</div>
+          <div class="sub">Stripe (▲ 12 to 94) · Anthropic (▲ 24 to 96) · Linear (▲ 4 to 82) — outreach window open</div>
+        </div>
+        <div class="actions">
+          <button class="tb-btn outlined">Dismiss</button>
+          <button class="btn-primary" style="height:30px;padding:0 12px;">Review now</button>
+        </div>
+      </div>
+
+      <!-- Tabs by list -->
+      <div class="wl-tabs">
+        <div class="wl-tab active">
+          All
+          <span class="pill">24</span>
+        </div>
+        <div class="wl-tab">
+          <span class="swatch" style="background:var(--hot);box-shadow:0 0 6px var(--hot);"></span>
+          Q1 Targets
+          <span class="pill">7</span>
+        </div>
+        <div class="wl-tab">
+          <span class="swatch" style="background:var(--accent-2);"></span>
+          Enterprise SaaS
+          <span class="pill">9</span>
+        </div>
+        <div class="wl-tab">
+          <span class="swatch" style="background:var(--warm);"></span>
+          Just funded ('26)
+          <span class="pill">5</span>
+        </div>
+        <div class="wl-tab">
+          <span class="swatch" style="background:var(--cyan);"></span>
+          Detected: Snowflake
+          <span class="pill">3</span>
+        </div>
+        <div class="wl-tab" style="margin-left:auto;color:var(--text-tertiary);">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" width="11" height="11"><path d="M6 2v8M2 6h8"/></svg>
+          New list
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="wl-table">
+        <div class="wl-head">
+          <div></div>
+          <div>Account</div>
+          <div style="text-align:left;">Score</div>
+          <div>7d trend</div>
+          <div>Signal mix</div>
+          <div>Threshold</div>
+          <div>Last move</div>
+          <div></div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox checked">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" width="8" height="8"><path d="M2 5l2 2 4-4"/></svg>
+          </div>
+          <div class="wl-co">
+            <div class="av av-2">A</div>
+            <div style="min-width:0;">
+              <div class="name">Anthropic</div>
+              <div class="domain">anthropic.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">96</div>
+          <div class="wl-spark">
+            <div class="b" style="height:30%"></div>
+            <div class="b" style="height:42%"></div>
+            <div class="b" style="height:51%"></div>
+            <div class="b" style="height:58%"></div>
+            <div class="b" style="height:67%"></div>
+            <div class="b" style="height:79%"></div>
+            <div class="b cur" style="height:96%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:98%;"></div>
+            <div class="seg" style="background:#4ade80;height:95%;"></div>
+            <div class="seg" style="background:#f5b544;height:99%;"></div>
+            <div class="seg" style="background:#7170ff;height:90%;"></div>
+            <div class="seg" style="background:#ec4899;height:94%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold"><span class="hit">▲ Crossed HOT 75</span></div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:96%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 24 · 14m</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-1">S</div>
+            <div style="min-width:0;">
+              <div class="name">Stripe</div>
+              <div class="domain">stripe.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">94</div>
+          <div class="wl-spark">
+            <div class="b" style="height:62%"></div>
+            <div class="b" style="height:65%"></div>
+            <div class="b" style="height:71%"></div>
+            <div class="b" style="height:73%"></div>
+            <div class="b" style="height:78%"></div>
+            <div class="b" style="height:82%"></div>
+            <div class="b cur" style="height:94%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:96%;"></div>
+            <div class="seg" style="background:#4ade80;height:88%;"></div>
+            <div class="seg" style="background:#f5b544;height:92%;"></div>
+            <div class="seg" style="background:#7170ff;height:78%;"></div>
+            <div class="seg" style="background:#ec4899;height:84%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold"><span class="hit">▲ Crossed HOT 75</span></div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:94%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 12 · 3m</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-9">P</div>
+            <div style="min-width:0;">
+              <div class="name">Plaid</div>
+              <div class="domain">plaid.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">91</div>
+          <div class="wl-spark">
+            <div class="b" style="height:68%"></div>
+            <div class="b" style="height:72%"></div>
+            <div class="b" style="height:78%"></div>
+            <div class="b" style="height:82%"></div>
+            <div class="b" style="height:85%"></div>
+            <div class="b" style="height:88%"></div>
+            <div class="b cur" style="height:91%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:82%;"></div>
+            <div class="seg" style="background:#4ade80;height:88%;"></div>
+            <div class="seg" style="background:#f5b544;height:84%;"></div>
+            <div class="seg" style="background:#7170ff;height:91%;"></div>
+            <div class="seg" style="background:#ec4899;height:78%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">HOT band · stable</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:91%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 3 · 2w</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-8">I</div>
+            <div style="min-width:0;">
+              <div class="name">Intercom</div>
+              <div class="domain">intercom.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">88</div>
+          <div class="wl-spark">
+            <div class="b" style="height:64%"></div>
+            <div class="b" style="height:70%"></div>
+            <div class="b" style="height:74%"></div>
+            <div class="b" style="height:80%"></div>
+            <div class="b" style="height:83%"></div>
+            <div class="b" style="height:86%"></div>
+            <div class="b cur" style="height:88%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:72%;"></div>
+            <div class="seg" style="background:#4ade80;height:82%;"></div>
+            <div class="seg" style="background:#f5b544;height:85%;"></div>
+            <div class="seg" style="background:#7170ff;height:78%;"></div>
+            <div class="seg" style="background:#ec4899;height:88%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">HOT band · 12d</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:88%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 2 · 1w</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-6">D</div>
+            <div style="min-width:0;">
+              <div class="name">Databricks</div>
+              <div class="domain">databricks.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">87</div>
+          <div class="wl-spark">
+            <div class="b" style="height:62%"></div>
+            <div class="b" style="height:68%"></div>
+            <div class="b" style="height:71%"></div>
+            <div class="b" style="height:74%"></div>
+            <div class="b" style="height:79%"></div>
+            <div class="b" style="height:83%"></div>
+            <div class="b cur" style="height:87%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:88%;"></div>
+            <div class="seg" style="background:#4ade80;height:79%;"></div>
+            <div class="seg" style="background:#f5b544;height:74%;"></div>
+            <div class="seg" style="background:#7170ff;height:91%;"></div>
+            <div class="seg" style="background:#ec4899;height:68%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">HOT band · 5d</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:87%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 9 · 5d</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-4">L</div>
+            <div style="min-width:0;">
+              <div class="name">Linear</div>
+              <div class="domain">linear.app</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">82</div>
+          <div class="wl-spark">
+            <div class="b" style="height:70%"></div>
+            <div class="b" style="height:74%"></div>
+            <div class="b" style="height:69%"></div>
+            <div class="b" style="height:72%"></div>
+            <div class="b" style="height:76%"></div>
+            <div class="b" style="height:78%"></div>
+            <div class="b cur" style="height:82%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:62%;"></div>
+            <div class="seg" style="background:#4ade80;height:91%;"></div>
+            <div class="seg" style="background:#f5b544;height:74%;"></div>
+            <div class="seg" style="background:#7170ff;height:88%;"></div>
+            <div class="seg" style="background:#ec4899;height:81%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold"><span class="hit">▲ Crossed HOT 75</span></div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:82%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 4 · 9m</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-3">N</div>
+            <div style="min-width:0;">
+              <div class="name">Notion</div>
+              <div class="domain">notion.so</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--hot);">78</div>
+          <div class="wl-spark">
+            <div class="b" style="height:55%"></div>
+            <div class="b" style="height:58%"></div>
+            <div class="b" style="height:60%"></div>
+            <div class="b" style="height:64%"></div>
+            <div class="b" style="height:68%"></div>
+            <div class="b" style="height:74%"></div>
+            <div class="b cur" style="height:78%;background:var(--hot);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:42%;"></div>
+            <div class="seg" style="background:#4ade80;height:67%;"></div>
+            <div class="seg" style="background:#f5b544;height:71%;"></div>
+            <div class="seg" style="background:#7170ff;height:74%;"></div>
+            <div class="seg" style="background:#ec4899;height:96%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">HOT band · 2d</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:78%;background:var(--hot);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--text-tertiary);font-size:12px;">— 0 · 2h</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-8">F</div>
+            <div style="min-width:0;">
+              <div class="name">Figma</div>
+              <div class="domain">figma.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--warm);">71</div>
+          <div class="wl-spark">
+            <div class="b" style="height:42%"></div>
+            <div class="b" style="height:48%"></div>
+            <div class="b" style="height:54%"></div>
+            <div class="b" style="height:58%"></div>
+            <div class="b" style="height:62%"></div>
+            <div class="b" style="height:66%"></div>
+            <div class="b cur" style="height:71%;background:var(--warm);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:38%;"></div>
+            <div class="seg" style="background:#4ade80;height:62%;"></div>
+            <div class="seg" style="background:#f5b544;height:88%;"></div>
+            <div class="seg" style="background:#7170ff;height:69%;"></div>
+            <div class="seg" style="background:#ec4899;height:78%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">WARM · 4 to HOT</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:71%;background:var(--warm);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 5 · 3h</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-7">V</div>
+            <div style="min-width:0;">
+              <div class="name">Vercel</div>
+              <div class="domain">vercel.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--warm);">67</div>
+          <div class="wl-spark">
+            <div class="b" style="height:48%"></div>
+            <div class="b" style="height:52%"></div>
+            <div class="b" style="height:55%"></div>
+            <div class="b" style="height:59%"></div>
+            <div class="b" style="height:62%"></div>
+            <div class="b" style="height:65%"></div>
+            <div class="b cur" style="height:67%;background:var(--warm);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:55%;"></div>
+            <div class="seg" style="background:#4ade80;height:48%;"></div>
+            <div class="seg" style="background:#f5b544;height:62%;"></div>
+            <div class="seg" style="background:#7170ff;height:88%;"></div>
+            <div class="seg" style="background:#ec4899;height:71%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">WARM · 8 to HOT</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:67%;background:var(--warm);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 2 · 1h</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-6">D</div>
+            <div style="min-width:0;">
+              <div class="name">Datadog</div>
+              <div class="domain">datadoghq.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--warm);">64</div>
+          <div class="wl-spark">
+            <div class="b" style="height:40%"></div>
+            <div class="b" style="height:48%"></div>
+            <div class="b" style="height:52%"></div>
+            <div class="b" style="height:56%"></div>
+            <div class="b" style="height:58%"></div>
+            <div class="b" style="height:62%"></div>
+            <div class="b cur" style="height:64%;background:var(--warm);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:48%;"></div>
+            <div class="seg" style="background:#4ade80;height:79%;"></div>
+            <div class="seg" style="background:#f5b544;height:71%;"></div>
+            <div class="seg" style="background:#7170ff;height:54%;"></div>
+            <div class="seg" style="background:#ec4899;height:62%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">WARM · 11 to HOT</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:64%;background:var(--warm);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 4 · 4h</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-2">S</div>
+            <div style="min-width:0;">
+              <div class="name">Segment</div>
+              <div class="domain">segment.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--warm);">62</div>
+          <div class="wl-spark">
+            <div class="b" style="height:48%"></div>
+            <div class="b" style="height:50%"></div>
+            <div class="b" style="height:53%"></div>
+            <div class="b" style="height:56%"></div>
+            <div class="b" style="height:58%"></div>
+            <div class="b" style="height:60%"></div>
+            <div class="b cur" style="height:62%;background:var(--warm);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:51%;"></div>
+            <div class="seg" style="background:#4ade80;height:62%;"></div>
+            <div class="seg" style="background:#f5b544;height:48%;"></div>
+            <div class="seg" style="background:#7170ff;height:71%;"></div>
+            <div class="seg" style="background:#ec4899;height:58%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">WARM · 13 to HOT</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:62%;background:var(--warm);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--hot);font-size:12px;">▲ 2 · 9h</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-row">
+          <div class="checkbox"></div>
+          <div class="wl-co">
+            <div class="av av-5">M</div>
+            <div style="min-width:0;">
+              <div class="name">Mixpanel</div>
+              <div class="domain">mixpanel.com</div>
+            </div>
+          </div>
+          <div class="wl-score-cell" style="color:var(--cold);">38</div>
+          <div class="wl-spark">
+            <div class="b" style="height:55%"></div>
+            <div class="b" style="height:50%"></div>
+            <div class="b" style="height:48%"></div>
+            <div class="b" style="height:45%"></div>
+            <div class="b" style="height:42%"></div>
+            <div class="b" style="height:40%"></div>
+            <div class="b cur" style="height:38%;background:var(--cold);"></div>
+          </div>
+          <div class="wl-mix">
+            <div class="seg" style="background:#4ec9d8;height:21%;"></div>
+            <div class="seg" style="background:#4ade80;height:32%;"></div>
+            <div class="seg" style="background:#f5b544;height:28%;"></div>
+            <div class="seg" style="background:#7170ff;height:54%;"></div>
+            <div class="seg" style="background:#ec4899;height:42%;"></div>
+          </div>
+          <div>
+            <div class="wl-threshold">COLD · 37 to HOT</div>
+            <div class="threshold-bar" style="margin-top:6px;">
+              <div class="fill" style="width:38%;background:var(--cold);"></div>
+              <div class="marker" style="left:75%;"></div>
+            </div>
+          </div>
+          <div class="mono" style="color:var(--red);font-size:12px;">▼ 3 · 1d</div>
+          <div class="wl-actions">
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M6 1l1.5 3.5L11 5l-3 2 1 4-3-2-3 2 1-4-3-2L4.5 4.5z"/></svg></div>
+            <div class="wl-icon-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><circle cx="3" cy="6" r="1"/><circle cx="6" cy="6" r="1"/><circle cx="9" cy="6" r="1"/></svg></div>
+          </div>
+        </div>
+
+        <div class="wl-foot">
+          <span class="left">12 of 24 visible · sorted by score ↓</span>
+          <a href="#" style="color:var(--text-secondary);font-weight:500;">Show all 24 →</a>
+        </div>
+      </div>
+
+      <!-- Quick add -->
+      <div class="quick-add">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14" style="color:var(--text-tertiary);">
+          <path d="M7 2v10M2 7h10"/>
+        </svg>
+        <input class="quick-add-input" placeholder="Add by domain — e.g. snowflake.com, openai.com">
+        <span class="hint">Press <span class="kbd">↵</span> to add</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

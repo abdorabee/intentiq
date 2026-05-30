@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,86 +18,156 @@ import {
   Mail,
   RefreshCw,
   ExternalLink,
-  Columns3,
   Check,
-  Flame,
-  Zap,
-  ArrowRight,
 } from "lucide-react";
-import type { PipelineCompany } from "@/app/api/dashboard/pipeline/route";
+import type { PipelineCompany, PipelineSignals } from "@/app/api/dashboard/pipeline/route";
 
 type StageKey = "cold" | "warming" | "hot" | "engaged" | "converted";
+
+const STAGE_ORDER: StageKey[] = ["cold", "warming", "hot", "engaged", "converted"];
 
 const STAGE_CONFIG: Record<StageKey, {
   label: string;
   desc: string;
   action: string;
-  headerClass: string;
-  titleClass: string;
-  dotClass: string;
-  scoreClass: string;
+  color: string;
+  bandClass: string;
+  glow: boolean;
   badgeClass: string;
+  scoreClass: string;
 }> = {
   cold: {
-    label: "COLD",
+    label: "Cold",
     desc: "Nurture",
     action: "Send awareness content",
-    headerClass: "border-slate-500/30 bg-slate-50 dark:bg-white/[0.03]",
-    titleClass: "text-slate-400",
-    dotClass: "bg-slate-500",
-    scoreClass: "text-slate-600 dark:text-slate-300",
+    color: "#8a8f98",
+    bandClass: "band-cold",
+    glow: false,
     badgeClass: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
+    scoreClass: "text-slate-600 dark:text-slate-300",
   },
   warming: {
-    label: "WARMING",
+    label: "Warming",
     desc: "Follow Up",
     action: "Reference their recent signal",
-    headerClass: "border-amber-500/30 bg-amber-500/10",
-    titleClass: "text-amber-400",
-    dotClass: "bg-amber-400",
-    scoreClass: "text-amber-400",
+    color: "#f5b544",
+    bandClass: "band-warm",
+    glow: false,
     badgeClass: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+    scoreClass: "text-amber-400",
   },
   hot: {
-    label: "HOT",
+    label: "Hot",
     desc: "Act Now",
     action: "Book a call — use trigger in pitch",
-    headerClass: "border-emerald-500/30 bg-emerald-500/10",
-    titleClass: "text-emerald-400",
-    dotClass: "bg-emerald-400",
-    scoreClass: "text-emerald-400",
+    color: "#4ade80",
+    bandClass: "band-hot",
+    glow: true,
     badgeClass: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+    scoreClass: "text-emerald-400",
   },
   engaged: {
-    label: "ENGAGED",
+    label: "Engaged",
     desc: "In Outreach",
     action: "Send proposal or follow up",
-    headerClass: "border-cyan-500/30 bg-cyan-500/10",
-    titleClass: "text-cyan-400",
-    dotClass: "bg-cyan-400",
-    scoreClass: "text-cyan-400",
-    badgeClass: "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30",
+    color: "#7170ff",
+    bandClass: "band-hot",
+    glow: false,
+    badgeClass: "border border-[#5e6ad2]/35 bg-[#5e6ad2]/15 text-[#c9c4ff]",
+    scoreClass: "text-[#c9c4ff]",
   },
   converted: {
-    label: "CONVERTED",
+    label: "Converted",
     desc: "Won",
     action: "Request a referral",
-    headerClass: "border-violet-500/30 bg-violet-500/10",
-    titleClass: "text-violet-400",
-    dotClass: "bg-violet-400",
-    scoreClass: "text-violet-400",
+    color: "#a78bfa",
+    bandClass: "band-hot",
+    glow: false,
     badgeClass: "bg-violet-500/20 text-violet-400 border border-violet-500/30",
+    scoreClass: "text-violet-400",
   },
 };
 
-const STAGE_ORDER: StageKey[] = ["cold", "warming", "hot", "engaged", "converted"];
+const AV_COLORS = [
+  "linear-gradient(135deg,#4ec9d8,#5e6ad2)",
+  "linear-gradient(135deg,#4ade80,#22c55e)",
+  "linear-gradient(135deg,#f5b544,#ec4899)",
+  "linear-gradient(135deg,#7170ff,#c9c4ff)",
+  "linear-gradient(135deg,#f87171,#f5b544)",
+  "linear-gradient(135deg,#4ec9d8,#4ade80)",
+  "linear-gradient(135deg,#c9c4ff,#4ec9d8)",
+  "linear-gradient(135deg,#ec4899,#f87171)",
+  "linear-gradient(135deg,#a78bfa,#7170ff)",
+  "linear-gradient(135deg,#f5b544,#4ade80)",
+];
 
-const urgencyConfig = (urgency: string | null) => {
-  if (urgency === "act-now")    return "bg-red-500/15 text-red-400 border-red-500/30";
-  if (urgency === "this-week")  return "bg-orange-500/15 text-orange-400 border-orange-500/30";
-  if (urgency === "this-month") return "bg-blue-500/15 text-blue-400 border-blue-500/30";
-  return "bg-slate-500/15 text-slate-400 border-slate-500/30";
-};
+function avColor(name: string): string {
+  return AV_COLORS[name.charCodeAt(0) % AV_COLORS.length];
+}
+
+function relTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d`;
+  return `${Math.floor(d / 7)}w`;
+}
+
+type PriorityLevel = "urgent" | "high" | "med" | "low";
+
+function priorityFromUrgency(urgency: string | null): PriorityLevel {
+  if (urgency === "act-now") return "urgent";
+  if (urgency === "this-week") return "high";
+  if (urgency === "this-month") return "med";
+  return "low";
+}
+
+function PriorityIcon({ level }: { level: PriorityLevel }) {
+  if (level === "urgent") {
+    return (
+      <span className={`priority pri-urgent`}>
+        <svg viewBox="0 0 10 10" fill="currentColor" width="10" height="10">
+          <circle cx="5" cy="5" r="4" />
+        </svg>
+      </span>
+    );
+  }
+  if (level === "high") {
+    return (
+      <span className={`priority pri-high`}>
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" width="10" height="10">
+          <rect x="1" y="4" width="2" height="5" fill="currentColor" stroke="none" />
+          <rect x="4" y="2" width="2" height="7" fill="currentColor" stroke="none" />
+          <rect x="7" y="5" width="2" height="4" fill="none" />
+        </svg>
+      </span>
+    );
+  }
+  if (level === "med") {
+    return (
+      <span className={`priority pri-med`}>
+        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" width="10" height="10">
+          <rect x="1" y="4" width="2" height="5" fill="currentColor" stroke="none" />
+          <rect x="4" y="2" width="2" height="7" fill="none" />
+          <rect x="7" y="5" width="2" height="4" fill="none" />
+        </svg>
+      </span>
+    );
+  }
+  return (
+    <span className={`priority pri-low`}>
+      <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" width="10" height="10">
+        <rect x="1" y="4" width="2" height="5" fill="none" />
+        <rect x="4" y="2" width="2" height="7" fill="none" />
+        <rect x="7" y="5" width="2" height="4" fill="none" />
+      </svg>
+    </span>
+  );
+}
 
 function TrendBadge({ trend }: { trend: number | null }) {
   if (trend === null) return null;
@@ -117,9 +188,46 @@ function TrendBadge({ trend }: { trend: number | null }) {
   );
 }
 
-function CompanyCard({
+function urgencyConfig(urgency: string | null): string {
+  if (urgency === "act-now") return "bg-red-500/15 text-red-400 border-red-500/30";
+  if (urgency === "this-week") return "bg-orange-500/15 text-orange-400 border-orange-500/30";
+  if (urgency === "this-month") return "bg-blue-500/15 text-blue-400 border-blue-500/30";
+  return "bg-slate-500/15 text-slate-400 border-slate-500/30";
+}
+
+const SIGNAL_LABELS: Array<{ key: keyof PipelineSignals; label: string }> = [
+  { key: "funding", label: "fund" },
+  { key: "hiring", label: "hire" },
+  { key: "news", label: "news" },
+  { key: "technology", label: "tech" },
+  { key: "web", label: "web" },
+];
+
+function SignalPills({ signals }: { signals: PipelineSignals }) {
+  const pills = SIGNAL_LABELS.flatMap(({ key, label }) => {
+    const s = signals[key];
+    if (!s || s.score === 0) return [];
+    return [{ label, score: s.score }];
+  }).slice(0, 3);
+
+  if (pills.length === 0) return null;
+
+  return (
+    <div className="signal-tags">
+      {pills.map((p) => (
+        <span key={p.label} className="signal-tag">
+          <span style={{ color: "var(--text-tertiary)" }}>{p.label}:</span>{p.score}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function KanbanCard({
   company,
   stage,
+  globalIndex,
+  userInitials,
   onSelect,
   onRescore,
   onStageChange,
@@ -127,28 +235,21 @@ function CompanyCard({
 }: {
   company: PipelineCompany;
   stage: StageKey;
+  globalIndex: number;
+  userInitials: string;
   onSelect: (c: PipelineCompany) => void;
   onRescore: (domain: string) => void;
   onStageChange: (domain: string, stage: StageKey) => void;
   rescoring: string | null;
 }) {
-  const [emailCopied, setEmailCopied] = useState(false);
   const cfg = STAGE_CONFIG[stage];
-
-  function handleCopyEmail(e: React.MouseEvent) {
-    e.stopPropagation();
-    const text = [company.email_subject, company.talk_track].filter(Boolean).join("\n\n");
-    navigator.clipboard.writeText(text);
-    setEmailCopied(true);
-    setTimeout(() => setEmailCopied(false), 2000);
-  }
-
-  const isRescoring = rescoring === company.domain;
-  const currentIdx = STAGE_ORDER.indexOf(stage);
-  const nextStage = currentIdx < STAGE_ORDER.length - 1 ? STAGE_ORDER[currentIdx + 1] : null;
+  const iqNum = `IQ-${String(1000 + globalIndex).padStart(4, "0")}`;
+  const priorityLevel = priorityFromUrgency(company.urgency);
+  const cardClass = `kcard${stage === "hot" ? " hot" : stage === "engaged" ? " engaged" : ""}`;
 
   return (
     <div
+      className={cardClass}
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", company.domain);
@@ -159,70 +260,59 @@ function CompanyCard({
         (e.currentTarget as HTMLElement).style.opacity = "1";
       }}
       onClick={() => onSelect(company)}
-      className="border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.06] p-4 space-y-3 cursor-grab transition-all duration-200 hover:border-slate-300 dark:hover:border-white/[0.12] active:cursor-grabbing"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">{company.company_name}</p>
-          <p className="text-xs text-slate-500 truncate">{company.domain}</p>
+      <div className="top">
+        <span className="iq">{iqNum}</span>
+        <PriorityIcon level={priorityLevel} />
+      </div>
+      <div className="row-head">
+        <div className="co-av" style={{ background: avColor(company.company_name) }}>
+          {company.company_name[0]}
         </div>
-        <span className={`text-xl font-black shrink-0 ${cfg.scoreClass}`}>{company.score ?? "—"}</span>
+        <div className="name">{company.company_name}</div>
       </div>
-
-      <div className="flex items-center gap-2 flex-wrap">
-        <TrendBadge trend={company.trend} />
-        {company.urgency && (
-          <span className={`text-[10px] px-2 py-0.5 border font-medium ${urgencyConfig(company.urgency)}`}>
-            {company.urgency}
-          </span>
-        )}
-      </div>
-
-      {company.key_triggers && company.key_triggers.length > 0 && (
-        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-          {company.key_triggers[0]}
-        </p>
+      {(company.ai_summary || company.key_triggers?.[0]) && (
+        <div className="summary">{company.ai_summary || company.key_triggers?.[0]}</div>
       )}
-
-      <div className="flex gap-1.5 pt-1 w-full" onClick={(e) => e.stopPropagation()}>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleCopyEmail}
-          disabled={!company.email_subject && !company.talk_track}
-          className="h-7 text-[10px] px-2 shrink-0 border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.08] cursor-pointer gap-1"
-        >
-          {emailCopied ? <><Check className="h-3 w-3" />✓</> : <><Mail className="h-3 w-3" />Email</>}
-        </Button>
-        {nextStage && stage !== "converted" ? (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={(e) => { e.stopPropagation(); onStageChange(company.domain, nextStage); }}
-            className="flex-1 min-w-0 h-7 text-[10px] px-2 border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.08] cursor-pointer gap-1 truncate"
+      {company.signals && (
+        <SignalPills signals={company.signals} />
+      )}
+      <div className="meta">
+        <div className="meta-left">
+          <span className={`band ${cfg.bandClass}`}>
+            <span className="dot" />
+            {company.score ?? "—"}
+          </span>
+          <span className="when">{relTime(company.last_scored)}</span>
+        </div>
+        <div className="meta-right">
+          <span
+            className="av"
+            style={{
+              background: "linear-gradient(135deg,#f5b544,#ec4899)",
+              color: "#0a0b0f",
+              width: 18,
+              height: 18,
+              borderRadius: "50%",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 9,
+              fontWeight: 700,
+            }}
           >
-            → {STAGE_CONFIG[nextStage].label}
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={(e) => { e.stopPropagation(); onRescore(company.domain); }}
-            disabled={isRescoring}
-            className="flex-1 min-w-0 h-7 text-[10px] px-2 border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.08] cursor-pointer gap-1 truncate"
-          >
-            <RefreshCw className={`h-3 w-3 shrink-0 ${isRescoring ? "animate-spin" : ""}`} />
-            {isRescoring ? "Scoring…" : "Re-score"}
-          </Button>
-        )}
+            {userInitials}
+          </span>
+        </div>
       </div>
     </div>
   );
 }
 
-function PipelineColumn({
+function KanbanColumn({
   stage,
   companies,
+  globalOffset,
+  userInitials,
   onSelect,
   onRescore,
   onStageChange,
@@ -230,6 +320,8 @@ function PipelineColumn({
 }: {
   stage: StageKey;
   companies: PipelineCompany[];
+  globalOffset: number;
+  userInitials: string;
   onSelect: (c: PipelineCompany) => void;
   onRescore: (domain: string) => void;
   onStageChange: (domain: string, stage: StageKey) => void;
@@ -237,9 +329,11 @@ function PipelineColumn({
 }) {
   const [dragOver, setDragOver] = useState(false);
   const cfg = STAGE_CONFIG[stage];
+
   return (
     <div
-      className={`flex flex-col gap-3 min-w-0 transition-all duration-200 ${dragOver ? "ring-2 ring-cyan-500/40 rounded-sm" : ""}`}
+      className="kcol"
+      style={dragOver ? { outline: "2px solid rgba(94,106,210,0.4)", outlineOffset: "-1px" } : undefined}
       onDragOver={(e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
@@ -253,29 +347,40 @@ function PipelineColumn({
         if (domain) onStageChange(domain, stage);
       }}
     >
-      <div className={`border px-4 py-3 ${cfg.headerClass}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${cfg.dotClass} ${stage === "hot" ? "animate-pulse" : ""}`} />
-            <span className={`font-bold text-sm ${cfg.titleClass}`}>{cfg.label}</span>
-            <span className="text-xs text-slate-500">{cfg.desc}</span>
-          </div>
-          <span className="text-xs font-mono text-slate-500">{companies.length}</span>
-        </div>
-        <p className="text-[10px] text-slate-500 dark:text-slate-600 mt-1 pl-4">→ {cfg.action}</p>
+      <div className="kcol-head">
+        <span
+          className="indicator"
+          style={{
+            background: cfg.color,
+            boxShadow: cfg.glow ? `0 0 8px ${cfg.color}` : undefined,
+          }}
+        />
+        <span className="name">{cfg.label}</span>
+        <span className="count">{companies.length}</span>
+        {companies.length > 0 && (
+          <span className="meta">
+            avg {Math.round(companies.reduce((s, c) => s + (c.score ?? 0), 0) / companies.length)}
+          </span>
+        )}
+        <span className="add">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
+            <path d="M6 2v8M2 6h8" />
+          </svg>
+        </span>
       </div>
-
-      <div className={`space-y-2 min-h-[80px] ${dragOver ? "bg-cyan-500/5" : ""}`}>
+      <div className="kcards">
         {companies.length === 0 ? (
-          <div className={`border border-dashed px-4 py-8 text-center ${dragOver ? "border-cyan-500/30" : "border-slate-200 dark:border-white/[0.06]"}`}>
-            <p className="text-xs text-slate-600">{dragOver ? `Drop here → ${cfg.label}` : `No ${cfg.label.toLowerCase()} companies`}</p>
+          <div style={{ padding: "24px 12px", textAlign: "center", color: "var(--text-quaternary)", fontSize: 12 }}>
+            {dragOver ? `Drop here → ${cfg.label}` : `No ${cfg.label.toLowerCase()} companies`}
           </div>
         ) : (
-          companies.map((c) => (
-            <CompanyCard
-              key={c.id}
-              company={c}
+          companies.map((company, idx) => (
+            <KanbanCard
+              key={company.id}
+              company={company}
               stage={stage}
+              globalIndex={globalOffset + idx}
+              userInitials={userInitials}
               onSelect={onSelect}
               onRescore={onRescore}
               onStageChange={onStageChange}
@@ -289,6 +394,14 @@ function PipelineColumn({
 }
 
 export default function PipelinePage() {
+  const { user } = useUser();
+  const userInitials = (() => {
+    if (!user) return "U";
+    const fromName = (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "");
+    if (fromName) return fromName;
+    return user.emailAddresses[0]?.emailAddress[0]?.toUpperCase() ?? "U";
+  })();
+
   const [companies, setCompanies] = useState<PipelineCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<PipelineCompany | null>(null);
@@ -377,7 +490,6 @@ export default function PipelinePage() {
     setTimeout(() => setDialogEmailCopied(false), 2000);
   }
 
-  // Group by pipeline_stage
   const grouped: Record<StageKey, PipelineCompany[]> = { cold: [], warming: [], hot: [], engaged: [], converted: [] };
   for (const c of companies) {
     const stage = (c.pipeline_stage ?? "cold") as StageKey;
@@ -387,7 +499,6 @@ export default function PipelinePage() {
       grouped.cold.push(c);
     }
   }
-  // Sort each group by score descending
   for (const stage of STAGE_ORDER) {
     grouped[stage].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   }
@@ -395,85 +506,113 @@ export default function PipelinePage() {
   const selectedStage = selected ? ((selected.pipeline_stage ?? "cold") as StageKey) : "cold";
   const selectedCfg = selected ? STAGE_CONFIG[selectedStage] : null;
 
-  const hotCount = grouped.hot.length;
-  const warmingCount = grouped.warming.length;
-  const engagedCount = grouped.engaged.length;
+  // Compute global offsets for IQ numbering
+  const globalOffsets: Record<StageKey, number> = { cold: 0, warming: 0, hot: 0, engaged: 0, converted: 0 };
+  let runningOffset = 0;
+  for (const stage of STAGE_ORDER) {
+    globalOffsets[stage] = runningOffset;
+    runningOffset += grouped[stage].length;
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-cyan-400 text-xs tracking-[0.25em] uppercase">[INTENT HUB]</span>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-2">Intent Hub</h1>
-        <p className="text-slate-500 text-sm tracking-[0.05em] mt-1">
-          Track companies through intent stages — each stage tells you exactly what to do next.
-        </p>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      {/* Hub Tools bar */}
+      <div className="hub-tools">
+        <div className="hub-tabs">
+          <div className="hub-tab active">
+            <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="1" y="2" width="3" height="8" /><rect x="5" y="2" width="3" height="6" /><rect x="9" y="2" width="2" height="9" />
+            </svg>
+            Board
+          </div>
+          <div className="hub-tab">
+            <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 3h8M2 6h8M2 9h8" />
+            </svg>
+            List
+          </div>
+          <div className="hub-tab">
+            <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="6" cy="6" r="4" /><path d="M6 2v4l3 1" />
+            </svg>
+            Timeline
+          </div>
+        </div>
+        <div style={{ marginLeft: 14, display: "flex", gap: 6, alignItems: "center" }}>
+          <span style={{ fontSize: 11, color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>Group:</span>
+          <div className="group-toggle">
+            <span className="gt active">Band</span>
+            <span className="gt">Owner</span>
+            <span className="gt">Industry</span>
+            <span className="gt">List</span>
+          </div>
+        </div>
+        <div className="spacer" style={{ flex: 1 }} />
+        <button className="tb-btn outlined">Sort: Score ↓</button>
+        <button className="tb-btn outlined">
+          <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="6" cy="6" r="1" /><circle cx="6" cy="6" r="4" />
+          </svg>
+          Options
+        </button>
       </div>
 
-      {/* Alert bar — shown when there is data */}
-      {!loading && companies.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {hotCount > 0 && (
-            <div className="flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-4 py-2">
-              <Flame className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-400 font-medium">
-                {hotCount} HOT {hotCount === 1 ? "company" : "companies"} — book a call now
-              </span>
-            </div>
-          )}
-          {warmingCount > 0 && (
-            <div className="flex items-center gap-2 border border-amber-500/30 bg-amber-500/5 px-4 py-2">
-              <Zap className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-              <span className="text-xs text-amber-400 font-medium">
-                {warmingCount} warming — follow up with signal context
-              </span>
-            </div>
-          )}
-          {engagedCount > 0 && (
-            <div className="flex items-center gap-2 border border-cyan-500/30 bg-cyan-500/5 px-4 py-2">
-              <ArrowRight className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
-              <span className="text-xs text-cyan-400 font-medium">
-                {engagedCount} in outreach — send proposal or follow up
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Filter bar */}
+      <div className="filter-bar">
+        <span className="f-chip active">
+          <span className="label-key">band:</span> All
+          <svg className="x" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" />
+          </svg>
+        </span>
+        <span className="f-chip">
+          <span className="label-key">score</span> ≥ 50
+        </span>
+        <span className="f-chip">
+          <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <path d="M6 2v8M2 6h8" />
+          </svg>
+          Add filter
+        </span>
+        <div style={{ flex: 1 }} />
+        <span style={{ fontSize: 12, color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
+          {companies.length} accounts
+        </span>
+      </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-24">
-          <div className="text-slate-500 text-sm">Loading pipeline…</div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-tertiary)", fontSize: 13 }}>
+          Loading…
         </div>
       ) : companies.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-          <Columns3 className="h-14 w-14 text-slate-700" />
-          <div>
-            <p className="text-slate-500 text-sm tracking-[0.05em] font-medium">Your pipeline is empty.</p>
-            <p className="text-slate-600 text-sm mt-1">Add companies to your watchlist to see them here.</p>
-          </div>
-          <Link
-            href="/watchlist"
-            className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
-          >
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: "var(--text-tertiary)", fontSize: 13 }}>
+          <p>Your pipeline is empty.</p>
+          <p style={{ color: "var(--text-quaternary)", fontSize: 12 }}>Add companies to your watchlist to see them here.</p>
+          <Link href="/watchlist" className="text-sm text-[#c9c4ff] transition-colors hover:text-[#f7f8f8]">
             Go to Watchlist →
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto">
-          {STAGE_ORDER.map((stage) => (
-            <PipelineColumn
-              key={stage}
-              stage={stage}
-              companies={grouped[stage]}
-              onSelect={setSelected}
-              onRescore={handleRescore}
-              onStageChange={handleStageChange}
-              rescoring={rescoring}
-            />
-          ))}
+        <div className="kanban-wrap">
+          <div className="kanban">
+            {STAGE_ORDER.map((stage) => (
+              <KanbanColumn
+                key={stage}
+                stage={stage}
+                companies={grouped[stage]}
+                globalOffset={globalOffsets[stage]}
+                userInitials={userInitials}
+                onSelect={setSelected}
+                onRescore={handleRescore}
+                onStageChange={handleStageChange}
+                rescoring={rescoring}
+              />
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Detail Dialog */}
+      {/* Detail Dialog — unchanged */}
       <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setDialogEmailCopied(false); } }}>
         <DialogContent className="border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0c1122] max-w-lg">
           {selected && selectedCfg && (
@@ -557,11 +696,20 @@ export default function PipelinePage() {
 
                 <div className="flex gap-2 flex-wrap pt-1">
                   <Button
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-400 text-white border-0 gap-1.5 cursor-pointer"
+                    className="flex-1 cursor-pointer gap-1.5 border-0 bg-[#5e6ad2] text-white hover:bg-[#7170ff]"
                     onClick={handleCopyDialogEmail}
                     disabled={!selected.email_subject && !selected.talk_track}
                   >
                     {dialogEmailCopied ? <><Check className="h-4 w-4" />Copied!</> : <><Mail className="h-4 w-4" />Copy Email + Talk Track</>}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleRescore(selected.domain)}
+                    disabled={rescoring === selected.domain}
+                    className="border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 ${rescoring === selected.domain ? "animate-spin" : ""}`} />
+                    {rescoring === selected.domain ? "Scoring…" : "Re-score"}
                   </Button>
                   <Button
                     variant="outline"

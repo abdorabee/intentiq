@@ -4,11 +4,12 @@ import { addDays, differenceInDays, parseISO } from "date-fns";
 // ── Signal weights (unchanged) ────────────────────────────────────────────────
 
 const WEIGHTS = {
-  funding:    0.25,
-  hiring:     0.20,
-  news:       0.20,
-  technology: 0.20,
-  web:        0.15,
+  funding:    0.22,
+  hiring:     0.19,
+  news:       0.18,
+  technology: 0.18,
+  github:     0.13,
+  web:        0.10,
 } as const;
 
 type SignalKey = keyof typeof WEIGHTS;

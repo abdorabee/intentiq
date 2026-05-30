@@ -2,7 +2,6 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
-import ChatTrigger from "@/components/chat/chat-trigger";
 import OnboardingGate from "@/components/onboarding-gate";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -37,39 +36,31 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await admin
     .from("users")
-    .select("credits_remaining, onboarding_completed")
+    .select("credits_remaining, onboarding_completed, plan")
     .eq("id", userId)
     .single();
 
   const creditsRemaining = profile?.credits_remaining ?? 0;
   const onboardingCompleted = profile?.onboarding_completed ?? true;
+  const plan = (profile?.plan as "free" | "starter" | "growth" | "pro" | "agency" | undefined) ?? "free";
+
+  const { count: inboxCount } = await admin
+    .from("inbox_notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("is_read", false)
+    .eq("is_archived", false);
 
   return (
     <OnboardingGate completed={onboardingCompleted}>
       {onboardingCompleted ? (
-        <div className="relative min-h-screen bg-white dark:bg-black overflow-x-hidden" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
-          {/* Subtle wireframe grid background */}
-          <div className="fixed inset-0 pointer-events-none dark:block hidden" aria-hidden>
-            <div className="absolute inset-0" style={{
-              backgroundImage: "linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
-            }} />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.08)_0%,transparent_50%)]" />
-          </div>
-          <div className="fixed inset-0 pointer-events-none dark:hidden block" aria-hidden>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.05)_0%,transparent_50%)]" />
-          </div>
-
-          <div className="relative flex min-h-screen">
-            <DashboardShell creditsRemaining={creditsRemaining}>
-              {children}
-            </DashboardShell>
-          </div>
-          <ChatTrigger creditsRemaining={creditsRemaining} />
-        </div>
+        <>
+          <DashboardShell creditsRemaining={creditsRemaining} plan={plan} inboxCount={inboxCount ?? 0}>
+            {children}
+          </DashboardShell>
+        </>
       ) : (
-        // During onboarding: clean layout without sidebar/nav
-        <div className="relative min-h-screen bg-white dark:bg-black" style={{ fontFamily: "var(--font-jetbrains), monospace" }}>
+        <div className="relative min-h-screen bg-background font-sans">
           {children}
         </div>
       )}

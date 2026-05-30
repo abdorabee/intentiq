@@ -1,17 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
+import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
+import { SearchProvider } from "@/components/dashboard/search-provider";
+import type { DbUser } from "@/lib/types";
 
 interface DashboardShellProps {
   children: React.ReactNode;
   creditsRemaining: number;
+  plan: DbUser["plan"];
+  inboxCount?: number;
 }
 
-export default function DashboardShell({ children, creditsRemaining }: DashboardShellProps) {
+export default function DashboardShell({ children, creditsRemaining, plan, inboxCount }: DashboardShellProps) {
+  const pathname = usePathname();
+  const flushPages = ["/billing", "/inbox"];
+  const pageClass = flushPages.includes(pathname) ? "page page-flush" : "page";
   const [collapsed, setCollapsed] = useState(false);
 
-  // Persist collapsed state across navigation
   useEffect(() => {
     const stored = localStorage.getItem("nav-collapsed");
     if (stored === "true") setCollapsed(true);
@@ -24,20 +32,24 @@ export default function DashboardShell({ children, creditsRemaining }: Dashboard
     });
   }
 
-  const navWidth = collapsed ? "lg:ml-16" : "lg:ml-60";
-
   return (
-    <>
-      <DashboardNav
-        creditsRemaining={creditsRemaining}
-        collapsed={collapsed}
-        onToggle={toggle}
-      />
-      <main
-        className={`flex-1 w-full p-4 pt-16 lg:p-10 lg:pt-10 transition-[margin] duration-300 ease-out ${navWidth}`}
+    <SearchProvider>
+      <div
+        className="app"
+        style={{ gridTemplateColumns: collapsed ? "56px 1fr" : "232px 1fr" }}
       >
-        {children}
-      </main>
-    </>
+        <DashboardNav
+          creditsRemaining={creditsRemaining}
+          plan={plan}
+          collapsed={collapsed}
+          onToggle={toggle}
+          inboxCount={inboxCount}
+        />
+        <div className="main">
+          <DashboardTopbar />
+          <main className={pageClass}>{children}</main>
+        </div>
+      </div>
+    </SearchProvider>
   );
 }

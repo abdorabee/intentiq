@@ -1,274 +1,256 @@
 "use client";
 
-import { useState } from "react";
+import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SignOutButton } from "@clerk/nextjs";
+import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { PLAN_CREDITS, type DbUser } from "@/lib/types";
 import {
-  Sparkles,
-  BrainCircuit,
+  LayoutGrid,
   Flame,
-  UserSearch,
+  Gauge,
   History,
+  UserSearch,
   Eye,
-  Key,
+  Zap,
+  Inbox,
   CreditCard,
+  Key,
   LogOut,
-  Menu,
-  X,
   Sun,
   Moon,
   PanelLeft,
+  ChevronDown,
+  Search,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
-import type { LucideIcon } from "lucide-react";
+import { useDashboardSearch } from "@/components/dashboard/search-provider";
 
 interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string }>;
+  count?: string;
+  indicator?: boolean;
+  hotCount?: boolean;
   beta?: boolean;
   comingSoon?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Analyze",      icon: Sparkles },
-  { href: "/memory",    label: "Memory",        icon: BrainCircuit },
-  { href: "/pipeline",  label: "Intent Hub",    icon: Flame },
-  { href: "/people",    label: "People",        icon: UserSearch, beta: true },
-  { href: "/history",   label: "Score History", icon: History },
-  { href: "/watchlist", label: "Watchlist",     icon: Eye },
+const WORKSPACE_ITEMS: NavItem[] = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { href: "/pipeline", label: "Intent Hub", icon: Flame, count: "●12", hotCount: true },
+  { href: "/score", label: "Score", icon: Gauge },
+  { href: "/history", label: "History", icon: History },
+  { href: "/people", label: "People", icon: UserSearch, beta: true },
+  { href: "/watchlist", label: "Watchlist", icon: Eye, count: "24" },
+  { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
+  { href: "/inbox", label: "Inbox", icon: Inbox },
 ];
 
-const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { href: "/billing",   label: "Billing",  icon: CreditCard },
-  { href: "/api-keys",  label: "API Keys", icon: Key, comingSoon: true },
+const BOTTOM_ITEMS: NavItem[] = [
+  { href: "/billing", label: "Billing", icon: CreditCard },
+  { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
 ];
 
 interface DashboardNavProps {
   creditsRemaining?: number;
+  plan: DbUser["plan"];
   collapsed?: boolean;
   onToggle?: () => void;
+  inboxCount?: number;
 }
 
 export default function DashboardNav({
   creditsRemaining = 0,
+  plan,
   collapsed = false,
   onToggle,
+  inboxCount,
 }: DashboardNavProps) {
   const pathname = usePathname();
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-
-  // ── Desktop nav item ──────────────────────────────────────────────────────────
-
-  const renderNavItem = (item: NavItem, mobile?: boolean) => {
-    const Icon = item.icon;
-    const active = pathname === item.href;
-    return (
-      <Link
-        key={item.href}
-        href={item.href}
-        onClick={mobile ? () => setDrawerOpen(false) : undefined}
-        title={collapsed && !mobile ? item.label : undefined}
-        className={cn(
-          "flex items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] transition-all duration-200 cursor-pointer border",
-          collapsed && !mobile ? "justify-center px-0" : "",
-          active
-            ? "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/30"
-            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.03] border-transparent"
-        )}
-      >
-        <Icon
-          className={cn("h-4 w-4 shrink-0", active ? "text-cyan-400" : "text-slate-400 dark:text-slate-600")}
-        />
-        {/* Hide labels + badges when collapsed */}
-        {(!collapsed || mobile) && (
-          <>
-            {item.label}
-            {"comingSoon" in item && item.comingSoon && (
-              <span className="ml-auto text-[9px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-600 bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.08] px-1.5 py-0.5">
-                Soon
-              </span>
-            )}
-            {"beta" in item && item.beta && (
-              <span className="ml-auto text-[9px] font-bold uppercase tracking-wide text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/30 px-1.5 py-0.5">
-                Beta
-              </span>
-            )}
-          </>
-        )}
-      </Link>
-    );
-  };
-
-  const navContent = (mobile?: boolean) => (
-    <>
-      {NAV_ITEMS.map((item) => renderNavItem(item, mobile))}
-      <div className="my-1 border-t border-slate-200 dark:border-white/[0.06]" />
-      {BOTTOM_NAV_ITEMS.map((item) => renderNavItem(item, mobile))}
-    </>
-  );
-
-  // ── Credits block ─────────────────────────────────────────────────────────────
-
-  const creditsBlock = collapsed ? (
-    // Icon-only credits pill when collapsed
-    <div
-      title={`${creditsRemaining} credits`}
-      className={cn(
-        "flex items-center justify-center px-0 py-2.5 border",
-        creditsRemaining < 5
-          ? "border-amber-500/30 bg-amber-500/5"
-          : "border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]"
-      )}
-    >
-      <span className={`text-xs font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-700 dark:text-slate-300"}`}>
-        {creditsRemaining}
-      </span>
-    </div>
-  ) : (
-    <div className={`px-3 py-2.5 border ${creditsRemaining < 5 ? "border-amber-500/30 bg-amber-500/5" : "border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]"}`}>
-      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 mb-0.5">Credits</p>
-      <div className="flex items-center justify-between">
-        <span className={`text-sm font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-800 dark:text-slate-200"}`}>
-          {creditsRemaining}
-          {creditsRemaining < 5 && (
-            <span className="ml-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5">
-              Low
-            </span>
-          )}
-        </span>
-        <Link href="/billing" className="text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors tracking-[0.1em]">
-          Top up →
-        </Link>
-      </div>
-    </div>
-  );
+  const { open: openSearch } = useDashboardSearch();
+  const { user } = useUser();
+  const creditCap = PLAN_CREDITS[plan] ?? PLAN_CREDITS.free;
+  const creditPct = creditCap > 0 ? Math.min(100, Math.round((creditsRemaining / creditCap) * 100)) : 0;
+  const displayName = user?.fullName || user?.firstName || "Account";
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const initials =
+    (user?.firstName?.[0] ?? "") + (user?.lastName?.[0] ?? "") ||
+    email.slice(0, 2).toUpperCase() ||
+    "IQ";
 
   return (
-    <>
-      {/* ── Mobile top bar ─────────────────────────────────────────────────────── */}
-      <div className="fixed top-0 left-0 right-0 z-30 flex lg:hidden items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-white/[0.06] bg-white/90 dark:bg-black/90 backdrop-blur-sm">
-        <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
-        <div className="flex items-center gap-3">
-          <span className={`text-xs font-bold ${creditsRemaining < 5 ? "text-amber-400" : "text-slate-400"}`}>
-            {creditsRemaining} cr
-          </span>
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
+    <aside className="sidebar">
+      {/* Head */}
+      <div className="sb-head">
+        <span className="ws-logo">IQ</span>
+        {!collapsed && (
+          <div className="ws-name">
+            Acme Sales
+            <span className="role">Workspace · {plan}</span>
+          </div>
+        )}
+        {!collapsed && <ChevronDown className="ws-chev" />}
       </div>
 
-      {/* ── Mobile drawer ──────────────────────────────────────────────────────── */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setDrawerOpen(false)} />
-          <div className="absolute top-0 right-0 bottom-0 w-[min(256px,85vw)] bg-white dark:bg-black border-l border-slate-200 dark:border-white/[0.06] p-4 space-y-1 overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      {/* Search */}
+      {!collapsed && (
+        <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
+          <Search className="ic" />
+          <span>Search</span>
+          <kbd className="kbd">⌘K</kbd>
+        </button>
+      )}
 
-            {navContent(true)}
+      {/* Workspace nav */}
+      <div className="sb-section">
+        {!collapsed && <span>Workspace</span>}
+      </div>
+      {WORKSPACE_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = pathname === item.href;
+        const displayCount = item.href === "/inbox"
+          ? (inboxCount && inboxCount > 0 ? String(inboxCount) : undefined)
+          : item.count;
+        return (
+          <Link
+            key={`${item.href}-${item.label}`}
+            href={item.href}
+            title={collapsed ? item.label : undefined}
+            className={cn("sb-item", active && "active")}
+          >
+            <Icon className="ic" />
+            {!collapsed && (
+              <>
+                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {item.label}
+                </span>
+                {item.comingSoon && (
+                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-quaternary)" }}>
+                    Soon
+                  </span>
+                )}
+                {item.beta && !item.comingSoon && (
+                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-2)" }}>
+                    Beta
+                  </span>
+                )}
+                {displayCount && (
+                  <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
+                )}
+                {item.indicator && <span className="indicator" />}
+              </>
+            )}
+          </Link>
+        );
+      })}
 
-            <div className="pt-4 border-t border-slate-200 dark:border-white/[0.07] space-y-2 mt-4">
-              {creditsBlock}
-              <button
-                onClick={toggleTheme}
-                className="flex w-full items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/[0.03] border border-transparent cursor-pointer"
-              >
-                {theme === "dark" ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
-                {theme === "dark" ? "Light mode" : "Dark mode"}
-              </button>
-              <SignOutButton redirectUrl="/">
-                <button className="flex w-full items-center gap-3 px-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer">
-                  <LogOut className="h-4 w-4 shrink-0" />
-                  Sign out
-                </button>
-              </SignOutButton>
+
+      <div className="sb-divider" />
+
+      {BOTTOM_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = pathname === item.href;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            title={collapsed ? item.label : undefined}
+            className={cn("sb-item", active && "active")}
+          >
+            <Icon className="ic" />
+            {!collapsed && (
+              <>
+                <span style={{ flex: 1 }}>{item.label}</span>
+                {item.comingSoon && (
+                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--text-quaternary)" }}>
+                    Soon
+                  </span>
+                )}
+              </>
+            )}
+          </Link>
+        );
+      })}
+
+      <div className="sb-spacer" />
+
+      {/* Credits */}
+      {!collapsed ? (
+        <div className="sb-credits">
+          <div className="label">Credits this month</div>
+          <div className="row">
+            <div>
+              <span className="val">{creditsRemaining.toLocaleString()}</span>
+              <span className="of"> / {creditCap.toLocaleString()}</span>
             </div>
+            <Link href="/billing" className="topup">Top up</Link>
           </div>
+          <div className="bar">
+            <div className="fill" style={{ width: `${creditPct}%` }} />
+          </div>
+        </div>
+      ) : (
+        <div
+          title={`${creditsRemaining} credits`}
+          style={{ margin: "8px 4px", padding: "8px 4px", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-primary)", border: "1px solid var(--border)", borderRadius: "var(--r-md)" }}
+        >
+          {creditsRemaining}
         </div>
       )}
 
-      {/* ── Desktop sidebar ────────────────────────────────────────────────────── */}
-      <aside
-        className={cn(
-          "hidden lg:flex flex-col border-r border-slate-200 dark:border-white/[0.06] bg-slate-50/80 dark:bg-black/80 fixed top-0 left-0 h-screen z-20 transition-[width] duration-300 ease-out overflow-hidden",
-          collapsed ? "w-16" : "w-60"
+      {/* User */}
+      <div className="sb-user">
+        <span className="av">{initials.slice(0, 2)}</span>
+        {!collapsed && (
+          <div className="info">
+            <div className="name">{displayName}</div>
+            <div className="email">{email}</div>
+          </div>
         )}
-      >
-        {/* Header: logo + collapse toggle */}
-        <div className={cn("flex items-center border-b border-slate-200 dark:border-white/[0.06] shrink-0", collapsed ? "justify-center py-4 px-0" : "justify-between px-5 py-4")}>
-          {!collapsed && (
-            <div>
-              <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.2em] font-bold">[ INTENT IQ ]</span>
-              <p className="text-slate-400 text-[10px] tracking-[0.15em] mt-0.5">v1.0</p>
-            </div>
-          )}
-          <button
-            onClick={onToggle}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={cn(
-              "p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all duration-200 cursor-pointer",
-              collapsed ? "" : "ml-auto"
-            )}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <PanelLeft
-              className={cn("h-4 w-4 transition-transform duration-300", collapsed ? "rotate-180" : "")}
-            />
-          </button>
-        </div>
+        {!collapsed && <ChevronDown style={{ width: 12, height: 12, flexShrink: 0, color: "var(--text-tertiary)" }} />}
+      </div>
 
-        {/* Nav items */}
-        <div className={cn("flex-1 overflow-y-auto py-3 space-y-0.5", collapsed ? "px-2" : "px-4")}>
-          {navContent()}
-        </div>
-
-        {/* Bottom actions */}
-        <div className={cn("shrink-0 border-t border-slate-200 dark:border-white/[0.07] py-3 space-y-1", collapsed ? "px-2" : "px-4")}>
-          {creditsBlock}
-
-          <button
-            onClick={toggleTheme}
-            title={theme === "dark" ? "Light mode" : "Dark mode"}
-            className={cn(
-              "flex w-full items-center gap-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.03] border border-transparent cursor-pointer",
-              collapsed ? "justify-center px-0" : "px-3"
-            )}
-          >
-            {theme === "dark" ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
-            {!collapsed && (theme === "dark" ? "Light mode" : "Dark mode")}
-          </button>
-
-          <SignOutButton redirectUrl="/">
+      {/* Controls */}
+      <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 4px 0" }}>
+        <button
+          type="button"
+          onClick={onToggle}
+          title={collapsed ? "Expand" : "Collapse"}
+          style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
+          className="hover:bg-white/[0.05] hover:text-[#f7f8f8]"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
+        </button>
+        {!collapsed && (
+          <>
             <button
-              title="Sign out"
-              className={cn(
-                "flex w-full items-center gap-3 py-2.5 text-xs tracking-[0.05em] text-slate-500 transition-all duration-200 hover:text-red-400 hover:bg-red-500/10 border border-transparent cursor-pointer",
-                collapsed ? "justify-center px-0" : "px-3"
-              )}
+              type="button"
+              onClick={toggleTheme}
+              title="Theme"
+              style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
+              className="hover:bg-white/[0.05]"
             >
-              <LogOut className="h-4 w-4 shrink-0" />
-              {!collapsed && "Sign out"}
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-          </SignOutButton>
-        </div>
-      </aside>
-    </>
+            <SignOutButton redirectUrl="/">
+              <button
+                type="button"
+                title="Sign out"
+                style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
+                className="hover:bg-red-500/10 hover:text-red-400"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </SignOutButton>
+          </>
+        )}
+      </div>
+    </aside>
   );
 }
