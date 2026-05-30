@@ -1453,15 +1453,13 @@ export default function LandingPage() {
               <ul>
                 <li><a href="/docs">API reference</a></li>
                 <li><a href="#">Webhooks</a></li>
-                <li><a href="#">SDKs</a></li>
-                <li><a href="#">Status</a></li>
                 <li><a href="#">Integrations</a></li>
               </ul>
             </div>
             <div className="footer-col">
               <h4>Company</h4>
               <ul>
-                <li><a href="#">About</a></li>
+                <li><a href="/about">About</a></li>
                 <li><a href="#">Customers</a></li>
                 <li><a href="#">Pricing</a></li>
                 <li><a href="#">Careers</a></li>

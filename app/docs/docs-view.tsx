@@ -926,7 +926,7 @@ export default function DocsView() {
             {/* Link columns */}
             {([
               { title: "Product",    links: [["Score","#"],["Intent Hub","#"],["Autopilot","#"],["People scoring","#"],["Watchlist","#"],["Changelog","#"]] },
-              { title: "Developers", links: [["API reference","/docs"],["Webhooks","#"],["SDKs","#"],["Status","#"],["Integrations","#"]] },
+              { title: "Developers", links: [["API reference","/docs"],["Webhooks","#"],["Integrations","#"]] },
               { title: "Company",    links: [["About","#"],["Customers","#"],["Pricing","#"],["Careers","#"],["Blog","#"],["Contact","/contact"]] },
               { title: "Legal",      links: [["Terms","/terms"],["Privacy","/privacy"],["DPA","/legal/dpa"],["Security","/legal/security"]] },
             ] as { title: string; links: [string, string][] }[]).map(col => (
