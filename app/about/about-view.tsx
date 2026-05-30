@@ -350,7 +350,7 @@ export default function AboutView() {
             {([
               { title: "Product",    links: [["Score","#"],["Intent Hub","#"],["Autopilot","#"],["People scoring","#"],["Watchlist","#"],["Changelog","#"]] },
               { title: "Developers", links: [["API reference","/docs"],["Webhooks","#"],["Integrations","#"]] },
-              { title: "Company",    links: [["About","/about"],["Customers","#"],["Pricing","#"],["Careers","#"],["Blog","#"],["Contact","/contact"]] },
+              { title: "Company",    links: [["About","/about"],["Pricing","#"],["Contact","/contact"]] },
               { title: "Legal",      links: [["Terms","/terms"],["Privacy","/privacy"],["DPA","/legal/dpa"],["Security","/legal/security"]] },
             ] as { title: string; links: [string,string][] }[]).map(col => (
               <div key={col.title}>

@@ -1460,10 +1460,7 @@ export default function LandingPage() {
               <h4>Company</h4>
               <ul>
                 <li><a href="/about">About</a></li>
-                <li><a href="#">Customers</a></li>
                 <li><a href="#">Pricing</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Blog</a></li>
                 <li><a href="/contact">Contact</a></li>
               </ul>
             </div>
