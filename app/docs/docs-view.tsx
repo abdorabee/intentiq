@@ -41,7 +41,10 @@ const cm = {
 };
 
 /* ─── Rail nav data ──────────────────────────────────────────── */
-const NAV_GROUPS = [
+type NavItem = { id: string; label: string; method?: string };
+type NavGroup = { heading: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
   {
     heading: "Getting started",
     items: [
@@ -151,7 +154,7 @@ function EndpointId({ method, path }: { method: string; path: string }) {
   );
 }
 
-function IC({ children }: { children: string }) {
+function IC({ children }: { children: React.ReactNode }) {
   return (
     <code style={{
       fontFamily: T.mono, fontSize: "12px", padding: "1px 5px",
@@ -443,7 +446,9 @@ export default function DocsView() {
   const filteredGroups = NAV_GROUPS.map(g => ({
     ...g,
     items: g.items.filter(i =>
-      !search || i.label.toLowerCase().includes(search.toLowerCase()) || (i.method && i.method.toLowerCase().includes(search.toLowerCase()))
+      !search ||
+      i.label.toLowerCase().includes(search.toLowerCase()) ||
+      i.method?.toLowerCase().includes(search.toLowerCase())
     ),
   })).filter(g => g.items.length > 0);
 
