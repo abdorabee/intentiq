@@ -177,13 +177,13 @@ export default function BulkScorerPage() {
       </div>
 
       {/* Upload card */}
-      <Card className="border-slate-200 dark:border-white/[0.08]">
+      <Card className="border-slate-200 dark:border-foreground/[0.08]">
         <CardHeader>
           <CardTitle className="text-slate-800 dark:text-slate-100">Upload CSV</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div
-            className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-white/[0.12] p-5 sm:p-10 text-center cursor-pointer hover:border-cyan-500/50 transition-colors"
+            className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-foreground/[0.12] p-5 sm:p-10 text-center cursor-pointer hover:border-cyan-500/50 transition-colors"
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             onClick={() => inputRef.current?.click()}
@@ -219,7 +219,7 @@ export default function BulkScorerPage() {
                   Drag & drop a CSV here, or click to select.
                 </p>
                 <p className="text-xs text-slate-400 dark:text-slate-600">
-                  CSV must have a <code className="bg-slate-100 dark:bg-white/[0.06] px-1.5 py-0.5 text-cyan-600 dark:text-cyan-400">domain</code> or <code className="bg-slate-100 dark:bg-white/[0.06] px-1.5 py-0.5 text-cyan-600 dark:text-cyan-400">company</code> column.
+                  CSV must have a <code className="bg-slate-100 dark:bg-foreground/[0.06] px-1.5 py-0.5 text-cyan-600 dark:text-cyan-400">domain</code> or <code className="bg-slate-100 dark:bg-foreground/[0.06] px-1.5 py-0.5 text-cyan-600 dark:text-cyan-400">company</code> column.
                 </p>
               </div>
             )}
@@ -278,7 +278,7 @@ export default function BulkScorerPage() {
                     className={`h-1 w-6 transition-all duration-500 ${
                       i <= LOADING_PHASES.indexOf(loadingPhase)
                         ? "bg-cyan-400"
-                        : "bg-slate-200 dark:bg-white/[0.08]"
+                        : "bg-slate-200 dark:bg-foreground/[0.08]"
                     }`}
                   />
                 ))}
@@ -307,7 +307,7 @@ export default function BulkScorerPage() {
               variant="outline"
               size="sm"
               onClick={handleDownloadCSV}
-              className="border-slate-300 dark:border-white/[0.12] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-2"
+              className="border-slate-300 dark:border-foreground/[0.12] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-foreground/[0.05] cursor-pointer gap-2"
             >
               <Download className="h-4 w-4" />
               Download CSV
@@ -315,7 +315,7 @@ export default function BulkScorerPage() {
           </div>
 
           {/* Results table */}
-          <Card className="border-slate-200 dark:border-white/[0.08] overflow-hidden">
+          <Card className="border-slate-200 dark:border-foreground/[0.08] overflow-hidden">
             <div className="h-px bg-gradient-to-r from-cyan-500 via-sky-400 to-transparent" />
             <CardHeader>
               <CardTitle className="text-slate-800 dark:text-slate-100">Results</CardTitle>
@@ -324,7 +324,7 @@ export default function BulkScorerPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200 dark:border-white/[0.06]">
+                    <tr className="border-b border-slate-200 dark:border-foreground/[0.06]">
                       <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Company</th>
                       <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Domain</th>
                       <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Score</th>
@@ -335,7 +335,7 @@ export default function BulkScorerPage() {
                     {response.results.map((r, i) => (
                       <tr
                         key={r.domain + i}
-                        className="border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors"
+                        className="border-b border-slate-100 dark:border-foreground/[0.04] hover:bg-slate-50 dark:hover:bg-foreground/[0.03] transition-colors"
                       >
                         <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
                           {r.company_name}

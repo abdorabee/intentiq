@@ -222,7 +222,7 @@ export default function DashboardNav({
           onClick={onToggle}
           title={collapsed ? "Expand" : "Collapse"}
           style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-          className="hover:bg-white/[0.05] hover:text-[#f7f8f8]"
+          className="hover:bg-foreground/[0.05] hover:text-[var(--text-primary)]"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
@@ -234,7 +234,7 @@ export default function DashboardNav({
               onClick={toggleTheme}
               title="Theme"
               style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-              className="hover:bg-white/[0.05]"
+              className="hover:bg-foreground/[0.05]"
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>

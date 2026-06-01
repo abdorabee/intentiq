@@ -276,7 +276,7 @@ export default function ContactView() {
       </section>
 
       {/* ── Contact shell: 2-col grid ── */}
-      <div id="contact-form" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "56px", padding: "64px 24px 96px", maxWidth: "1200px", margin: "0 auto" }}>
+      <div id="contact-form" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "56px", padding: "64px 24px 96px", maxWidth: "1200px", margin: "0 auto" }}>
 
         {/* LEFT: channels */}
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -316,7 +316,7 @@ export default function ContactView() {
           </div>
 
           {/* Offices */}
-          <div style={{ marginTop: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div style={{ marginTop: "32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
             {[
               { city: "Cairo · HQ", flag: "EG", addr: "5 Sherif Pasha St.\nDowntown Cairo, 11511" },
               { city: "San Francisco", flag: "US", addr: "340 Brannan St., 4th fl.\nSan Francisco, CA 94107" },
@@ -362,7 +362,7 @@ export default function ContactView() {
 
           <form onSubmit={handleSubmit}>
             {/* Row 1: name + email */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 500, color: T.txtTertiary, letterSpacing: "-0.006em", marginBottom: "6px" }}>
                   Full name <span style={{ color: "#f87171" }}>*</span>
@@ -394,7 +394,7 @@ export default function ContactView() {
             </div>
 
             {/* Row 2: company + team size */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 500, color: T.txtTertiary, letterSpacing: "-0.006em", marginBottom: "6px" }}>Company</label>
                 <input

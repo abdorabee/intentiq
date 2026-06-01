@@ -59,7 +59,7 @@ function ScoreRing({ score, band }: { score: number; band: string }) {
       ? ["#4ade80", "#4ec9d8", "#7170ff"]
       : band === "WARM"
       ? ["#f5b544", "#ec4899", "#7170ff"]
-      : ["#8a8f98", "#8a8f98", "#8a8f98"];
+      : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
 
   return (
     <div className="score-ring">

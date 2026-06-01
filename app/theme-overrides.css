@@ -1,0 +1,225 @@
+/* ============================================================
+   Theme tokens — light (default :root) + dark (.dark)
+   Loaded AFTER globals.css so these win by source order.
+   The whole app defaults to dark via <html class="dark">; this
+   file makes the design-system + shadcn tokens actually flip.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* shadcn semantic tokens (light) */
+  --background: #f7f8fa;
+  --foreground: #0a0e1a;
+  --card: #ffffff;
+  --card-foreground: #0a0e1a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0e1a;
+  --primary: #5e6ad2;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f6;
+  --secondary-foreground: #0a0e1a;
+  --muted: #eef1f6;
+  --muted-foreground: #5b6472;
+  --accent: rgba(94, 106, 210, 0.10);
+  --accent-foreground: #4e5acb;
+  --destructive: #dc2626;
+  --border: rgba(10, 14, 26, 0.10);
+  --input: rgba(10, 14, 26, 0.12);
+  --ring: #5e6ad2;
+  --chart-1: #0891b2;
+  --chart-2: #16a34a;
+  --chart-3: #b45309;
+  --chart-4: #5e6ad2;
+  --chart-5: #db2777;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #3a4150;
+  --sidebar-primary: #5e6ad2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1f6;
+  --sidebar-accent-foreground: #0a0e1a;
+  --sidebar-border: rgba(10, 14, 26, 0.10);
+  --sidebar-ring: #5e6ad2;
+
+  /* design-system tokens (light) */
+  --bg: #f7f8fa;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f1f3f7;
+  --surface-active: #e9edf3;
+  --accent-2: #7170ff;
+  --accent-glow: rgba(94, 106, 210, 0.25);
+  --accent-soft: rgba(94, 106, 210, 0.10);
+  --accent-border: rgba(94, 106, 210, 0.28);
+  --text-primary: #0a0e1a;
+  --text-secondary: #3a4150;
+  --text-tertiary: #5b6472;
+  --text-quaternary: #8b94a3;
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.10);
+  --warning: #b45309;
+  --warning-bg: rgba(180, 83, 9, 0.10);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.10);
+  --info: #0891b2;
+  --hot: #16a34a;
+  --hot-bg: rgba(22, 163, 74, 0.10);
+  --hot-glow: rgba(22, 163, 74, 0.22);
+  --hot-border: rgba(22, 163, 74, 0.25);
+  --warm: #b45309;
+  --warm-bg: rgba(180, 83, 9, 0.10);
+  --warm-border: rgba(180, 83, 9, 0.25);
+  --cold: #0891b2;
+  --cold-bg: rgba(8, 145, 178, 0.10);
+  --cold-border: rgba(8, 145, 178, 0.22);
+  --cool: #0891b2;
+  --cool-bg: rgba(8, 145, 178, 0.10);
+  --cyan: #0891b2;
+  --cyan-soft: rgba(8, 145, 178, 0.12);
+  --border-strong: rgba(10, 14, 26, 0.16);
+  --border-subtle: rgba(10, 14, 26, 0.06);
+  --surface-2: #e9edf3;
+  --bg-translucent: rgba(255, 255, 255, 0.7);
+  --red: #dc2626;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 8px 32px rgba(16, 24, 40, 0.12);
+  --shadow-glow: 0 0 24px rgba(94, 106, 210, 0.18);
+  --shadow-card: 0 0 0 1px rgba(10, 14, 26, 0.06), 0 1px 2px rgba(16, 24, 40, 0.08);
+  --shadow-elevated: 0 0 0 1px rgba(10, 14, 26, 0.08), 0 24px 48px -12px rgba(16, 24, 40, 0.18);
+  --shadow-screen: 0 0 0 1px rgba(10, 14, 26, 0.06), 0 50px 100px -20px rgba(16, 24, 40, 0.18), 0 30px 60px -30px rgba(16, 24, 40, 0.2);
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* shadcn semantic tokens (dark) */
+  --background: #08090a;
+  --foreground: #f7f8f8;
+  --card: #0e1011;
+  --card-foreground: #f7f8f8;
+  --popover: #131517;
+  --popover-foreground: #f7f8f8;
+  --primary: #5e6ad2;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #f7f8f8;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #8a8f98;
+  --accent: rgba(94, 106, 210, 0.18);
+  --accent-foreground: #c9c4ff;
+  --destructive: #f87171;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #7170ff;
+  --chart-1: #4ec9d8;
+  --chart-2: #4ade80;
+  --chart-3: #f5b544;
+  --chart-4: #7170ff;
+  --chart-5: #ec4899;
+  --sidebar: #0a0b0d;
+  --sidebar-foreground: #b4bbc8;
+  --sidebar-primary: #5e6ad2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #f7f8f8;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #7170ff;
+
+  /* design-system tokens (dark) */
+  --bg: #08090a;
+  --bg-elevated: #0e1011;
+  --bg-overlay: #1a1d21;
+  --surface: #131517;
+  --surface-hover: #16191c;
+  --surface-active: #1a1d21;
+  --accent-2: #7170ff;
+  --accent-glow: rgba(94, 106, 210, 0.4);
+  --accent-soft: rgba(94, 106, 210, 0.12);
+  --accent-border: rgba(94, 106, 210, 0.3);
+  --text-primary: #f7f8f8;
+  --text-secondary: #b4bbc8;
+  --text-tertiary: #8a8f98;
+  --text-quaternary: #62666d;
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.12);
+  --warning: #f5b544;
+  --warning-bg: rgba(245, 181, 68, 0.12);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --info: #4ec9d8;
+  --hot: #4ade80;
+  --hot-bg: rgba(74, 222, 128, 0.1);
+  --hot-glow: rgba(74, 222, 128, 0.3);
+  --hot-border: rgba(74, 222, 128, 0.25);
+  --warm: #f5b544;
+  --warm-bg: rgba(245, 181, 68, 0.1);
+  --warm-border: rgba(245, 181, 68, 0.25);
+  --cold: #4ec9d8;
+  --cold-bg: rgba(78, 201, 216, 0.1);
+  --cold-border: rgba(78, 201, 216, 0.22);
+  --cool: #8a8f98;
+  --cool-bg: rgba(138, 143, 152, 0.08);
+  --cyan: #4ec9d8;
+  --cyan-soft: rgba(78, 201, 216, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --surface-2: #1a1d20;
+  --bg-translucent: rgba(10, 10, 10, 0.55);
+  --red: #f87171;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px rgba(94, 106, 210, 0.3);
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  --shadow-screen: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 50px 100px -20px rgba(0, 0, 0, 0.5), 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================
+   Utilities — light defaults + dark restores
+   (unlayered, so these override the @layer utilities in globals)
+   ============================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(10, 14, 26, 0.08);
+}
+.dark .glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(10, 14, 26, 0.10);
+}
+.dark .glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-nav {
+  background: rgba(247, 248, 250, 0.82);
+  border-right: 1px solid rgba(10, 14, 26, 0.08);
+}
+.dark .glass-nav {
+  background: rgba(4, 8, 20, 0.82);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+::selection {
+  background: rgba(94, 106, 210, 0.22);
+  color: #0a0e1a;
+}
+.dark ::selection {
+  background: rgba(94, 106, 210, 0.45);
+  color: #f7f8f8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(10, 14, 26, 0.18);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}

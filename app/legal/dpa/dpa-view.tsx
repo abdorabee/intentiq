@@ -148,7 +148,7 @@ function DpaActions() {
 
 function AnnexGrid({ cards }: { cards: { key: string; val: string }[] }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", margin: "18px 0" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px", margin: "18px 0" }}>
       {cards.map(({ key, val }) => (
         <div key={key} style={{ border: `1px solid ${T.border}`, borderRadius: "6px", background: "rgba(255,255,255,0.012)", padding: "16px 18px" }}>
           <div style={{ fontFamily: T.fontMono, fontSize: "10px", color: T.txtQuaternary, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: "6px" }}>{key}</div>
@@ -227,7 +227,7 @@ export default function DpaView() {
             <div style={{ width: "22px", height: "22px", display: "grid", placeItems: "center", borderRadius: "5px", background: "linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%)", color: "#0a0b0f", fontWeight: 800, fontSize: "11px", fontFamily: T.fontMono, boxShadow: "0 2px 8px rgba(94,106,210,0.4)" }}>IQ</div>
             IntentIQ
           </Link>
-          <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
               <Link key={label} href={href} style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", letterSpacing: "-0.011em", textDecoration: "none" }}>
                 {label}

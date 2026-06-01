@@ -1,0 +1,498 @@
+/* ============================================================
+   Responsive overrides — loaded after globals.css.
+   Breakpoints:  1024px → tablet  |  768px → landscape phone
+                  640px → portrait phone
+   ============================================================ */
+
+/* ── Hamburger & backdrop hidden on desktop ─────────────── */
+.tb-menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 2px;
+  margin-left: -4px;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tb-menu:hover { background: var(--surface-hover); color: var(--text-primary); }
+.tb-menu .ic { width: 18px; height: 18px; }
+
+.nav-backdrop { display: none; }
+
+/* ── prevent horizontal overflow site-wide ──────────────── */
+html, body { max-width: 100vw; overflow-x: hidden; }
+
+/* ── Touch quality: eliminate 300ms tap delay everywhere ── */
+button, a, [role="button"] { touch-action: manipulation; }
+
+/* ── Overscroll containment on scrollable areas ─────────── */
+.page { overscroll-behavior: contain; }
+
+/* ── Landing page: mobile nav drawer + overlay ───────────── */
+.nav-mob-overlay {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.nav-mob-drawer {
+  position: absolute; top: 0; right: 0;
+  width: 280px; max-width: 85vw; height: 100%;
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 20px 20px 32px;
+  gap: 4px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-elevated);
+}
+.nav-mob-close {
+  align-self: flex-end;
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.nav-mob-close:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.nav-mob-link {
+  display: flex; align-items: center;
+  padding: 13px 10px;
+  font-size: 15px; font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: var(--r-md);
+  border-bottom: 1px solid var(--border-subtle);
+  text-decoration: none;
+  cursor: pointer;
+}
+.nav-mob-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+.nav-mob-cta {
+  margin-top: 8px;
+  justify-content: center;
+  min-height: 44px;
+}
+
+/* ============================================================
+   DASHBOARD — tablet / phone  (≤ 980px)
+   globals.css already collapses .app to 1fr and hides .sidebar.
+   We override those to make a real off-canvas drawer instead.
+   ============================================================ */
+@media (max-width: 980px) {
+  .app { grid-template-columns: 1fr !important; }
+
+  /* Drawer */
+  .sidebar {
+    display: flex !important;          /* override globals' display:none */
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 272px; max-width: 85vw;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--shadow-elevated);
+    will-change: transform;
+  }
+  .app.nav-open .sidebar { transform: translateX(0); }
+
+  /* Backdrop */
+  .nav-backdrop {
+    display: block;
+    position: fixed; inset: 0; z-index: 55;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .app.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+
+  /* Show hamburger (dashboard topbar) */
+  .tb-menu { display: inline-flex; }
+
+  /* Show landing hamburger */
+  .nav-mob-btn {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .nav-mob-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+  /* Touch targets — WCAG 44×44px min on mobile */
+  .btn, .btn-lg { min-height: 44px; padding-inline: 16px; }
+  .btn-lg { min-height: 48px; font-size: 15px; }
+  .nav-link, .sb-item, .tb-btn { min-height: 44px; }
+
+  /* Trust logos: horizontally scrollable */
+  .trust-row {
+    display: flex !important;
+    overflow-x: auto;
+    gap: 28px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .trust-row::-webkit-scrollbar { display: none; }
+  .trust-row .logo { flex-shrink: 0; }
+
+  /* Content padding */
+  .page { padding: 16px; }
+  .topbar { padding-left: 12px; padding-right: 12px; }
+
+  /* Dashboard home */
+  .kpis { grid-template-columns: 1fr 1fr !important; }
+  .grid-main { grid-template-columns: 1fr !important; }
+  .grid-lower { grid-template-columns: 1fr !important; }
+  .hm-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Score / watchlist tables — let them scroll */
+  .score-table-wrap, .wl-table-wrap, .table-wrap, .wl-list {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Billing plans grid */
+  .plans-grid { grid-template-columns: 1fr !important; }
+
+  /* Pipeline / intent hub */
+  .hub-tools { flex-wrap: wrap; gap: 8px; }
+}
+
+/* ── Small phones (≤ 640px) ──────────────────────────────── */
+@media (max-width: 640px) {
+  .page { padding: 12px 12px 32px; }
+
+  /* Topbar: hide band chips + filter button, shrink to essentials */
+  .topbar .band             { display: none; }
+  .topbar .tb-btn.outlined  { display: none; }
+  .topbar .tb-btn .kbd      { display: none; }
+
+  /* KPIs single column */
+  .kpis { grid-template-columns: 1fr !important; }
+  .hm-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Page-head action rows */
+  .page-head    { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-actions { width: 100%; flex-wrap: wrap; }
+
+  /* Bulk / API-keys etc. — prevent row overflow */
+  .data-row, .api-key-row, .bulk-row { flex-wrap: wrap; gap: 8px; }
+}
+
+/* ============================================================
+   MARKETING & LEGAL PAGES (inline-style grids)
+   ============================================================ */
+
+/* ── TOC-sidebar docs (terms, privacy, dpa) ─────────────── */
+@media (max-width: 768px) {
+  /* Collapse 240px+1fr TOC sidebars to single column */
+  [style*="240px minmax(0,1fr)"],
+  [style*="240px 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  [style*="240px minmax(0,1fr)"] > aside,
+  [style*="240px 1fr"] > aside {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* API docs 240px sidebar */
+  [style*="240px minmax(0,1fr)"] > aside[style*="position: sticky"],
+  [style*="240px 1fr"] > aside[style*="position: sticky"] {
+    position: static !important;
+  }
+
+  /* Collapse footer 5-column grids */
+  [style*="1.4fr repeat(4, 1fr)"],
+  [style*="1.4fr repeat(4,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 28px !important;
+  }
+
+  /* Hide marketing top-nav link row (brand + CTAs stay) */
+  .mkt-navlinks { display: none !important; }
+
+  /* About: principles 2-col → 1-col */
+  [style*="repeat(2,1fr)"],
+  [style*="repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* About: scope cards 3-col → 1-col */
+  [style*="repeat(3,1fr)"],
+  [style*="repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* About: founder card (320px 1fr) */
+  [style*="320px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* About: workshop 2 cards */
+  [style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Contact: FAQ (280px 1fr) */
+  [style*="280px 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+
+  /* Security: 3-col arch / controls grids */
+  [style*="repeat(3, 1fr)"],
+  [style*="repeat(4, 1fr)"],
+  [style*="repeat(5, 1fr)"],
+  [style*="repeat(3,1fr)"],
+  [style*="repeat(4,1fr)"],
+  [style*="repeat(5,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* About numbers 4-col → 2-col */
+  [style*="repeat(4,1fr)"],
+  [style*="repeat(4, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* API docs: 1080px shell stays single column already (sidebar collapsed above) */
+
+  /* Marketing nav CTA pills — tighten */
+  [style*="borderRadius: \"999px\""] { font-size: 12px !important; }
+}
+
+/* ── Portrait phones (≤ 480px) ───────────────────────────── */
+@media (max-width: 480px) {
+  /* Footer → pure single column */
+  [style*="1.4fr repeat(4, 1fr)"],
+  [style*="1.4fr repeat(4,1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 2-col grids → 1-col */
+  [style*="repeat(2,1fr)"],
+  [style*="repeat(2, 1fr)"],
+  [style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* About numbers → 2-col maintained above; keep it */
+
+  /* Contact channel cards already auto-fit → natural */
+
+  /* Docs: sidebar search stays hidden (sidebar collapses) */
+
+  /* Banner text truncation */
+  [style*="justifyContent: \"center\""][style*="height: \"36px\""] {
+    font-size: 11px;
+    padding: 0 12px;
+  }
+
+  /* Hero H1 clamp override */
+  h1[style*="clamp(40px"] { font-size: clamp(28px, 7vw, 44px) !important; }
+  h1[style*="clamp(36px"] { font-size: clamp(26px, 7vw, 40px) !important; }
+
+  /* Marketing nav sign-in / sign-up — compact */
+  [style*="\"signup\""] { padding: 5px 10px !important; }
+}
+
+/* ============================================================
+   LANDING PAGE — small phone rules (≤ 640px)
+   (class-based, no inline-style selectors needed)
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Section vertical spacing */
+  .section       { padding: 64px 0; }
+  .section-tight { padding: 48px 0; }
+  .hero          { padding-top: 80px; padding-bottom: 40px; }
+
+  /* Hero text left-aligns — more natural scan on portrait */
+  .hero-inner               { text-align: left; }
+  .hero-actions             { justify-content: flex-start; }
+  .hero-meta                { text-align: left; }
+  .section-head.center      { text-align: left; }
+
+  /* Stats: single column */
+  .stats { grid-template-columns: 1fr !important; }
+  .stat  { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat:last-child { border-bottom: none; }
+
+  /* Trust row: 3-col grid (overrides the flex scroll from 980px) */
+  .trust-row {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    overflow: visible;
+    gap: 12px !important;
+  }
+
+  /* Footer: single column */
+  .footer-grid   { grid-template-columns: 1fr !important; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+
+  /* Tighter card gaps */
+  .pillars, .quotes { gap: 12px; }
+  .pricing-grid     { gap: 12px; }
+}
+
+/* ============================================================
+   LANDING PAGE — hide complex product mockups on mobile.
+   The section copy stands alone; mockups don't scale to narrow
+   screens and look broken at < 768px.
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Full-width feature screens (Score, Pipeline/Hub, Autopilot) */
+  .feature-screen {
+    display: none;
+  }
+
+  /* Two-col feature card visuals (API code block, Watchlist, People) */
+  .feat-visual {
+    display: none;
+  }
+
+  /* Give the section head more breathing room when the mockup is gone */
+  .section-head { margin-bottom: 0; }
+  .section { padding-bottom: 48px; }
+
+  /* Two-col becomes single col already via globals.css → just ensure gap */
+  .two-col { gap: 24px; }
+  .feat-card { min-height: auto !important; }
+}
+
+/* ============================================================
+   HERO MOBILE SCORE PREVIEW
+   Replaces the complex desktop product mockup on phones.
+   Hidden on desktop (≥ 981px), shown on phones (≤ 980px).
+   ============================================================ */
+.hero-mob-preview {
+  display: none; /* hidden on desktop */
+}
+
+@media (max-width: 980px) {
+  .hero-mob-preview {
+    display: block;
+    margin: 40px auto 0;
+    max-width: 420px;
+    width: calc(100% - 48px);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 32px 64px -16px rgba(0,0,0,0.5);
+  }
+
+  .hmp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.04em;
+  }
+  .hmp-label { color: var(--text-quaternary); text-transform: uppercase; }
+  .hmp-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px;
+    background: var(--hot-bg);
+    border: 1px solid var(--hot-border);
+    border-radius: 999px;
+    color: var(--hot);
+    font-size: 10px; font-weight: 700;
+  }
+  .hmp-dot {
+    width: 5px; height: 5px; border-radius: 999px;
+    background: var(--hot);
+    box-shadow: 0 0 6px var(--hot);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .hmp-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .hmp-row:last-of-type { border-bottom: none; }
+
+  .hmp-av {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 12px; font-weight: 700;
+    color: rgba(10,11,15,0.9);
+    flex-shrink: 0;
+  }
+  /* avatar colors matching real dashboard */
+  .av-s { background: linear-gradient(135deg, #635bff, #0570de); }
+  .av-l { background: linear-gradient(135deg, #5e6ad2, #7170ff); }
+  .av-a { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+  .av-v { background: linear-gradient(135deg, #111, #444); }
+  .av-n { background: linear-gradient(135deg, #000, #333); }
+
+  .hmp-info {
+    display: flex; flex-direction: column; gap: 2px;
+    flex: 1; min-width: 0;
+  }
+  .hmp-name {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.011em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .hmp-domain {
+    font-size: 11px; color: var(--text-quaternary);
+    font-family: var(--font-mono, monospace);
+  }
+
+  .hmp-right {
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .hmp-band {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
+    font-family: var(--font-mono, monospace);
+  }
+  .hmp-band.hot  { background: var(--hot-bg);  border: 1px solid var(--hot-border);  color: var(--hot); }
+  .hmp-band.warm { background: var(--warm-bg); border: 1px solid var(--warm-border); color: var(--warm); }
+  .hmp-band.cold { background: var(--cold-bg); border: 1px solid var(--cold-border); color: var(--cold); }
+  .hmp-score {
+    font-family: var(--font-mono, monospace);
+    font-size: 15px; font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    min-width: 28px; text-align: right;
+  }
+
+  .hmp-footer {
+    padding: 10px 16px;
+    font-size: 11px; color: var(--text-quaternary);
+    text-align: center;
+    font-family: var(--font-mono, monospace);
+    border-top: 1px solid var(--border);
+    background: rgba(255,255,255,0.01);
+  }
+}
+
+/* ── Tiny phones (≤ 420px) ───────────────────────────────── */
+@media (max-width: 420px) {
+  .trust-row { grid-template-columns: repeat(2, 1fr) !important; }
+  .hero h1   { font-size: clamp(28px, 9vw, 44px); }
+  .lead      { font-size: 16px; }
+  .container { padding: 0 16px; }
+}

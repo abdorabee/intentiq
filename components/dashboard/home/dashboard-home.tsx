@@ -126,7 +126,7 @@ export default function DashboardHomeView({
     const dash = (s.pct / totalPct) * circumference;
     const offset = -dashOffset;
     dashOffset += dash;
-    return { ...s, dash, offset, color: SIGNAL_COLORS[s.key] ?? "#8a8f98", idx: i };
+    return { ...s, dash, offset, color: SIGNAL_COLORS[s.key] ?? "var(--text-tertiary)", idx: i };
   });
 
   return (
@@ -537,7 +537,7 @@ export default function DashboardHomeView({
               <div className="signals-legend">
                 {signalMix.map((s) => (
                   <div key={s.key} className="row">
-                    <span className="swatch" style={{ background: SIGNAL_COLORS[s.key] ?? "#8a8f98" }} />
+                    <span className="swatch" style={{ background: SIGNAL_COLORS[s.key] ?? "var(--text-tertiary)" }} />
                     <span className="name">{s.label}</span>
                     <span className="num">{s.pct}%</span>
                   </div>

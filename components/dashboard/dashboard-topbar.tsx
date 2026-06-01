@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Search, Filter, Bell, Plus, List, CreditCard } from "lucide-react";
+import { LayoutGrid, Search, Filter, Bell, Plus, List, CreditCard, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
 import { focusWatchlistAdd } from "@/lib/watchlist-events";
@@ -31,9 +31,10 @@ interface BandCounts {
 
 interface DashboardTopbarProps {
   bandCounts?: BandCounts;
+  onMenuClick?: () => void;
 }
 
-export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
+export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTopbarProps) {
   const pathname = usePathname();
   const isLists = pathname === "/lists" || pathname.startsWith("/lists/");
   const isBilling = pathname === "/billing";
@@ -70,6 +71,14 @@ export default function DashboardTopbar({ bandCounts }: DashboardTopbarProps) {
 
   return (
     <header className="topbar">
+      <button
+        type="button"
+        className="tb-menu"
+        onClick={onMenuClick}
+        aria-label="Open navigation menu"
+      >
+        <Menu className="ic" aria-hidden />
+      </button>
       <div className="crumb">
         {isLists ? (
           <List className="ic" aria-hidden />

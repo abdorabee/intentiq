@@ -56,7 +56,7 @@ function ChoiceChip({
         ${
           selected
             ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300"
-            : "bg-white/[0.02] border-white/[0.1] text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5 hover:text-cyan-200"
+            : "bg-foreground/[0.02] border-foreground/[0.1] text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5 hover:text-cyan-200"
         }
       `}
       style={{
@@ -368,7 +368,7 @@ export default function OnboardingPage() {
       style={{ fontFamily: "var(--font-jetbrains), monospace" }}
     >
       {/* Header */}
-      <div className="border-b border-slate-200 dark:border-white/[0.06] px-6 py-4">
+      <div className="border-b border-slate-200 dark:border-foreground/[0.06] px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <span className="text-cyan-600 dark:text-cyan-400 text-xs tracking-[0.2em] font-bold">
             [ INTENT IQ ]
@@ -406,7 +406,7 @@ export default function OnboardingPage() {
               {msg.role === "assistant" ? (
                 <div className="max-w-[90%] space-y-3">
                   {/* Message bubble */}
-                  <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-2xl px-5 py-3.5">
+                  <div className="bg-slate-50 dark:bg-foreground/[0.03] border border-slate-200 dark:border-foreground/[0.06] rounded-2xl px-5 py-3.5">
                     <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
                       {msg.content}
                     </p>
@@ -464,7 +464,7 @@ export default function OnboardingPage() {
           {/* Typing indicator */}
           {isStreaming && (
             <div className="flex justify-start animate-slide-up">
-              <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-2xl px-5 py-3">
+              <div className="bg-slate-50 dark:bg-foreground/[0.03] border border-slate-200 dark:border-foreground/[0.06] rounded-2xl px-5 py-3">
                 <TypingIndicator />
               </div>
             </div>
@@ -484,9 +484,9 @@ export default function OnboardingPage() {
 
       {/* Input area — Claude-style centered input */}
       {!isComplete && (
-        <div className="border-t border-slate-200 dark:border-white/[0.06] px-4 py-4">
+        <div className="border-t border-slate-200 dark:border-foreground/[0.06] px-4 py-4">
           <div className="max-w-2xl mx-auto">
-            <div className="flex items-end gap-2 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-2xl px-4 py-2.5 focus-within:border-cyan-500/30 transition-colors">
+            <div className="flex items-end gap-2 bg-slate-50 dark:bg-foreground/[0.03] border border-slate-200 dark:border-foreground/[0.08] rounded-2xl px-4 py-2.5 focus-within:border-cyan-500/30 transition-colors">
               <textarea
                 ref={textareaRef}
                 value={inputValue}

@@ -176,7 +176,7 @@ export default function SecurityView() {
             <div style={{ width: "22px", height: "22px", display: "grid", placeItems: "center", borderRadius: "5px", background: "linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%)", color: "#0a0b0f", fontWeight: 800, fontSize: "11px", fontFamily: T.fontMono, boxShadow: "0 2px 8px rgba(94,106,210,0.4)" }}>IQ</div>
             IntentIQ
           </Link>
-          <div style={{ display: "flex", gap: "4px" }}>
+          <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {NAV_LINKS.map(({ label, href }) => (
               <Link key={label} href={href} style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", letterSpacing: "-0.011em", textDecoration: "none" }}>{label}</Link>
             ))}
@@ -211,7 +211,7 @@ export default function SecurityView() {
           </p>
 
           {/* Certifications grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1px", background: T.borderSubtle, border: `1px solid ${T.borderSubtle}`, borderRadius: "12px", overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1px", background: T.borderSubtle, border: `1px solid ${T.borderSubtle}`, borderRadius: "12px", overflow: "hidden" }}>
             {CERTS.map((c) => (
               <div key={c.badge} style={{ background: T.bg, padding: "22px 18px", display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
                 <div style={{ width: "36px", height: "36px", borderRadius: "6px", display: "grid", placeItems: "center", fontFamily: T.fontMono, fontSize: "11px", fontWeight: 700, color: "#0a0b0f", letterSpacing: "-0.02em", marginBottom: "4px", background: c.grad }}>{c.badge}</div>
@@ -241,7 +241,7 @@ export default function SecurityView() {
             </h2>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", background: T.borderSubtle, borderTop: `1px solid ${T.borderSubtle}`, borderBottom: `1px solid ${T.borderSubtle}` }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "1px", background: T.borderSubtle, borderTop: `1px solid ${T.borderSubtle}`, borderBottom: `1px solid ${T.borderSubtle}` }}>
           {PILLARS.map((p) => (
             <div key={p.type} style={{ background: T.bg, padding: "32px 28px 28px", display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ width: "36px", height: "36px", display: "grid", placeItems: "center", borderRadius: "6px", marginBottom: "4px", background: p.color.bg, color: p.color.fg }}>{p.icon}</div>
@@ -369,7 +369,7 @@ export default function SecurityView() {
           </div>
 
           {/* Resource cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
             {RESOURCES.map((r) => (
               <Link key={r.title} href={r.href} className="rc" style={{ border: `1px solid ${T.border}`, borderRadius: "8px", background: T.bgEl, padding: "18px 20px", display: "flex", gap: "14px", alignItems: "flex-start", cursor: "pointer", transition: "border-color 0.15s, background 0.15s", textDecoration: "none" }}>
                 <div style={{ width: "30px", height: "30px", display: "grid", placeItems: "center", borderRadius: "5px", background: "rgba(94,106,210,0.12)", color: "#c9c4ff", flexShrink: 0 }}>{r.icon}</div>

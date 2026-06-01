@@ -40,7 +40,7 @@ const STAGE_CONFIG: Record<StageKey, {
     label: "Cold",
     desc: "Nurture",
     action: "Send awareness content",
-    color: "#8a8f98",
+    color: "var(--text-tertiary)",
     bandClass: "band-cold",
     glow: false,
     badgeClass: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
@@ -290,7 +290,7 @@ function KanbanCard({
             className="av"
             style={{
               background: "linear-gradient(135deg,#f5b544,#ec4899)",
-              color: "#0a0b0f",
+              color: "var(--bg)",
               width: 18,
               height: 18,
               borderRadius: "50%",
@@ -588,7 +588,7 @@ export default function PipelinePage() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: "var(--text-tertiary)", fontSize: 13 }}>
           <p>Your pipeline is empty.</p>
           <p style={{ color: "var(--text-quaternary)", fontSize: 12 }}>Add companies to your watchlist to see them here.</p>
-          <Link href="/watchlist" className="text-sm text-[#c9c4ff] transition-colors hover:text-[#f7f8f8]">
+          <Link href="/watchlist" className="text-sm text-[#c9c4ff] transition-colors hover:text-[var(--text-primary)]">
             Go to Watchlist →
           </Link>
         </div>
@@ -614,7 +614,7 @@ export default function PipelinePage() {
 
       {/* Detail Dialog — unchanged */}
       <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setDialogEmailCopied(false); } }}>
-        <DialogContent className="border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0c1122] max-w-lg">
+        <DialogContent className="border-slate-200 dark:border-foreground/[0.08] bg-white dark:bg-[#0c1122] max-w-lg">
           {selected && selectedCfg && (
             <>
               <DialogHeader>
@@ -652,7 +652,7 @@ export default function PipelinePage() {
                             setSelected({ ...selected, pipeline_stage: s });
                           }}
                           className={`text-[10px] px-2.5 py-1 border transition-colors cursor-pointer ${
-                            isActive ? sCfg.badgeClass : "border-slate-200 dark:border-white/[0.08] text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 hover:border-slate-300 dark:hover:border-white/[0.15]"
+                            isActive ? sCfg.badgeClass : "border-slate-200 dark:border-foreground/[0.08] text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 hover:border-slate-300 dark:hover:border-foreground/[0.15]"
                           }`}
                         >
                           {sCfg.label}
@@ -663,7 +663,7 @@ export default function PipelinePage() {
                 </div>
 
                 {selected.ai_summary && (
-                  <div className="bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] px-4 py-3">
+                  <div className="bg-slate-50 dark:bg-foreground/[0.04] border border-slate-200 dark:border-foreground/[0.07] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">AI Analysis</p>
                     <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{selected.ai_summary}</p>
                   </div>
@@ -674,21 +674,21 @@ export default function PipelinePage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Key Triggers</p>
                     <div className="flex flex-wrap gap-2">
                       {selected.key_triggers.map((t, i) => (
-                        <span key={i} className="text-xs bg-slate-100 dark:bg-white/[0.06] text-slate-600 dark:text-slate-300 px-2.5 py-1 border border-slate-200 dark:border-white/[0.08]">{t}</span>
+                        <span key={i} className="text-xs bg-slate-100 dark:bg-foreground/[0.06] text-slate-600 dark:text-slate-300 px-2.5 py-1 border border-slate-200 dark:border-foreground/[0.08]">{t}</span>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {selected.email_subject && (
-                  <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+                  <div className="border border-slate-200 dark:border-foreground/[0.08] bg-slate-50 dark:bg-foreground/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Email Subject</p>
                     <p className="text-sm font-mono text-slate-600 dark:text-slate-300">{selected.email_subject}</p>
                   </div>
                 )}
 
                 {selected.talk_track && (
-                  <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+                  <div className="border border-slate-200 dark:border-foreground/[0.08] bg-slate-50 dark:bg-foreground/[0.03] px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Talk Track</p>
                     <p className="text-sm italic text-slate-400">{selected.talk_track}</p>
                   </div>
@@ -706,14 +706,14 @@ export default function PipelinePage() {
                     variant="outline"
                     onClick={() => handleRescore(selected.domain)}
                     disabled={rescoring === selected.domain}
-                    className="border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    className="border-slate-200 dark:border-foreground/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-foreground/[0.05] cursor-pointer gap-1.5"
                   >
                     <RefreshCw className={`h-3.5 w-3.5 ${rescoring === selected.domain ? "animate-spin" : ""}`} />
                     {rescoring === selected.domain ? "Scoring…" : "Re-score"}
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-slate-200 dark:border-white/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-1.5"
+                    className="border-slate-200 dark:border-foreground/[0.10] text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-foreground/[0.05] cursor-pointer gap-1.5"
                     asChild
                   >
                     <a

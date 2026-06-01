@@ -226,7 +226,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                 return (
                   <div key={s.id} className="pl-row" onClick={() => { setInput(s.person_email ?? s.person_name); setPageState("score"); }}>
                     <div className="pl-person">
-                      <div className="av" style={{ background: avColor(s.person_name), width: 32, height: 32, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, color: "#0a0b0f", flexShrink: 0 }}>
+                      <div className="av" style={{ background: avColor(s.person_name), width: 32, height: 32, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>
                         {initials(s.person_name)}
                       </div>
                       <div style={{ minWidth: 0 }}>
@@ -240,7 +240,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                     </div>
                     <div className="pl-company">
                       {s.person_company && (
-                        <div className="co-av" style={{ background: avColor(s.person_company), width: 18, height: 18, borderRadius: 4, display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700, color: "#0a0b0f", flexShrink: 0 }}>
+                        <div className="co-av" style={{ background: avColor(s.person_company), width: 18, height: 18, borderRadius: 4, display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>
                           {s.person_company[0]}
                         </div>
                       )}
@@ -356,7 +356,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                 <div className="suggestion-row">
                   {initialScores.filter(s => s.score_band === "HOT").slice(0, 4).map(s => (
                     <div key={s.id} className="sugg-person" style={{ cursor: "pointer" }} onClick={() => setInput(s.person_email ?? s.person_name)}>
-                      <div className="av" style={{ background: avColor(s.person_name), width: 20, height: 20, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700, color: "#0a0b0f", flexShrink: 0 }}>
+                      <div className="av" style={{ background: avColor(s.person_name), width: 20, height: 20, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>
                         {initials(s.person_name)}
                       </div>
                       {s.person_name}
@@ -372,7 +372,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                 <div className="suggestion-row">
                   {initialScores.slice(0, 4).map(s => (
                     <div key={s.id} className="sugg-person" style={{ cursor: "pointer" }} onClick={() => setInput(s.person_email ?? s.person_name)}>
-                      <div className="av" style={{ background: avColor(s.person_name), width: 20, height: 20, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700, color: "#0a0b0f", flexShrink: 0 }}>
+                      <div className="av" style={{ background: avColor(s.person_name), width: 20, height: 20, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>
                         {initials(s.person_name)}
                       </div>
                       {s.person_name}
@@ -478,7 +478,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                   const circ = 2 * Math.PI * r;
                   const offset = circ * (1 - result.intent_score / 100);
                   const band = result.score_band;
-                  const g = band === "HOT" ? ["#4ade80", "#4ec9d8", "#7170ff"] : band === "WARM" ? ["#f5b544", "#ec4899", "#7170ff"] : ["#8a8f98", "#8a8f98", "#8a8f98"];
+                  const g = band === "HOT" ? ["#4ade80", "#4ec9d8", "#7170ff"] : band === "WARM" ? ["#f5b544", "#ec4899", "#7170ff"] : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
                   return (
                     <div className="score-ring">
                       <svg viewBox="0 0 100 100">

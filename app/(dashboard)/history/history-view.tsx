@@ -271,7 +271,7 @@ function DrawerRing({ score, band }: { score: number; band: string }) {
   const r = 55;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - score / 100);
-  const g = band === "HOT" ? ["#4ade80", "#4ec9d8", "#7170ff"] : band === "WARM" ? ["#f5b544", "#ec4899", "#7170ff"] : ["#8a8f98", "#8a8f98", "#8a8f98"];
+  const g = band === "HOT" ? ["#4ade80", "#4ec9d8", "#7170ff"] : band === "WARM" ? ["#f5b544", "#ec4899", "#7170ff"] : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
   return (
     <div style={{ position: "relative", width: 130, height: 130 }}>
       <svg viewBox="0 0 130 130" style={{ display: "block" }}>
@@ -579,7 +579,7 @@ export function HistoryView({ stats }: HistoryViewProps) {
                         <span style={S.htAgo}>{relTime(row.created_at)}</span>
                       </div>
                       <div style={S.htCo}>
-                        <div style={{ background: avColor(row.company_name), width: 28, height: 28, borderRadius: 6, display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700, color: "#0a0b0f", flexShrink: 0 }}>
+                        <div style={{ background: avColor(row.company_name), width: 28, height: 28, borderRadius: 6, display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>
                           {row.company_name[0]}
                         </div>
                         <div style={{ minWidth: 0 }}>
@@ -669,7 +669,7 @@ export function HistoryView({ stats }: HistoryViewProps) {
         {drawerRow && (
           <>
             <div className="drawer-head" style={{ display: "grid", gridTemplateColumns: "40px 1fr auto", gap: 12, alignItems: "center", padding: "18px 22px", borderBottom: "1px solid var(--border)" }}>
-              <div style={{ background: avColor(drawerRow.company_name), width: 40, height: 40, borderRadius: 8, display: "grid", placeItems: "center", fontSize: 14, fontWeight: 700, color: "#0a0b0f" }}>
+              <div style={{ background: avColor(drawerRow.company_name), width: 40, height: 40, borderRadius: 8, display: "grid", placeItems: "center", fontSize: 14, fontWeight: 700, color: "var(--bg)" }}>
                 {drawerRow.company_name[0]}
               </div>
               <div style={{ minWidth: 0 }}>
@@ -774,7 +774,7 @@ export function HistoryView({ stats }: HistoryViewProps) {
                       if (!sig) return null;
                       return (
                         <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", fontSize: 12 }}>
-                          <div style={{ width: 24, height: 24, borderRadius: 4, background: color, display: "grid", placeItems: "center", fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: "#0a0b0f", flexShrink: 0 }}>{abbr}</div>
+                          <div style={{ width: 24, height: 24, borderRadius: 4, background: color, display: "grid", placeItems: "center", fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>{abbr}</div>
                           <div style={{ flex: 1, color: "var(--text-secondary)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sig.detail || key}</div>
                           <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-tertiary)", flexShrink: 0 }}>+{sig.score} / {max}</div>
                         </div>

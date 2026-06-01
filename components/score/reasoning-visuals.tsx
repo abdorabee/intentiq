@@ -71,7 +71,7 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
               return `${x},${y}`;
             }).join(" ")}
             fill="none"
-            className="stroke-slate-300/15 dark:stroke-white/[0.06]"
+            className="stroke-slate-300/15 dark:stroke-foreground/[0.06]"
             strokeWidth="0.5"
           />
         ))}
@@ -86,7 +86,7 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
               y1={cy}
               x2={x}
               y2={y}
-              className="stroke-slate-300/10 dark:stroke-white/[0.04]"
+              className="stroke-slate-300/10 dark:stroke-foreground/[0.04]"
               strokeWidth="0.5"
             />
           );
@@ -167,7 +167,7 @@ export function SignalDonut({ signals, totalScore }: { signals: SignalSet; total
             cy="50"
             r={r}
             fill="none"
-            className="stroke-slate-200/40 dark:stroke-white/[0.06]"
+            className="stroke-slate-200/40 dark:stroke-foreground/[0.06]"
             strokeWidth="8"
           />
           {/* Segments */}
@@ -262,7 +262,7 @@ export function BuyingJourney({ stage }: { stage: BuyingStage }) {
                     ? "bg-cyan-500/15 border-cyan-500/40 dark:bg-cyan-500/10 dark:border-cyan-500/30"
                     : isPast
                     ? "bg-emerald-500/10 border-emerald-500/25 dark:bg-emerald-500/8 dark:border-emerald-500/20"
-                    : "bg-slate-100 dark:bg-white/[0.02] border-slate-200 dark:border-white/[0.06]"
+                    : "bg-slate-100 dark:bg-foreground/[0.02] border-slate-200 dark:border-foreground/[0.06]"
                 )}
               >
                 <p
@@ -374,7 +374,7 @@ export function UrgencyMeter({ urgency }: { urgency: UrgencyLevel }) {
               "flex-1 transition-all duration-500",
               i <= activeIndex
                 ? `${level.bgClass} opacity-${i === activeIndex ? "100" : "40"}`
-                : "bg-slate-200 dark:bg-white/[0.04]"
+                : "bg-slate-200 dark:bg-foreground/[0.04]"
             )}
             style={{
               opacity: i <= activeIndex ? (i === activeIndex ? 1 : 0.4) : undefined,
@@ -409,7 +409,7 @@ export function KeyTriggersVisual({ triggers }: { triggers: string[] }) {
             key={i}
             className={cn(
               "flex items-start gap-3 px-3 py-2.5 border transition-all",
-              "bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/[0.06]"
+              "bg-slate-50 dark:bg-foreground/[0.02] border-slate-200 dark:border-foreground/[0.06]"
             )}
           >
             {/* Priority indicator */}
@@ -421,7 +421,7 @@ export function KeyTriggersVisual({ triggers }: { triggers: string[] }) {
                     ? "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30"
                     : i === 1
                     ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
-                    : "bg-slate-200 dark:bg-white/[0.06] text-slate-500 dark:text-slate-500 border border-slate-300 dark:border-white/[0.08]"
+                    : "bg-slate-200 dark:bg-foreground/[0.06] text-slate-500 dark:text-slate-500 border border-slate-300 dark:border-foreground/[0.08]"
                 )}
               >
                 {i + 1}
