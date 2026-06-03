@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.css";
 import "./theme-overrides.css";
 import "./responsive.css";
@@ -106,6 +107,7 @@ export default function RootLayout({
               __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');}else{d.classList.add('dark');}}catch(e){}})();`,
             }}
           />
+          <GoogleAnalytics />
         </head>
         <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
           <ThemeProvider>
