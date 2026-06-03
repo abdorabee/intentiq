@@ -24,7 +24,7 @@ function QuickThinking({ domain }: { domain: string }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <p className="text-sm font-medium text-slate-300">Analyzing {domain}</p>
+          <p className="text-sm font-medium text-foreground/80">Analyzing {domain}</p>
           <span className="flex gap-0.5 items-end">
             {[0, 1, 2].map((i) => (
               <span
@@ -91,7 +91,7 @@ export default function QuickScore() {
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && score()}
-          className="bg-foreground/[0.05] border-foreground/[0.08] text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+          className="bg-foreground/[0.05] border-foreground/[0.08] text-foreground placeholder:text-muted-foreground focus:border-cyan-500/50 focus:ring-cyan-500/20"
         />
         <Button
           onClick={score}
@@ -108,15 +108,15 @@ export default function QuickScore() {
         return (
           <div className="flex items-center gap-4 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-4">
             <div className="flex items-center justify-center h-14 w-14 rounded-full border border-foreground/[0.1] bg-foreground/[0.05]">
-              <span className="text-2xl font-black text-slate-100">{result.intent_score}</span>
+              <span className="text-2xl font-black text-foreground">{result.intent_score}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className={`inline-block h-2 w-2 rounded-full ${cfg.dot}`} />
               <Badge className={`${cfg.badge} rounded-full`}>{result.score_band}</Badge>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-slate-200 text-sm">{result.company}</p>
-              <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">{result.ai_summary}</p>
+              <p className="font-medium text-foreground text-sm">{result.company}</p>
+              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{result.ai_summary}</p>
             </div>
           </div>
         );

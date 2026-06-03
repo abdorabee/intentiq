@@ -18,12 +18,14 @@ export default function DashboardShell({ children, creditsRemaining, plan, inbox
   const pathname = usePathname();
   const flushPages = ["/billing", "/inbox"];
   const pageClass = flushPages.includes(pathname) ? "page page-flush" : "page";
-  const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem("nav-collapsed") === "true";
-  });
+  const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Restore collapsed preference from localStorage after mount.
+  useEffect(() => {
+    if (localStorage.getItem("nav-collapsed") === "true") setCollapsed(true);
+  }, []);
 
   // Track viewport — sidebar becomes off-canvas drawer on phones/tablets.
   useEffect(() => {

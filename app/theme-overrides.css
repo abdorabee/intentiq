@@ -223,3 +223,36 @@
 .dark ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
 }
+
+/* ============================================================
+   Light-mode dashboard overrides
+   Undoes hardcoded rgba(255,255,255,...) overlays and the one
+   literal #0a0b0d sidebar background that bypass CSS tokens.
+   ============================================================ */
+
+/* Sidebar background */
+html:not(.dark) .sidebar {
+  background: var(--sidebar);
+}
+html:not(.dark) .sb-head:hover         { background: rgba(10,14,26,0.03); }
+html:not(.dark) .sb-search             { background: rgba(10,14,26,0.03); border-color: var(--border); }
+html:not(.dark) .sb-search:hover       { background: rgba(10,14,26,0.05); }
+html:not(.dark) .sb-search .kbd        { background: rgba(10,14,26,0.06); }
+html:not(.dark) .sb-section .add:hover { background: rgba(10,14,26,0.05); }
+html:not(.dark) .sb-item:hover         { background: rgba(10,14,26,0.05); }
+html:not(.dark) .sb-item.active        { background: rgba(10,14,26,0.08); }
+html:not(.dark) .sb-credits            { background: rgba(10,14,26,0.03); }
+html:not(.dark) .sb-credits .bar       { background: rgba(10,14,26,0.08); }
+html:not(.dark) .sb-user:hover         { background: rgba(10,14,26,0.04); }
+
+/* Topbar */
+html:not(.dark) .tb-btn:hover          { background: rgba(10,14,26,0.04); }
+html:not(.dark) .tb-btn .kbd           { background: rgba(10,14,26,0.06); }
+html:not(.dark) .range-tabs            { background: rgba(10,14,26,0.03); }
+html:not(.dark) .range-tab.active      { background: rgba(10,14,26,0.07); }
+html:not(.dark) .notif:hover           { background: rgba(10,14,26,0.06); }
+/* Notification dot ring — was hardcoded dark #0e1011 */
+html:not(.dark) .notif .dot            { box-shadow: 0 0 6px var(--hot), 0 0 0 2px var(--background); }
+
+/* KPI cards */
+html:not(.dark) .kpi-head .more:hover  { background: rgba(10,14,26,0.05); }
