@@ -179,7 +179,7 @@ export default function TermsView() {
             <div style={{ width: "22px", height: "22px", display: "grid", placeItems: "center", borderRadius: "5px", background: "linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%)", color: "#0a0b0f", fontWeight: 800, fontSize: "11px", fontFamily: T.fontMono, boxShadow: "0 2px 8px rgba(94,106,210,0.4)" }}>IQ</div>
             IntentIQ
           </Link>
-          <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
               <Link key={label} href={href} style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", letterSpacing: "-0.011em", textDecoration: "none" }}>
                 {label}

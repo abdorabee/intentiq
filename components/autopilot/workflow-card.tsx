@@ -38,7 +38,7 @@ export default function WorkflowCard({ workflow, onToggle, onEdit, onDelete }: W
   }).join(", ");
 
   return (
-    <Card className={`border transition-all ${workflow.is_enabled ? "border-slate-200 dark:border-white/[0.08]" : "border-slate-200 dark:border-white/[0.04] opacity-60"}`}>
+    <Card className={`border transition-all ${workflow.is_enabled ? "border-slate-200 dark:border-foreground/[0.08]" : "border-slate-200 dark:border-foreground/[0.04] opacity-60"}`}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -48,7 +48,7 @@ export default function WorkflowCard({ workflow, onToggle, onEdit, onDelete }: W
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => onToggle(workflow.id, !workflow.is_enabled)}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${workflow.is_enabled ? "bg-cyan-500" : "bg-slate-300 dark:bg-white/[0.1]"}`}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${workflow.is_enabled ? "bg-cyan-500" : "bg-slate-300 dark:bg-foreground/[0.1]"}`}
               aria-label={workflow.is_enabled ? "Disable" : "Enable"}
             >
               <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${workflow.is_enabled ? "translate-x-4.5" : "translate-x-0.5"}`} />
@@ -71,11 +71,11 @@ export default function WorkflowCard({ workflow, onToggle, onEdit, onDelete }: W
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          <Badge className="text-[10px] bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.08]">
+          <Badge className="text-[10px] bg-slate-100 dark:bg-foreground/[0.05] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-foreground/[0.08]">
             <Calendar className="h-3 w-3 mr-1" />
             {workflow.schedule}
           </Badge>
-          <Badge className="text-[10px] bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.08]">
+          <Badge className="text-[10px] bg-slate-100 dark:bg-foreground/[0.05] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-foreground/[0.08]">
             {workflow.source_type === "watchlist" ? "Watchlist" : `${workflow.source_domains?.length ?? 0} domains`}
           </Badge>
         </div>
@@ -89,7 +89,7 @@ export default function WorkflowCard({ workflow, onToggle, onEdit, onDelete }: W
           </p>
         </div>
 
-        <div className="flex items-center gap-3 text-[10px] text-slate-500 pt-1 border-t border-slate-100 dark:border-white/[0.04]">
+        <div className="flex items-center gap-3 text-[10px] text-slate-500 pt-1 border-t border-slate-100 dark:border-foreground/[0.04]">
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
             {workflow.total_runs} runs

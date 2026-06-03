@@ -497,7 +497,7 @@ export default function DocsView() {
             <span style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "6px", background: T.accent, fontSize: "11px", fontWeight: 700, color: "#fff" }}>IQ</span>
             <span style={{ fontWeight: 600, color: T.txt }}>IntentIQ</span>
           </Link>
-          <div style={{ display: "flex", gap: "4px" }}>
+          <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map(label => (
               <a key={label} href={label === "Developers" ? "#quickstart" : "#"} style={{ fontSize: "13px", padding: "5px 10px", borderRadius: T.r.md, color: label === "Developers" ? T.txt : T.txtTert, background: label === "Developers" ? "rgba(255,255,255,0.05)" : "transparent", letterSpacing: "-0.006em", textDecoration: "none" }}>
                 {label}
@@ -526,7 +526,7 @@ export default function DocsView() {
             POST a domain — get back a 0–100 score, the five signals it was built from, a human‑readable action, and an AI summary. Score 1,000 companies in a single bulk job. Subscribe to events with webhooks.
           </p>
           {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1px", background: T.borderSubtle, border: `1px solid ${T.border}`, borderRadius: T.r.md, overflow: "hidden", maxWidth: "640px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "1px", background: T.borderSubtle, border: `1px solid ${T.border}`, borderRadius: T.r.md, overflow: "hidden", maxWidth: "640px" }}>
             {[
               { k: "P50 latency",    v: "412", unit: "ms" },
               { k: "P99 latency",    v: "2.84", unit: "s" },
@@ -622,7 +622,7 @@ export default function DocsView() {
           <section id="errors" style={secStyle}>
             <h1 style={h1Style}>Errors</h1>
             <Summary>Standard HTTP status codes. The body is always JSON with a <IC>type</IC>, a stable <IC>code</IC>, and a human <IC>message</IC>. We never leak credentials, request bodies, or stack traces.</Summary>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", margin: "12px 0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "8px", margin: "12px 0" }}>
               <ErrorCell num="400" code="invalid_request"      desc={<>The request was malformed — usually a missing field or a bad domain. The <IC>field</IC> property tells you which.</>} />
               <ErrorCell num="401" code="unauthorized"         desc="Key missing, malformed, or revoked. Don't retry — fix the key first." />
               <ErrorCell num="402" code="insufficient_credits" desc={<>Out of credits for the cycle. The <IC>resets_at</IC> field tells you when the next cycle begins.</>} />

@@ -180,7 +180,7 @@ export default function MemoryPage() {
     return (
       <div className="space-y-4">
         <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">Memory</h1>
-        <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-8 text-center">
+        <div className="border border-slate-200 dark:border-foreground/[0.08] bg-slate-50 dark:bg-foreground/[0.02] p-8 text-center">
           <p className="text-sm text-slate-500">No business profile found. Complete onboarding first.</p>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function MemoryPage() {
               ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
               : hasChanges
               ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20"
-              : "bg-slate-100 dark:bg-white/[0.03] text-slate-400 border-slate-200 dark:border-white/[0.08] opacity-50 cursor-not-allowed"
+              : "bg-slate-100 dark:bg-foreground/[0.03] text-slate-400 border-slate-200 dark:border-foreground/[0.08] opacity-50 cursor-not-allowed"
           }`}
         >
           {saving ? (
@@ -226,7 +226,7 @@ export default function MemoryPage() {
       </div>
 
       {/* ICP summary sentence */}
-      <div className="border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] px-5 py-4">
+      <div className="border border-slate-200 dark:border-foreground/[0.08] bg-slate-50 dark:bg-foreground/[0.02] px-5 py-4">
         <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 mb-1.5">Your ICP in plain English</p>
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic">&ldquo;{summary}&rdquo;</p>
       </div>
@@ -241,10 +241,10 @@ export default function MemoryPage() {
           {FIELDS.map((field, idx) => (
             <div
               key={field.id}
-              className="border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.02] animate-slide-up"
+              className="border border-slate-200 dark:border-foreground/[0.08] bg-white dark:bg-foreground/[0.02] animate-slide-up"
               style={{ animationDelay: `${idx * 40}ms` }}
             >
-              <div className="px-5 py-3 border-b border-slate-100 dark:border-white/[0.06] flex items-center gap-2">
+              <div className="px-5 py-3 border-b border-slate-100 dark:border-foreground/[0.06] flex items-center gap-2">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">{field.label}</p>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{field.question}</p>
@@ -260,7 +260,7 @@ export default function MemoryPage() {
                       className={`px-3 py-1.5 text-xs tracking-[0.03em] transition-all duration-150 border cursor-pointer ${
                         selected
                           ? "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/40"
-                          : "bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/[0.15]"
+                          : "bg-slate-50 dark:bg-foreground/[0.03] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-foreground/[0.08] hover:border-slate-300 dark:hover:border-foreground/[0.15]"
                       }`}
                     >
                       {selected && <Check className="inline h-3 w-3 mr-1.5 -mt-0.5" />}

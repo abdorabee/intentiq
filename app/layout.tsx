@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+import "./theme-overrides.css";
+import "./responsive.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -84,6 +86,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#08090a",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -92,6 +100,13 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className="dark" suppressHydrationWarning>
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');}else{d.classList.add('dark');}}catch(e){}})();`,
+            }}
+          />
+        </head>
         <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
           <ThemeProvider>
             {children}

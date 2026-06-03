@@ -108,7 +108,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
   const estimatedCreditsPerCompany = 1 + emailDraftCount * 0.5;
 
   return (
-    <Card className="border-slate-200 dark:border-white/[0.08]">
+    <Card className="border-slate-200 dark:border-foreground/[0.08]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-slate-800 dark:text-slate-100">
@@ -118,7 +118,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
             {[1, 2, 3, 4].map((s) => (
               <div
                 key={s}
-                className={`w-2 h-2 rounded-full ${s === step ? "bg-cyan-400" : s < step ? "bg-cyan-400/40" : "bg-slate-300 dark:bg-white/[0.1]"}`}
+                className={`w-2 h-2 rounded-full ${s === step ? "bg-cyan-400" : s < step ? "bg-cyan-400/40" : "bg-slate-300 dark:bg-foreground/[0.1]"}`}
               />
             ))}
           </div>
@@ -135,13 +135,13 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
                 placeholder="Hot Lead Alert"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
+                className="bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus:border-cyan-500/50"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 dark:text-slate-300 text-xs">Monitor</Label>
               <Select value={sourceType} onValueChange={(v) => setSourceType(v as AutopilotSourceType)}>
-                <SelectTrigger className="bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+                <SelectTrigger className="bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -154,14 +154,14 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
                   placeholder="stripe.com, linear.app, notion.so"
                   value={sourceDomains}
                   onChange={(e) => setSourceDomains(e.target.value)}
-                  className="bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500"
+                  className="bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500"
                 />
               )}
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 dark:text-slate-300 text-xs">Schedule</Label>
               <Select value={schedule} onValueChange={(v) => setSchedule(v as AutopilotSchedule)}>
-                <SelectTrigger className="bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+                <SelectTrigger className="bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,7 +180,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
             <div className="flex items-center gap-2">
               <span className="text-sm text-slate-600 dark:text-slate-400">Trigger when</span>
               <Select value={conditionLogic} onValueChange={(v) => setConditionLogic(v as AutopilotConditionLogic)}>
-                <SelectTrigger className="w-[100px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+                <SelectTrigger className="w-[100px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -204,7 +204,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
               variant="outline"
               size="sm"
               onClick={addCondition}
-              className="border-dashed border-slate-300 dark:border-white/[0.1] text-slate-600 dark:text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 cursor-pointer gap-1.5"
+              className="border-dashed border-slate-300 dark:border-foreground/[0.1] text-slate-600 dark:text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 cursor-pointer gap-1.5"
             >
               <Plus className="h-3.5 w-3.5" /> Add Condition
             </Button>
@@ -230,7 +230,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
               variant="outline"
               size="sm"
               onClick={addAction}
-              className="border-dashed border-slate-300 dark:border-white/[0.1] text-slate-600 dark:text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 cursor-pointer gap-1.5"
+              className="border-dashed border-slate-300 dark:border-foreground/[0.1] text-slate-600 dark:text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 cursor-pointer gap-1.5"
             >
               <Plus className="h-3.5 w-3.5" /> Add Action
             </Button>
@@ -242,7 +242,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
           <div className="space-y-4">
             <p className="text-xs text-cyan-400 uppercase tracking-[0.2em]">Step 4 — Review & Save</p>
             <div className="space-y-3 text-sm">
-              <div className="p-3 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] space-y-2">
+              <div className="p-3 bg-slate-50 dark:bg-foreground/[0.03] border border-slate-200 dark:border-foreground/[0.06] space-y-2">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Name</span>
                   <span className="text-slate-800 dark:text-slate-200 font-medium">{name}</span>
@@ -279,7 +279,7 @@ export default function WorkflowBuilder({ workflow, onSave, onCancel }: Workflow
         )}
 
         {/* Navigation */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/[0.06]">
+        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-foreground/[0.06]">
           <div>
             {step > 1 ? (
               <Button variant="ghost" size="sm" onClick={() => setStep(step - 1)} className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 gap-1 cursor-pointer">

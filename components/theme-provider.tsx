@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useCallback, useSyncExternalStore } from "react";
+import { createContext, useContext, useCallback, useEffect, useSyncExternalStore } from "react";
 
 type Theme = "dark" | "light";
 
@@ -40,10 +40,10 @@ function getServerSnapshot(): Theme {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  // Sync class on documentElement
-  if (typeof document !== "undefined") {
+  // Sync the `.dark` class on <html> whenever the theme changes.
+  useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-  }
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
     const next = theme === "dark" ? "light" : "dark";

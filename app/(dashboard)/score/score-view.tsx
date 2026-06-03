@@ -59,7 +59,7 @@ function ScoreRing({ score, band }: { score: number; band: string }) {
       ? ["#4ade80", "#4ec9d8", "#7170ff"]
       : band === "WARM"
       ? ["#f5b544", "#ec4899", "#7170ff"]
-      : ["#8a8f98", "#8a8f98", "#8a8f98"];
+      : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
 
   return (
     <div className="score-ring">
@@ -71,7 +71,7 @@ function ScoreRing({ score, band }: { score: number; band: string }) {
             <stop offset="100%" stopColor={gradColors[2]} />
           </linearGradient>
         </defs>
-        <circle cx="50" cy="50" r={r} stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="none" />
+        <circle cx="50" cy="50" r={r} stroke="var(--border)" strokeWidth="6" fill="none" />
         <circle
           cx="50" cy="50" r={r}
           stroke="url(#scoreGrad)" strokeWidth="6" fill="none"
@@ -344,12 +344,12 @@ function CompetitiveAnalysis({ result, onCopyEmail, emailCopied }: CompetitiveAn
       <div className="ca-radar-block">
         <div className="ca-radar-wrap">
           <svg className="ca-radar-svg" viewBox="-130 -130 260 260">
-            <g fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1">
+            <g fill="none" stroke="var(--border)" strokeWidth="1">
               {[0.25, 0.5, 0.75, 1].map((ratio) => (
                 <polygon key={ratio} points={ringPoints(ratio)} />
               ))}
             </g>
-            <g stroke="rgba(255,255,255,0.05)" strokeWidth="1">
+            <g stroke="var(--border-subtle)" strokeWidth="1">
               {RADAR_ANGLES.map((a, i) => (
                 <line key={i} x1="0" y1="0" x2={Math.cos(a) * R} y2={Math.sin(a) * R} />
               ))}

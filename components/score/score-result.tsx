@@ -50,7 +50,7 @@ export function ThinkingLoader({ domain }: { domain: string }) {
   }, []);
 
   return (
-    <Card className="border-white/[0.08]">
+    <Card className="border-foreground/[0.08]">
       <CardContent className="pt-6 space-y-5">
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 flex-shrink-0">
@@ -87,7 +87,7 @@ export function ThinkingLoader({ domain }: { domain: string }) {
                   ? "border-emerald-500/40 bg-emerald-500/15"
                   : i === step
                   ? "border-cyan-500/50 bg-cyan-500/15 animate-pulse"
-                  : "border-white/[0.08] bg-white/[0.03]"
+                  : "border-foreground/[0.08] bg-foreground/[0.03]"
               }`}>
                 {i < step ? (
                   <svg className="h-2.5 w-2.5 text-emerald-400" viewBox="0 0 12 12" fill="none">
@@ -108,7 +108,7 @@ export function ThinkingLoader({ domain }: { domain: string }) {
           ))}
         </div>
 
-        <div className="h-px bg-white/[0.04] overflow-hidden">
+        <div className="h-px bg-foreground/[0.04] overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-cyan-500 to-sky-400 transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / THINKING_STEPS.length) * 100}%` }}
@@ -170,7 +170,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
   return (
     <div className="space-y-4">
       {/* Score dial */}
-      <Card className={`border-slate-200 dark:border-white/[0.12] ${cfg.glow}`}>
+      <Card className={`border-slate-200 dark:border-foreground/[0.12] ${cfg.glow}`}>
         <CardContent className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-6">
           <div className={`p-[5px] rounded-full self-center sm:self-auto flex-shrink-0 bg-gradient-to-br ${cfg.ring} ${cfg.pulse}`}>
             <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-white dark:bg-[#020617]">
@@ -194,7 +194,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
                 className={`gap-1.5 cursor-pointer h-7 text-xs ${
                   watchlistAdded
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
-                    : "bg-white/[0.06] border border-white/[0.10] text-slate-300 hover:bg-white/[0.12] hover:text-slate-100"
+                    : "bg-foreground/[0.06] border border-foreground/[0.10] text-slate-300 hover:bg-foreground/[0.12] hover:text-slate-100"
                 }`}
               >
                 {watchlistAdded
@@ -212,7 +212,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
       </Card>
 
       {/* Signal breakdown */}
-      <Card className="border-slate-200 dark:border-white/[0.12]">
+      <Card className="border-slate-200 dark:border-foreground/[0.12]">
         <CardHeader><CardTitle className="text-slate-800 dark:text-slate-100">Signal Breakdown</CardTitle></CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -226,7 +226,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
             </div>
           </div>
 
-          <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-white/[0.06]">
+          <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-foreground/[0.06]">
             {(Object.keys(SIGNAL_LABELS) as Array<keyof typeof SIGNAL_LABELS>).map((key) => {
               const sig = result.signals[key];
               const pct = (sig.score / sig.max) * 100;
@@ -236,7 +236,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
                     <span className="font-medium text-slate-700 dark:text-slate-200">{SIGNAL_LABELS[key]}</span>
                     <span className="text-slate-400 dark:text-slate-500 font-mono text-xs">{sig.score}/{sig.max}</span>
                   </div>
-                  <div className="relative h-2.5 bg-slate-200 dark:bg-white/[0.06] overflow-hidden">
+                  <div className="relative h-2.5 bg-slate-200 dark:bg-foreground/[0.06] overflow-hidden">
                     <div className={`h-full bg-gradient-to-r ${SIGNAL_COLORS[key]} transition-all duration-700`} style={{ width: `${pct}%` }} />
                   </div>
                   <p className="text-xs text-slate-500 mt-1.5">{sig.detail}</p>
@@ -248,7 +248,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
       </Card>
 
       {/* AI Analysis */}
-      <Card className="border-slate-200 dark:border-white/[0.12]">
+      <Card className="border-slate-200 dark:border-foreground/[0.12]">
         <CardHeader>
           <CardTitle className="text-slate-800 dark:text-slate-100">AI Analysis</CardTitle>
         </CardHeader>
@@ -277,14 +277,14 @@ export function ScoreResult({ result }: { result: IntentScore }) {
           </div>
 
           {result.email_subject && (
-            <div className="border border-slate-200 dark:border-white/[0.12] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+            <div className="border border-slate-200 dark:border-foreground/[0.12] bg-slate-50 dark:bg-foreground/[0.03] px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-1.5">Email Subject</p>
               <p className="text-sm font-mono text-slate-700 dark:text-slate-300">{result.email_subject}</p>
             </div>
           )}
 
           {result.talk_track && (
-            <div className="border border-slate-200 dark:border-white/[0.12] bg-slate-50 dark:bg-white/[0.03] px-4 py-3">
+            <div className="border border-slate-200 dark:border-foreground/[0.12] bg-slate-50 dark:bg-foreground/[0.03] px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-1.5">Talk Track</p>
               <p className="text-sm italic text-slate-500 dark:text-slate-400">{result.talk_track}</p>
             </div>
@@ -294,7 +294,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
             <Button
               variant="outline"
               size="sm"
-              className="border-slate-200 dark:border-white/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer gap-1.5"
+              className="border-slate-200 dark:border-foreground/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-foreground/[0.05] cursor-pointer gap-1.5"
               onClick={handleCopyEmail}
             >
               <Mail className="h-3.5 w-3.5" />
@@ -303,7 +303,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
             <Button
               variant="outline"
               size="sm"
-              className="border-slate-200 dark:border-white/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05] cursor-pointer"
+              className="border-slate-200 dark:border-foreground/[0.12] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-foreground/[0.05] cursor-pointer"
               onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}
             >
               Copy JSON

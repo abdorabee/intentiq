@@ -709,6 +709,7 @@ nav.primary .row {
   transition: transform 0.15s;
 }
 .nav-spacer { flex: 1; }
+.nav-mob-btn { display: none; } /* shown via responsive.css at ≤980px */
 
 /* Buttons */
 .btn {
@@ -2225,9 +2226,11 @@ footer.site-footer {
   .score-detail { grid-template-columns: 1fr; }
   .autopilot-canvas .ap-flow { grid-template-columns: 1fr; }
   .autopilot-canvas .ap-edge { transform: rotate(90deg); height: 40px; }
+  .hero-screen-wrap { display: none; }
+  .hero { padding-bottom: 64px; }
 }
 
-/* â”€â”€ Dashboard CSS â”€â”€ */
+/*â”€â”€ Dashboard CSS â”€â”€ */
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    App shell (dashboard grid â€” overrides landing mock .app)
@@ -7850,6 +7853,7 @@ footer.site-footer {
 }
 
 /* end Watchlist CSS */
+
 
 
 /* Command palette (global search) */

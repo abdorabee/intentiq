@@ -30,7 +30,7 @@ export default function ActionRow({ action, onChange, onRemove }: ActionRowProps
         value={action.type}
         onValueChange={(v) => onChange({ type: v as AutopilotActionType, params: {} })}
       >
-        <SelectTrigger className="w-[220px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+        <SelectTrigger className="w-[220px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -45,7 +45,7 @@ export default function ActionRow({ action, onChange, onRemove }: ActionRowProps
           value={(action.params.tone as string) ?? "casual"}
           onValueChange={(v) => updateParam("tone", v)}
         >
-          <SelectTrigger className="w-[140px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+          <SelectTrigger className="w-[140px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -61,7 +61,7 @@ export default function ActionRow({ action, onChange, onRemove }: ActionRowProps
           placeholder="https://your-app.com/webhook"
           value={(action.params.url as string) ?? ""}
           onChange={(e) => updateParam("url", e.target.value)}
-          className="flex-1 min-w-[240px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500"
+          className="flex-1 min-w-[240px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500"
         />
       )}
 
@@ -70,7 +70,7 @@ export default function ActionRow({ action, onChange, onRemove }: ActionRowProps
           placeholder="https://hooks.slack.com/services/..."
           value={(action.params.webhook_url as string) ?? ""}
           onChange={(e) => updateParam("webhook_url", e.target.value)}
-          className="flex-1 min-w-[240px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500"
+          className="flex-1 min-w-[240px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100 placeholder:text-slate-500"
         />
       )}
 
@@ -79,7 +79,7 @@ export default function ActionRow({ action, onChange, onRemove }: ActionRowProps
           value={(action.params.stage as string) ?? "engaged"}
           onValueChange={(v) => updateParam("stage", v)}
         >
-          <SelectTrigger className="w-[160px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+          <SelectTrigger className="w-[160px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

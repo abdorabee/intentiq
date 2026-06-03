@@ -30,7 +30,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
         value={condition.type}
         onValueChange={(v) => onChange({ type: v as AutopilotConditionType, params: {} })}
       >
-        <SelectTrigger className="w-[200px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+        <SelectTrigger className="w-[200px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -49,7 +49,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
           placeholder="75"
           value={(condition.params.threshold as number) ?? ""}
           onChange={(e) => updateParam("threshold", Number(e.target.value))}
-          className="w-24 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100"
+          className="w-24 bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100"
         />
       )}
 
@@ -59,7 +59,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
             value={(condition.params.direction as string) ?? "any"}
             onValueChange={(v) => updateParam("direction", v)}
           >
-            <SelectTrigger className="w-[120px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+            <SelectTrigger className="w-[120px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -75,7 +75,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
             placeholder="10"
             value={(condition.params.min_change as number) ?? ""}
             onChange={(e) => updateParam("min_change", Number(e.target.value))}
-            className="w-24 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100"
+            className="w-24 bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100"
           />
           <span className="text-xs text-slate-500">points</span>
         </>
@@ -87,7 +87,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
             value={(condition.params.from as string) ?? "any"}
             onValueChange={(v) => updateParam("from", v === "any" ? undefined : v)}
           >
-            <SelectTrigger className="w-[110px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+            <SelectTrigger className="w-[110px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
               <SelectValue placeholder="From" />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +102,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
             value={(condition.params.to as string) ?? "any"}
             onValueChange={(v) => updateParam("to", v === "any" ? undefined : v)}
           >
-            <SelectTrigger className="w-[110px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+            <SelectTrigger className="w-[110px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
               <SelectValue placeholder="To" />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +121,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
             value={(condition.params.signal as string) ?? "funding"}
             onValueChange={(v) => updateParam("signal", v)}
           >
-            <SelectTrigger className="w-[140px] bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100">
+            <SelectTrigger className="w-[140px] bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -141,7 +141,7 @@ export default function ConditionRow({ condition, onChange, onRemove }: Conditio
             placeholder="70"
             value={((condition.params.min_ratio as number) ?? 0.7) * 100}
             onChange={(e) => updateParam("min_ratio", Number(e.target.value) / 100)}
-            className="w-20 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-slate-100"
+            className="w-20 bg-slate-100 dark:bg-foreground/[0.05] border-slate-200 dark:border-foreground/[0.08] text-slate-800 dark:text-slate-100"
           />
           <span className="text-xs text-slate-500">%</span>
         </>

@@ -92,7 +92,7 @@ export default function AboutView() {
             <span style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "6px", background: T.accent, fontSize: "11px", fontWeight: 700, color: "#fff" }}>IQ</span>
             <span style={{ fontWeight: 600, color: T.txt }}>IntentIQ</span>
           </Link>
-          <div style={{ display: "flex", gap: "4px" }}>
+          <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {(["Product","Autopilot","Developers","Pricing","Customers","Company"] as const).map(label => (
               <a key={label} href={label === "Company" ? "/about" : label === "Developers" ? "/docs" : "#"} style={{ fontSize: "13px", padding: "5px 10px", borderRadius: T.r.md, color: label === "Company" ? T.txt : T.txtTert, background: label === "Company" ? "rgba(255,255,255,0.05)" : "transparent", letterSpacing: "-0.006em", textDecoration: "none" }}>
                 {label}
@@ -122,7 +122,7 @@ export default function AboutView() {
           </p>
 
           {/* Numbers strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", border: `1px solid ${T.border}`, borderRadius: T.r.xl, background: T.bgEl, overflow: "hidden", marginTop: "48px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", border: `1px solid ${T.border}`, borderRadius: T.r.xl, background: T.bgEl, overflow: "hidden", marginTop: "48px" }}>
             {NUMBERS.map(({ num, unit, label, grad }, i) => (
               <div key={i} style={{ padding: "24px", borderRight: i < 3 ? `1px solid ${T.border}` : "none" }}>
                 <div style={{ fontWeight: 500, letterSpacing: "-0.03em", fontSize: "30px", lineHeight: 1, marginBottom: "6px", color: T.txt }}>
@@ -206,7 +206,7 @@ export default function AboutView() {
       <section style={{ paddingBottom: "80px" }}>
         <div style={{ maxWidth: "1080px", margin: "0 auto", padding: "0 24px" }}>
           <SectionHead eyebrow="How I work" h2={<>Six rules I don&apos;t<br />negotiate on.</>} sub="Most of these came from getting them wrong first." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "1px", background: T.borderSubtle, border: `1px solid ${T.borderSubtle}`, borderRadius: T.r.xl, overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1px", background: T.borderSubtle, border: `1px solid ${T.borderSubtle}`, borderRadius: T.r.xl, overflow: "hidden" }}>
             {PRINCIPLES.map(p => (
               <div key={p.n} style={{ background: T.bg, padding: "28px", display: "flex", gap: "16px" }}>
                 <div style={{ fontFamily: T.mono, fontSize: "11px", color: T.txtQ, letterSpacing: "0.06em", flexShrink: 0, paddingTop: "3px" }}>{p.n}</div>
@@ -226,7 +226,7 @@ export default function AboutView() {
           <SectionHead eyebrow="The team, in full" h2={<>It&apos;s just me.<br /><span style={{ color: T.txtTert }}>For now — on purpose.</span></>} sub="One person ships faster than a roadmap meeting. I'll know when it's time to add a second." />
 
           {/* Founder card */}
-          <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", border: `1px solid ${T.border}`, borderRadius: T.r.xl, overflow: "hidden", background: T.bgEl }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", border: `1px solid ${T.border}`, borderRadius: T.r.xl, overflow: "hidden", background: T.bgEl }}>
             {/* Face */}
             <div style={{ position: "relative", background: "radial-gradient(ellipse 80% 80% at 50% 30%,rgba(94,106,210,0.18),transparent 60%),radial-gradient(ellipse 60% 60% at 70% 80%,rgba(78,201,216,0.12),transparent 70%),linear-gradient(135deg,#14171a 0%,#0a0c0e 100%)", display: "grid", placeItems: "center", minHeight: "340px", borderRight: `1px solid ${T.border}` }}>
               <div style={{ width: "160px", height: "160px", borderRadius: "32px", display: "grid", placeItems: "center", fontSize: "56px", fontWeight: 700, letterSpacing: "-0.05em", color: "rgba(10,11,15,0.85)", fontFamily: T.mono, background: AV, boxShadow: "0 24px 48px -12px rgba(0,0,0,0.6)", position: "relative" }}>AR</div>
@@ -268,7 +268,7 @@ export default function AboutView() {
           </div>
 
           {/* Scope cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px", marginTop: "28px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginTop: "28px" }}>
             {SCOPE.map(s => (
               <div key={s.cls} style={{ border: `1px solid ${s.cls === "now" ? "rgba(74,222,128,0.25)" : s.cls === "next" ? "rgba(94,106,210,0.25)" : T.border}`, background: s.cls === "now" ? "rgba(74,222,128,0.03)" : s.cls === "next" ? "rgba(94,106,210,0.03)" : T.bgEl, borderRadius: T.r.md, padding: "18px 20px" }}>
                 <div style={{ fontFamily: T.mono, fontSize: "10px", color: s.color, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{s.label}</div>
@@ -284,12 +284,12 @@ export default function AboutView() {
       <section style={{ paddingBottom: "80px" }}>
         <div style={{ maxWidth: "1080px", margin: "0 auto", padding: "0 24px" }}>
           <SectionHead eyebrow="The workshop" h2={<>A laptop, a desk,<br />and a real deadline.</>} sub="Everything you see ships from one room. Here's what's in it and what it runs on." />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
             {/* Desk card */}
             <div style={{ border: `1px solid ${T.border}`, borderRadius: T.r.xl, background: T.bgEl, padding: "28px 32px", display: "flex", flexDirection: "column", gap: "14px" }}>
               <h3 style={{ fontSize: "18px", fontWeight: 500, color: T.txt, letterSpacing: "-0.018em" }}>The desk</h3>
               <p style={{ fontSize: "14px", lineHeight: 1.6, color: T.txtTert, letterSpacing: "-0.006em" }}>Where the building happens — evenings, weekends, and the occasional 5 AM bug fix that won&apos;t wait.</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px", marginTop: "6px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "8px", marginTop: "6px" }}>
                 {DESK.map(([k, v]) => (
                   <div key={k} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", background: "rgba(255,255,255,0.02)", border: `1px solid ${T.borderSubtle}`, borderRadius: T.r.sm, fontSize: "12px" }}>
                     <span style={{ fontFamily: T.mono, fontSize: "10px", color: T.txtQ, letterSpacing: "0.04em" }}>{k}</span>

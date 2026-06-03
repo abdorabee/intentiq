@@ -1,3 +1,5 @@
+import LandingNav from "@/components/landing/LandingNav";
+
 export default function LandingPage() {
   return (
     <>
@@ -10,35 +12,8 @@ export default function LandingPage() {
         </a>
       </div>
 
-      {/* Nav */}
-      <nav className="primary">
-        <div className="row">
-          <a href="#" className="brand">
-            <div className="logo">IQ</div>
-            <span>IntentIQ</span>
-          </a>
-          <div className="nav-links">
-            <a className="nav-link" href="#product">
-              Product
-              <svg className="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
-            </a>
-            <a className="nav-link" href="#autopilot">Autopilot</a>
-            <a className="nav-link" href="#api">Developers</a>
-            <a className="nav-link" href="#pricing">Pricing</a>
-            <a className="nav-link" href="#customers">Customers</a>
-            <a className="nav-link" href="#">
-              Company
-              <svg className="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
-            </a>
-          </div>
-          <div className="nav-spacer"></div>
-          <a href="/login" className="btn btn-ghost">Log in</a>
-          <a href="/signup" className="btn btn-secondary">
-            Sign up
-            <svg className="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
-          </a>
-        </div>
-      </nav>
+      {/* Nav (client component — manages mobile hamburger state) */}
+      <LandingNav />
 
       {/* Hero */}
       <section className="hero">
@@ -72,7 +47,37 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Hero product screen */}
+        {/* Mobile score preview — shown only on phones (≤980px), hidden on desktop */}
+        <div className="hero-mob-preview">
+          <div className="hmp-header">
+            <span className="hmp-label">Live pipeline · 247 accounts</span>
+            <span className="hmp-badge"><span className="hmp-dot"></span>HOT 12</span>
+          </div>
+          {[
+            { av: "S", avClass: "av-s", name: "Stripe",    domain: "stripe.com",    score: 94, band: "HOT",  bandClass: "hot" },
+            { av: "L", avClass: "av-l", name: "Linear",    domain: "linear.app",    score: 82, band: "HOT",  bandClass: "hot" },
+            { av: "A", avClass: "av-a", name: "Anthropic", domain: "anthropic.com", score: 78, band: "WARM", bandClass: "warm" },
+            { av: "V", avClass: "av-v", name: "Vercel",    domain: "vercel.com",    score: 67, band: "WARM", bandClass: "warm" },
+            { av: "N", avClass: "av-n", name: "Notion",    domain: "notion.so",     score: 43, band: "COLD", bandClass: "cold" },
+          ].map(({ av, avClass, name, domain, score, band, bandClass }) => (
+            <div key={name} className="hmp-row">
+              <div className={`hmp-av ${avClass}`}>{av}</div>
+              <div className="hmp-info">
+                <span className="hmp-name">{name}</span>
+                <span className="hmp-domain">{domain}</span>
+              </div>
+              <div className="hmp-right">
+                <span className={`hmp-band ${bandClass}`}>{band}</span>
+                <span className="hmp-score">{score}</span>
+              </div>
+            </div>
+          ))}
+          <div className="hmp-footer">
+            + 242 more accounts · updated just now
+          </div>
+        </div>
+
+        {/* Hero product screen (desktop only — hidden ≤ 980px) */}
         <div className="hero-screen-wrap">
           <div className="hero-screen-glow"></div>
           <div className="app-screen">
@@ -470,7 +475,7 @@ export default function LandingPage() {
         <div className="trust-row">
           <div className="logo italic">Roundwave</div>
           <div className="logo">▲ Signaltree</div>
-          <div className="logo mono">// MERIDIAN</div>
+          <div className="logo mono">&#47;&#47; MERIDIAN</div>
           <div className="logo italic">Carbide</div>
           <div className="logo">◆ Northbeam</div>
           <div className="logo mono">[ HALCYON ]</div>
@@ -1103,7 +1108,7 @@ export default function LandingPage() {
                     <span style={{ marginLeft: 'auto', color: 'var(--text-quaternary)' }}>curl</span>
                   </div>
                   <div className="body">
-                    <span className="cm-com">// 200 OK · 1,420 ms</span>
+                    <span className="cm-com">&#47;&#47; 200 OK · 1,420 ms</span>
                     <br />{'{'}
                     <br />&nbsp;&nbsp;<span className="cm-key">&quot;domain&quot;</span>: <span className="cm-str">&quot;stripe.com&quot;</span>,
                     <br />&nbsp;&nbsp;<span className="cm-key">&quot;score&quot;</span>: <span className="cm-num">94</span>,
