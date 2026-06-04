@@ -38,7 +38,7 @@ export default function LandingPage() {
               Start scoring free
               <svg className="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
             </a>
-            <a href="#" className="btn btn-secondary btn-lg">
+            <a href="/contact#contact-form" className="btn btn-secondary btn-lg">
               Book a demo
             </a>
           </div>
