@@ -51,11 +51,31 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq("is_read", false)
     .eq("is_archived", false);
 
+  const [{ count: watchlistCount }, { count: pipelineHotCount }] = await Promise.all([
+    admin
+      .from("watchlist")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("is_active", true),
+    admin
+      .from("watchlist")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .eq("score_band", "HOT"),
+  ]);
+
   return (
     <OnboardingGate completed={onboardingCompleted}>
       {onboardingCompleted ? (
         <>
-          <DashboardShell creditsRemaining={creditsRemaining} plan={plan} inboxCount={inboxCount ?? 0}>
+          <DashboardShell
+            creditsRemaining={creditsRemaining}
+            plan={plan}
+            inboxCount={inboxCount ?? 0}
+            watchlistCount={watchlistCount ?? 0}
+            pipelineHotCount={pipelineHotCount ?? 0}
+          >
             {children}
           </DashboardShell>
         </>

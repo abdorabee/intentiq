@@ -2946,6 +2946,9 @@ footer.site-footer {
     inset 0 1px 0 rgba(255,255,255,0.04);
   transition: box-shadow 0.2s;
 }
+.prompt-holder--compact {
+  grid-template-columns: 22px 1fr auto;
+}
 .prompt-holder:focus-within {
   border-color: rgba(94,106,210,0.5);
   box-shadow:

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import SiteFooter from "@/components/site-footer";
 
 /* ── Design tokens ───────────────────────────────────────────── */
 const T = {
@@ -457,49 +458,7 @@ export default function DpaView() {
         </main>
       </div>
 
-      {/* ── Site footer ── */}
-      <footer style={{ padding: "64px 0 36px", borderTop: `1px solid ${T.border}`, background: "#050608" }}>
-        <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4, 1fr)", gap: "32px", marginBottom: "56px" }}>
-            <div>
-              <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
-                <div style={{ width: "22px", height: "22px", display: "grid", placeItems: "center", borderRadius: "5px", background: "linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%)", color: "#0a0b0f", fontWeight: 800, fontSize: "11px", fontFamily: T.fontMono, boxShadow: "0 2px 8px rgba(94,106,210,0.4)" }}>IQ</div>
-                IntentIQ
-              </Link>
-              <p style={{ marginTop: "16px", fontSize: "13px", lineHeight: 1.55, color: T.txtQuaternary, letterSpacing: "-0.006em", maxWidth: "260px" }}>
-                B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the train.
-              </p>
-            </div>
-            {[
-              { title: "Product",    links: [{ l: "Score", h: "/#" }, { l: "Intent Hub", h: "/#" }, { l: "Autopilot", h: "/#" }, { l: "People scoring", h: "/#" }, { l: "Watchlist", h: "/#" }, { l: "Changelog", h: "/#" }] },
-              { title: "Developers", links: [{ l: "API reference", h: "/docs" }, { l: "Webhooks", h: "/#" }, { l: "SDKs", h: "/#" }, { l: "Status", h: "/#" }, { l: "Integrations", h: "/#" }] },
-              { title: "Company",    links: [{ l: "About", h: "/#" }, { l: "Customers", h: "/#" }, { l: "Pricing", h: "/#pricing" }, { l: "Careers", h: "/#" }, { l: "Blog", h: "/#" }, { l: "Contact", h: "/contact" }] },
-              { title: "Legal",      links: [{ l: "Terms", h: "/terms" }, { l: "Privacy", h: "/privacy" }, { l: "DPA", h: "/legal/dpa" }, { l: "Security", h: "/legal/security" }, { l: "Subprocessors", h: "/legal/subprocessors" }] },
-            ].map(col => (
-              <div key={col.title}>
-                <h4 style={{ fontSize: "12px", fontWeight: 500, color: T.txtSecondary, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "14px" }}>{col.title}</h4>
-                <ul style={{ display: "flex", flexDirection: "column", gap: "8px", padding: 0, listStyle: "none", margin: 0 }}>
-                  {col.links.map(({ l, h }) => (
-                    <li key={l}><Link href={h} style={{ fontSize: "13px", color: T.txtQuaternary, letterSpacing: "-0.006em", textDecoration: "none" }}>{l}</Link></li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "28px", borderTop: `1px solid ${T.border}`, fontSize: "12px", color: T.txtQuaternary, letterSpacing: "-0.006em" }}>
-            <span>© {new Date().getFullYear()} IntentIQ Labs, Inc. All rights reserved.</span>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "6px", height: "6px", borderRadius: "999px", background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
-              <span>All systems operational</span>
-            </div>
-            <div style={{ display: "flex", gap: "18px" }}>
-              {["Twitter", "GitHub", "LinkedIn"].map(s => (
-                <a key={s} href="#" style={{ color: T.txtQuaternary, textDecoration: "none" }}>{s}</a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

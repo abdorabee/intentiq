@@ -4,9 +4,9 @@ import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { PLAN_CREDITS, type DbUser } from "@/lib/types";
+import { getWorkspaceLabel } from "@/lib/workspace-label";
 import {
   LayoutGrid,
   Flame,
@@ -32,7 +32,6 @@ interface NavItem {
   href: string;
   label: string;
   icon: ComponentType<{ className?: string }>;
-  count?: string;
   indicator?: boolean;
   hotCount?: boolean;
   beta?: boolean;
@@ -41,11 +40,11 @@ interface NavItem {
 
 const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/pipeline", label: "Intent Hub", icon: Flame, count: "●12", hotCount: true },
+  { href: "/pipeline", label: "Intent Hub", icon: Flame, hotCount: true },
   { href: "/score", label: "Score", icon: Gauge },
   { href: "/history", label: "History", icon: History },
   { href: "/people", label: "People", icon: UserSearch, beta: true },
-  { href: "/watchlist", label: "Watchlist", icon: Eye, count: "24" },
+  { href: "/watchlist", label: "Watchlist", icon: Eye },
   { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
   { href: "/inbox", label: "Inbox", icon: Inbox },
 ];
@@ -61,6 +60,8 @@ interface DashboardNavProps {
   collapsed?: boolean;
   onToggle?: () => void;
   inboxCount?: number;
+  watchlistCount?: number;
+  pipelineHotCount?: number;
 }
 
 export default function DashboardNav({
@@ -69,6 +70,8 @@ export default function DashboardNav({
   collapsed = false,
   onToggle,
   inboxCount,
+  watchlistCount,
+  pipelineHotCount,
 }: DashboardNavProps) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
@@ -78,10 +81,18 @@ export default function DashboardNav({
   const creditPct = creditCap > 0 ? Math.min(100, Math.round((creditsRemaining / creditCap) * 100)) : 0;
   const displayName = user?.fullName || user?.firstName || "Account";
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const workspaceLabel = getWorkspaceLabel({ fullName: user?.fullName, email });
   const initials =
     (user?.firstName?.[0] ?? "") + (user?.lastName?.[0] ?? "") ||
     email.slice(0, 2).toUpperCase() ||
     "IQ";
+
+  function navCount(item: NavItem): string | undefined {
+    if (item.href === "/inbox" && inboxCount && inboxCount > 0) return String(inboxCount);
+    if (item.href === "/pipeline" && pipelineHotCount && pipelineHotCount > 0) return String(pipelineHotCount);
+    if (item.href === "/watchlist" && watchlistCount && watchlistCount > 0) return String(watchlistCount);
+    return undefined;
+  }
 
   return (
     <aside className="sidebar">
@@ -90,7 +101,7 @@ export default function DashboardNav({
         <span className="ws-logo">IQ</span>
         {!collapsed && (
           <div className="ws-name">
-            Acme Sales
+            {workspaceLabel}
             <span className="role">Workspace · {plan}</span>
           </div>
         )}
@@ -113,9 +124,7 @@ export default function DashboardNav({
       {WORKSPACE_ITEMS.map((item) => {
         const Icon = item.icon;
         const active = pathname === item.href;
-        const displayCount = item.href === "/inbox"
-          ? (inboxCount && inboxCount > 0 ? String(inboxCount) : undefined)
-          : item.count;
+        const displayCount = navCount(item);
         return (
           <Link
             key={`${item.href}-${item.label}`}

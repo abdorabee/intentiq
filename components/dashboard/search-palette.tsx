@@ -46,8 +46,8 @@ function bandClass(band?: SearchResultItem["band"]) {
 }
 
 const itemClass =
-  "cmd-item flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-white/5";
-const itemActiveClass = "bg-foreground/[0.06]";
+  "cmd-item flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-[var(--text-primary)]";
+const itemActiveClass = "active";
 
 export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
   const router = useRouter();

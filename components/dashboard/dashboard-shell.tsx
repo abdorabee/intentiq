@@ -12,9 +12,18 @@ interface DashboardShellProps {
   creditsRemaining: number;
   plan: DbUser["plan"];
   inboxCount?: number;
+  watchlistCount?: number;
+  pipelineHotCount?: number;
 }
 
-export default function DashboardShell({ children, creditsRemaining, plan, inboxCount }: DashboardShellProps) {
+export default function DashboardShell({
+  children,
+  creditsRemaining,
+  plan,
+  inboxCount,
+  watchlistCount,
+  pipelineHotCount,
+}: DashboardShellProps) {
   const pathname = usePathname();
   const flushPages = ["/billing", "/inbox"];
   const pageClass = flushPages.includes(pathname) ? "page page-flush" : "page";
@@ -67,6 +76,8 @@ export default function DashboardShell({ children, creditsRemaining, plan, inbox
           collapsed={effectiveCollapsed}
           onToggle={toggle}
           inboxCount={inboxCount}
+          watchlistCount={watchlistCount}
+          pipelineHotCount={pipelineHotCount}
         />
         <div
           className="nav-backdrop"

@@ -1,4 +1,5 @@
 import LandingNav from "@/components/landing/LandingNav";
+import SiteFooter from "@/components/site-footer";
 
 export default function LandingPage() {
   return (
@@ -38,7 +39,7 @@ export default function LandingPage() {
               Start scoring free
               <svg className="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
             </a>
-            <a href="#" className="btn btn-secondary btn-lg">
+            <a href="/contact#contact-form" className="btn btn-secondary btn-lg">
               Book a demo
             </a>
           </div>
@@ -1431,68 +1432,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="site-footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <a href="#" className="brand">
-                <div className="logo">IQ</div>
-                <span>IntentIQ</span>
-              </a>
-              <p>B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the train.</p>
-            </div>
-            <div className="footer-col">
-              <h4>Product</h4>
-              <ul>
-                <li><a href="#">Score</a></li>
-                <li><a href="#">Intent Hub</a></li>
-                <li><a href="#">Autopilot</a></li>
-                <li><a href="#">People scoring</a></li>
-                <li><a href="#">Watchlist</a></li>
-                <li><a href="#">Changelog</a></li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Developers</h4>
-              <ul>
-                <li><a href="/docs">API reference</a></li>
-                <li><a href="#">Webhooks</a></li>
-                <li><a href="#">Integrations</a></li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Company</h4>
-              <ul>
-                <li><a href="/about">About</a></li>
-                <li><a href="#">Pricing</a></li>
-                <li><a href="/contact">Contact</a></li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <ul>
-                <li><a href="/terms">Terms</a></li>
-                <li><a href="/privacy">Privacy</a></li>
-                <li><a href="/legal/dpa">DPA</a></li>
-                <li><a href="/legal/security">Security</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <span>© 2026 IntentIQ Labs, Inc. All rights reserved.</span>
-            <div className="footer-status">
-              <span className="dot"></span>
-              <span>All systems operational</span>
-            </div>
-            <div className="links">
-              <a href="#">Twitter</a>
-              <a href="#">GitHub</a>
-              <a href="#">LinkedIn</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </>
   );
 }
