@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Search, Filter, Bell, Plus, List, CreditCard, Menu } from "lucide-react";
+import { LayoutGrid, Search, Plus, List, CreditCard, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
 import { focusWatchlistAdd } from "@/lib/watchlist-events";
@@ -124,16 +124,6 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
         Search
         <kbd className="kbd">⌘K</kbd>
       </button>
-      {!isLists && !isBilling && (
-        <button type="button" className="tb-btn outlined">
-          <Filter className="ic" aria-hidden />
-          Filter
-        </button>
-      )}
-      <button type="button" className="notif" aria-label="Notifications">
-        <Bell style={{ width: 14, height: 14 }} />
-        <span className="dot" />
-      </button>
       {isLists ? (
         <button type="button" className="btn-primary" onClick={openNewListModal}>
           <Plus className="ic" style={{ strokeWidth: 2.2 }} />
@@ -148,12 +138,7 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
           <Plus className="ic" style={{ strokeWidth: 2.2 }} />
           Add to watchlist
         </button>
-      ) : (
-        <Link href="/score" className="btn-primary">
-          <Plus className="ic" style={{ strokeWidth: 2.2 }} />
-          Score account
-        </Link>
-      )}
+      ) : null}
     </header>
   );
 }

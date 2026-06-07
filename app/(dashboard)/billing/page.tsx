@@ -1,5 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { buildBillingStats } from "@/lib/billing-stats";
+import { getWorkspaceLabel } from "@/lib/workspace-label";
 import { BillingView } from "./billing-view";
 
 export default async function BillingPage() {
@@ -16,10 +17,10 @@ export default async function BillingPage() {
     clerkUser?.emailAddresses[0]?.emailAddress ||
     "";
 
-  const workspaceLabel =
-    clerkUser?.fullName?.trim() ||
-    email.split("@")[0] ||
-    "Workspace";
+  const workspaceLabel = getWorkspaceLabel({
+    fullName: clerkUser?.fullName,
+    email,
+  });
 
   return <BillingView stats={stats} email={email} workspaceLabel={workspaceLabel} />;
 }

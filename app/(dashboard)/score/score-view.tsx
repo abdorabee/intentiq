@@ -141,7 +141,7 @@ interface MiniPromptProps {
 
 function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
   return (
-    <div className="prompt-holder" style={{ marginBottom: 18 }}>
+    <div className="prompt-holder prompt-holder--compact" style={{ marginBottom: 18 }}>
       <div className="prompt-prefix">
         <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
           <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
@@ -155,15 +155,6 @@ function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
         onKeyDown={(e) => e.key === "Enter" && onScore()}
         style={{ fontSize: 14 }}
       />
-      <div className="prompt-mode">
-        <svg className="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z" />
-        </svg>
-        Full scan
-        <svg className="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M3 4.5l3 3 3-3" />
-        </svg>
-      </div>
       <div className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
         Re-score
       </div>
@@ -500,7 +491,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
           and web presence — then returns a 0–100 buying-intent score with AI reasoning.
         </p>
 
-        <div className="prompt-holder">
+        <div className="prompt-holder prompt-holder--compact">
           <div className="prompt-prefix">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
               <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
@@ -515,15 +506,6 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             onKeyDown={(e) => e.key === "Enter" && onScore()}
             autoFocus
           />
-          <div className="prompt-mode">
-            <svg className="ic" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M7 1l1.5 4.5L13 7l-4.5 1.5L7 13l-1.5-4.5L1 7l4.5-1.5z" />
-            </svg>
-            Full scan
-            <svg className="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M3 4.5l3 3 3-3" />
-            </svg>
-          </div>
           <div className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
             Score
             <span className="kbd-inline">↵</span>
