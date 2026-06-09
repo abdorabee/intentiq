@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 interface NavItem {
   href: string;
@@ -98,7 +99,7 @@ export default function DashboardNav({
     <aside className="sidebar">
       {/* Head */}
       <div className="sb-head">
-        <span className="ws-logo">IQ</span>
+        <IntentIQLogo className="ws-logo" size={24} />
         {!collapsed && (
           <div className="ws-name">
             {workspaceLabel}

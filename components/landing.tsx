@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 const PRICING = [
   { plan: "Free",    price: "$0",    credits: "20",     cta: "Start Free" },
@@ -155,9 +156,7 @@ function ProductMockup() {
       <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.07] bg-[#0a0b0e]">
         {/* Workspace selector */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <div className="h-[18px] w-[18px] rounded-[4px] bg-[#5e6ad2] flex items-center justify-center">
-            <span className="text-[8px] font-black text-white leading-none">IQ</span>
-          </div>
+          <IntentIQLogo size={18} />
           <span className="text-[11px] font-semibold text-slate-200">Acme Sales</span>
           <svg className="h-3 w-3 text-slate-600" viewBox="0 0 12 12" fill="none">
             <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -375,9 +374,7 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3.5 glass-nav border-b border-white/[0.06]">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-[#5e6ad2] flex items-center justify-center flex-shrink-0">
-              <span className="text-[10px] font-black text-white">IQ</span>
-            </div>
+            <IntentIQLogo size={24} />
             <span className="text-sm font-bold text-white">IntentIQ</span>
           </div>
           <div className="hidden md:flex items-center gap-0.5">
@@ -695,9 +692,7 @@ score = requests.get(
       <footer className="border-t border-white/[0.06] py-10">
         <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded bg-[#5e6ad2] flex items-center justify-center">
-              <span className="text-[9px] font-black text-white">IQ</span>
-            </div>
+            <IntentIQLogo size={20} />
             <span className="font-bold text-slate-200 text-sm">IntentIQ</span>
           </div>
           <p className="text-sm text-slate-500">

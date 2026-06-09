@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 /* ── Design tokens ───────────────────────────────────────────── */
 const T = {
@@ -225,7 +226,7 @@ export default function DpaView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 50, background: "rgba(8,9,10,0.72)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}` } as React.CSSProperties}>
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
-            <div style={{ width: "22px", height: "22px", display: "grid", placeItems: "center", borderRadius: "5px", background: "linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%)", color: "#0a0b0f", fontWeight: 800, fontSize: "11px", fontFamily: T.fontMono, boxShadow: "0 2px 8px rgba(94,106,210,0.4)" }}>IQ</div>
+            <IntentIQLogo size={22} />
             IntentIQ
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>

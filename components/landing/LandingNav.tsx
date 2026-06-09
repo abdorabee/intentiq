@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 const NAV_ITEMS = [
   { label: "Product",    href: "#product" },
@@ -20,7 +21,7 @@ export default function LandingNav() {
       <nav className="primary">
         <div className="row">
           <Link href="/" className="brand">
-            <div className="logo">IQ</div>
+            <IntentIQLogo className="logo" size={22} />
             <span>IntentIQ</span>
           </Link>
 
@@ -90,7 +91,7 @@ export default function LandingNav() {
 
             {/* Brand in drawer */}
             <Link href="/" className="brand" style={{ marginBottom: "16px" }}>
-              <div className="logo">IQ</div>
+              <IntentIQLogo className="logo" size={22} />
               <span>IntentIQ</span>
             </Link>
 

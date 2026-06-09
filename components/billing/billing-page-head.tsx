@@ -1,6 +1,7 @@
 "use client";
 
 import { formatRenewDate } from "@/lib/billing-stats";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 interface BillingPageHeadProps {
   renewAt: string | null;
@@ -17,7 +18,7 @@ export function BillingPageHead({ renewAt, workspaceLabel, onTopUp }: BillingPag
         <div className="title-row">
           <div className="title">Billing &amp; credits</div>
           <span className="ws-pill">
-            <span className="lg">IQ</span>
+            <IntentIQLogo className="lg" size={16} />
             {workspaceLabel} · USD
           </span>
         </div>

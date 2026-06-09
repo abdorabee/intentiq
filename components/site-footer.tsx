@@ -1,4 +1,5 @@
 import Link from "next/link";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 type FooterLink = { label: string; href: string };
 
@@ -67,7 +68,7 @@ export default function SiteFooter() {
         <div className="footer-grid">
           <div className="footer-brand">
             <Link href="/" className="brand">
-              <div className="logo">IQ</div>
+              <IntentIQLogo className="logo" size={22} />
               <span>IntentIQ</span>
             </Link>
             <p>
