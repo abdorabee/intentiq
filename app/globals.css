@@ -687,11 +687,7 @@ nav.primary .row {
 }
 .brand .logo {
   width: 22px; height: 22px;
-  display: grid; place-items: center; border-radius: 5px;
-  background: linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%);
-  color: #0a0b0f; font-weight: 800; font-size: 11px;
-  font-family: var(--font-mono);
-  box-shadow: 0 2px 8px rgba(94,106,210,0.4);
+  display: block; flex-shrink: 0;
 }
 .nav-links {
   display: flex; gap: 4px; align-items: center;
@@ -893,10 +889,8 @@ nav.primary .row {
   margin-bottom: 6px; border-bottom: 1px solid var(--border);
 }
 .app-sb-head .ws-logo {
-  width: 22px; height: 22px; border-radius: 5px;
-  background: linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%);
-  display: grid; place-items: center; color: #0a0b0f; font-weight: 800; font-size: 11px;
-  font-family: var(--font-mono);
+  width: 22px; height: 22px;
+  display: block; flex-shrink: 0;
 }
 .app-sb-head .ws-name {
   flex: 1; font-weight: 500; font-size: 13px; letter-spacing: -0.011em;
@@ -2259,11 +2253,8 @@ footer.site-footer {
 }
 .sb-head:hover { background: rgba(255,255,255,0.02); }
 .ws-logo {
-  width: 24px; height: 24px; border-radius: 6px;
-  background: linear-gradient(140deg, #4ec9d8 0%, #5e6ad2 70%, #7170ff 100%);
-  display: grid; place-items: center; color: #0a0b0f;
-  font-weight: 800; font-size: 11px; font-family: var(--font-mono);
-  flex-shrink: 0;
+  width: 24px; height: 24px;
+  display: block; flex-shrink: 0;
 }
 .ws-name {
   flex: 1; min-width: 0;
@@ -6474,11 +6465,7 @@ footer.site-footer {
 }
 .billing-page .bill-head .ws-pill .lg {
   width: 16px; height: 16px;
-  border-radius: 4px;
-  background: linear-gradient(140deg, #4ec9d8, #5e6ad2 70%, #7170ff);
-  display: grid; place-items: center;
-  font-family: var(--font-mono); font-weight: 800;
-  font-size: 9px; color: #0a0b0f;
+  display: block; flex-shrink: 0;
 }
 
 /* â”€â”€ Hero row: 3 cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */

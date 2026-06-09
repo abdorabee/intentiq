@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 /* ─── Design tokens ──────────────────────────────────────────── */
 const T = {
@@ -90,7 +91,7 @@ export default function AboutView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 40, height: "56px", background: "rgba(5,6,8,0.90)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${T.borderSubtle}`, display: "flex", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px", gap: "24px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-            <span style={{ display: "flex", height: "28px", width: "28px", alignItems: "center", justifyContent: "center", borderRadius: "6px", background: T.accent, fontSize: "11px", fontWeight: 700, color: "#fff" }}>IQ</span>
+            <IntentIQLogo size={28} />
             <span style={{ fontWeight: 600, color: T.txt }}>IntentIQ</span>
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>

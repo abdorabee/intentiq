@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import IntentIQLogo from "@/components/intentiq-logo";
 
 const FACTS = [
   {
@@ -124,23 +125,7 @@ function LeftPanel() {
           zIndex: 1,
         }}
       >
-        <div
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "7px",
-            background: "linear-gradient(135deg, #5e6ad2, #7170ff)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 800,
-            fontSize: "13px",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          IQ
-        </div>
+        <IntentIQLogo size={32} />
         <span
           style={{
             color: "#f7f8f8",
