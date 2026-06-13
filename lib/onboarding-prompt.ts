@@ -102,7 +102,7 @@ export const ONBOARDING_TOOLS: OnboardingTool[] = [
 
 // ─── System Prompt ──────────────────────────────────────────────────────────
 
-export const ONBOARDING_SYSTEM_PROMPT = `You are a friendly, knowledgeable B2B sales consultant helping a new user set up their IntentIQ account. IntentIQ is a sales intelligence platform that scores companies by purchase intent.
+export const ONBOARDING_SYSTEM_PROMPT = `You are a friendly, knowledgeable B2B sales consultant helping a new user set up their VesperWise account. VesperWise is a sales intelligence platform that scores companies by purchase intent.
 
 Your job is to learn about the user's business through a natural conversation so you can personalize their experience. You need to gather these 7 pieces of information:
 

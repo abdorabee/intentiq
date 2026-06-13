@@ -36,7 +36,7 @@ const NUMBERS = [
 const TIMELINE = [
   { time: "At work",          isNow: false, title: "An idea shows up uninvited", body: <>I&apos;m at my day job, staring at a sales pipeline that nobody could read. Halfway through a boring meeting, a thought won&apos;t leave me alone: <em style={{ color: T.txt }}>this should just be one number.</em> I scribble it on a notepad and try to focus on the meeting. I don&apos;t.</> },
   { time: "That night",       isNow: false, title: "Home, room, laptop, go",      body: <>Get home, eat, open the laptop in my room. By 1 AM there&apos;s a tiny script that prints a number next to a company name. It&apos;s ugly. It works. I buy <code style={{ fontFamily: T.mono, fontSize: "13px", padding: "1px 5px", borderRadius: "3px", background: "rgba(255,255,255,0.05)" }}>intentiq.dev</code> while I should be sleeping.</> },
-  { time: "The months after", isNow: false, title: "Evenings, weekends, three rewrites", body: "Day job in the day. IntentIQ at night. I throw the whole thing away twice — once because it was slow, once because it was ugly. Friends ask what I'm working on. I say \"a side project,\" which is technically true." },
+  { time: "The months after", isNow: false, title: "Evenings, weekends, three rewrites", body: "Day job in the day. VesperWise at night. I throw the whole thing away twice — once because it was slow, once because it was ugly. Friends ask what I'm working on. I say \"a side project,\" which is technically true." },
   { time: "Today",            isNow: true,  title: "Still in the same room. Now you can sign up.", body: <>Still just me. Same desk, same lamp, slightly more confident. If you want in, sign up free — or just email <a href="mailto:ar@intentiq.dev" style={{ color: T.txt, textDecoration: "underline", textDecorationColor: T.borderStrong, textUnderlineOffset: "3px" }}>ar@intentiq.dev</a>. I&apos;m the one who replies.</> },
 ];
 
@@ -46,7 +46,7 @@ const PRINCIPLES = [
   { n: "03", title: "Reps are the customer, not buyers",    desc: "Sales VPs sign the contract; AEs decide whether the tool gets used. Every feature has to pass the \"would a busy rep click this on a Tuesday at 4 PM\" test. Most ideas don't." },
   { n: "04", title: "One score, not seven",                 desc: "Composite scores beat per‑signal scores for the only metric that matters: whether a human acts on them. I'll resist the urge to add a second number until I'm forced to." },
   { n: "05", title: "Sales is a craft, not a queue",        desc: "Autopilot routes, drafts, and notifies — never sends without a human in the loop. I won't ship \"send 1,000 emails in one click.\" Plenty of vendors do; I won't be one of them." },
-  { n: "06", title: "If I'm the only person who works here, I'm the only person you email", desc: "Support, sales, security, billing — every reply you get from @intentiq.dev comes from me. When that breaks, it'll be because IntentIQ grew. Until then, that's the promise." },
+  { n: "06", title: "If I'm the only person who works here, I'm the only person you email", desc: "Support, sales, security, billing — every reply you get from @intentiq.dev comes from me. When that breaks, it'll be because VesperWise grew. Until then, that's the promise." },
 ];
 
 const SCOPE = [
@@ -83,7 +83,7 @@ export default function AboutView() {
       {/* ── Sticky banner ── */}
       <div style={{ position: "sticky", top: 0, zIndex: 50, height: "36px", background: T.bgEl, borderBottom: `1px solid ${T.borderSubtle}`, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", color: T.txtTert }}>
         <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(94,106,210,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v0.1</span>
-        <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>Solo founder.</strong> Building IntentIQ from a single room — and writing about it as I go.</span>
+        <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>Solo founder.</strong> Building VesperWise from a single room — and writing about it as I go.</span>
         <Link href="#" style={{ color: T.txtTert, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "4px", marginLeft: "6px" }}>Read the build log <span>→</span></Link>
       </div>
 
@@ -92,7 +92,7 @@ export default function AboutView() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px", gap: "24px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
             <IntentIQLogo size={28} />
-            <span style={{ fontWeight: 600, color: T.txt }}>IntentIQ</span>
+            <span style={{ fontWeight: 600, color: T.txt }}>VesperWise</span>
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {(["Product","Autopilot","Developers","Pricing","Customers","Company"] as const).map(label => (
@@ -113,14 +113,14 @@ export default function AboutView() {
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% -20%,rgba(94,106,210,0.12) 0%,transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", maxWidth: "1080px", margin: "0 auto" }}>
           <div style={{ fontSize: "12px", color: T.txtTert, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 500, marginBottom: "16px" }}>
-            <span style={{ color: T.accent, marginRight: "8px" }}>✦</span>About IntentIQ
+            <span style={{ color: T.accent, marginRight: "8px" }}>✦</span>About VesperWise
           </div>
           <h1 style={{ fontSize: "clamp(40px,5.5vw,60px)", fontWeight: 500, letterSpacing: "-0.032em", lineHeight: 1.08, marginBottom: "20px" }}>
             One person.<br />One room.{" "}
             <span style={{ background: "linear-gradient(110deg,#c9c4ff 0%,#7170ff 60%,#4ec9d8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>One number.</span>
           </h1>
           <p style={{ fontSize: "18px", lineHeight: 1.6, color: T.txtSec, maxWidth: "580px", letterSpacing: "-0.008em" }}>
-            IntentIQ is built by a single founder — Abdel‑Rahaman Rabee — in his own room, in the evenings between a day job and a deadline. The idea came at work. The product is what happened after.
+            VesperWise is built by a single founder — Abdel‑Rahaman Rabee — in his own room, in the evenings between a day job and a deadline. The idea came at work. The product is what happened after.
           </p>
 
           {/* Numbers strip */}
@@ -163,7 +163,7 @@ export default function AboutView() {
               <>One afternoon — sitting in a meeting that should have been an email — the thought wouldn&apos;t leave me alone: <em style={{ color: T.txt }}>what if all of this was one number?</em> One score per account, with the reasoning attached. Something a busy rep could glance at and act on. Not a dashboard. A sentence.</>,
               <>That evening I went home, opened my laptop in my own room, and started building. The first version was a Python script and a spreadsheet. The second version was a Postgres table and a half‑broken Next.js app. The version you&apos;re looking at is what happens when you keep going for a year.</>,
               <>I&apos;m doing every part of this myself — the scoring math, the front‑end, the API, the marketing site you&apos;re reading right now, the support emails, the late‑night deploys. There is no team. There are no investors. There&apos;s me, a room, and a deadline I set for myself.</>,
-              <>If you&apos;re a seller who&apos;s tired of dashboards, you&apos;re who I&apos;m building for. If something about IntentIQ feels off — wording, pricing, the way a score lands — <strong style={{ color: T.txt, fontWeight: 500 }}>email me directly</strong>. The reply you get will be from the only person who works here.</>,
+              <>If you&apos;re a seller who&apos;s tired of dashboards, you&apos;re who I&apos;m building for. If something about VesperWise feels off — wording, pricing, the way a score lands — <strong style={{ color: T.txt, fontWeight: 500 }}>email me directly</strong>. The reply you get will be from the only person who works here.</>,
             ].map((para, i) => (
               <p key={i} style={{ fontSize: "16px", lineHeight: 1.7, color: T.txtSec, letterSpacing: "-0.011em", marginBottom: "16px", maxWidth: "640px" }}>{para}</p>
             ))}
@@ -251,7 +251,7 @@ export default function AboutView() {
                 ))}
               </div>
               <p style={{ fontSize: "15px", lineHeight: 1.65, color: T.txtSec, letterSpacing: "-0.006em", maxWidth: "560px" }}>
-                Built IntentIQ alone, evenings and weekends, from an idea that arrived during a pipeline review at the day job. <strong style={{ color: T.txt, fontWeight: 500 }}>Every line of code, every pixel on this page, and every reply to support is from me.</strong> Reach out anytime — there&apos;s no triage between us.
+                Built VesperWise alone, evenings and weekends, from an idea that arrived during a pipeline review at the day job. <strong style={{ color: T.txt, fontWeight: 500 }}>Every line of code, every pixel on this page, and every reply to support is from me.</strong> Reach out anytime — there&apos;s no triage between us.
               </p>
               {/* Social links */}
               <div style={{ display: "flex", gap: "8px", marginTop: "8px", paddingTop: "18px", borderTop: `1px solid ${T.borderSubtle}`, flexWrap: "wrap" }}>
@@ -323,7 +323,7 @@ export default function AboutView() {
             Try it. Tell me<br />what&apos;s broken.
           </h2>
           <p style={{ fontSize: "16px", color: T.txtSec, letterSpacing: "-0.006em", marginBottom: "32px", lineHeight: 1.6 }}>
-            20 free credits, no card. The fastest way to make IntentIQ better is to use it and reply to my emails.
+            20 free credits, no card. The fastest way to make VesperWise better is to use it and reply to my emails.
           </p>
           <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "11px 22px", borderRadius: "999px", background: T.accent, color: "#fff", fontWeight: 500, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>

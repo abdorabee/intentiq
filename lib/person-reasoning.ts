@@ -45,7 +45,7 @@ ABOUT THE SELLER:
 Tailor your analysis to this seller's ideal customer profile. Make approach recommendations specific to their sales motion and buyer persona.
 ` : "";
 
-  return `You are IntentIQ's AI sales intelligence engine. You are briefing a sales rep about a SPECIFIC PERSON — not just a company. Your job is to help the rep understand who this person is, why they matter, and exactly how to approach them.
+  return `You are VesperWise's AI sales intelligence engine. You are briefing a sales rep about a SPECIFIC PERSON — not just a company. Your job is to help the rep understand who this person is, why they matter, and exactly how to approach them.
 
 PERSON: ${name}
 TITLE: ${person.title ?? "Unknown"}
@@ -194,7 +194,7 @@ export async function generatePersonReasoning(
         messages: [
           {
             role: "system",
-            content: "You are IntentIQ's AI sales intelligence engine. You analyze person-level purchase intent signals and produce structured, specific analysis for sales reps. You brief reps about specific people — their career context, authority level, and how to approach them. Always respond with valid JSON only.",
+            content: "You are VesperWise's AI sales intelligence engine. You analyze person-level purchase intent signals and produce structured, specific analysis for sales reps. You brief reps about specific people — their career context, authority level, and how to approach them. Always respond with valid JSON only.",
           },
           { role: "user", content: buildPersonPrompt(person, score, band, signals, productCategory, businessProfile) },
         ],

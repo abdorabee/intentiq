@@ -30,14 +30,14 @@ export async function POST(req: NextRequest) {
       const { Resend } = await import("resend");
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
-        from:    "IntentIQ Contact <onboarding@resend.dev>",
+        from:    "VesperWise Contact <onboarding@resend.dev>",
         to:      ["abdorabee1134@gmail.com"],
         replyTo: email,
         subject: `[Contact] ${reason} — ${name}${company ? ` · ${company}` : ""}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a1a;">
             <h2 style="margin-bottom:4px">New contact form submission</h2>
-            <p style="color:#666;margin-top:0">via IntentIQ contact page</p>
+            <p style="color:#666;margin-top:0">via VesperWise contact page</p>
             <table style="width:100%;border-collapse:collapse;margin:16px 0;">
               <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#888;width:120px">Name</td><td style="padding:8px 0;border-bottom:1px solid #eee">${name}</td></tr>
               <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#888">Email</td><td style="padding:8px 0;border-bottom:1px solid #eee"><a href="mailto:${email}">${email}</a></td></tr>

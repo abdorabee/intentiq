@@ -64,7 +64,7 @@ Set `MOCK_SIGNALS=true` to skip all external signal API calls during development
 
 ## Architecture Overview
 
-**IntentIQ** is a B2B sales intelligence platform that scores companies by purchase intent. It is a Next.js 16 App Router application.
+**VesperWise** is a B2B sales intelligence platform that scores companies by purchase intent. It is a Next.js 16 App Router application.
 
 ### Core Scoring Pipeline (`app/api/v1/score/route.ts`)
 

@@ -28,7 +28,7 @@ export default function CodeDemo() {
 
         <div className="overflow-hidden rounded-xl border border-[#5e6ad2]/25">
           <div className="flex items-center justify-between border-b border-[#5e6ad2]/15 bg-[#5e6ad2]/8 px-4 py-3">
-            <span className="font-mono text-xs tracking-widest text-[#7170ff]/70">intentiq / terminal</span>
+            <span className="font-mono text-xs tracking-widest text-[#7170ff]/70">vesperwise / terminal</span>
             <div className="flex gap-1.5">
               <span className="h-2 w-2 rounded-full bg-[#5e6ad2]/35" />
               <span className="h-2 w-2 rounded-full bg-[#5e6ad2]/35" />

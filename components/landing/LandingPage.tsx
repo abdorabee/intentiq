@@ -32,7 +32,7 @@ export default function LandingPage() {
             for B2B sales teams.
           </h1>
           <p className="lead">
-            IntentIQ scores every account in your pipeline on a 0–100 buying‑intent scale —
+            VesperWise scores every account in your pipeline on a 0–100 buying‑intent scale —
             live signals, AI reasoning, and the next move, in one place.
           </p>
           <div className="hero-actions">
@@ -1014,7 +1014,7 @@ export default function LandingPage() {
           <div className="section-head">
             <div className="label"><span className="accent"></span>Autopilot</div>
             <h2 className="h1">Workflows that fire while<br />the buying window is open.</h2>
-            <p>Trigger on score crossings, signal spikes, or pipeline events. Branch on conditions. Route, draft, notify — without leaving IntentIQ.</p>
+            <p>Trigger on score crossings, signal spikes, or pipeline events. Branch on conditions. Route, draft, notify — without leaving VesperWise.</p>
           </div>
 
           <div className="feature-screen">
@@ -1296,7 +1296,7 @@ export default function LandingPage() {
           <div className="quotes">
             <div className="quote-card">
               <blockquote>
-                We replaced our 6sense seat with IntentIQ for a tenth of the cost. The AE adoption was the surprise — they read the AI summary, they don&apos;t read the dashboard.
+                We replaced our 6sense seat with VesperWise for a tenth of the cost. The AE adoption was the surprise — they read the AI summary, they don&apos;t read the dashboard.
               </blockquote>
               <div className="quote-author">
                 <div className="av av-1">SK</div>

@@ -80,7 +80,7 @@ export function downloadCSV(content: string, filename: string): void {
 }
 
 /**
- * Generate a timestamped filename: `intentiq-bulk-scores-2026-04-02.csv`
+ * Generate a timestamped filename: `vesperwise-bulk-scores-2026-04-02.csv`
  */
 export function csvFilename(prefix: string): string {
   const date = new Date().toISOString().slice(0, 10);

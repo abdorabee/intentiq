@@ -97,7 +97,7 @@
   --sidebar-ring: oklch(0.715 0.143 200);
 }
 
-/* Dark â€” Linear-inspired (IntentIQ HTML references) */
+/* Dark â€” Linear-inspired (VesperWise HTML references) */
 .dark {
   --radius: 0.5rem;
   --background: #08090a;
@@ -487,7 +487,7 @@ details.nav-dd[open] .nav-chevron {
    ================================================================ */
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   Linear-inspired tokens, adapted to the IntentIQ palette
+   Linear-inspired tokens, adapted to the VesperWise palette
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   /* Surface */
@@ -508,7 +508,7 @@ details.nav-dd[open] .nav-chevron {
   --border-strong: rgba(255,255,255,0.13);
   --border-subtle: rgba(255,255,255,0.04);
 
-  /* Accent â€” IntentIQ's cyan, used sparingly */
+  /* Accent â€” VesperWise's cyan, used sparingly */
   --accent:        #5e6ad2; /* Linear-style violet for primary */
   --accent-2:      #7170ff;
   --cyan:          #4ec9d8;
@@ -867,7 +867,7 @@ nav.primary .row {
 }
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   Product surface â€” IntentIQ app shell (mock)
+   Product surface â€” VesperWise app shell (mock)
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .app {
   display: grid;

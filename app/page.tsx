@@ -3,12 +3,12 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import LandingPage from "@/components/landing/LandingPage";
 
-const CANONICAL = "https://www.intentiqs.com";
+const CANONICAL = "https://www.vesperwise.com";
 
 export const metadata: Metadata = {
-  title: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
+  title: "VesperWise — B2B Buyer Intent Signals for SMB Sales Teams",
   description:
-    "IntentIQ tracks hiring spikes, funding rounds, tech stack changes, news mentions, " +
+    "VesperWise tracks hiring spikes, funding rounds, tech stack changes, news mentions, " +
     "and web activity to surface companies ready to buy — before your competitors know. " +
     "Affordable intent data from $49/mo. 100x cheaper than 6sense or Bombora.",
   alternates: {
@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "IntentIQ",
+    siteName: "VesperWise",
     url: CANONICAL,
-    title: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
+    title: "VesperWise — B2B Buyer Intent Signals for SMB Sales Teams",
     description:
       "Know which companies are ready to buy before your competitors do. " +
       "Intent data for SMB sales teams at a fraction of enterprise pricing.",
@@ -33,7 +33,7 @@ const jsonLd = {
     {
       "@type": "SoftwareApplication",
       "@id": `${CANONICAL}/#software`,
-      name: "IntentIQ",
+      name: "VesperWise",
       url: CANONICAL,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
@@ -49,7 +49,7 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": `${CANONICAL}/#organization`,
-      name: "IntentIQ",
+      name: "VesperWise",
       url: CANONICAL,
       description:
         "First affordable B2B intent data platform for MENA. 100x cheaper than 6sense, Bombora, and ZoomInfo.",
@@ -57,12 +57,13 @@ const jsonLd = {
         "@type": "ImageObject",
         url: `${CANONICAL}/icon.svg`,
       },
+      sameAs: ["https://www.linkedin.com/company/vesperwise"],
     },
     {
       "@type": "WebSite",
       "@id": `${CANONICAL}/#website`,
       url: CANONICAL,
-      name: "IntentIQ",
+      name: "VesperWise",
       publisher: { "@id": `${CANONICAL}/#organization` },
     },
   ],
@@ -99,7 +100,7 @@ export default async function RootPage() {
       >
         <h1>B2B Buyer Intent Signals for SMB Sales Teams</h1>
         <p>
-          IntentIQ tracks buying signals across thousands of companies so your
+          VesperWise tracks buying signals across thousands of companies so your
           sales team knows who is ready to buy before your competitors do.
           Affordable intent data for small and mid-size B2B teams. From $49/mo.
         </p>
@@ -108,7 +109,7 @@ export default async function RootPage() {
         <p>
           Detect when a company is rapidly expanding a specific team — a strong
           signal they are investing in a new initiative and actively buying tools.
-          IntentIQ scores hiring velocity as 20% of the composite intent score.
+          VesperWise scores hiring velocity as 20% of the composite intent score.
         </p>
 
         <h2>Funding Rounds</h2>
@@ -139,10 +140,10 @@ export default async function RootPage() {
           contribute 15% of the composite intent score.
         </p>
 
-        <h2>Why IntentIQ</h2>
+        <h2>Why VesperWise</h2>
         <p>
           Enterprise intent platforms like 6sense and Bombora cost tens of
-          thousands per year and require months of onboarding. IntentIQ gives
+          thousands per year and require months of onboarding. VesperWise gives
           SMB sales and marketing teams the same buying signals at a fraction of
           the cost — starting free, scaling to $499/mo — with no setup complexity
           and a single API call per company.

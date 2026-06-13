@@ -22,7 +22,7 @@ export default function LandingNav() {
         <div className="row">
           <Link href="/" className="brand">
             <IntentIQLogo className="logo" size={22} />
-            <span>IntentIQ</span>
+            <span>VesperWise</span>
           </Link>
 
           {/* Desktop nav links */}
@@ -92,7 +92,7 @@ export default function LandingNav() {
             {/* Brand in drawer */}
             <Link href="/" className="brand" style={{ marginBottom: "16px" }}>
               <IntentIQLogo className="logo" size={22} />
-              <span>IntentIQ</span>
+              <span>VesperWise</span>
             </Link>
 
             {/* Nav links */}

@@ -42,7 +42,11 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
   },
 ];
 
-const SOCIAL_LINKS = ["Twitter", "GitHub", "LinkedIn"] as const;
+const SOCIAL_LINKS: { label: string; href: string }[] = [
+  { label: "Twitter", href: "#" },
+  { label: "GitHub", href: "#" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/vesperwise" },
+];
 
 function FooterLinkItem({ label, href }: FooterLink) {
   if (href.startsWith("/")) {
@@ -69,7 +73,7 @@ export default function SiteFooter() {
           <div className="footer-brand">
             <Link href="/" className="brand">
               <IntentIQLogo className="logo" size={22} />
-              <span>IntentIQ</span>
+              <span>VesperWise</span>
             </Link>
             <p>
               B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the
@@ -88,15 +92,19 @@ export default function SiteFooter() {
           ))}
         </div>
         <div className="footer-bottom">
-          <span>© {year} IntentIQ Labs, Inc. All rights reserved.</span>
+          <span>© {year} VesperWise Labs, Inc. All rights reserved.</span>
           <div className="footer-status">
             <span className="dot"></span>
             <span>All systems operational</span>
           </div>
           <div className="links">
-            {SOCIAL_LINKS.map((name) => (
-              <a key={name} href="#">
-                {name}
+            {SOCIAL_LINKS.map(({ label, href }) => (
+              <a
+                key={label}
+                href={href}
+                {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                {label}
               </a>
             ))}
           </div>

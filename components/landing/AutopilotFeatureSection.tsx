@@ -13,7 +13,7 @@ export default function AutopilotFeatureSection() {
         </h2>
         <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-[#8a8f98]">
           Trigger on score crossings, signal spikes, or pipeline events. Branch on conditions. Route, draft, notify —
-          without leaving IntentIQ.
+          without leaving VesperWise.
         </p>
         <div className="mt-12 overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0b0d]">
           <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.06] px-4 py-3 text-[11px]">

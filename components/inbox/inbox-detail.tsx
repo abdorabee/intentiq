@@ -201,7 +201,7 @@ export function InboxDetail({
         <div className="msg-from-row">
           <div className={cn("msg-from-av", `av-${avIdx}`)}>{companyInitials}</div>
           <div className="msg-from-info">
-            <div className="msg-from-name">IntentIQ · {n.domain}</div>
+            <div className="msg-from-name">VesperWise · {n.domain}</div>
             <div className="msg-from-meta">
               {n.tags.join(" · ")}
               {n.list_id ? " · subscribed via list" : ""}

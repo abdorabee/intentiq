@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "IntentIQ — B2B Intent Scoring for MENA";
+export const alt = "VesperWise — B2B Intent Scoring for MENA";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -44,7 +44,7 @@ export default function OGImage() {
             textTransform: "uppercase",
           }}
         >
-          [ INTENT IQ ]
+          [ VESPER WISE ]
         </div>
 
         {/* Headline */}
@@ -105,7 +105,7 @@ export default function OGImage() {
             letterSpacing: "0.15em",
           }}
         >
-          intentiqs.com
+          vesperwise.com
         </div>
       </div>
     ),

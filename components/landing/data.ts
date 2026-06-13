@@ -47,7 +47,7 @@ export const COMPARISON = [
   { name: "Bombora",         price: "$25K+/yr", smb: false, api: false, ai: false, mena: false },
   { name: "ZoomInfo Intent", price: "$15K+/yr", smb: false, api: false, ai: false, mena: true  },
   { name: "Apollo Intent",   price: "$49/mo+",  smb: true,  api: true,  ai: false, mena: true  },
-  { name: "IntentIQ",        price: "from $29/mo", smb: true,  api: true,  ai: true,  mena: true, you: true },
+  { name: "VesperWise",        price: "from $29/mo", smb: true,  api: true,  ai: true,  mena: true, you: true },
 ];
 
 export const MARQUEE_COMPANIES = [

@@ -576,7 +576,7 @@ BEHAVIOR:
   }
   const pipelineSummary = Object.entries(stageCounts).map(([s, c]) => `${s}: ${c}`).join(", ") || "empty";
 
-  return `You are IntentIQ Copilot, an AI sales intelligence assistant. You help sales teams understand and act on purchase intent signals.
+  return `You are VesperWise Copilot, an AI sales intelligence assistant. You help sales teams understand and act on purchase intent signals.
 
 You have access to tools that let you score companies, score individual people, manage watchlists, query pipeline data, and draft outreach. Use these tools proactively when the user's request would benefit from real data. When a user asks about a specific person (by name, email, or LinkedIn), use the score_person tool.
 

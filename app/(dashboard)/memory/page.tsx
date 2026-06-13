@@ -200,7 +200,7 @@ export default function MemoryPage() {
           </div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">Memory</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 tracking-wide mt-1">
-            What IntentIQ knows about your business — drives every score, recommendation, and ICP fit calculation.
+            What VesperWise knows about your business — drives every score, recommendation, and ICP fit calculation.
           </p>
         </div>
         <button

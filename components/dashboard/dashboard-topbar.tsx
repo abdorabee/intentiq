@@ -58,7 +58,7 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
   const crumb = CRUMB[pathname] ?? (
     listDetailMatch
       ? { parent: "Lists", current: listName ?? "List detail" }
-      : { parent: "Workspace", current: "IntentIQ" }
+      : { parent: "Workspace", current: "VesperWise" }
   );
 
   const hot = bandCounts?.hot ?? 0;

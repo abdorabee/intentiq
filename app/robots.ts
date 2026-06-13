@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/dashboard/", "/api/", "/memory/", "/pipeline/", "/people/", "/history/", "/watchlist/", "/billing/", "/api-keys/"],
       },
     ],
-    sitemap: "https://www.intentiqs.com/sitemap.xml",
+    sitemap: "https://www.vesperwise.com/sitemap.xml",
   };
 }

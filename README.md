@@ -1,10 +1,10 @@
-# IntentIQ
+# VesperWise
 
 B2B sales intelligence platform that scores companies by purchase intent using real-time signals and AI reasoning.
 
 ## What it does
 
-IntentIQ aggregates 5 live signals per company (funding activity, hiring velocity, news mentions, tech stack, web presence), computes a weighted 0–100 intent score with freshness decay, and uses Claude to generate buying-stage analysis, talk tracks, and recommended next actions. It also scores individual people by seniority fit and career trajectory.
+VesperWise aggregates 5 live signals per company (funding activity, hiring velocity, news mentions, tech stack, web presence), computes a weighted 0–100 intent score with freshness decay, and uses Claude to generate buying-stage analysis, talk tracks, and recommended next actions. It also scores individual people by seniority fit and career trajectory.
 
 Score bands: **HOT** (≥75) · **WARM** (50–74) · **COLD** (<50)
 

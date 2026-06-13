@@ -3,9 +3,9 @@ import { SignUp } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 
 export const metadata: Metadata = {
-  title: "Sign Up — Start Free | IntentIQ",
+  title: "Sign Up — Start Free | VesperWise",
   description:
-    "Create your free IntentIQ account. 20 credits, no credit card required.",
+    "Create your free VesperWise account. 20 credits, no credit card required.",
   robots: { index: false, follow: false },
 };
 
