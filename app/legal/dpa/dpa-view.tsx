@@ -227,7 +227,7 @@ export default function DpaView() {
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
             <IntentIQLogo size={22} />
-            IntentIQ
+            VesperWise
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -261,7 +261,7 @@ export default function DpaView() {
             Data Processing<br />Agreement.
           </h1>
           <p style={{ maxWidth: "620px", color: T.txtSecondary, fontSize: "clamp(16px, 1.25vw, 19px)", lineHeight: 1.55, letterSpacing: "-0.011em" }}>
-            The GDPR Article 28 controller‑to‑processor agreement governing how IntentIQ handles personal data on your behalf. This DPA is automatically incorporated into our{" "}
+            The GDPR Article 28 controller‑to‑processor agreement governing how VesperWise handles personal data on your behalf. This DPA is automatically incorporated into our{" "}
             <A href="/terms">Terms of Service</A> for every customer in the EEA, UK, or Switzerland.
           </p>
         </div>
@@ -315,7 +315,7 @@ export default function DpaView() {
             <P>Terms not defined here have the meaning given in the <A href="/terms">Terms of Service</A> or the GDPR. For clarity:</P>
             <UL items={[
               <span key="a"><Strong>Controller</Strong> means the Customer (you), who determines the purposes and means of processing Personal Data;</span>,
-              <span key="b"><Strong>Processor</Strong> means IntentIQ Labs, Inc., processing Personal Data on the Controller&rsquo;s behalf;</span>,
+              <span key="b"><Strong>Processor</Strong> means VesperWise Labs, Inc., processing Personal Data on the Controller&rsquo;s behalf;</span>,
               <span key="c"><Strong>Personal Data</Strong>, <Strong>Processing</Strong>, <Strong>Data Subject</Strong>, <Strong>Supervisory Authority</Strong>, and <Strong>Personal Data Breach</Strong> have the meanings given in GDPR Art. 4;</span>,
               <span key="d"><Strong>SCCs</Strong> means the EU Standard Contractual Clauses, Module Two (Controller → Processor), Commission Decision 2021/914.</span>,
             ]} />
@@ -323,28 +323,28 @@ export default function DpaView() {
 
           {/* ── 02 ── */}
           <Section id="s2" num="02" title="Subject matter & scope">
-            <P>This DPA applies to all Processing of Personal Data carried out by IntentIQ in performance of the Service. The subject matter, duration, nature, and categories of data are described in <A href="#a1">Annex I</A>. This DPA prevails over the Terms with respect to any inconsistency in the handling of Personal Data.</P>
+            <P>This DPA applies to all Processing of Personal Data carried out by VesperWise in performance of the Service. The subject matter, duration, nature, and categories of data are described in <A href="#a1">Annex I</A>. This DPA prevails over the Terms with respect to any inconsistency in the handling of Personal Data.</P>
           </Section>
 
           {/* ── 03 ── */}
           <Section id="s3" num="03" title="Processing instructions">
-            <P>IntentIQ will Process Personal Data only on documented instructions from the Controller — including with regard to international transfers — unless required to do so by EU or Member State law. The Controller&rsquo;s documented instructions are:</P>
+            <P>VesperWise will Process Personal Data only on documented instructions from the Controller — including with regard to international transfers — unless required to do so by EU or Member State law. The Controller&rsquo;s documented instructions are:</P>
             <OL items={[
               <span key="a">The Terms of Service;</span>,
               <span key="b">This DPA, including its Annexes;</span>,
               <span key="c">The configuration and inputs the Controller provides through the Service (e.g. domains submitted, workflows enabled).</span>,
             ]} />
-            <P>If IntentIQ is required by law to Process Personal Data outside these instructions, it will inform the Controller of that legal requirement before Processing, unless the law prohibits such notice on important grounds of public interest.</P>
+            <P>If VesperWise is required by law to Process Personal Data outside these instructions, it will inform the Controller of that legal requirement before Processing, unless the law prohibits such notice on important grounds of public interest.</P>
           </Section>
 
           {/* ── 04 ── */}
           <Section id="s4" num="04" title="Confidentiality & personnel">
-            <P>IntentIQ ensures that any person authorized to Process Personal Data is bound by an obligation of confidentiality and has received appropriate data‑protection training. Access to Personal Data is granted on a least‑privilege basis and reviewed quarterly.</P>
+            <P>VesperWise ensures that any person authorized to Process Personal Data is bound by an obligation of confidentiality and has received appropriate data‑protection training. Access to Personal Data is granted on a least‑privilege basis and reviewed quarterly.</P>
           </Section>
 
           {/* ── 05 ── */}
           <Section id="s5" num="05" title="Subprocessors">
-            <P>The Controller grants general authorization for IntentIQ to engage subprocessors. The current list is on our <A href="/legal/subprocessors">Subprocessors</A> page. IntentIQ will:</P>
+            <P>The Controller grants general authorization for VesperWise to engage subprocessors. The current list is on our <A href="/legal/subprocessors">Subprocessors</A> page. VesperWise will:</P>
             <UL items={[
               <span key="a">Notify the Controller at least <Strong>30 days in advance</Strong> before adding or replacing a subprocessor (by email to the account owner, and by an update to the Subprocessors page);</span>,
               "Impose on each subprocessor data‑protection obligations no less protective than those in this DPA;",
@@ -355,12 +355,12 @@ export default function DpaView() {
 
           {/* ── 06 ── */}
           <Section id="s6" num="06" title="Security measures">
-            <P>IntentIQ implements appropriate technical and organizational measures (&ldquo;TOMs&rdquo;) to ensure a level of security appropriate to the risk, including those listed in <A href="#a2">Annex II</A>. The Controller acknowledges that the measures in Annex II constitute appropriate security for the categories of Personal Data described in Annex I.</P>
+            <P>VesperWise implements appropriate technical and organizational measures (&ldquo;TOMs&rdquo;) to ensure a level of security appropriate to the risk, including those listed in <A href="#a2">Annex II</A>. The Controller acknowledges that the measures in Annex II constitute appropriate security for the categories of Personal Data described in Annex I.</P>
           </Section>
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="Personal data breach">
-            <P>IntentIQ will notify the Controller without undue delay, and in any event <Strong>within 72 hours</Strong> of becoming aware of a Personal Data Breach affecting the Controller&rsquo;s data. The notification will include:</P>
+            <P>VesperWise will notify the Controller without undue delay, and in any event <Strong>within 72 hours</Strong> of becoming aware of a Personal Data Breach affecting the Controller&rsquo;s data. The notification will include:</P>
             <OL items={[
               "A description of the nature of the breach, including categories and approximate numbers of Data Subjects and records concerned;",
               "The likely consequences;",
@@ -371,8 +371,8 @@ export default function DpaView() {
 
           {/* ── 08 ── */}
           <Section id="s8" num="08" title="Data subject rights">
-            <P>IntentIQ will, taking into account the nature of the Processing, assist the Controller by appropriate technical and organizational measures (insofar as possible) in fulfilling its obligation to respond to requests by Data Subjects exercising their rights under Chapter III GDPR.</P>
-            <P>If IntentIQ receives a request from a Data Subject in respect of Personal Data Processed under this DPA, it will direct the Data Subject to the Controller without responding to the request itself, except where required by law.</P>
+            <P>VesperWise will, taking into account the nature of the Processing, assist the Controller by appropriate technical and organizational measures (insofar as possible) in fulfilling its obligation to respond to requests by Data Subjects exercising their rights under Chapter III GDPR.</P>
+            <P>If VesperWise receives a request from a Data Subject in respect of Personal Data Processed under this DPA, it will direct the Data Subject to the Controller without responding to the request itself, except where required by law.</P>
           </Section>
 
           {/* ── 09 ── */}
@@ -392,17 +392,17 @@ export default function DpaView() {
 
           {/* ── 10 ── */}
           <Section id="s10" num="10" title="Audits">
-            <P>IntentIQ will make available to the Controller all information necessary to demonstrate compliance with this DPA, including a current SOC 2 Type II report and the answers to the CAIQ Lite and SIG Core. The Controller may request an audit once per twelve‑month period, on 30 days notice, conducted during business hours, by a mutually agreed independent auditor bound by confidentiality. The Controller bears the cost unless the audit reveals material non‑compliance.</P>
+            <P>VesperWise will make available to the Controller all information necessary to demonstrate compliance with this DPA, including a current SOC 2 Type II report and the answers to the CAIQ Lite and SIG Core. The Controller may request an audit once per twelve‑month period, on 30 days notice, conducted during business hours, by a mutually agreed independent auditor bound by confidentiality. The Controller bears the cost unless the audit reveals material non‑compliance.</P>
           </Section>
 
           {/* ── 11 ── */}
           <Section id="s11" num="11" title="Deletion & return">
-            <P>Upon termination of the Service, IntentIQ will, at the Controller&rsquo;s choice:</P>
+            <P>Upon termination of the Service, VesperWise will, at the Controller&rsquo;s choice:</P>
             <UL items={[
               "Return all Personal Data via a JSON export available in‑product;",
               <span key="b">Delete all Personal Data within <Strong>90 days</Strong>, including from backups within their normal rotation schedule (≤ 35 additional days), and provide written confirmation;</span>,
             ]} />
-            <P>Unless retention of some Personal Data is required by Union or Member State law (e.g. tax records). In that case, IntentIQ will continue to ensure the confidentiality of the retained data and will not actively Process it.</P>
+            <P>Unless retention of some Personal Data is required by Union or Member State law (e.g. tax records). In that case, VesperWise will continue to ensure the confidentiality of the retained data and will not actively Process it.</P>
           </Section>
 
           {/* ── 12 ── */}
@@ -412,9 +412,9 @@ export default function DpaView() {
 
           {/* ── Annex I ── */}
           <Section id="a1" num="A1" title="Annex I · Details of Processing">
-            <P><Strong>A. List of Parties.</Strong> Controller: the Customer as identified in the account record. Processor: IntentIQ Labs, Inc., 340 Brannan St., 4th fl., San Francisco, CA 94107.</P>
+            <P><Strong>A. List of Parties.</Strong> Controller: the Customer as identified in the account record. Processor: VesperWise Labs, Inc., 340 Brannan St., 4th fl., San Francisco, CA 94107.</P>
             <AnnexGrid cards={[
-              { key: "Subject matter",                val: "Provision of B2B intent scoring, workflows, and chat copilot via the IntentIQ Service." },
+              { key: "Subject matter",                val: "Provision of B2B intent scoring, workflows, and chat copilot via the VesperWise Service." },
               { key: "Duration",                      val: "Term of the Service plus the 90‑day deletion window in Section 11." },
               { key: "Nature & purpose",              val: "Account scoring, person scoring, watchlist alerts, AI summary generation, billing." },
               { key: "Categories of Data Subjects",   val: "Customer's employees (seat holders); business contacts (e.g. people the Customer scores)." },
@@ -427,7 +427,7 @@ export default function DpaView() {
 
           {/* ── Annex II ── */}
           <Section id="a2" num="A2" title="Annex II · Technical & organizational measures">
-            <P>IntentIQ implements the following measures. The full Security page, including diagrams and control mappings, is at <A href="/legal/security">intentiq.dev/security</A>.</P>
+            <P>VesperWise implements the following measures. The full Security page, including diagrams and control mappings, is at <A href="/legal/security">intentiq.dev/security</A>.</P>
             <DocTable
               headers={["Control area", "Measure"]}
               rows={[
@@ -442,7 +442,7 @@ export default function DpaView() {
                 ["Subprocessor management",     "Public list; 30‑day notice; DPA required from each."],
                 ["Incident response",           "72‑hour Controller notification on breach; runbook tested twice per year."],
                 ["Backups & resilience",        "Daily encrypted backups; 35‑day retention; RPO 24h, RTO 4h."],
-                ["Physical security",           "None operated by IntentIQ; all production hosting is with subprocessors with SOC 2 / ISO 27001."],
+                ["Physical security",           "None operated by VesperWise; all production hosting is with subprocessors with SOC 2 / ISO 27001."],
               ]}
             />
           </Section>

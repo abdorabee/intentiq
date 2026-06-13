@@ -63,7 +63,7 @@ export default function HUD({ visible }: HUDProps) {
             <span className="grid h-7 w-7 place-items-center rounded-md bg-[#5e6ad2] text-[11px] font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
               IQ
             </span>
-            IntentIQ
+            VesperWise
           </Link>
 
           <nav className="hidden items-center gap-0.5 md:flex">

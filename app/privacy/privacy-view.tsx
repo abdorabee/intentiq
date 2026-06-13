@@ -204,7 +204,7 @@ export default function PrivacyView() {
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
             <IntentIQLogo size={22} />
-            IntentIQ
+            VesperWise
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -238,7 +238,7 @@ export default function PrivacyView() {
             Privacy Policy.
           </h1>
           <p style={{ maxWidth: "620px", color: T.txtSecondary, fontSize: "clamp(16px, 1.25vw, 19px)", lineHeight: 1.55, letterSpacing: "-0.011em" }}>
-            How IntentIQ Labs, Inc. collects, uses, and protects your data. Written in plain
+            How VesperWise Labs, Inc. collects, uses, and protects your data. Written in plain
             English and mapped to the relevant GDPR clauses in our <A href="/legal/dpa">DPA</A>.
           </p>
         </div>
@@ -289,7 +289,7 @@ export default function PrivacyView() {
 
           {/* ── 01 ── */}
           <Section id="s1" num="01" title="Overview" first>
-            <P>IntentIQ Labs, Inc. (&ldquo;IntentIQ&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the IntentIQ platform available at <A href="https://intentiq.dev">intentiq.dev</A> and via the IntentIQ API (collectively, the <Strong>&ldquo;Service&rdquo;</Strong>). This Privacy Policy explains what data we collect, why we collect it, and how we handle it.</P>
+            <P>VesperWise Labs, Inc. (&ldquo;VesperWise&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the VesperWise platform available at <A href="https://intentiq.dev">intentiq.dev</A> and via the VesperWise API (collectively, the <Strong>&ldquo;Service&rdquo;</Strong>). This Privacy Policy explains what data we collect, why we collect it, and how we handle it.</P>
             <P>You can use the marketing site without giving us any personal data. Once you create an account or call the API, this policy applies. Our <A href="/terms">Terms of Service</A> and this policy together govern your use of the Service.</P>
           </Section>
 
@@ -371,7 +371,7 @@ export default function PrivacyView() {
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="International transfers">
-            <P>IntentIQ is operated from Egypt and the United States. Our production infrastructure runs on AWS <Code>us-east-1</Code>. If you are in the EEA or UK, your data is transferred to the US under the <Strong>Standard Contractual Clauses (EU 2021/914)</Strong> incorporated into our <A href="/legal/dpa">DPA</A>.</P>
+            <P>VesperWise is operated from Egypt and the United States. Our production infrastructure runs on AWS <Code>us-east-1</Code>. If you are in the EEA or UK, your data is transferred to the US under the <Strong>Standard Contractual Clauses (EU 2021/914)</Strong> incorporated into our <A href="/legal/dpa">DPA</A>.</P>
             <P>We are targeting an EU-region deployment (Frankfurt, <Code>eu-central-1</Code>) in Q3 2026 to allow EEA customers to keep data on-continent. We will announce this in the product when available.</P>
           </Section>
 
@@ -419,14 +419,14 @@ export default function PrivacyView() {
 
           {/* ── 11 ── */}
           <Section id="s11" num="11" title="Children">
-            <P>IntentIQ is a B2B product intended for business professionals. We do not knowingly collect personal data from anyone under 16. If you believe a minor has provided us with data, please contact <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A> and we will delete it promptly.</P>
+            <P>VesperWise is a B2B product intended for business professionals. We do not knowingly collect personal data from anyone under 16. If you believe a minor has provided us with data, please contact <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A> and we will delete it promptly.</P>
           </Section>
 
           {/* ── 12 ── */}
           <Section id="s12" num="12" title="Changes & contact">
             <P>We may update this Privacy Policy from time to time. Material changes will be announced at least <Strong>30 days in advance</Strong> by email to your account owner and notice in the product. The &ldquo;last updated&rdquo; date in the banner reflects the most recent revision.</P>
             <H3>Data controller</H3>
-            <P>IntentIQ Labs, Inc. · 340 Brannan St., 4th fl., San Francisco, CA 94107</P>
+            <P>VesperWise Labs, Inc. · 340 Brannan St., 4th fl., San Francisco, CA 94107</P>
             <H3>Data Protection contact</H3>
             <P>
               <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A>

@@ -115,7 +115,7 @@ const TEAM_SIZES = ["1 – 10", "10 – 50", "50 – 200", "200 – 1,000", "1,0
 
 const FAQS = [
   {
-    q: "Can I try IntentIQ without giving you a credit card?",
+    q: "Can I try VesperWise without giving you a credit card?",
     a: "Yes. The Free tier gives you 20 account scores, full dashboard access, and AI summaries on every score. No card. If you want more, Starter is $29/mo with no annual commitment.",
   },
   {
@@ -238,7 +238,7 @@ export default function ContactView() {
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
             <IntentIQLogo size={22} />
-            IntentIQ
+            VesperWise
           </Link>
           <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -428,7 +428,7 @@ export default function ContactView() {
               </label>
               <textarea
                 required
-                placeholder="We're evaluating IntentIQ vs 6sense. Looking for a 20‑min walkthrough of Autopilot routing logic…"
+                placeholder="We're evaluating VesperWise vs 6sense. Looking for a 20‑min walkthrough of Autopilot routing logic…"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="field-input"

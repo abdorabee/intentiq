@@ -487,7 +487,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
           <span className="grad">score</span>?
         </h1>
         <p className="prompt-sub">
-          Paste any company domain. IntentIQ scans funding, hiring, news, tech stack,
+          Paste any company domain. VesperWise scans funding, hiring, news, tech stack,
           and web presence — then returns a 0–100 buying-intent score with AI reasoning.
         </p>
 

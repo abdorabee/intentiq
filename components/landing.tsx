@@ -15,7 +15,7 @@ const COMPARISON = [
   { name: "Bombora",         price: "$25K+/yr", smb: false, api: false, ai: false, mena: false },
   { name: "ZoomInfo Intent", price: "$15K+/yr", smb: false, api: false, ai: false, mena: true  },
   { name: "Apollo Intent",   price: "$49/mo+",  smb: true,  api: true,  ai: false, mena: true  },
-  { name: "IntentIQ",        price: "$49/mo",   smb: true,  api: true,  ai: true,  mena: true, you: true },
+  { name: "VesperWise",        price: "$49/mo",   smb: true,  api: true,  ai: true,  mena: true, you: true },
 ];
 
 const HOW_IT_WORKS = [
@@ -375,7 +375,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
             <IntentIQLogo size={24} />
-            <span className="text-sm font-bold text-white">IntentIQ</span>
+            <span className="text-sm font-bold text-white">VesperWise</span>
           </div>
           <div className="hidden md:flex items-center gap-0.5">
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map((item) => (
@@ -431,7 +431,7 @@ export default function LandingPage() {
 
         {/* Subtext */}
         <p className="text-base md:text-lg text-slate-400 max-w-xl mx-auto leading-relaxed mb-8">
-          IntentIQ scores every account in your pipeline on a 0–100 buying-intent scale — live signals, AI reasoning, and the next move, in one place.
+          VesperWise scores every account in your pipeline on a 0–100 buying-intent scale — live signals, AI reasoning, and the next move, in one place.
         </p>
 
         {/* CTAs */}
@@ -472,7 +472,7 @@ export default function LandingPage() {
           {[
             { stat: "78%", label: "of outreach goes to cold accounts", note: "Industry average", color: "from-red-500/20 to-amber-500/10", border: "border-red-500/20", text: "text-red-400" },
             { stat: "2.1h", label: "wasted per rep per day on bad leads", note: "Per Gartner, 2024", color: "from-amber-500/20 to-orange-500/10", border: "border-amber-500/20", text: "text-amber-400" },
-            { stat: "3 sec", label: "for IntentIQ to score any company", note: "Avg API response time", color: "from-emerald-500/15 to-cyan-500/10", border: "border-emerald-500/20", text: "text-emerald-400" },
+            { stat: "3 sec", label: "for VesperWise to score any company", note: "Avg API response time", color: "from-emerald-500/15 to-cyan-500/10", border: "border-emerald-500/20", text: "text-emerald-400" },
           ].map((item) => (
             <div key={item.stat} className={`rounded-2xl glass border ${item.border} p-6 space-y-2 bg-gradient-to-br ${item.color}`}>
               <p className={`text-5xl font-black ${item.text}`}>{item.stat}</p>
@@ -495,7 +495,7 @@ export default function LandingPage() {
               <span className="h-3 w-3 rounded-full bg-red-500/60" />
               <span className="h-3 w-3 rounded-full bg-yellow-500/60" />
               <span className="h-3 w-3 rounded-full bg-emerald-500/60" />
-              <span className="ml-3 text-xs text-slate-500 font-mono">intentiq — api</span>
+              <span className="ml-3 text-xs text-slate-500 font-mono">vesperwise — api</span>
             </div>
             <pre className="text-emerald-400 p-6 text-sm overflow-x-auto leading-relaxed bg-transparent">
 {`# curl
@@ -551,7 +551,7 @@ score = requests.get(
       <section className="max-w-4xl mx-auto px-6 py-20 space-y-10">
         <div className="text-center space-y-2">
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-100">&ldquo;Our reps stopped guessing.&rdquo;</h2>
-          <p className="text-slate-400">Sales teams using IntentIQ 3× their connect rates in 30 days.</p>
+          <p className="text-slate-400">Sales teams using VesperWise 3× their connect rates in 30 days.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {[
@@ -693,10 +693,10 @@ score = requests.get(
         <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <IntentIQLogo size={20} />
-            <span className="font-bold text-slate-200 text-sm">IntentIQ</span>
+            <span className="font-bold text-slate-200 text-sm">VesperWise</span>
           </div>
           <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} IntentIQ · Built for B2B sales teams
+            © {new Date().getFullYear()} VesperWise · Built for B2B sales teams
           </p>
           <div className="flex gap-4 text-sm text-slate-500">
             <Link href="/login" className="hover:text-slate-200 transition-colors">Log in</Link>

@@ -297,7 +297,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
             </div>
             <h1 className="prompt-h1">Who do you want to <span className="grad">score</span>?</h1>
             <p className="prompt-sub">
-              Paste a work email or LinkedIn URL. IntentIQ resolves the person, pulls role, tenure, engagement, and influence — then returns a 0–100 buying-intent score with AI reasoning.
+              Paste a work email or LinkedIn URL. VesperWise resolves the person, pulls role, tenure, engagement, and influence — then returns a 0–100 buying-intent score with AI reasoning.
             </p>
 
             <div className="input-type-tabs">

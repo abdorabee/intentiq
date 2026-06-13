@@ -75,7 +75,7 @@ const PILLARS = [
     color: { bg: "rgba(74,222,128,0.10)", fg: T.hot },
     icon: <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><path d="M9 2L3 4v5c0 4 6 7 6 7s6-3 6-7V4z"/><path d="M6.5 9l2 2 3-4"/></svg>,
     title: "Product",
-    desc: "How your data flows through IntentIQ — and what we deliberately don't do with it (e.g. train models on it).",
+    desc: "How your data flows through VesperWise — and what we deliberately don't do with it (e.g. train models on it).",
     items: ["SHA‑256 hashed API keys", "No model training on Customer Data", "Anthropic zero‑retention enforced", "One‑click account deletion"],
   },
   {
@@ -135,7 +135,7 @@ const CONTROLS = [
   { name: "Incident response",      ref: "CC7.3 · CC7.5",          body: <span>On‑call rotation with paging. Severity ladder published internally; SEV‑1 invokes a war room within 10 minutes. <Strong>Customer notification within 72 hours</Strong> of confirmed Personal Data Breach per GDPR Art. 33. Postmortem within 5 business days.</span> },
   { name: "AI processing",          ref: "CC9.1 · Customer policy", body: <span>Anthropic configured with <Strong>zero data retention</Strong>; prompts are not used for training; no PII included in prompts. Customers can disable AI features per workspace. BYO Anthropic key on Pro and Agency plans.</span> },
   { name: "Personnel",              ref: "CC1.4",                  body: <span>Background checks on hire (criminal, employment, education). Confidentiality agreements signed before access. <Strong>Security training</Strong> on hire and annually. Offboarding revokes all access within 1 hour of last day.</span> },
-  { name: "Physical security",      ref: "CC6.4",                  body: <span>IntentIQ operates no data centers. All production hosting is at SOC 2 and ISO 27001 certified subprocessors (Vercel, Supabase, Upstash). Office spaces are subleased; no production data on local devices.</span> },
+  { name: "Physical security",      ref: "CC6.4",                  body: <span>VesperWise operates no data centers. All production hosting is at SOC 2 and ISO 27001 certified subprocessors (Vercel, Supabase, Upstash). Office spaces are subleased; no production data on local devices.</span> },
 ];
 
 /* ── Resources ───────────────────────────────────────────────── */
@@ -176,7 +176,7 @@ export default function SecurityView() {
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
             <IntentIQLogo size={22} />
-            IntentIQ
+            VesperWise
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -206,7 +206,7 @@ export default function SecurityView() {
           </div>
           <h1 style={{ fontWeight: 500, letterSpacing: "-0.042em", lineHeight: 1, fontSize: "clamp(40px, 6.4vw, 76px)", marginBottom: "22px", color: T.txtPrimary }}>
             Security at{" "}
-            <span style={{ background: "linear-gradient(135deg, #4ec9d8 0%, #5e6ad2 50%, #7170ff 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } as React.CSSProperties}>IntentIQ.</span>
+            <span style={{ background: "linear-gradient(135deg, #4ec9d8 0%, #5e6ad2 50%, #7170ff 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } as React.CSSProperties}>VesperWise.</span>
           </h1>
           <p style={{ maxWidth: "580px", color: T.txtSecondary, fontSize: "clamp(16px, 1.25vw, 19px)", lineHeight: 1.55, letterSpacing: "-0.011em", marginBottom: "40px" }}>
             The full picture: certifications, the architecture diagram, every control we run, and the email address you use to tell us when something looks wrong. Built and audited as if your CISO were reading.

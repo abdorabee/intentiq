@@ -1,6 +1,6 @@
 const QUOTES = [
   {
-    text: "We replaced our 6sense seat with IntentIQ for a tenth of the cost. The AE adoption was the surprise — they read the AI summary, they don't read the dashboard.",
+    text: "We replaced our 6sense seat with VesperWise for a tenth of the cost. The AE adoption was the surprise — they read the AI summary, they don't read the dashboard.",
     name: "Sana Kapoor",
     role: "VP Sales · Roundwave",
     initials: "SK",

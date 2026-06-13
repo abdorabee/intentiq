@@ -179,7 +179,7 @@ export default function TermsView() {
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
             <IntentIQLogo size={22} />
-            IntentIQ
+            VesperWise
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -213,7 +213,7 @@ export default function TermsView() {
             Terms of Service.
           </h1>
           <p style={{ maxWidth: "620px", color: T.txtSecondary, fontSize: "clamp(16px, 1.25vw, 19px)", lineHeight: 1.55, letterSpacing: "-0.011em" }}>
-            The contract between IntentIQ Labs, Inc. (&ldquo;IntentIQ&rdquo;, &ldquo;we&rdquo;) and the company or
+            The contract between VesperWise Labs, Inc. (&ldquo;VesperWise&rdquo;, &ldquo;we&rdquo;) and the company or
             individual using our products (the &ldquo;Customer&rdquo;, &ldquo;you&rdquo;). Written by a real lawyer;
             edited so a human can read it.
           </p>
@@ -257,7 +257,7 @@ export default function TermsView() {
 
           {/* Short-version callout */}
           <InfoCallout>
-            <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>The short version.</strong>{" "}Use IntentIQ for B2B sales
+            <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>The short version.</strong>{" "}Use VesperWise for B2B sales
             work. Don&rsquo;t scrape it, train models on it, or break the law with it. Your data stays yours; we&rsquo;ll
             handle it under the <A href="/legal/dpa">DPA</A>. Either side can leave with 30 days notice on monthly plans,
             anytime on annual at renewal.
@@ -265,7 +265,7 @@ export default function TermsView() {
 
           {/* ── 01 ── */}
           <Section id="s1" num="01" title="Acceptance & changes" first>
-            <P>By creating an account, accessing the IntentIQ API, or using any IntentIQ product (collectively, the <Strong>&ldquo;Service&rdquo;</Strong>), you agree to these Terms. If you&rsquo;re agreeing on behalf of a company, you represent that you have authority to do so, and &ldquo;you&rdquo; refers to that company.</P>
+            <P>By creating an account, accessing the VesperWise API, or using any VesperWise product (collectively, the <Strong>&ldquo;Service&rdquo;</Strong>), you agree to these Terms. If you&rsquo;re agreeing on behalf of a company, you represent that you have authority to do so, and &ldquo;you&rdquo; refers to that company.</P>
             <P>We may update these Terms periodically. Material changes will be announced at least <Strong>30 days in advance</Strong> by email to your account owner and notice in the product. Continued use after the effective date constitutes acceptance. If you don&rsquo;t agree to a change, you may terminate per Section&nbsp;10.</P>
           </Section>
 
@@ -284,7 +284,7 @@ export default function TermsView() {
             <H3>Plan changes</H3>
             <P>Upgrades take effect immediately and reset your credit balance to the new plan&rsquo;s allocation, prorated against the days remaining in the cycle. Downgrades take effect at next renewal. We don&rsquo;t refund unused credits on downgrade.</P>
             <H3>Taxes</H3>
-            <P>Stated fees exclude VAT, GST and other applicable taxes, which are added at checkout based on your billing address. You are responsible for any withholding taxes; fees due to IntentIQ are payable in full.</P>
+            <P>Stated fees exclude VAT, GST and other applicable taxes, which are added at checkout based on your billing address. You are responsible for any withholding taxes; fees due to VesperWise are payable in full.</P>
             <H3>Late payment</H3>
             <P>If a payment fails, we&rsquo;ll retry for 14 days, then suspend the account. Suspended accounts can be reinstated by paying the outstanding invoice. Data is retained for 90 days from suspension before deletion.</P>
           </Section>
@@ -306,15 +306,15 @@ export default function TermsView() {
 
           {/* ── 05 ── */}
           <Section id="s5" num="05" title="Customer data & IP">
-            <P><Strong>You own your data.</Strong> &ldquo;Customer Data&rdquo; means any data you upload to, transmit through, or generate within the Service — including domains, account lists, CRM exports, watchlists, and workflow definitions. You grant IntentIQ a worldwide, royalty&#8209;free license to host, process, transmit, and display Customer Data solely to provide and improve the Service for you.</P>
+            <P><Strong>You own your data.</Strong> &ldquo;Customer Data&rdquo; means any data you upload to, transmit through, or generate within the Service — including domains, account lists, CRM exports, watchlists, and workflow definitions. You grant VesperWise a worldwide, royalty&#8209;free license to host, process, transmit, and display Customer Data solely to provide and improve the Service for you.</P>
             <P><Strong>We will never:</Strong></P>
             <UL items={[
               "Sell, share, or rent Customer Data to third parties;",
               "Train foundation models on Customer Data;",
               "Use Customer Data for any purpose other than providing the Service to you and your seat holders.",
             ]} />
-            <P><Strong>We own our IP.</Strong> IntentIQ retains all right, title and interest in the Service, including the scoring models, the user interface, and all derived signal weighting, freshness decay, and band logic. You may not copy any of it.</P>
-            <P>Aggregated, anonymized metrics (e.g. &ldquo;median first&#8209;score latency&rdquo;, &ldquo;% of accounts in HOT band across all customers&rdquo;) may be used by IntentIQ in research, blog posts, and benchmarks — never in a way that identifies you or your accounts.</P>
+            <P><Strong>We own our IP.</Strong> VesperWise retains all right, title and interest in the Service, including the scoring models, the user interface, and all derived signal weighting, freshness decay, and band logic. You may not copy any of it.</P>
+            <P>Aggregated, anonymized metrics (e.g. &ldquo;median first&#8209;score latency&rdquo;, &ldquo;% of accounts in HOT band across all customers&rdquo;) may be used by VesperWise in research, blog posts, and benchmarks — never in a way that identifies you or your accounts.</P>
           </Section>
 
           {/* ── 06 ── */}
@@ -333,7 +333,7 @@ export default function TermsView() {
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="Warranties">
-            <P>IntentIQ warrants that the Service will perform materially in accordance with our published documentation and the SLAs in your order form (if any). Your exclusive remedy for a warranty breach is the SLA service credit described therein, or termination per Section&nbsp;10.</P>
+            <P>VesperWise warrants that the Service will perform materially in accordance with our published documentation and the SLAs in your order form (if any). Your exclusive remedy for a warranty breach is the SLA service credit described therein, or termination per Section&nbsp;10.</P>
             <P caps>EXCEPT AS EXPRESSLY STATED, THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; WITHOUT WARRANTY OF ANY KIND. INTENTIQ DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON&#8209;INFRINGEMENT.</P>
           </Section>
 
@@ -346,8 +346,8 @@ export default function TermsView() {
 
           {/* ── 09 ── */}
           <Section id="s9" num="09" title="Indemnity">
-            <P><Strong>IntentIQ will defend you</Strong> against any third&#8209;party claim that your authorized use of the Service infringes a valid patent, copyright, or trademark, and pay damages awarded in a final judgment or settlement we approve in writing.</P>
-            <P><Strong>You will defend IntentIQ</Strong> against any third&#8209;party claim arising out of your Customer Data, your use of the Service in violation of Section&nbsp;4, or your use of AI Output for a Restricted Use.</P>
+            <P><Strong>VesperWise will defend you</Strong> against any third&#8209;party claim that your authorized use of the Service infringes a valid patent, copyright, or trademark, and pay damages awarded in a final judgment or settlement we approve in writing.</P>
+            <P><Strong>You will defend VesperWise</Strong> against any third&#8209;party claim arising out of your Customer Data, your use of the Service in violation of Section&nbsp;4, or your use of AI Output for a Restricted Use.</P>
             <P>The defending party&rsquo;s obligations are conditioned on the other party (a) promptly notifying it of the claim, (b) giving it sole control of the defense, and (c) reasonably cooperating.</P>
           </Section>
 

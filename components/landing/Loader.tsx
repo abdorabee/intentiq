@@ -117,7 +117,7 @@ export default function Loader({ onEnter }: LoaderProps) {
             your competitors do.
           </p>
           <p className="text-slate-200 text-sm md:text-base" style={{ opacity: 0, transform: "translateY(20px)" }}>
-            {`I'm IntentIQ.`}
+            {`I'm VesperWise.`}
           </p>
           <p className="text-white text-base md:text-lg font-medium" style={{ opacity: 0, transform: "translateY(20px)" }}>
             They call it Sales Intelligence.

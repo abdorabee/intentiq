@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
 
   const { label } = (await req.json()) as { label?: string };
 
-  // Generate a secure random key: intentiq_<32 random hex chars>
-  const rawKey = `intentiq_${randomBytes(24).toString("hex")}`;
+  // Generate a secure random key: vesperwise_<32 random hex chars>
+  const rawKey = `vesperwise_${randomBytes(24).toString("hex")}`;
   const keyHash = createHash("sha256").update(rawKey).digest("hex");
 
   const admin = createSupabaseAdmin();

@@ -125,7 +125,7 @@ export function actionToDisplay(a: AutopilotAction): { label: string; target: st
     case "pipeline_stage":
       return { label: "pipeline_stage →", target: paramStr(a.params, "stage", "to") ?? "engaged", badge: "crm" };
     case "notification":
-      return { label: "notify →", target: "in-app alert", badge: "intentiq" };
+      return { label: "notify →", target: "in-app alert", badge: "vesperwise" };
     default:
       return { label: a.type, target: "", badge: "" };
   }

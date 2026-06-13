@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 import TermsView from "./terms-view";
 
-const CANONICAL = "https://www.intentiqs.com/terms";
+const CANONICAL = "https://www.vesperwise.com/terms";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "The contract between IntentIQ Labs, Inc. and the company or individual using our products. " +
+    "The contract between VesperWise Labs, Inc. and the company or individual using our products. " +
     "Written by a real lawyer; edited so a human can read it.",
   alternates: { canonical: CANONICAL },
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "IntentIQ",
+    siteName: "VesperWise",
     url: CANONICAL,
-    title: "Terms of Service — IntentIQ",
+    title: "Terms of Service — VesperWise",
     description:
-      "Use IntentIQ for B2B sales work. Your data stays yours. Either side can leave with 30 days notice.",
+      "Use VesperWise for B2B sales work. Your data stays yours. Either side can leave with 30 days notice.",
   },
 };
 

@@ -15,7 +15,7 @@ const PILLARS = [
     n: "03",
     label: "Act",
     title: "Workflows that fire while the window's open.",
-    body: "Cross 75 and an account routes to the right owner, drafts outreach, and pings Slack — without leaving IntentIQ.",
+    body: "Cross 75 and an account routes to the right owner, drafts outreach, and pings Slack — without leaving VesperWise.",
   },
 ];
 

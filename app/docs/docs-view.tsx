@@ -368,8 +368,8 @@ const curlPane = (
 
 const nodePane = (
   <>
-    {cm.kw("import")} {"{ IntentIQ } "}{cm.kw("from")} {cm.str('"@intentiq/node"')}{"\n\n"}
-    {cm.kw("const")} iiq {" = "}{cm.kw("new")} {cm.fn("IntentIQ")}{"({ apiKey: process.env.IIQ_KEY });"}{"\n\n"}
+    {cm.kw("import")} {"{ VesperWise } "}{cm.kw("from")} {cm.str('"@vesperwise/node"')}{"\n\n"}
+    {cm.kw("const")} iiq {" = "}{cm.kw("new")} {cm.fn("VesperWise")}{"({ apiKey: process.env.IIQ_KEY });"}{"\n\n"}
     {cm.kw("const")} score {" = "}{cm.kw("await")} iiq.scores.{cm.fn("create")}{"({"}{"\n"}
     {"  domain: "}{cm.str('"stripe.com"')}{","}{"\n"}
     {"});"}{"\n\n"}
@@ -379,8 +379,8 @@ const nodePane = (
 
 const pythonPane = (
   <>
-    {cm.kw("from")} intentiq {cm.kw("import")} IntentIQ{"\n\n"}
-    iiq {" = "}{cm.fn("IntentIQ")}{"(api_key=os.environ["}{cm.str('"IIQ_KEY"')}{"])\n\n"}
+    {cm.kw("from")} intentiq {cm.kw("import")} VesperWise{"\n\n"}
+    iiq {" = "}{cm.fn("VesperWise")}{"(api_key=os.environ["}{cm.str('"IIQ_KEY"')}{"])\n\n"}
     score {" = "} iiq.scores.{cm.fn("create")}{"(\n"}
     {"    domain="}{cm.str('"stripe.com"')}{","}{"\n"}
     {")"}
@@ -497,7 +497,7 @@ export default function DocsView() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px", gap: "24px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
             <IntentIQLogo size={28} />
-            <span style={{ fontWeight: 600, color: T.txt }}>IntentIQ</span>
+            <span style={{ fontWeight: 600, color: T.txt }}>VesperWise</span>
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map(label => (
@@ -605,7 +605,7 @@ export default function DocsView() {
             <P>Pick a domain. We&apos;ll fetch the five signals (funding, hiring, news, tech stack, web), compute a score, and write back an AI summary. Cold‑cache scores take ~1.4s; warm‑cache reads return in &lt;200ms.</P>
             <ApiNote><Strong>Domains, not URLs.</Strong> Send <IC>stripe.com</IC>, not <IC>https://www.stripe.com/atlas</IC>. We&apos;ll strip schemes and subdomains for you, but apex domain is the canonical form.</ApiNote>
             <H3>3. Hook it up</H3>
-            <P>For real‑time pipelines, subscribe to the <IC>score.computed</IC> webhook and let IntentIQ push deltas to you. For batch enrichment, queue a <A href="#bulk-score">bulk job</A> and poll its status.</P>
+            <P>For real‑time pipelines, subscribe to the <IC>score.computed</IC> webhook and let VesperWise push deltas to you. For batch enrichment, queue a <A href="#bulk-score">bulk job</A> and poll its status.</P>
           </section>
 
           {/* Authentication */}
@@ -803,8 +803,8 @@ export default function DocsView() {
             <h1 style={h1Style}>Webhooks</h1>
             <Summary>We POST events to your endpoint as JSON. Deliveries are signed (HMAC‑SHA256), at‑least‑once, and retried on non‑2xx with exponential backoff for 24 hours. Subscribe in <A href="#">Settings → Webhooks</A>.</Summary>
             <H3>Delivery contract</H3>
-            <P>Respond <IC>2xx</IC> within 5 seconds — do the work asynchronously. We send <IC>User-Agent: IntentIQ-Webhook/1.0</IC> and a <IC>X-IIQ-Signature</IC> header you should verify. Events carry a <IC>delivery_attempt</IC> integer so you can dedupe.</P>
-            <ApiNote><Strong>Local development.</Strong> Point a webhook at the IntentIQ CLI (<IC>iiq webhooks listen</IC>) — it tunnels deliveries to <IC>http://localhost:3000/webhooks</IC> without ngrok.</ApiNote>
+            <P>Respond <IC>2xx</IC> within 5 seconds — do the work asynchronously. We send <IC>User-Agent: VesperWise-Webhook/1.0</IC> and a <IC>X-IIQ-Signature</IC> header you should verify. Events carry a <IC>delivery_attempt</IC> integer so you can dedupe.</P>
+            <ApiNote><Strong>Local development.</Strong> Point a webhook at the VesperWise CLI (<IC>iiq webhooks listen</IC>) — it tunnels deliveries to <IC>http://localhost:3000/webhooks</IC> without ngrok.</ApiNote>
           </section>
 
           {/* Webhook events */}
@@ -885,7 +885,7 @@ export default function DocsView() {
             <h1 style={h1Style}>Official SDKs</h1>
             <Summary>Thin wrappers around the REST API with retry/backoff, typed responses, and idiomatic ergonomics. Source on <A href="#">GitHub</A>; bug reports welcome.</Summary>
             <ParamTable>
-              <ParamRow name="Node / TypeScript" type="@intentiq/node">Node 18+, fully typed. <IC>npm i @intentiq/node</IC>.</ParamRow>
+              <ParamRow name="Node / TypeScript" type="@vesperwise/node">Node 18+, fully typed. <IC>npm i @vesperwise/node</IC>.</ParamRow>
               <ParamRow name="Python" type="intentiq">Python 3.10+, sync and async clients. <IC>pip install intentiq</IC>.</ParamRow>
               <ParamRow name="Go" type="github.com/intentiq/go-sdk">Go 1.21+, context‑aware, zero deps outside stdlib + <IC>x/sync</IC>.</ParamRow>
               <ParamRow name="Community" type="Ruby · PHP · Elixir" isLast>Maintained by customers. Listed on our <A href="#">community SDKs</A> page; we don&apos;t guarantee parity.</ParamRow>

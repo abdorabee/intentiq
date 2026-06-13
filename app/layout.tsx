@@ -22,12 +22,12 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "IntentIQ — B2B Intent Scoring for MENA",
-    template: "%s | IntentIQ",
+    default: "VesperWise — B2B Intent Scoring for MENA",
+    template: "%s | VesperWise",
   },
   description:
     "Score any company 0–100 for purchase intent in one API call. Funding, hiring, news, tech stack & web signals combined with AI reasoning — 100x cheaper than 6sense or Bombora. Built for MENA sales teams.",
-  metadataBase: new URL("https://www.intentiqs.com"),
+  metadataBase: new URL("https://www.vesperwise.com"),
   keywords: [
     "B2B intent data",
     "buyer intent signals",
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     "SMB sales tools",
     "intent data platform",
   ],
-  authors: [{ name: "IntentIQ", url: "https://www.intentiqs.com" }],
-  creator: "IntentIQ",
+  authors: [{ name: "VesperWise", url: "https://www.vesperwise.com" }],
+  creator: "VesperWise",
   robots: {
     index: true,
     follow: true,
@@ -58,9 +58,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.intentiqs.com",
-    siteName: "IntentIQ",
-    title: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
+    url: "https://www.vesperwise.com",
+    siteName: "VesperWise",
+    title: "VesperWise — B2B Buyer Intent Signals for SMB Sales Teams",
     description:
       "Track hiring spikes, funding rounds, tech stack changes, and news mentions. " +
       "Surface companies ready to buy before your competitors do. From $49/mo.",
@@ -69,13 +69,13 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "IntentIQ — B2B Buyer Intent Signals for SMB Sales Teams",
+        alt: "VesperWise — B2B Buyer Intent Signals for SMB Sales Teams",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "IntentIQ — B2B Buyer Intent Signals",
+    title: "VesperWise — B2B Buyer Intent Signals",
     description:
       "Track hiring spikes, funding rounds, tech stack changes and more. Find your buyers first.",
     images: ["/opengraph-image"],

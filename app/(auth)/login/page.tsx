@@ -3,7 +3,7 @@ import { SignIn } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 
 export const metadata: Metadata = {
-  title: "Sign In — IntentIQ",
+  title: "Sign In — VesperWise",
   robots: { index: false, follow: false },
 };
 

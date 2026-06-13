@@ -29,7 +29,7 @@ const FACTS = [
 
 const QUOTES = [
   {
-    text: "We replaced our 6sense seat with IntentIQ for a tenth of the cost. AE adoption was the surprise.",
+    text: "We replaced our 6sense seat with VesperWise for a tenth of the cost. AE adoption was the surprise.",
     name: "Sana Kapoor",
     role: "VP Sales · Roundwave",
     av: "SK",
@@ -134,7 +134,7 @@ function LeftPanel() {
             letterSpacing: "-0.02em",
           }}
         >
-          IntentIQ
+          VesperWise
         </span>
       </Link>
 

@@ -155,7 +155,7 @@ export default function BulkScorerPage() {
     }));
 
     const content = toCSV(columns, rows);
-    triggerDownload(content, csvFilename("intentiq-bulk-scores"));
+    triggerDownload(content, csvFilename("vesperwise-bulk-scores"));
   }
 
   const bandColor = (band: string) => {

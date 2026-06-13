@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   // Build dynamic columns from the data keys
   if (scored.length === 0) {
     return new NextResponse("", {
-      headers: { "Content-Type": "text/csv", "Content-Disposition": `attachment; filename="intentiq_prioritized.csv"` },
+      headers: { "Content-Type": "text/csv", "Content-Disposition": `attachment; filename="vesperwise_prioritized.csv"` },
     });
   }
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   return new NextResponse(csvOutput, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="intentiq_prioritized.csv"`,
+      "Content-Disposition": `attachment; filename="vesperwise_prioritized.csv"`,
     },
   });
 }

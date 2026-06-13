@@ -24,7 +24,7 @@ export default function HeroSection() {
             Pipeline <span className="text-gradient">intelligence</span> for B2B sales teams.
           </h1>
           <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-[#8a8f98] md:text-[17px]">
-            IntentIQ scores every account in your pipeline on a 0–100 buying-intent scale — live signals, AI reasoning,
+            VesperWise scores every account in your pipeline on a 0–100 buying-intent scale — live signals, AI reasoning,
             and the next move, in one place.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

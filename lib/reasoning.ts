@@ -29,7 +29,7 @@ ABOUT THE SELLER:
 Use this seller context to tailor your analysis. Focus signals on how they relate to this seller's ideal customer profile. Make recommendations specific to their sales motion and buyer persona.
 ` : "";
 
-  return `You are IntentIQ's AI sales intelligence engine. Your job is to analyze purchase intent signals and brief a sales rep clearly and specifically — like a sharp analyst who's done deep research on this account before a call.
+  return `You are VesperWise's AI sales intelligence engine. Your job is to analyze purchase intent signals and brief a sales rep clearly and specifically — like a sharp analyst who's done deep research on this account before a call.
 
 COMPANY: ${company}
 INTENT SCORE: ${score}/100 — ${band}
@@ -160,7 +160,7 @@ export async function generateReasoning(
           messages: [
             {
               role: "system",
-              content: "You are IntentIQ's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
+              content: "You are VesperWise's AI sales intelligence engine. You analyze B2B purchase intent signals and produce structured, specific, evidence-based analysis for sales reps. You write like a sharp analyst briefing a rep before a call — direct, data-grounded, and conversational. Always respond with valid JSON only. Never use markdown, code blocks, or any text outside the JSON object.",
             },
             { role: "user", content: buildPrompt(company, score, band, signals, productCategory, businessProfile) },
           ],

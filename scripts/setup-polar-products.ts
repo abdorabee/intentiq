@@ -1,7 +1,7 @@
 /**
  * Polar.sh Product Setup Script
  *
- * Creates all 7 IntentIQ products in your Polar account:
+ * Creates all 7 VesperWise products in your Polar account:
  *   - 4 subscription plans  (monthly recurring)
  *   - 3 credit top-up packs (one-time purchase)
  *
@@ -29,7 +29,7 @@ const polar = new Polar({ accessToken: token, server });
 const SUBSCRIPTION_PLANS = [
   {
     envKey: "POLAR_PRODUCT_STARTER",
-    name: "IntentIQ Starter",
+    name: "VesperWise Starter",
     description:
       "Perfect for individual SDRs and small sales teams getting started with intent data. " +
       "Includes 500 intent scores per month, 50 watchlist companies, full CSV export, " +
@@ -38,7 +38,7 @@ const SUBSCRIPTION_PLANS = [
   },
   {
     envKey: "POLAR_PRODUCT_GROWTH",
-    name: "IntentIQ Growth",
+    name: "VesperWise Growth",
     description:
       "Built for growing sales teams that need more scale and automation. " +
       "Includes 2,500 intent scores per month, 250 watchlist companies, " +
@@ -48,7 +48,7 @@ const SUBSCRIPTION_PLANS = [
   },
   {
     envKey: "POLAR_PRODUCT_PRO",
-    name: "IntentIQ Pro",
+    name: "VesperWise Pro",
     description:
       "For high-velocity sales teams and revenue operations. " +
       "Includes 8,000 intent scores per month, 1,000 watchlist companies, " +
@@ -58,7 +58,7 @@ const SUBSCRIPTION_PLANS = [
   },
   {
     envKey: "POLAR_PRODUCT_AGENCY",
-    name: "IntentIQ Agency",
+    name: "VesperWise Agency",
     description:
       "Designed for agencies and enterprise teams managing multiple clients or segments. " +
       "Includes 25,000 intent scores per month, unlimited watchlist companies, " +
@@ -71,7 +71,7 @@ const SUBSCRIPTION_PLANS = [
 const TOPUP_PACKS = [
   {
     envKey: "POLAR_PRODUCT_TOPUP_100",
-    name: "IntentIQ Credits — 100 Pack",
+    name: "VesperWise Credits — 100 Pack",
     description:
       "One-time purchase of 100 intent scoring credits. " +
       "Credits are added immediately to your account balance and never expire. " +
@@ -81,7 +81,7 @@ const TOPUP_PACKS = [
   },
   {
     envKey: "POLAR_PRODUCT_TOPUP_500",
-    name: "IntentIQ Credits — 500 Pack",
+    name: "VesperWise Credits — 500 Pack",
     description:
       "One-time purchase of 500 intent scoring credits at a discounted rate ($0.078/credit). " +
       "Credits are added immediately to your account balance and never expire. " +
@@ -91,7 +91,7 @@ const TOPUP_PACKS = [
   },
   {
     envKey: "POLAR_PRODUCT_TOPUP_1000",
-    name: "IntentIQ Credits — 1,000 Pack",
+    name: "VesperWise Credits — 1,000 Pack",
     description:
       "One-time purchase of 1,000 intent scoring credits at the lowest per-credit rate ($0.069/credit). " +
       "Credits are added immediately to your account balance and never expire. " +
@@ -104,7 +104,7 @@ const TOPUP_PACKS = [
 // ─── Create products ──────────────────────────────────────────────────────────
 
 async function main() {
-  console.log("🚀  Creating IntentIQ products in Polar...\n");
+  console.log("🚀  Creating VesperWise products in Polar...\n");
 
   const results: Record<string, string> = {};
 
