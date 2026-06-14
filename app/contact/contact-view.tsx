@@ -41,7 +41,7 @@ const CHANNELS = [
     label: "Sales · Demos",
     name: "Talk to a sales engineer",
     desc: "Plan sizing, multi‑seat pricing, security questionnaires.",
-    email: "sales@intentiq.com",
+    email: "sales@vesperwise.com",
     color: { bg: "rgba(94,106,210,0.12)", fg: "#c9c4ff" },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -54,7 +54,7 @@ const CHANNELS = [
     label: "Product support",
     name: "For paying customers",
     desc: "Bugs, billing, integrations. Reply within four hours, business days.",
-    email: "support@intentiq.com",
+    email: "support@vesperwise.com",
     color: { bg: "rgba(78,201,216,0.12)", fg: T.cyan },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -67,7 +67,7 @@ const CHANNELS = [
     label: "Security · Trust",
     name: "Vulnerability reports, SOC 2 + DPA",
     desc: "PGP key on the Security page. Bounties paid in 14 days.",
-    email: "security@intentiq.com",
+    email: "security@vesperwise.com",
     color: { bg: "rgba(74,222,128,0.10)", fg: T.hot },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -80,7 +80,7 @@ const CHANNELS = [
     label: "Press · Analyst",
     name: "Briefings, comments, press kit",
     desc: "Logo files, exec headshots, embargoes — all in the kit.",
-    email: "press@intentiq.com",
+    email: "press@vesperwise.com",
     color: { bg: "rgba(245,181,68,0.10)", fg: T.warm },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -93,7 +93,7 @@ const CHANNELS = [
     label: "Partnerships",
     name: "Integrations, resellers, agencies",
     desc: "If you build for sales teams, we'd like to meet.",
-    email: "partners@intentiq.com",
+    email: "partners@vesperwise.com",
     color: { bg: "rgba(236,72,153,0.10)", fg: "#ec4899" },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
@@ -120,7 +120,7 @@ const FAQS = [
   },
   {
     q: "Do you have a security questionnaire pre‑filled?",
-    a: "We do. We maintain a pre‑filled CAIQ Lite, SIG Core, and a Vanta trust portal that covers ~90% of incoming questionnaires. Email security@intentiq.com and we'll send the bundle the same day.",
+    a: "We do. We maintain a pre‑filled CAIQ Lite, SIG Core, and a Vanta trust portal that covers ~90% of incoming questionnaires. Email security@vesperwise.com and we'll send the bundle the same day.",
   },
   {
     q: "How long does an enterprise rollout typically take?",
