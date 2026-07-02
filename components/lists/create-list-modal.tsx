@@ -16,7 +16,7 @@ export function CreateListModal({ open, onClose }: CreateListModalProps) {
   const router = useRouter();
   const [listType, setListType] = useState<ListType>("smart");
   const [name, setName] = useState("");
-  const [color, setColor] = useState("#7170ff");
+  const [color, setColor] = useState("#dfff00");
   const [rules, setRules] = useState<ListRule[]>([{ ...DEFAULT_RULE }]);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [previewCount, setPreviewCount] = useState<number | null>(null);

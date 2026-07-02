@@ -17,7 +17,7 @@ export default function SignupPage() {
         appearance={{
           baseTheme: dark,
           variables: {
-            colorPrimary: "#5e6ad2",
+            colorPrimary: "#dfff00",
             colorBackground: "#131517",
             colorInputBackground: "#0e1011",
             colorInputText: "#f7f8f8",
@@ -64,10 +64,10 @@ export default function SignupPage() {
               color: "#f7f8f8",
             },
             formButtonPrimary: {
-              background: "#5e6ad2",
+              background: "#dfff00",
               fontWeight: "600",
             },
-            footerActionLink: { color: "#7170ff", fontWeight: "500" },
+            footerActionLink: { color: "#e8ff40", fontWeight: "500" },
             footerActionText: { color: "#8a8f98" },
             badge: { display: "none" },
           },

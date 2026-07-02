@@ -16,10 +16,10 @@ const T = {
   txtQuaternary:"#62666d",
   border:      "rgba(255,255,255,0.08)",
   borderStrong:"rgba(255,255,255,0.13)",
-  accent:      "#5e6ad2",
-  accent2:     "#7170ff",
-  cyan:        "#4ec9d8",
-  cyanSoft:    "rgba(78,201,216,0.16)",
+  accent:      "#dfff00",
+  accent2:     "#e8ff40",
+  cyan:        "#dfff00",
+  cyanSoft:    "rgba(223,255,0,0.16)",
   fontSans:    "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
   fontMono:    "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
 };
@@ -52,8 +52,8 @@ const NAV_LINKS = [
 
 function InfoCallout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ margin: "20px 0", padding: "14px 16px", borderRadius: "6px", background: "rgba(94,106,210,0.06)", border: "1px solid rgba(94,106,210,0.18)", fontSize: "14px", lineHeight: 1.55, color: T.txtSecondary, display: "flex", gap: "12px" }}>
-      <svg style={{ width: "18px", height: "18px", flexShrink: 0, color: "#c9c4ff", marginTop: "1px" }} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <div style={{ margin: "20px 0", padding: "14px 16px", borderRadius: "6px", background: "rgba(223,255,0,0.06)", border: "1px solid rgba(223,255,0,0.18)", fontSize: "14px", lineHeight: 1.55, color: T.txtSecondary, display: "flex", gap: "12px" }}>
+      <svg style={{ width: "18px", height: "18px", flexShrink: 0, color: "#dfff00", marginTop: "1px" }} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
         <circle cx="9" cy="9" r="7" /><path d="M9 6v4M9 12h.01" />
       </svg>
       <div>{children}</div>
@@ -191,7 +191,7 @@ export default function TermsView() {
           <div style={{ flex: 1 }} />
           <Link href="/login" style={{ fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", textDecoration: "none" }}>Sign in</Link>
           <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtPrimary, padding: "0 14px", height: "32px", borderRadius: "6px", border: `1px solid ${T.border}`, background: "rgba(255,255,255,0.05)", textDecoration: "none" }}>Start free</Link>
-          <Link href="/#" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#fff", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+          <Link href="/#" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
             Talk to us
             <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
           </Link>
@@ -201,12 +201,12 @@ export default function TermsView() {
       {/* ── Hero ── */}
       <section style={{ position: "relative", padding: "88px 0 64px", overflow: "hidden", borderBottom: `1px solid ${T.border}` }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }} aria-hidden="true">
-          <div style={{ position: "absolute", left: "50%", top: "-200px", width: "1100px", height: "560px", transform: "translateX(-50%)", background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(94,106,210,0.20), transparent 60%), radial-gradient(ellipse 40% 70% at 30% 30%, rgba(78,201,216,0.13), transparent 70%)", filter: "blur(40px)" }} />
+          <div style={{ position: "absolute", left: "50%", top: "-200px", width: "1100px", height: "560px", transform: "translateX(-50%)", background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(223,255,0,0.20), transparent 60%), radial-gradient(ellipse 40% 70% at 30% 30%, rgba(223,255,0,0.13), transparent 70%)", filter: "blur(40px)" }} />
           <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)", backgroundSize: "64px 64px", maskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%)" } as React.CSSProperties} />
         </div>
         <div style={{ position: "relative", zIndex: 2, maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: 500, color: T.txtSecondary, letterSpacing: "-0.011em", marginBottom: "22px" }}>
-            <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan, boxShadow: "0 0 8px #4ec9d8", display: "block" }} />
+            <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan, boxShadow: "0 0 8px #dfff00", display: "block" }} />
             Legal · Terms of Service
           </div>
           <h1 style={{ fontWeight: 500, letterSpacing: "-0.042em", lineHeight: 1, fontSize: "clamp(40px, 6.4vw, 76px)", marginBottom: "22px", color: T.txtPrimary }}>

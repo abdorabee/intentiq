@@ -63,7 +63,7 @@ export function BillingHelpRow({ stats, onScrollToTopup, onComparePlans }: Billi
       <button
         type="button"
         className="tb-btn outlined"
-        style={{ borderColor: "rgba(94,106,210,0.4)", color: "#c9c4ff" }}
+        style={{ borderColor: "rgba(223,255,0,0.4)", color: "#dfff00" }}
         onClick={onScrollToTopup}
       >
         Top up {bestTopup.credits}

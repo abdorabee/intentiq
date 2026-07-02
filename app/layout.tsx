@@ -80,20 +80,21 @@ export const metadata: Metadata = {
       "Track hiring spikes, funding rounds, tech stack changes and more. Find your buyers first.",
     images: ["/opengraph-image"],
   },
+  manifest: "/site.webmanifest",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
     shortcut: "/favicon.ico",
-    apple: "/apple-icon.png",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#08090a",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

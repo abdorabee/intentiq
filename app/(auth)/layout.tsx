@@ -93,7 +93,7 @@ function LeftPanel() {
           width: "500px",
           height: "500px",
           borderRadius: "50%",
-          background: "rgba(94,106,210,0.14)",
+          background: "rgba(223,255,0,0.14)",
           filter: "blur(260px)",
           pointerEvents: "none",
         }}
@@ -199,7 +199,7 @@ function LeftPanel() {
                 width: i === factIdx ? "20px" : "6px",
                 height: "6px",
                 borderRadius: "999px",
-                background: i === factIdx ? "#5e6ad2" : "rgba(255,255,255,0.15)",
+                background: i === factIdx ? "#dfff00" : "rgba(255,255,255,0.15)",
                 transition: "all 0.4s ease",
               }}
             />
@@ -235,7 +235,7 @@ function LeftPanel() {
               width: "30px",
               height: "30px",
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #5e6ad2, #4ec9d8)",
+              background: "linear-gradient(135deg, #dfff00, #dfff00)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

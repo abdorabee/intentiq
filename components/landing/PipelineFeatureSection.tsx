@@ -28,7 +28,7 @@ const COLS = [
   {
     name: "Engaged",
     count: 6,
-    color: "#4ec9d8",
+    color: "#dfff00",
     cards: [
       { id: "IQ-1998", company: "Databricks", summary: "Reply received. Discovery call set for Thu.", score: 87, band: "hot" },
     ],
@@ -46,7 +46,7 @@ export default function PipelineFeatureSection() {
     <section className="border-b border-white/[0.06] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
         <p className="inline-flex items-center gap-2 text-[13px] text-[#8a8f98]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#4ec9d8]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#dfff00]" />
           Intent Hub
         </p>
         <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.03em] text-[#f7f8f8] md:text-4xl md:leading-tight">

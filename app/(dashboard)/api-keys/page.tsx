@@ -6,7 +6,7 @@ export default function ApiKeysPage() {
     <div className="ap-coming-soon">
       <div
         className="ap-coming-soon-icon"
-        style={{ background: "rgba(94,106,210,0.12)", color: "var(--accent-2)" }}
+        style={{ background: "rgba(223,255,0,0.12)", color: "var(--accent-2)" }}
       >
         <Key aria-hidden />
       </div>

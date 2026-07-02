@@ -3,7 +3,7 @@ export default function AutopilotFeatureSection() {
     <section id="autopilot" className="border-b border-white/[0.06] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
         <p className="inline-flex items-center gap-2 text-[13px] text-[#8a8f98]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#4ec9d8]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#dfff00]" />
           Autopilot
         </p>
         <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.03em] text-[#f7f8f8] md:text-4xl md:leading-tight">
@@ -22,7 +22,7 @@ export default function AutopilotFeatureSection() {
           </div>
           <div className="grid gap-4 p-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
             <div className="rounded-lg border border-white/[0.08] bg-[#131517] p-4">
-              <p className="text-[10px] uppercase tracking-wide text-[#7170ff]">Trigger</p>
+              <p className="text-[10px] uppercase tracking-wide text-[#e8ff40]">Trigger</p>
               <p className="mt-2 text-sm font-semibold text-[#f7f8f8]">Score crosses threshold</p>
               <p className="mt-1 text-[11px] text-[#8a8f98]">Account moves from WARM into HOT band</p>
             </div>

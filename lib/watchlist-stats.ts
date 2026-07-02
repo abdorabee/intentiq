@@ -50,11 +50,11 @@ export interface WatchlistStats {
 }
 
 const MIX_COLORS: Record<string, string> = {
-  funding: "#4ec9d8",
+  funding: "#dfff00",
   hiring: "#4ade80",
   news: "#f5b544",
-  technology: "#7170ff",
-  web: "#ec4899",
+  technology: "#e8ff40",
+  web: "#8a8f98",
 };
 
 function parseSignals(raw: unknown): SignalSet | null {

@@ -15,15 +15,15 @@ const T = {
   txtSec: "#8a8f98",
   txtTert: "#62666d",
   txtQ: "#3d4147",
-  accent: "#5e6ad2",
-  accentBg: "rgba(94,106,210,0.10)",
-  cyan: "#4ec9d8",
+  accent: "#dfff00",
+  accentBg: "rgba(223,255,0,0.10)",
+  cyan: "#dfff00",
   hot: "#4ade80",
   mono: "'JetBrains Mono','Fira Code',monospace",
   r: { sm: "4px", md: "6px", lg: "12px", xl: "16px" },
 };
 
-const AV = "linear-gradient(135deg,#c9c4ff 0%,#7170ff 60%,#818cf8 100%)";
+const AV = "linear-gradient(135deg,#dfff00 0%,#e8ff40 60%,#818cf8 100%)";
 
 /* ─── Page data ──────────────────────────────────────────────── */
 const NUMBERS = [
@@ -51,7 +51,7 @@ const PRINCIPLES = [
 
 const SCOPE = [
   { cls: "now",  color: T.hot,    label: "Now · This month",         title: "Score quality + caching",      desc: "Tightening the funding and tech signals. Bringing p95 first‑score under 1.5 seconds." },
-  { cls: "next", color: "#c9c4ff", label: "Next · This quarter",      title: "Watchlist + Autopilot v2",     desc: "Per‑account alerts in Slack. Conditional branches with AND/OR. Webhook destinations." },
+  { cls: "next", color: "#dfff00", label: "Next · This quarter",      title: "Watchlist + Autopilot v2",     desc: "Per‑account alerts in Slack. Conditional branches with AND/OR. Webhook destinations." },
   { cls: "later",color: T.txtQ,   label: "Later · When it makes sense", title: "Hire help",                 desc: "Probably an engineer first. Maybe an AE. Definitely not until the product earns it." },
 ];
 
@@ -82,7 +82,7 @@ export default function AboutView() {
 
       {/* ── Sticky banner ── */}
       <div style={{ position: "sticky", top: 0, zIndex: 50, height: "36px", background: T.bgEl, borderBottom: `1px solid ${T.borderSubtle}`, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", color: T.txtTert }}>
-        <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(94,106,210,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v0.1</span>
+        <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(223,255,0,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v0.1</span>
         <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>Solo founder.</strong> Building VesperWise from a single room — and writing about it as I go.</span>
         <Link href="#" style={{ color: T.txtTert, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "4px", marginLeft: "6px" }}>Read the build log <span>→</span></Link>
       </div>
@@ -103,21 +103,21 @@ export default function AboutView() {
           </div>
           <div style={{ display: "flex", gap: "8px", marginLeft: "auto" }}>
             <Link href="/login"   style={{ fontSize: "13px", padding: "5px 12px", borderRadius: "999px", color: T.txtSec, border: `1px solid ${T.border}`, textDecoration: "none" }}>Sign in</Link>
-            <Link href="/contact" style={{ fontSize: "13px", padding: "5px 14px", borderRadius: "999px", color: "#fff", background: T.accent, textDecoration: "none", fontWeight: 500 }}>Talk to us →</Link>
+            <Link href="/contact" style={{ fontSize: "13px", padding: "5px 14px", borderRadius: "999px", color: "#000000", background: T.accent, textDecoration: "none", fontWeight: 500 }}>Talk to us →</Link>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
       <section style={{ position: "relative", padding: "72px 24px 64px", borderBottom: `1px solid ${T.borderSubtle}`, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% -20%,rgba(94,106,210,0.12) 0%,transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% -20%,rgba(223,255,0,0.12) 0%,transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", maxWidth: "1080px", margin: "0 auto" }}>
           <div style={{ fontSize: "12px", color: T.txtTert, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 500, marginBottom: "16px" }}>
             <span style={{ color: T.accent, marginRight: "8px" }}>✦</span>About VesperWise
           </div>
           <h1 style={{ fontSize: "clamp(40px,5.5vw,60px)", fontWeight: 500, letterSpacing: "-0.032em", lineHeight: 1.08, marginBottom: "20px" }}>
             One person.<br />One room.{" "}
-            <span style={{ background: "linear-gradient(110deg,#c9c4ff 0%,#7170ff 60%,#4ec9d8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>One number.</span>
+            <span style={{ background: "linear-gradient(110deg,#dfff00 0%,#e8ff40 60%,#dfff00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>One number.</span>
           </h1>
           <p style={{ fontSize: "18px", lineHeight: 1.6, color: T.txtSec, maxWidth: "580px", letterSpacing: "-0.008em" }}>
             VesperWise is built by a single founder — Abdel‑Rahaman Rabee — in his own room, in the evenings between a day job and a deadline. The idea came at work. The product is what happened after.
@@ -129,7 +129,7 @@ export default function AboutView() {
               <div key={i} style={{ padding: "24px", borderRight: i < 3 ? `1px solid ${T.border}` : "none" }}>
                 <div style={{ fontWeight: 500, letterSpacing: "-0.03em", fontSize: "30px", lineHeight: 1, marginBottom: "6px", color: T.txt }}>
                   {grad
-                    ? <span style={{ background: "linear-gradient(110deg,#c9c4ff 0%,#7170ff 60%,#4ec9d8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{num}</span>
+                    ? <span style={{ background: "linear-gradient(110deg,#dfff00 0%,#e8ff40 60%,#dfff00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{num}</span>
                     : num
                   }
                   {unit && <span style={{ fontSize: "16px", color: T.txtTert, fontWeight: 400 }}>{unit}</span>}
@@ -146,7 +146,7 @@ export default function AboutView() {
         <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
           <div style={{
             border: `1px solid ${T.border}`, borderRadius: T.r.xl,
-            background: `radial-gradient(ellipse 80% 60% at 100% 0%,rgba(78,201,216,0.06),transparent 60%),radial-gradient(ellipse 80% 60% at 0% 100%,rgba(94,106,210,0.06),transparent 60%),${T.bgEl}`,
+            background: `radial-gradient(ellipse 80% 60% at 100% 0%,rgba(223,255,0,0.06),transparent 60%),radial-gradient(ellipse 80% 60% at 0% 100%,rgba(223,255,0,0.06),transparent 60%),${T.bgEl}`,
             padding: "44px 48px", position: "relative", overflow: "hidden",
           }}>
             {/* Stamp */}
@@ -230,7 +230,7 @@ export default function AboutView() {
           {/* Founder card */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", border: `1px solid ${T.border}`, borderRadius: T.r.xl, overflow: "hidden", background: T.bgEl }}>
             {/* Face */}
-            <div style={{ position: "relative", background: "radial-gradient(ellipse 80% 80% at 50% 30%,rgba(94,106,210,0.18),transparent 60%),radial-gradient(ellipse 60% 60% at 70% 80%,rgba(78,201,216,0.12),transparent 70%),linear-gradient(135deg,#14171a 0%,#0a0c0e 100%)", display: "grid", placeItems: "center", minHeight: "340px", borderRight: `1px solid ${T.border}` }}>
+            <div style={{ position: "relative", background: "radial-gradient(ellipse 80% 80% at 50% 30%,rgba(223,255,0,0.18),transparent 60%),radial-gradient(ellipse 60% 60% at 70% 80%,rgba(223,255,0,0.12),transparent 70%),linear-gradient(135deg,#14171a 0%,#0a0c0e 100%)", display: "grid", placeItems: "center", minHeight: "340px", borderRight: `1px solid ${T.border}` }}>
               <div style={{ width: "160px", height: "160px", borderRadius: "32px", display: "grid", placeItems: "center", fontSize: "56px", fontWeight: 700, letterSpacing: "-0.05em", color: "rgba(10,11,15,0.85)", fontFamily: T.mono, background: AV, boxShadow: "0 24px 48px -12px rgba(0,0,0,0.6)", position: "relative" }}>AR</div>
               {/* Online tag */}
               <div style={{ position: "absolute", bottom: "20px", left: "20px", display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 10px", background: "rgba(10,11,15,0.6)", border: `1px solid ${T.border}`, borderRadius: "999px", fontFamily: T.mono, fontSize: "10px", color: T.txtTert, letterSpacing: "0.04em", textTransform: "uppercase", backdropFilter: "blur(8px)" }}>
@@ -272,7 +272,7 @@ export default function AboutView() {
           {/* Scope cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginTop: "28px" }}>
             {SCOPE.map(s => (
-              <div key={s.cls} style={{ border: `1px solid ${s.cls === "now" ? "rgba(74,222,128,0.25)" : s.cls === "next" ? "rgba(94,106,210,0.25)" : T.border}`, background: s.cls === "now" ? "rgba(74,222,128,0.03)" : s.cls === "next" ? "rgba(94,106,210,0.03)" : T.bgEl, borderRadius: T.r.md, padding: "18px 20px" }}>
+              <div key={s.cls} style={{ border: `1px solid ${s.cls === "now" ? "rgba(74,222,128,0.25)" : s.cls === "next" ? "rgba(223,255,0,0.25)" : T.border}`, background: s.cls === "now" ? "rgba(74,222,128,0.03)" : s.cls === "next" ? "rgba(223,255,0,0.03)" : T.bgEl, borderRadius: T.r.md, padding: "18px 20px" }}>
                 <div style={{ fontFamily: T.mono, fontSize: "10px", color: s.color, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>{s.label}</div>
                 <h4 style={{ fontSize: "15px", fontWeight: 500, color: T.txt, letterSpacing: "-0.011em", marginBottom: "6px" }}>{s.title}</h4>
                 <p style={{ fontSize: "13px", color: T.txtTert, letterSpacing: "-0.006em", lineHeight: 1.5 }}>{s.desc}</p>
@@ -316,17 +316,17 @@ export default function AboutView() {
 
       {/* ── CTA ── */}
       <section style={{ position: "relative", padding: "96px 24px", textAlign: "center", overflow: "hidden", borderTop: `1px solid ${T.borderSubtle}` }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 50%,rgba(94,106,210,0.10) 0%,transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 50%,rgba(223,255,0,0.10) 0%,transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
         <div style={{ position: "relative", maxWidth: "600px", margin: "0 auto" }}>
-          <h2 style={{ fontSize: "clamp(32px,4vw,48px)", fontWeight: 500, letterSpacing: "-0.032em", lineHeight: 1.1, marginBottom: "16px", background: "linear-gradient(110deg,#c9c4ff 0%,#7170ff 50%,#4ec9d8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h2 style={{ fontSize: "clamp(32px,4vw,48px)", fontWeight: 500, letterSpacing: "-0.032em", lineHeight: 1.1, marginBottom: "16px", background: "linear-gradient(110deg,#dfff00 0%,#e8ff40 50%,#dfff00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Try it. Tell me<br />what&apos;s broken.
           </h2>
           <p style={{ fontSize: "16px", color: T.txtSec, letterSpacing: "-0.006em", marginBottom: "32px", lineHeight: 1.6 }}>
             20 free credits, no card. The fastest way to make VesperWise better is to use it and reply to my emails.
           </p>
           <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "11px 22px", borderRadius: "999px", background: T.accent, color: "#fff", fontWeight: 500, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>
+            <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "11px 22px", borderRadius: "999px", background: T.accent, color: "#000000", fontWeight: 500, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>
               Start scoring free <span>→</span>
             </Link>
             <a href="mailto:ar@intentiq.dev" style={{ display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: "999px", border: `1px solid ${T.border}`, color: T.txtSec, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>

@@ -18,9 +18,9 @@ const T = {
   txtSec: "#8a8f98",
   txtTert: "#62666d",
   txtQ: "#3d4147",
-  accent: "#5e6ad2",
-  accentBg: "rgba(94,106,210,0.10)",
-  cyan: "#4ec9d8",
+  accent: "#dfff00",
+  accentBg: "rgba(223,255,0,0.10)",
+  cyan: "#dfff00",
   hot: "#4ade80",
   hotBd: "rgba(74,222,128,0.25)",
   warm: "#f5b544",
@@ -31,12 +31,12 @@ const T = {
 
 /* ─── Syntax highlight helpers ───────────────────────────────── */
 const cm = {
-  key:  (t: string) => <span style={{ color: "#c9c4ff" }}>{t}</span>,
+  key:  (t: string) => <span style={{ color: "#dfff00" }}>{t}</span>,
   str:  (t: string) => <span style={{ color: T.cyan }}>{t}</span>,
   num:  (t: string) => <span style={{ color: T.warm }}>{t}</span>,
   bool: (t: string) => <span style={{ color: T.hot }}>{t}</span>,
-  kw:   (t: string) => <span style={{ color: "#ec4899" }}>{t}</span>,
-  fn:   (t: string) => <span style={{ color: "#7170ff" }}>{t}</span>,
+  kw:   (t: string) => <span style={{ color: "#8a8f98" }}>{t}</span>,
+  fn:   (t: string) => <span style={{ color: "#e8ff40" }}>{t}</span>,
   flag: (t: string) => <span style={{ color: T.warm }}>{t}</span>,
   url:  (t: string) => <span style={{ color: T.cyan }}>{t}</span>,
   com:  (t: string) => <span style={{ color: T.txtQ, fontStyle: "italic" }}>{t}</span>,
@@ -115,12 +115,12 @@ const EVENTS = [
 function MethodTag({ method, large }: { method: string; large?: boolean }) {
   type MethodKey = "GET"|"POST"|"PUT"|"DELETE"|"DEL"|"EVT"|"DOC"|"OBJ"|"PKG"|"LOG";
   const styles: Record<MethodKey, { bg: string; color: string }> = {
-    GET:    { bg: "rgba(78,201,216,0.14)",  color: T.cyan },
+    GET:    { bg: "rgba(223,255,0,0.14)",  color: T.cyan },
     POST:   { bg: "rgba(74,222,128,0.14)",  color: T.hot },
     PUT:    { bg: "rgba(245,181,68,0.14)",  color: T.warm },
     DELETE: { bg: "rgba(248,113,113,0.14)", color: "#f87171" },
     DEL:    { bg: "rgba(248,113,113,0.14)", color: "#f87171" },
-    EVT:    { bg: "rgba(94,106,210,0.18)",  color: "#c9c4ff" },
+    EVT:    { bg: "rgba(223,255,0,0.18)",  color: "#dfff00" },
     DOC:    { bg: "rgba(255,255,255,0.06)", color: T.txtTert },
     OBJ:    { bg: "rgba(255,255,255,0.06)", color: T.txtTert },
     PKG:    { bg: "rgba(255,255,255,0.06)", color: T.txtTert },
@@ -194,10 +194,10 @@ function ApiNote({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       display: "flex", gap: "10px", padding: "10px 12px", borderRadius: T.r.md,
-      background: "rgba(94,106,210,0.06)", border: "1px solid rgba(94,106,210,0.15)",
+      background: "rgba(223,255,0,0.06)", border: "1px solid rgba(223,255,0,0.15)",
       margin: "12px 0", fontSize: "13px", lineHeight: 1.55, color: T.txtSec,
     }}>
-      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "14px", height: "14px", color: "#c9c4ff", flexShrink: 0, marginTop: "3px" }}>
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "14px", height: "14px", color: "#dfff00", flexShrink: 0, marginTop: "3px" }}>
         <circle cx="9" cy="9" r="7"/><path d="M9 6v4M9 12h.01"/>
       </svg>
       <div>{children}</div>
@@ -480,7 +480,7 @@ export default function DocsView() {
         display: "flex", alignItems: "center", justifyContent: "center",
         gap: "10px", fontSize: "12px", color: T.txtTert, letterSpacing: "-0.006em",
       }}>
-        <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(94,106,210,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v1</span>
+        <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(223,255,0,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v1</span>
         <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>API Reference</strong> · base URL{" "}
           <code style={{ fontFamily: T.mono, fontSize: "12px", color: T.cyan }}>https://api.intentiq.dev/v1</code>
           {" · "}99.97% uptime over 90d
@@ -508,21 +508,21 @@ export default function DocsView() {
           </div>
           <div style={{ display: "flex", gap: "8px", marginLeft: "auto" }}>
             <Link href="/login" style={{ fontSize: "13px", padding: "5px 12px", borderRadius: "999px", color: T.txtSec, border: `1px solid ${T.border}`, background: "transparent", textDecoration: "none" }}>Sign in</Link>
-            <Link href="/signup" style={{ fontSize: "13px", padding: "5px 14px", borderRadius: "999px", color: "#fff", background: T.accent, textDecoration: "none", fontWeight: 500 }}>Get API key</Link>
+            <Link href="/signup" style={{ fontSize: "13px", padding: "5px 14px", borderRadius: "999px", color: "#000000", background: T.accent, textDecoration: "none", fontWeight: 500 }}>Get API key</Link>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
       <section style={{ position: "relative", padding: "72px 24px 56px", borderBottom: `1px solid ${T.borderSubtle}`, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% -20%, rgba(94,106,210,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% -20%, rgba(223,255,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", maxWidth: "1080px", margin: "0 auto" }}>
           <div style={{ fontSize: "12px", color: T.txtTert, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 500, marginBottom: "16px" }}>
             <span style={{ color: T.accent, marginRight: "8px" }}>✦</span>Developers · API v1
           </div>
           <h1 style={{ fontSize: "clamp(36px,5vw,52px)", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "18px" }}>
             One endpoint.<br />Any company.{" "}
-            <span style={{ background: "linear-gradient(135deg,#5e6ad2,#818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>3 seconds.</span>
+            <span style={{ background: "linear-gradient(135deg,#dfff00,#818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>3 seconds.</span>
           </h1>
           <p style={{ fontSize: "17px", lineHeight: 1.6, color: T.txtSec, maxWidth: "600px", marginBottom: "32px", letterSpacing: "-0.006em" }}>
             POST a domain — get back a 0–100 score, the five signals it was built from, a human‑readable action, and an AI summary. Score 1,000 companies in a single bulk job. Subscribe to events with webhooks.
@@ -578,7 +578,7 @@ export default function DocsView() {
                       display: "flex", alignItems: "center", gap: "8px",
                       padding: "4px 10px", borderRadius: T.r.sm,
                       color: activeId === item.id ? T.txt : T.txtTert,
-                      background: activeId === item.id ? "rgba(94,106,210,0.10)" : "transparent",
+                      background: activeId === item.id ? "rgba(223,255,0,0.10)" : "transparent",
                       fontSize: "13px", letterSpacing: "-0.006em", lineHeight: 1.45,
                       textDecoration: "none", transition: "color 0.12s, background 0.12s",
                     }}>
@@ -813,7 +813,7 @@ export default function DocsView() {
             <div style={{ border: `1px solid ${T.border}`, borderRadius: T.r.md, overflow: "hidden", margin: "14px 0", background: T.bgEl }}>
               {EVENTS.map((ev, i) => (
                 <div key={ev.name} style={{ display: "grid", gridTemplateColumns: "180px 1fr 90px", gap: "18px", padding: "12px 16px", fontSize: "13px", alignItems: "center", borderBottom: i < EVENTS.length - 1 ? `1px solid ${T.borderSubtle}` : "none" }}>
-                  <div style={{ fontFamily: T.mono, fontSize: "12px", color: "#c9c4ff", letterSpacing: 0 }}>{ev.name}</div>
+                  <div style={{ fontFamily: T.mono, fontSize: "12px", color: "#dfff00", letterSpacing: 0 }}>{ev.name}</div>
                   <div style={{ color: T.txtSec, letterSpacing: "-0.006em" }}>{ev.desc}</div>
                   <div style={{ fontFamily: T.mono, fontSize: "11px", color: T.txtTert, textAlign: "right" as const }}>{ev.freq}</div>
                 </div>

@@ -4,11 +4,11 @@ import { useState, useMemo, type ReactElement } from "react";
 import type { BillingStats, DailyUsageDay } from "@/lib/billing-stats";
 
 const SEGMENTS = [
-  { key: "score" as const, label: "Score", color: "#5e6ad2" },
-  { key: "bulk" as const, label: "Bulk", color: "#4ec9d8" },
+  { key: "score" as const, label: "Score", color: "#dfff00" },
+  { key: "bulk" as const, label: "Bulk", color: "#a0a0a0" },
   { key: "people" as const, label: "People", color: "#4ade80" },
   { key: "autopilot" as const, label: "Autopilot", color: "#f5b544" },
-  { key: "chat" as const, label: "Chat", color: "#ec4899" },
+  { key: "chat" as const, label: "Chat", color: "#8a8f98" },
 ];
 
 const SVG_W = 600;

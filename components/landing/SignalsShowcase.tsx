@@ -19,7 +19,7 @@ export default function SignalsShowcase() {
                   <p className="mt-1 text-xs text-[#8a8f98] md:text-sm">{signal.category}</p>
                 </div>
               }
-              right={<span className="text-lg font-bold tracking-wide text-[#c9c4ff] md:text-xl">{signal.weight}</span>}
+              right={<span className="text-lg font-bold tracking-wide text-[#dfff00] md:text-xl">{signal.weight}</span>}
             />
           ))}
         </div>

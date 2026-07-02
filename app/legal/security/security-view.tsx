@@ -16,10 +16,10 @@ const T = {
   border:        "rgba(255,255,255,0.08)",
   borderStrong:  "rgba(255,255,255,0.13)",
   borderSubtle:  "rgba(255,255,255,0.05)",
-  accent:        "#5e6ad2",
-  accent2:       "#7170ff",
-  cyan:          "#4ec9d8",
-  cyanSoft:      "rgba(78,201,216,0.16)",
+  accent:        "#dfff00",
+  accent2:       "#e8ff40",
+  cyan:          "#dfff00",
+  cyanSoft:      "rgba(223,255,0,0.16)",
   hot:           "#4ade80",
   warm:          "#f5b544",
   fontSans:      "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -45,18 +45,18 @@ function Code({ children }: { children: React.ReactNode }) {
 
 /* ── Certifications ──────────────────────────────────────────── */
 const CERTS = [
-  { badge: "SOC2", grad: "linear-gradient(135deg,#4ec9d8,#5e6ad2)", name: "SOC 2 Type II",  meta: "AICPA · annual",         status: "Audited Feb '26", pending: false },
+  { badge: "SOC2", grad: "linear-gradient(135deg,#dfff00,#dfff00)", name: "SOC 2 Type II",  meta: "AICPA · annual",         status: "Audited Feb '26", pending: false },
   { badge: "GDPR", grad: "linear-gradient(135deg,#4ade80,#22c55e)", name: "GDPR · DPA",      meta: "EU 2016/679 · SCCs",    status: "Live · v1.6",     pending: false },
-  { badge: "CCPA", grad: "linear-gradient(135deg,#f5b544,#ec4899)", name: "CCPA / CPRA",     meta: "California · 1798.100", status: "Live",            pending: false },
-  { badge: "ISO",  grad: "linear-gradient(135deg,#7170ff,#c9c4ff)", name: "ISO 27001",       meta: "Stage 1 in progress",   status: "Audit Q4 '26",    pending: true  },
-  { badge: "HIPAA",grad: "linear-gradient(135deg,#ec4899,#f87171)", name: "HIPAA",           meta: "Not in scope",          status: "Out of scope",    pending: true  },
+  { badge: "CCPA", grad: "linear-gradient(135deg,#f5b544,#8a8f98)", name: "CCPA / CPRA",     meta: "California · 1798.100", status: "Live",            pending: false },
+  { badge: "ISO",  grad: "linear-gradient(135deg,#e8ff40,#dfff00)", name: "ISO 27001",       meta: "Stage 1 in progress",   status: "Audit Q4 '26",    pending: true  },
+  { badge: "HIPAA",grad: "linear-gradient(135deg,#8a8f98,#f87171)", name: "HIPAA",           meta: "Not in scope",          status: "Out of scope",    pending: true  },
 ];
 
 /* ── Security pillars ────────────────────────────────────────── */
 const PILLARS = [
   {
     type: "people",
-    color: { bg: "rgba(94,106,210,0.12)", fg: "#c9c4ff" },
+    color: { bg: "rgba(223,255,0,0.12)", fg: "#dfff00" },
     icon: <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><circle cx="9" cy="6.5" r="3"/><path d="M3 16c1-3 3-4.5 6-4.5s5 1.5 6 4.5"/></svg>,
     title: "People",
     desc: "Background checks, training, least‑privilege access — and the kind of culture where pushing back on a risky deploy is welcome.",
@@ -64,7 +64,7 @@ const PILLARS = [
   },
   {
     type: "platform",
-    color: { bg: "rgba(78,201,216,0.12)", fg: T.cyan },
+    color: { bg: "rgba(223,255,0,0.12)", fg: T.cyan },
     icon: <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><rect x="2" y="4" width="14" height="3"/><rect x="2" y="11" width="14" height="3"/><circle cx="5" cy="5.5" r="0.7" fill="currentColor"/><circle cx="5" cy="12.5" r="0.7" fill="currentColor"/></svg>,
     title: "Platform",
     desc: "The infrastructure your data sits on. Encryption at rest and in transit by default — and we use the same SOC 2'd subprocessors your enterprise vendors do.",
@@ -93,31 +93,31 @@ const ARCH_COLS = [
   {
     label: "Ingress",
     nodes: [
-      { ic: "UI",  grad: "linear-gradient(135deg,#4ec9d8,#5e6ad2)", name: "Customer browser", sub: "intentiq.dev",         tag: "TLS 1.3", tagClass: "tls" },
-      { ic: "API", grad: "linear-gradient(135deg,#f5b544,#ec4899)", name: "REST clients",      sub: "api.intentiq.dev",     tag: "TLS 1.3", tagClass: "tls" },
+      { ic: "UI",  grad: "linear-gradient(135deg,#dfff00,#dfff00)", name: "Customer browser", sub: "intentiq.dev",         tag: "TLS 1.3", tagClass: "tls" },
+      { ic: "API", grad: "linear-gradient(135deg,#f5b544,#8a8f98)", name: "REST clients",      sub: "api.intentiq.dev",     tag: "TLS 1.3", tagClass: "tls" },
     ],
   },
   {
     label: "Edge · auth",
     nodes: [
-      { ic: "VC", grad: "linear-gradient(135deg,#7170ff,#c9c4ff)", name: "Vercel Edge",    sub: "us‑east‑1 · WAF",              tag: "Rate limit", tagClass: "rate" },
+      { ic: "VC", grad: "linear-gradient(135deg,#e8ff40,#dfff00)", name: "Vercel Edge",    sub: "us‑east‑1 · WAF",              tag: "Rate limit", tagClass: "rate" },
       { ic: "CK", grad: "linear-gradient(135deg,#4ade80,#22c55e)", name: "Clerk auth",     sub: "SHA‑256 keys",                 tag: "",           tagClass: "" },
-      { ic: "RD", grad: "linear-gradient(135deg,#ec4899,#f87171)", name: "Upstash Redis",  sub: "cache · 24h TTL",              tag: "",           tagClass: "" },
+      { ic: "RD", grad: "linear-gradient(135deg,#8a8f98,#f87171)", name: "Upstash Redis",  sub: "cache · 24h TTL",              tag: "",           tagClass: "" },
     ],
   },
   {
     label: "Storage · AI",
     nodes: [
-      { ic: "SB", grad: "linear-gradient(135deg,#c9c4ff,#4ec9d8)", name: "Supabase Postgres",  sub: "us‑east‑1 · AES‑256",                tag: "RLS",        tagClass: "rls" },
-      { ic: "AN", grad: "linear-gradient(135deg,#4ec9d8,#4ade80)", name: "Anthropic Claude",   sub: "summary · copilot",                  tag: "Zero‑retain",tagClass: "zr" },
-      { ic: "SG", grad: "linear-gradient(135deg,#7170ff,#5e6ad2)", name: "Signal vendors",     sub: "Explorium · GNews · BuiltWith",       tag: "",           tagClass: "" },
+      { ic: "SB", grad: "linear-gradient(135deg,#dfff00,#dfff00)", name: "Supabase Postgres",  sub: "us‑east‑1 · AES‑256",                tag: "RLS",        tagClass: "rls" },
+      { ic: "AN", grad: "linear-gradient(135deg,#dfff00,#4ade80)", name: "Anthropic Claude",   sub: "summary · copilot",                  tag: "Zero‑retain",tagClass: "zr" },
+      { ic: "SG", grad: "linear-gradient(135deg,#e8ff40,#dfff00)", name: "Signal vendors",     sub: "Explorium · GNews · BuiltWith",       tag: "",           tagClass: "" },
     ],
   },
 ];
 
 const TAG_COLORS: Record<string, { bg: string; fg: string }> = {
-  tls:  { bg: "rgba(78,201,216,0.12)",  fg: T.cyan   },
-  rls:  { bg: "rgba(94,106,210,0.12)",  fg: "#c9c4ff" },
+  tls:  { bg: "rgba(223,255,0,0.12)",  fg: T.cyan   },
+  rls:  { bg: "rgba(223,255,0,0.12)",  fg: "#dfff00" },
   zr:   { bg: "rgba(74,222,128,0.10)",  fg: T.hot    },
   rate: { bg: "rgba(245,181,68,0.10)",  fg: T.warm   },
 };
@@ -186,7 +186,7 @@ export default function SecurityView() {
           <div style={{ flex: 1 }} />
           <Link href="/login" style={{ fontSize: "14px", fontWeight: 500, color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", textDecoration: "none" }}>Sign in</Link>
           <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, color: T.txtPrimary, padding: "0 14px", height: "32px", borderRadius: "6px", border: `1px solid ${T.border}`, background: "rgba(255,255,255,0.05)", textDecoration: "none" }}>Start free</Link>
-          <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, color: "#fff", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+          <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
             Talk to us
             <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
           </Link>
@@ -196,17 +196,17 @@ export default function SecurityView() {
       {/* ── Hero ── */}
       <section style={{ position: "relative", padding: "88px 0 0", overflow: "hidden", borderBottom: `1px solid ${T.border}` }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }} aria-hidden="true">
-          <div style={{ position: "absolute", left: "50%", top: "-200px", width: "1100px", height: "560px", transform: "translateX(-50%)", background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(94,106,210,0.20), transparent 60%), radial-gradient(ellipse 40% 70% at 30% 30%, rgba(78,201,216,0.13), transparent 70%)", filter: "blur(40px)" }} />
+          <div style={{ position: "absolute", left: "50%", top: "-200px", width: "1100px", height: "560px", transform: "translateX(-50%)", background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(223,255,0,0.20), transparent 60%), radial-gradient(ellipse 40% 70% at 30% 30%, rgba(223,255,0,0.13), transparent 70%)", filter: "blur(40px)" }} />
           <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)", backgroundSize: "64px 64px", maskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%)" } as React.CSSProperties} />
         </div>
         <div style={{ position: "relative", zIndex: 2, maxWidth: "1200px", margin: "0 auto", padding: "0 24px 64px" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: 500, color: T.txtSecondary, letterSpacing: "-0.011em", marginBottom: "22px" }}>
-            <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan, boxShadow: "0 0 8px #4ec9d8", display: "block" }} />
+            <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan, boxShadow: "0 0 8px #dfff00", display: "block" }} />
             Trust · Security
           </div>
           <h1 style={{ fontWeight: 500, letterSpacing: "-0.042em", lineHeight: 1, fontSize: "clamp(40px, 6.4vw, 76px)", marginBottom: "22px", color: T.txtPrimary }}>
             Security at{" "}
-            <span style={{ background: "linear-gradient(135deg, #4ec9d8 0%, #5e6ad2 50%, #7170ff 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } as React.CSSProperties}>VesperWise.</span>
+            <span style={{ background: "linear-gradient(135deg, #dfff00 0%, #dfff00 50%, #e8ff40 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } as React.CSSProperties}>VesperWise.</span>
           </h1>
           <p style={{ maxWidth: "580px", color: T.txtSecondary, fontSize: "clamp(16px, 1.25vw, 19px)", lineHeight: 1.55, letterSpacing: "-0.011em", marginBottom: "40px" }}>
             The full picture: certifications, the architecture diagram, every control we run, and the email address you use to tell us when something looks wrong. Built and audited as if your CISO were reading.
@@ -280,7 +280,7 @@ export default function SecurityView() {
 
           {/* Architecture diagram */}
           <div style={{ border: `1px solid ${T.border}`, borderRadius: "12px", background: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0) 0 0 / 18px 18px, ${T.bgEl}`, padding: "40px 32px", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(94,106,210,0.06), transparent 60%)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(223,255,0,0.06), transparent 60%)", pointerEvents: "none" }} />
             <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr 80px 1fr 80px 1fr", alignItems: "stretch", maxWidth: "1080px", margin: "0 auto" }}>
               {ARCH_COLS.map((col, ci) => (
                 <>
@@ -374,7 +374,7 @@ export default function SecurityView() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
             {RESOURCES.map((r) => (
               <Link key={r.title} href={r.href} className="rc" style={{ border: `1px solid ${T.border}`, borderRadius: "8px", background: T.bgEl, padding: "18px 20px", display: "flex", gap: "14px", alignItems: "flex-start", cursor: "pointer", transition: "border-color 0.15s, background 0.15s", textDecoration: "none" }}>
-                <div style={{ width: "30px", height: "30px", display: "grid", placeItems: "center", borderRadius: "5px", background: "rgba(94,106,210,0.12)", color: "#c9c4ff", flexShrink: 0 }}>{r.icon}</div>
+                <div style={{ width: "30px", height: "30px", display: "grid", placeItems: "center", borderRadius: "5px", background: "rgba(223,255,0,0.12)", color: "#dfff00", flexShrink: 0 }}>{r.icon}</div>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontFamily: T.fontMono, fontSize: "10px", color: T.txtQuaternary, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: "2px" }}>{r.label}</div>
                   <div style={{ fontSize: "14px", fontWeight: 500, color: T.txtPrimary, letterSpacing: "-0.011em", marginBottom: "4px" }}>{r.title}</div>
@@ -393,7 +393,7 @@ export default function SecurityView() {
                 We pay bounties up to <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>$5,000</strong> for severe issues, settled in 14 days. No legal threats for good‑faith research. Encrypt your report with the PGP key on the right — or just email <Code>security@intentiq.dev</Code> in the clear.
               </p>
               <div style={{ display: "flex", gap: "8px" }}>
-                <a href="mailto:security@intentiq.dev" style={{ display: "inline-flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 16px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, color: "#fff", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+                <a href="mailto:security@intentiq.dev" style={{ display: "inline-flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 16px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, color: "#000000", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
                   Email security@intentiq.dev
                   <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
                 </a>

@@ -10,7 +10,7 @@ export default function OGImage() {
     (
       <div
         style={{
-          background: "#040814",
+          background: "#000000",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -21,7 +21,7 @@ export default function OGImage() {
           fontFamily: "monospace",
         }}
       >
-        {/* Background gradient orb */}
+        {/* Background glow */}
         <div
           style={{
             position: "absolute",
@@ -30,7 +30,7 @@ export default function OGImage() {
             width: 600,
             height: 600,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(223,255,0,0.16) 0%, transparent 70%)",
           }}
         />
 
@@ -39,7 +39,7 @@ export default function OGImage() {
           style={{
             fontSize: 18,
             letterSpacing: "0.3em",
-            color: "#22d3ee",
+            color: "#DFFF00",
             marginBottom: 32,
             textTransform: "uppercase",
           }}
@@ -52,21 +52,21 @@ export default function OGImage() {
           style={{
             fontSize: 64,
             fontWeight: 900,
-            color: "#f1f5f9",
+            color: "#FFFFFF",
             lineHeight: 1.1,
             marginBottom: 24,
             maxWidth: 900,
           }}
         >
           Score Companies for{" "}
-          <span style={{ color: "#22d3ee" }}>Buying Intent</span>
+          <span style={{ color: "#DFFF00" }}>Buying Intent</span>
         </div>
 
         {/* Sub-copy */}
         <div
           style={{
             fontSize: 24,
-            color: "#64748b",
+            color: "#A0A0A0",
             marginBottom: 48,
             maxWidth: 800,
             lineHeight: 1.5,
@@ -84,10 +84,10 @@ export default function OGImage() {
             { value: "&lt;3s", label: "Per score" },
           ].map((stat) => (
             <div key={stat.label} style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 28, fontWeight: 700, color: "#22d3ee" }}>
+              <span style={{ fontSize: 28, fontWeight: 700, color: "#DFFF00" }}>
                 {stat.value}
               </span>
-              <span style={{ fontSize: 14, color: "#475569", marginTop: 4, letterSpacing: "0.05em" }}>
+              <span style={{ fontSize: 14, color: "#666666", marginTop: 4, letterSpacing: "0.05em" }}>
                 {stat.label}
               </span>
             </div>
@@ -101,7 +101,7 @@ export default function OGImage() {
             bottom: 48,
             right: 80,
             fontSize: 16,
-            color: "#334155",
+            color: "#666666",
             letterSpacing: "0.15em",
           }}
         >

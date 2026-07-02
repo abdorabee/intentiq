@@ -5,7 +5,7 @@ export default function DevelopersSection() {
     <section id="api" className="border-b border-white/[0.06] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
         <p className="inline-flex items-center gap-2 text-[13px] text-[#8a8f98]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#4ec9d8]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#dfff00]" />
           Developers + People
         </p>
         <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-[-0.03em] text-[#f7f8f8] md:text-4xl md:leading-tight">
@@ -45,7 +45,7 @@ export default function DevelopersSection() {
                 { name: "Priya Tan", role: "Director, RevOps · Notion", score: 72, band: "WARM" },
               ].map((p) => (
                 <div key={p.name} className="flex items-center gap-3 px-2 py-2.5 text-[12px]">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#5e6ad2]/25 text-[10px] font-bold text-[#f7f8f8]">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#dfff00]/25 text-[10px] font-bold text-[#f7f8f8]">
                     {p.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">

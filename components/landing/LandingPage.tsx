@@ -364,7 +364,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <span className="signal-label">
-                        <svg className="ic" viewBox="0 0 14 14" fill="none" stroke="#ec4899" strokeWidth="1.6"><path d="M2 7l3 3 7-7"/></svg>
+                        <svg className="ic" viewBox="0 0 14 14" fill="none" stroke="#8a8f98" strokeWidth="1.6"><path d="M2 7l3 3 7-7"/></svg>
                         Pricing-page traffic spike
                       </span>
                     </div>
@@ -594,7 +594,7 @@ export default function LandingPage() {
                         <div className="name"><span className="ic ic-funding"></span>Funding</div>
                         <div>
                           <div className="desc" style={{ marginBottom: '6px' }}>Series H, $6.5B at $91.5B valuation · 4 days ago</div>
-                          <div className="signal-bar"><div className="fill" style={{ width: '96%', background: 'linear-gradient(90deg,#4ec9d8,#38a3b3)' }}></div></div>
+                          <div className="signal-bar"><div className="fill" style={{ width: '96%', background: 'linear-gradient(90deg,#dfff00,#38a3b3)' }}></div></div>
                         </div>
                         <div className="num">96</div>
                         <div className="weight">25%</div>
@@ -621,7 +621,7 @@ export default function LandingPage() {
                         <div className="name"><span className="ic ic-tech"></span>Tech</div>
                         <div>
                           <div className="desc" style={{ marginBottom: '6px' }}>Detected: Snowflake, Segment, Datadog · 2 new this month</div>
-                          <div className="signal-bar"><div className="fill" style={{ width: '78%', background: 'linear-gradient(90deg,#7170ff,#5e6ad2)' }}></div></div>
+                          <div className="signal-bar"><div className="fill" style={{ width: '78%', background: 'linear-gradient(90deg,#e8ff40,#dfff00)' }}></div></div>
                         </div>
                         <div className="num">78</div>
                         <div className="weight">20%</div>
@@ -630,7 +630,7 @@ export default function LandingPage() {
                         <div className="name"><span className="ic ic-web"></span>Web</div>
                         <div>
                           <div className="desc" style={{ marginBottom: '6px' }}>Domain authority 92 · pricing‑page traffic +18%</div>
-                          <div className="signal-bar"><div className="fill" style={{ width: '84%', background: 'linear-gradient(90deg,#ec4899,#c0367f)' }}></div></div>
+                          <div className="signal-bar"><div className="fill" style={{ width: '84%', background: 'linear-gradient(90deg,#8a8f98,#c0367f)' }}></div></div>
                         </div>
                         <div className="num">84</div>
                         <div className="weight">15%</div>
@@ -646,8 +646,8 @@ export default function LandingPage() {
                           <defs>
                             <linearGradient id="scoreGradHot" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
                               <stop offset="0%" stopColor="#4ade80"/>
-                              <stop offset="55%" stopColor="#4ec9d8"/>
-                              <stop offset="100%" stopColor="#7170ff"/>
+                              <stop offset="55%" stopColor="#dfff00"/>
+                              <stop offset="100%" stopColor="#e8ff40"/>
                             </linearGradient>
                           </defs>
                           <circle cx="50" cy="50" r="42" className="ring-track" strokeWidth="6" fill="none"/>

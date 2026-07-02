@@ -70,11 +70,11 @@ const STAGE_CONFIG: Record<StageKey, {
     label: "Engaged",
     desc: "In Outreach",
     action: "Send proposal or follow up",
-    color: "#7170ff",
+    color: "#e8ff40",
     bandClass: "band-hot",
     glow: false,
-    badgeClass: "border border-[#5e6ad2]/35 bg-[#5e6ad2]/15 text-[#c9c4ff]",
-    scoreClass: "text-[#c9c4ff]",
+    badgeClass: "border border-[#dfff00]/35 bg-[#dfff00]/15 text-[#dfff00]",
+    scoreClass: "text-[#dfff00]",
   },
   converted: {
     label: "Converted",
@@ -89,15 +89,15 @@ const STAGE_CONFIG: Record<StageKey, {
 };
 
 const AV_COLORS = [
-  "linear-gradient(135deg,#4ec9d8,#5e6ad2)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
   "linear-gradient(135deg,#4ade80,#22c55e)",
-  "linear-gradient(135deg,#f5b544,#ec4899)",
-  "linear-gradient(135deg,#7170ff,#c9c4ff)",
+  "linear-gradient(135deg,#f5b544,#8a8f98)",
+  "linear-gradient(135deg,#e8ff40,#dfff00)",
   "linear-gradient(135deg,#f87171,#f5b544)",
-  "linear-gradient(135deg,#4ec9d8,#4ade80)",
-  "linear-gradient(135deg,#c9c4ff,#4ec9d8)",
-  "linear-gradient(135deg,#ec4899,#f87171)",
-  "linear-gradient(135deg,#a78bfa,#7170ff)",
+  "linear-gradient(135deg,#dfff00,#4ade80)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
+  "linear-gradient(135deg,#8a8f98,#f87171)",
+  "linear-gradient(135deg,#a78bfa,#e8ff40)",
   "linear-gradient(135deg,#f5b544,#4ade80)",
 ];
 
@@ -289,7 +289,7 @@ function KanbanCard({
           <span
             className="av"
             style={{
-              background: "linear-gradient(135deg,#f5b544,#ec4899)",
+              background: "linear-gradient(135deg,#f5b544,#8a8f98)",
               color: "var(--bg)",
               width: 18,
               height: 18,
@@ -333,7 +333,7 @@ function KanbanColumn({
   return (
     <div
       className="kcol"
-      style={dragOver ? { outline: "2px solid rgba(94,106,210,0.4)", outlineOffset: "-1px" } : undefined}
+      style={dragOver ? { outline: "2px solid rgba(223,255,0,0.4)", outlineOffset: "-1px" } : undefined}
       onDragOver={(e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
@@ -588,7 +588,7 @@ export default function PipelinePage() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: "var(--text-tertiary)", fontSize: 13 }}>
           <p>Your pipeline is empty.</p>
           <p style={{ color: "var(--text-quaternary)", fontSize: 12 }}>Add companies to your watchlist to see them here.</p>
-          <Link href="/watchlist" className="text-sm text-[#c9c4ff] transition-colors hover:text-[var(--text-primary)]">
+          <Link href="/watchlist" className="text-sm text-[#dfff00] transition-colors hover:text-[var(--text-primary)]">
             Go to Watchlist →
           </Link>
         </div>
@@ -696,7 +696,7 @@ export default function PipelinePage() {
 
                 <div className="flex gap-2 flex-wrap pt-1">
                   <Button
-                    className="flex-1 cursor-pointer gap-1.5 border-0 bg-[#5e6ad2] text-white hover:bg-[#7170ff]"
+                    className="flex-1 cursor-pointer gap-1.5 border-0 bg-[#dfff00] text-black hover:bg-[#e8ff40]"
                     onClick={handleCopyDialogEmail}
                     disabled={!selected.email_subject && !selected.talk_track}
                   >

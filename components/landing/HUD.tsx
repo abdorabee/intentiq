@@ -60,7 +60,7 @@ export default function HUD({ visible }: HUDProps) {
       <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 md:h-[56px] lg:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2 text-[15px] font-semibold tracking-tight text-[#f7f8f8]">
-            <span className="grid h-7 w-7 place-items-center rounded-md bg-[#5e6ad2] text-[11px] font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-[#dfff00] text-[11px] font-bold text-black shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
               IQ
             </span>
             VesperWise

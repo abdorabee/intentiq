@@ -82,7 +82,7 @@ function TokenRow({ tokens }: { tokens: ReturnType<typeof conditionToTokens> }) 
 function actionIconStyle(type: AutopilotAction["type"]) {
   switch (type) {
     case "pipeline_stage":
-      return { background: "rgba(94,106,210,0.15)", color: "#c9c4ff" };
+      return { background: "rgba(223,255,0,0.15)", color: "#dfff00" };
     case "email_draft":
       return { background: "rgba(74,222,128,0.15)", color: "var(--hot)" };
     case "slack":
