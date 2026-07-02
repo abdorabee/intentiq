@@ -11,11 +11,11 @@ export const COST_DISPLAY_BUCKETS: {
   label: string;
   color: string;
 }[] = [
-  { bucket: "Score", label: "Score", color: "#5e6ad2" },
-  { bucket: "Bulk", label: "Bulk jobs", color: "#4ec9d8" },
+  { bucket: "Score", label: "Score", color: "#dfff00" },
+  { bucket: "Bulk", label: "Bulk jobs", color: "#a0a0a0" },
   { bucket: "People", label: "People scoring", color: "#4ade80" },
   { bucket: "Autopilot", label: "Autopilot", color: "#f5b544" },
-  { bucket: "Chat", label: "Chat copilot", color: "#ec4899" },
+  { bucket: "Chat", label: "Chat copilot", color: "#8a8f98" },
 ];
 
 export interface CostBucketRow {
@@ -81,11 +81,11 @@ export interface BillingStats {
 }
 
 const BUCKET_COLORS: Record<CreditBucket, string> = {
-  Score: "#5e6ad2",
-  Bulk: "#4ec9d8",
+  Score: "#dfff00",
+  Bulk: "#a0a0a0",
   People: "#4ade80",
   Autopilot: "#f5b544",
-  Chat: "#ec4899",
+  Chat: "#8a8f98",
   "Top-up": "var(--warm)",
   Reset: "var(--hot)",
   Other: "#8a8f98",
@@ -379,4 +379,4 @@ export function daysUntilReset(renewsAt: string | null): number | null {
 export function nextInvoiceAmount(plan: PlanKey): number {
   return getPlanDef(plan).price;
 }
-
+

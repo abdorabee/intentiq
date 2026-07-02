@@ -150,7 +150,7 @@ export function InboxSidebar({
         onClick={() => onSelect("subscribed", "system", null)}
         onKeyDown={(e) => e.key === "Enter" && onSelect("subscribed", "system", null)}
       >
-        <span className="swatch" style={{ background: "var(--pink, #ec4899)" }} />
+        <span className="swatch" style={{ background: "var(--pink, #8a8f98)" }} />
         System
         {byType("system") > 0 && <span className="count">{byType("system")}</span>}
       </div>

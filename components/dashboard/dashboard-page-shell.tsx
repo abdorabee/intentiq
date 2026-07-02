@@ -19,7 +19,7 @@ export function DashboardPageShell({
   return (
     <div className={cn("mx-auto w-full space-y-8 px-5 pb-10 pt-6 lg:px-7", maxWidthClass, className)}>
       <header className="border-b border-foreground/[0.06] pb-5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#7170ff]">{eyebrow}</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#e8ff40]">{eyebrow}</p>
         <h1 className="mt-1.5 text-[22px] font-medium tracking-[-0.024em] text-[var(--text-primary)]">{title}</h1>
         {description ? <p className="mt-1 text-[13px] text-[var(--text-tertiary)]">{description}</p> : null}
       </header>

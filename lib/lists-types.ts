@@ -114,13 +114,13 @@ export interface ListDetailData {
 }
 
 export const LIST_COLORS = [
+  { value: "#dfff00", label: "Lime" },
+  { value: "#e8ff40", label: "Lime hover" },
+  { value: "#c8e600", label: "Lime active" },
   { value: "#4ade80", label: "Green" },
   { value: "#f5b544", label: "Amber" },
-  { value: "#7170ff", label: "Violet" },
-  { value: "#4ec9d8", label: "Cyan" },
-  { value: "#ec4899", label: "Pink" },
-  { value: "#c9c4ff", label: "Lavender" },
   { value: "#8a8f98", label: "Grey" },
+  { value: "#ffffff", label: "White" },
 ] as const;
 
 export const RULE_FIELDS = [

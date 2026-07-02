@@ -45,7 +45,7 @@ const S = {
   htRow: (open: boolean) => ({
     display: "grid", gridTemplateColumns: HT_GRID, gap: 14, padding: "0 16px", minHeight: 58,
     alignItems: "center", borderBottom: "1px solid var(--border-subtle)", cursor: "pointer",
-    background: open ? "rgba(94,106,210,0.06)" : undefined,
+    background: open ? "rgba(223,255,0,0.06)" : undefined,
   }) as CSSProperties,
   htTime: { fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-tertiary)", letterSpacing: "0.02em", lineHeight: 1.4 } as CSSProperties,
   htAgo: { display: "block", fontSize: 10, color: "var(--text-quaternary)", marginTop: 1 } as CSSProperties,
@@ -86,22 +86,22 @@ const S = {
 };
 
 const AV_COLORS = [
-  "linear-gradient(135deg,#4ec9d8,#5e6ad2)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
   "linear-gradient(135deg,#4ade80,#22c55e)",
-  "linear-gradient(135deg,#f5b544,#ec4899)",
-  "linear-gradient(135deg,#7170ff,#c9c4ff)",
+  "linear-gradient(135deg,#f5b544,#8a8f98)",
+  "linear-gradient(135deg,#e8ff40,#dfff00)",
   "linear-gradient(135deg,#f87171,#f5b544)",
-  "linear-gradient(135deg,#4ec9d8,#4ade80)",
-  "linear-gradient(135deg,#c9c4ff,#4ec9d8)",
-  "linear-gradient(135deg,#ec4899,#f87171)",
+  "linear-gradient(135deg,#dfff00,#4ade80)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
+  "linear-gradient(135deg,#8a8f98,#f87171)",
 ];
 
 const SIGNAL_META: { key: keyof Omit<SignalSet, "latestSignalDate">; abbr: string; color: string; max: number }[] = [
   { key: "funding", abbr: "FU", color: "#f5b544", max: 25 },
   { key: "hiring", abbr: "HI", color: "#4ade80", max: 20 },
-  { key: "news", abbr: "NE", color: "#ec4899", max: 20 },
-  { key: "technology", abbr: "TE", color: "#7170ff", max: 20 },
-  { key: "web", abbr: "WE", color: "#4ec9d8", max: 15 },
+  { key: "news", abbr: "NE", color: "#8a8f98", max: 20 },
+  { key: "technology", abbr: "TE", color: "#e8ff40", max: 20 },
+  { key: "web", abbr: "WE", color: "#dfff00", max: 15 },
 ];
 
 function avColor(name: string) { return AV_COLORS[(name?.charCodeAt(0) ?? 0) % AV_COLORS.length]; }
@@ -209,7 +209,7 @@ function urgencyStyle(u: string | null): CSSProperties {
   const base: CSSProperties = { padding: "1px 7px", borderRadius: 4, fontFamily: "var(--font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 500 };
   if (u === "act-now") return { ...base, background: "var(--hot-bg)", color: "var(--hot)" };
   if (u === "this-week") return { ...base, background: "var(--warm-bg)", color: "var(--warm)" };
-  return { ...base, background: "rgba(78,201,216,0.10)", color: "var(--cyan)" };
+  return { ...base, background: "rgba(223,255,0,0.10)", color: "var(--cyan)" };
 }
 
 function bandChipStyle(band: "hot" | "warm" | "cold", inactive: boolean): CSSProperties {
@@ -271,7 +271,7 @@ function DrawerRing({ score, band }: { score: number; band: string }) {
   const r = 55;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - score / 100);
-  const g = band === "HOT" ? ["#4ade80", "#4ec9d8", "#7170ff"] : band === "WARM" ? ["#f5b544", "#ec4899", "#7170ff"] : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
+  const g = band === "HOT" ? ["#4ade80", "#dfff00", "#e8ff40"] : band === "WARM" ? ["#f5b544", "#8a8f98", "#e8ff40"] : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
   return (
     <div style={{ position: "relative", width: 130, height: 130 }}>
       <svg viewBox="0 0 130 130" style={{ display: "block" }}>
@@ -749,7 +749,7 @@ export function HistoryView({ stats }: HistoryViewProps) {
                       </div>
                     )}
                     {drawerRow.recommended_action && (
-                      <div style={{ background: "rgba(94,106,210,0.08)", border: "1px solid rgba(94,106,210,0.2)", borderRadius: "var(--r-md)", padding: "12px 14px" }}>
+                      <div style={{ background: "rgba(223,255,0,0.08)", border: "1px solid rgba(223,255,0,0.2)", borderRadius: "var(--r-md)", padding: "12px 14px" }}>
                         <div style={{ fontSize: 10, color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Recommended action</div>
                         <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>{drawerRow.recommended_action}</div>
                       </div>

@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 function CompareCheck({ yes }: { yes: boolean }) {
   return yes ? (
-    <span className="text-[#7170ff] text-xs tracking-[0.2em]">[+]</span>
+    <span className="text-[#e8ff40] text-xs tracking-[0.2em]">[+]</span>
   ) : (
     <span className="text-slate-700 text-xs tracking-[0.2em]">[—]</span>
   );
@@ -80,17 +80,17 @@ export default function PricingSection() {
               key={p.plan}
               className={`relative flex flex-col p-5 gap-4 border transition-all ${
                 p.highlight
-                  ? "border-[#5e6ad2]/40 bg-[#5e6ad2]/8"
+                  ? "border-[#dfff00]/40 bg-[#dfff00]/8"
                   : "border-white/[0.08] bg-white/[0.02]"
               }`}
               style={p.highlight ? {
-                boxShadow: "0 0 30px rgba(94,106,210,0.2), 0 0 60px rgba(94,106,210,0.06)",
+                boxShadow: "0 0 30px rgba(223,255,0,0.2), 0 0 60px rgba(223,255,0,0.06)",
               } : undefined}
             >
               {/* Popular badge */}
               {p.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                  <span className="bg-[#5e6ad2] px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white">
+                  <span className="bg-[#dfff00] px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-black">
                     MOST POPULAR
                   </span>
                 </div>
@@ -119,7 +119,7 @@ export default function PricingSection() {
               <ul className="space-y-1.5 flex-1">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-xs text-slate-400">
-                    <span className="mt-px shrink-0 text-[#7170ff]/80">[+]</span>
+                    <span className="mt-px shrink-0 text-[#e8ff40]/80">[+]</span>
                     {f}
                   </li>
                 ))}
@@ -157,19 +157,19 @@ export default function PricingSection() {
                 {COMPARISON.map((c) => (
                   <tr
                     key={c.name}
-                    className={c.you ? "bg-[#5e6ad2]/10" : "hover:bg-white/[0.02] transition-colors"}
+                    className={c.you ? "bg-[#dfff00]/10" : "hover:bg-white/[0.02] transition-colors"}
                   >
                     <td className="px-5 py-4">
                       {c.you ? (
-                        <span className="text-xs font-bold tracking-[0.1em] text-[#c9c4ff]">
+                        <span className="text-xs font-bold tracking-[0.1em] text-[#dfff00]">
                           {c.name.toUpperCase()}
-                          <span className="ml-2 text-[10px] text-[#7170ff]/60">[YOU]</span>
+                          <span className="ml-2 text-[10px] text-[#e8ff40]/60">[YOU]</span>
                         </span>
                       ) : (
                         <span className="text-slate-400 text-xs tracking-[0.05em]">{c.name}</span>
                       )}
                     </td>
-                    <td className={`px-5 py-4 text-xs tracking-[0.05em] ${c.you ? "font-semibold text-[#c9c4ff]" : "text-slate-600"}`}>
+                    <td className={`px-5 py-4 text-xs tracking-[0.05em] ${c.you ? "font-semibold text-[#dfff00]" : "text-slate-600"}`}>
                       {c.price}
                     </td>
                     <td className="px-5 py-4"><CompareCheck yes={c.smb} /></td>

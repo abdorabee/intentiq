@@ -438,8 +438,8 @@ button, a, [role="button"] { touch-action: manipulation; }
   }
   /* avatar colors matching real dashboard */
   .av-s { background: linear-gradient(135deg, #635bff, #0570de); }
-  .av-l { background: linear-gradient(135deg, #5e6ad2, #7170ff); }
-  .av-a { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+  .av-l { background: linear-gradient(135deg, #dfff00, #e8ff40); }
+  .av-a { background: linear-gradient(135deg, #8a8f98, #8b5cf6); }
   .av-v { background: linear-gradient(135deg, #111, #444); }
   .av-n { background: linear-gradient(135deg, #000, #333); }
 

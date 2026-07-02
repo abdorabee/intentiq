@@ -13,15 +13,15 @@ interface PeopleViewProps {
 type PeopleState = "list" | "score" | "result";
 
 const AV_COLORS = [
-  "linear-gradient(135deg,#4ec9d8,#5e6ad2)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
   "linear-gradient(135deg,#4ade80,#22c55e)",
-  "linear-gradient(135deg,#f5b544,#ec4899)",
-  "linear-gradient(135deg,#7170ff,#c9c4ff)",
+  "linear-gradient(135deg,#f5b544,#8a8f98)",
+  "linear-gradient(135deg,#e8ff40,#dfff00)",
   "linear-gradient(135deg,#f87171,#f5b544)",
-  "linear-gradient(135deg,#4ec9d8,#4ade80)",
-  "linear-gradient(135deg,#c9c4ff,#4ec9d8)",
-  "linear-gradient(135deg,#ec4899,#f87171)",
-  "linear-gradient(135deg,#a78bfa,#7170ff)",
+  "linear-gradient(135deg,#dfff00,#4ade80)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
+  "linear-gradient(135deg,#8a8f98,#f87171)",
+  "linear-gradient(135deg,#a78bfa,#e8ff40)",
   "linear-gradient(135deg,#f5b544,#4ade80)",
 ];
 
@@ -292,7 +292,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
           <div className="prompt-bg"><div className="grid"/></div>
           <div className="prompt-inner">
             <div className="prompt-eyebrow">
-              <span className="badge" style={{ background: "rgba(78,201,216,0.15)", color: "#9ee0e8", border: "1px solid rgba(78,201,216,0.25)" }}>People</span>
+              <span className="badge" style={{ background: "rgba(223,255,0,0.15)", color: "#9ee0e8", border: "1px solid rgba(223,255,0,0.25)" }}>People</span>
               Drop in an email or LinkedIn URL — we score the human in &lt; 3 seconds
             </div>
             <h1 className="prompt-h1">Who do you want to <span className="grad">score</span>?</h1>
@@ -384,8 +384,8 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
             )}
 
             <div className="prompt-feature-row">
-              <div className="feat"><span className="ic" style={{ background: "rgba(78,201,216,0.12)", color: "var(--cyan)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><circle cx="6" cy="4.5" r="2"/><path d="M2 10c0-2 2-3 4-3s4 1 4 3"/></svg></span>5 person-axes</div>
-              <div className="feat"><span className="ic" style={{ background: "rgba(94,106,210,0.12)", color: "#c9c4ff" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><circle cx="6" cy="6" r="4"/><path d="M6 4v3l2 1"/></svg></span>AI thesis from Claude</div>
+              <div className="feat"><span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "var(--cyan)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><circle cx="6" cy="4.5" r="2"/><path d="M2 10c0-2 2-3 4-3s4 1 4 3"/></svg></span>5 person-axes</div>
+              <div className="feat"><span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "#dfff00" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><circle cx="6" cy="6" r="4"/><path d="M6 4v3l2 1"/></svg></span>AI thesis from Claude</div>
               <div className="feat"><span className="ic" style={{ background: "rgba(74,222,128,0.12)", color: "var(--hot)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><path d="M3 6l3 3 5-7"/></svg></span>Verified contact</div>
               <div className="feat"><span className="ic" style={{ background: "rgba(245,181,68,0.12)", color: "var(--warm)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><path d="M3 3h6M3 6h6M3 9h4"/></svg></span>Recommended outreach</div>
             </div>
@@ -478,7 +478,7 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                   const circ = 2 * Math.PI * r;
                   const offset = circ * (1 - result.intent_score / 100);
                   const band = result.score_band;
-                  const g = band === "HOT" ? ["#4ade80", "#4ec9d8", "#7170ff"] : band === "WARM" ? ["#f5b544", "#ec4899", "#7170ff"] : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
+                  const g = band === "HOT" ? ["#4ade80", "#dfff00", "#e8ff40"] : band === "WARM" ? ["#f5b544", "#8a8f98", "#e8ff40"] : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
                   return (
                     <div className="score-ring">
                       <svg viewBox="0 0 100 100">
@@ -523,11 +523,11 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
               </div>
               <div className="signal-grid">
                 {([
-                  { key: "seniority_fit" as const, label: "ICP fit",   color: "#4ec9d8", grad: "linear-gradient(90deg,#4ec9d8,#38a3b3)", max: 20 },
+                  { key: "seniority_fit" as const, label: "ICP fit",   color: "#dfff00", grad: "linear-gradient(90deg,#dfff00,#38a3b3)", max: 20 },
                   { key: "career_change" as const, label: "Career",    color: "#4ade80", grad: "linear-gradient(90deg,#4ade80,#22c55e)", max: 30 },
                   { key: "company_intent" as const, label: "Company",  color: "#f5b544", grad: "linear-gradient(90deg,#f5b544,#d49530)", max: 20 },
-                  { key: "news_mentions" as const, label: "Influence", color: "#7170ff", grad: "linear-gradient(90deg,#7170ff,#5e6ad2)", max: 15 },
-                  { key: "social_presence" as const, label: "Social",  color: "#ec4899", grad: "linear-gradient(90deg,#ec4899,#c0367f)", max: 15 },
+                  { key: "news_mentions" as const, label: "Influence", color: "#e8ff40", grad: "linear-gradient(90deg,#e8ff40,#dfff00)", max: 15 },
+                  { key: "social_presence" as const, label: "Social",  color: "#8a8f98", grad: "linear-gradient(90deg,#8a8f98,#c0367f)", max: 15 },
                 ] as const).map(({ key, label, color, grad, max }) => {
                   const sig = result.signals[key];
                   const pct = sig ? Math.round((sig.score / max) * 100) : 0;

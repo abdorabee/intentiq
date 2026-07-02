@@ -18,7 +18,7 @@ export default function FinalCtaSection() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-[#8b87ff] via-[#5e6ad2] to-[#4e5acb] px-6 py-3 text-[15px] font-medium text-white shadow-[0_10px_36px_rgba(94,106,210,0.42)] hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-full bg-[#dfff00] px-6 py-3 text-[15px] font-medium text-black shadow-[0_10px_36px_rgba(223,255,0,0.42)] hover:brightness-110"
           >
             Start scoring free
             <ArrowRight className="h-4 w-4" aria-hidden />

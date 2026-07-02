@@ -30,7 +30,7 @@ export default function HeroSection() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-[#8b87ff] via-[#5e6ad2] to-[#4e5acb] px-6 py-3 text-[15px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_36px_rgba(94,106,210,0.42)] hover:brightness-110"
+              className="inline-flex items-center gap-2 rounded-full bg-[#dfff00] px-6 py-3 text-[15px] font-medium text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_36px_rgba(223,255,0,0.42)] hover:brightness-110"
             >
               Start scoring free
               <ArrowRight className="h-4 w-4 opacity-90" aria-hidden />
@@ -105,7 +105,7 @@ export default function HeroSection() {
                 </div>
                 <div className="mt-3 rounded-lg border border-white/[0.06] bg-[#131517] p-2.5">
                   <p className="text-[10px] uppercase tracking-wide text-[#62666d]">Recommended action</p>
-                  <p className="mt-1 text-[11px] text-[#c9c4ff]">
+                  <p className="mt-1 text-[11px] text-[#dfff00]">
                     Reach out this week — Series H + RevOps hiring signals align.
                   </p>
                 </div>

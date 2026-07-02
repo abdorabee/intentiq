@@ -16,10 +16,10 @@ const T = {
   txtQuaternary: "#62666d",
   border:        "rgba(255,255,255,0.08)",
   borderStrong:  "rgba(255,255,255,0.13)",
-  accent:        "#5e6ad2",
-  accent2:       "#7170ff",
-  cyan:          "#4ec9d8",
-  cyanSoft:      "rgba(78,201,216,0.16)",
+  accent:        "#dfff00",
+  accent2:       "#e8ff40",
+  cyan:          "#dfff00",
+  cyanSoft:      "rgba(223,255,0,0.16)",
   hot:           "#4ade80",
   warm:          "#f5b544",
   fontSans:      "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -42,7 +42,7 @@ const CHANNELS = [
     name: "Talk to a sales engineer",
     desc: "Plan sizing, multi‑seat pricing, security questionnaires.",
     email: "sales@vesperwise.com",
-    color: { bg: "rgba(94,106,210,0.12)", fg: "#c9c4ff" },
+    color: { bg: "rgba(223,255,0,0.12)", fg: "#dfff00" },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
         <path d="M3 5l6 5 6-5"/><rect x="2" y="4" width="14" height="11" rx="1.5"/>
@@ -55,7 +55,7 @@ const CHANNELS = [
     name: "For paying customers",
     desc: "Bugs, billing, integrations. Reply within four hours, business days.",
     email: "support@vesperwise.com",
-    color: { bg: "rgba(78,201,216,0.12)", fg: T.cyan },
+    color: { bg: "rgba(223,255,0,0.12)", fg: T.cyan },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
         <circle cx="9" cy="9" r="7"/><path d="M9 5v4l3 1"/>
@@ -94,7 +94,7 @@ const CHANNELS = [
     name: "Integrations, resellers, agencies",
     desc: "If you build for sales teams, we'd like to meet.",
     email: "partners@vesperwise.com",
-    color: { bg: "rgba(236,72,153,0.10)", fg: "#ec4899" },
+    color: { bg: "rgba(138,143,152,0.10)", fg: "#8a8f98" },
     icon: (
       <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
         <circle cx="6" cy="9" r="3"/><circle cx="12" cy="9" r="3"/>
@@ -211,7 +211,7 @@ export default function ContactView() {
         .ch-card:hover { border-color: rgba(255,255,255,0.13) !important; background: rgba(255,255,255,0.02) !important; }
         .ch-card:hover .ch-arrow { color: #f7f8f8 !important; transform: translateX(2px) !important; }
         .nav-link-hover:hover { color: #f7f8f8 !important; background: rgba(255,255,255,0.04) !important; }
-        .field-input:focus { border-color: #5e6ad2 !important; background: rgba(94,106,210,0.04) !important; }
+        .field-input:focus { border-color: #dfff00 !important; background: rgba(223,255,0,0.04) !important; }
         .field-input::placeholder { color: #62666d; }
         .reason-chip { transition: border-color 0.15s, background 0.15s, color 0.15s; }
         .reason-chip:hover:not(.active) { border-color: rgba(255,255,255,0.13) !important; }
@@ -250,7 +250,7 @@ export default function ContactView() {
           <div style={{ flex: 1 }} />
           <Link href="/login" style={{ fontSize: "14px", fontWeight: 500, color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", textDecoration: "none" }}>Sign in</Link>
           <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, color: T.txtPrimary, padding: "0 14px", height: "32px", borderRadius: "6px", border: `1px solid ${T.border}`, background: "rgba(255,255,255,0.05)", textDecoration: "none" }}>Start free</Link>
-          <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, color: "#fff", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+          <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
             Talk to us
             <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
           </Link>
@@ -260,12 +260,12 @@ export default function ContactView() {
       {/* ── Hero ── */}
       <section style={{ position: "relative", padding: "88px 0 64px", overflow: "hidden", borderBottom: `1px solid ${T.border}` }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }} aria-hidden="true">
-          <div style={{ position: "absolute", left: "50%", top: "-200px", width: "1100px", height: "560px", transform: "translateX(-50%)", background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(94,106,210,0.20), transparent 60%), radial-gradient(ellipse 40% 70% at 30% 30%, rgba(78,201,216,0.13), transparent 70%)", filter: "blur(40px)" }} />
+          <div style={{ position: "absolute", left: "50%", top: "-200px", width: "1100px", height: "560px", transform: "translateX(-50%)", background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(223,255,0,0.20), transparent 60%), radial-gradient(ellipse 40% 70% at 30% 30%, rgba(223,255,0,0.13), transparent 70%)", filter: "blur(40px)" }} />
           <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)", backgroundSize: "64px 64px", maskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%)" } as React.CSSProperties} />
         </div>
         <div style={{ position: "relative", zIndex: 2, maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: 500, color: T.txtSecondary, letterSpacing: "-0.011em", marginBottom: "22px" }}>
-            <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan, boxShadow: "0 0 8px #4ec9d8", display: "block" }} />
+            <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan, boxShadow: "0 0 8px #dfff00", display: "block" }} />
             Contact
           </div>
           <h1 style={{ fontWeight: 500, letterSpacing: "-0.042em", lineHeight: 1.05, fontSize: "clamp(40px, 6.4vw, 76px)", marginBottom: "22px", color: T.txtPrimary }}>
@@ -337,7 +337,7 @@ export default function ContactView() {
         {/* RIGHT: form card */}
         <div style={{ border: `1px solid ${T.border}`, borderRadius: "12px", background: T.bgEl, padding: "32px 36px", position: "relative", overflow: "hidden" }}>
           {/* Decorative glow */}
-          <div style={{ position: "absolute", top: "-100px", right: "-100px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(94,106,210,0.12), transparent 60%)", filter: "blur(40px)", pointerEvents: "none" }} aria-hidden="true" />
+          <div style={{ position: "absolute", top: "-100px", right: "-100px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(223,255,0,0.12), transparent 60%)", filter: "blur(40px)", pointerEvents: "none" }} aria-hidden="true" />
 
           <h3 style={{ fontSize: "20px", fontWeight: 500, letterSpacing: "-0.022em", color: T.txtPrimary, marginBottom: "4px", position: "relative" }}>Or send a note.</h3>
           <p style={{ fontSize: "14px", color: T.txtTertiary, letterSpacing: "-0.006em", marginBottom: "24px", position: "relative" }}>
@@ -354,7 +354,7 @@ export default function ContactView() {
                   type="button"
                   className="reason-chip"
                   onClick={() => setReason(id)}
-                  style={{ padding: "6px 12px", border: `1px solid ${active ? "rgba(94,106,210,0.35)" : T.border}`, borderRadius: "999px", background: active ? "rgba(94,106,210,0.12)" : "rgba(255,255,255,0.02)", fontSize: "12px", color: active ? "#c9c4ff" : T.txtSecondary, cursor: "pointer", letterSpacing: "-0.006em", fontFamily: T.fontSans }}
+                  style={{ padding: "6px 12px", border: `1px solid ${active ? "rgba(223,255,0,0.35)" : T.border}`, borderRadius: "999px", background: active ? "rgba(223,255,0,0.12)" : "rgba(255,255,255,0.02)", fontSize: "12px", color: active ? "#dfff00" : T.txtSecondary, cursor: "pointer", letterSpacing: "-0.006em", fontFamily: T.fontSans }}
                 >
                   {label}
                 </button>
@@ -442,7 +442,7 @@ export default function ContactView() {
               <button
                 type="submit"
                 disabled={status === "loading" || status === "success"}
-                style={{ display: "inline-flex", alignItems: "center", gap: "6px", height: "38px", padding: "0 18px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", cursor: status === "loading" || status === "success" ? "default" : "pointer", border: "none", fontFamily: T.fontSans, transition: "opacity 0.15s", background: status === "success" ? "rgba(255,255,255,0.07)" : T.accent, color: status === "success" ? T.txtSecondary : "#fff", boxShadow: status === "success" ? "none" : "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", opacity: status === "loading" ? 0.7 : 1 }}
+                style={{ display: "inline-flex", alignItems: "center", gap: "6px", height: "38px", padding: "0 18px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", cursor: status === "loading" || status === "success" ? "default" : "pointer", border: "none", fontFamily: T.fontSans, transition: "opacity 0.15s", background: status === "success" ? "rgba(255,255,255,0.07)" : T.accent, color: status === "success" ? T.txtSecondary : "#000000", boxShadow: status === "success" ? "none" : "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", opacity: status === "loading" ? 0.7 : 1 }}
               >
                 {status === "success" ? "Sent ✓" : status === "loading" ? "Sending…" : (
                   <>

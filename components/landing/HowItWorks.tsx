@@ -15,7 +15,7 @@ export default function HowItWorks() {
               key={item.step}
               left={
                 <div className="flex items-center gap-4 md:gap-6">
-                  <span className="shrink-0 text-xl font-bold tracking-wide text-[#7170ff] md:text-2xl">{item.step}</span>
+                  <span className="shrink-0 text-xl font-bold tracking-wide text-[#e8ff40] md:text-2xl">{item.step}</span>
                   <span className="text-sm font-semibold tracking-wide text-[#f7f8f8] md:text-base">{item.title}</span>
                 </div>
               }

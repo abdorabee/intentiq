@@ -26,13 +26,13 @@ export default function CodeDemo() {
           <p className="mt-2 text-sm text-[#8a8f98]">Works with curl, JavaScript, Python — or any HTTP client.</p>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-[#5e6ad2]/25">
-          <div className="flex items-center justify-between border-b border-[#5e6ad2]/15 bg-[#5e6ad2]/8 px-4 py-3">
-            <span className="font-mono text-xs tracking-widest text-[#7170ff]/70">vesperwise / terminal</span>
+        <div className="overflow-hidden rounded-xl border border-[#dfff00]/25">
+          <div className="flex items-center justify-between border-b border-[#dfff00]/15 bg-[#dfff00]/8 px-4 py-3">
+            <span className="font-mono text-xs tracking-widest text-[#e8ff40]/70">vesperwise / terminal</span>
             <div className="flex gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#5e6ad2]/35" />
-              <span className="h-2 w-2 rounded-full bg-[#5e6ad2]/35" />
-              <span className="h-2 w-2 rounded-full bg-[#5e6ad2]/80" />
+              <span className="h-2 w-2 rounded-full bg-[#dfff00]/35" />
+              <span className="h-2 w-2 rounded-full bg-[#dfff00]/35" />
+              <span className="h-2 w-2 rounded-full bg-[#dfff00]/80" />
             </div>
           </div>
           <div className="flex overflow-x-auto border-b border-white/[0.06] bg-black/50">
@@ -43,7 +43,7 @@ export default function CodeDemo() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`cursor-pointer px-5 py-2.5 text-xs uppercase tracking-widest transition-colors ${
                   activeTab === tab.key
-                    ? "border-b border-[#7170ff] bg-[#5e6ad2]/8 text-[#c9c4ff]"
+                    ? "border-b border-[#e8ff40] bg-[#dfff00]/8 text-[#dfff00]"
                     : "text-[#62666d] hover:text-[#8a8f98]"
                 }`}
               >
@@ -54,7 +54,7 @@ export default function CodeDemo() {
           <pre className="overflow-x-auto p-6 text-sm leading-relaxed">
             {codeLines.map((line, i) => (
               <div key={`${activeTab}-${i}`}>
-                <span className="mr-4 select-none text-xs text-[#7170ff]/35">{String(i + 1).padStart(2, "0")}</span>
+                <span className="mr-4 select-none text-xs text-[#e8ff40]/35">{String(i + 1).padStart(2, "0")}</span>
                 <span className="text-emerald-400">{line}</span>
               </div>
             ))}

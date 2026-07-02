@@ -24,7 +24,7 @@ export default function PillarsSection() {
     <section className="border-b border-white/[0.06] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-6xl text-center">
         <p className="inline-flex items-center gap-2 text-[13px] text-[#b4bbc8]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#4ec9d8]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#dfff00]" />
           Made for sales teams who close
         </p>
         <h2 className="mt-6 text-4xl font-semibold tracking-[-0.03em] text-[#f7f8f8] md:text-5xl">

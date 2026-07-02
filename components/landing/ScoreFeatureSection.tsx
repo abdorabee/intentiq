@@ -1,18 +1,18 @@
 function SectionAccentLabel({ children }: { children: string }) {
   return (
     <p className="inline-flex items-center gap-2 text-[13px] text-[#8a8f98]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[#4ec9d8]" />
+      <span className="h-1.5 w-1.5 rounded-full bg-[#dfff00]" />
       {children}
     </p>
   );
 }
 
 const SIGNALS = [
-  { name: "Funding", desc: "Series H, $6.5B at $91.5B valuation · 4 days ago", score: 96, weight: "25%", bar: "from-[#4ec9d8] to-[#38a3b3]" },
+  { name: "Funding", desc: "Series H, $6.5B at $91.5B valuation · 4 days ago", score: 96, weight: "25%", bar: "from-[#dfff00] to-[#38a3b3]" },
   { name: "Hiring", desc: "+182 open roles in Eng / RevOps · +28 vs last 30 days", score: 88, weight: "20%", bar: "from-[#4ade80] to-[#22c55e]" },
   { name: "News", desc: "12 high-authority mentions in 7 days · sentiment +0.74", score: 92, weight: "20%", bar: "from-[#f5b544] to-[#d49530]" },
-  { name: "Tech", desc: "Detected: Snowflake, Segment, Datadog · 2 new this month", score: 78, weight: "20%", bar: "from-[#7170ff] to-[#5e6ad2]" },
-  { name: "Web", desc: "Domain authority 92 · pricing-page traffic +18%", score: 84, weight: "15%", bar: "from-[#ec4899] to-[#c0367f]" },
+  { name: "Tech", desc: "Detected: Snowflake, Segment, Datadog · 2 new this month", score: 78, weight: "20%", bar: "from-[#e8ff40] to-[#dfff00]" },
+  { name: "Web", desc: "Domain authority 92 · pricing-page traffic +18%", score: 84, weight: "15%", bar: "from-[#8a8f98] to-[#c0367f]" },
 ];
 
 export default function ScoreFeatureSection() {
@@ -40,7 +40,7 @@ export default function ScoreFeatureSection() {
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#5e6ad2]/30 text-sm font-bold text-[#f7f8f8]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#dfff00]/30 text-sm font-bold text-[#f7f8f8]">
                   S
                 </div>
                 <div>
@@ -92,8 +92,8 @@ export default function ScoreFeatureSection() {
                     <defs>
                       <linearGradient id="scoreGrad" x1="0" y1="0" x2="100" y2="100">
                         <stop offset="0%" stopColor="#4ade80" />
-                        <stop offset="55%" stopColor="#4ec9d8" />
-                        <stop offset="100%" stopColor="#7170ff" />
+                        <stop offset="55%" stopColor="#dfff00" />
+                        <stop offset="100%" stopColor="#e8ff40" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -114,8 +114,8 @@ export default function ScoreFeatureSection() {
                   <span className="text-[#f7f8f8]">Discovery → Qualified</span>
                 </div>
               </div>
-              <div className="mt-4 rounded-lg border border-[#5e6ad2]/20 bg-[#5e6ad2]/5 p-3">
-                <p className="text-[10px] uppercase tracking-wide text-[#7170ff]">AI summary · Claude</p>
+              <div className="mt-4 rounded-lg border border-[#dfff00]/20 bg-[#dfff00]/5 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-[#e8ff40]">AI summary · Claude</p>
                 <p className="mt-2 text-[12px] leading-relaxed text-[#b4bbc8]">
                   Stripe is showing all five intent axes lit. Fresh capital, aggressive RevOps hiring, and a positive news
                   cycle precede a tooling refresh inside 60–90 days.
@@ -123,7 +123,7 @@ export default function ScoreFeatureSection() {
               </div>
               <div className="mt-3 rounded-lg border border-white/[0.06] bg-[#131517] p-3">
                 <p className="text-[10px] uppercase tracking-wide text-[#62666d]">Recommended next action</p>
-                <p className="mt-1 text-[12px] text-[#c9c4ff]">
+                <p className="mt-1 text-[12px] text-[#dfff00]">
                   Send AE-authored email referencing Series H — anchor on RevOps tooling pain at scale.
                 </p>
               </div>

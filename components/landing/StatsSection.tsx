@@ -1,6 +1,6 @@
 const STATS = [
-  { value: "2.4M", label: "Accounts scored to date", color: "text-[#7170ff]" },
-  { value: "<3s", label: "Median time to first score", color: "text-[#7170ff]" },
+  { value: "2.4M", label: "Accounts scored to date", color: "text-[#e8ff40]" },
+  { value: "<3s", label: "Median time to first score", color: "text-[#e8ff40]" },
   { value: "+38%", label: "Avg lift in HOT band reply rate", color: "text-[#4ade80]" },
   { value: "99.97%", label: "API uptime, last 90 days", color: "text-[#f7f8f8]" },
 ];

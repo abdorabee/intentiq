@@ -152,7 +152,7 @@ export default async function DashboardPage() {
     { l: "HOT", n: pipelineMap["hot"] ?? 0, c: "#4ade80", glow: true },
     { l: "Warming", n: pipelineMap["warming"] ?? 0, c: "#f5b544" },
     { l: "Cold", n: pipelineMap["cold"] ?? 0, c: "var(--text-tertiary)" },
-    { l: "Engaged", n: pipelineMap["engaged"] ?? 0, c: "#7170ff" },
+    { l: "Engaged", n: pipelineMap["engaged"] ?? 0, c: "#e8ff40" },
   ].map((p) => ({ ...p, pct: Math.round((p.n / total) * 1000) / 10 }));
 
   // Signal mix

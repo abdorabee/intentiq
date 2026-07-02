@@ -76,11 +76,11 @@ function relTime(iso: string): string {
 }
 
 const SIGNAL_COLORS: Record<string, string> = {
-  funding: "#4ec9d8",
+  funding: "#dfff00",
   hiring: "#4ade80",
   news: "#f5b544",
-  technology: "#7170ff",
-  web: "#ec4899",
+  technology: "#e8ff40",
+  web: "#8a8f98",
 };
 
 const AV_CLASSES = ["av-1", "av-2", "av-3", "av-4", "av-5", "av-6", "av-7", "av-8"];

@@ -66,42 +66,42 @@ const MOCK_ACCOUNTS = [
   {
     name: "Stripe",    domain: "stripe.com",    initial: "S", color: "bg-[#635bff]/25 text-[#a79fff]",
     signal: "Series H · $6.5B",              up: true,  score: 94, scoreColor: "text-[#4ade80]",
-    mix: [[52,"#4ade80"],[20,"#f5b544"],[14,"#5e6ad2"],[10,"#a855f7"],[0,""]],
+    mix: [[52,"#4ade80"],[20,"#f5b544"],[14,"#dfff00"],[10,"#a855f7"],[0,""]],
     owner: "D. Marwan", ownerColor: "bg-violet-500/30 text-violet-300",
     updated: "3h", delta: "+12", deltaUp: true,
   },
   {
     name: "Linear",    domain: "linear.app",    initial: "L", color: "bg-indigo-500/25 text-indigo-300",
     signal: "+18 Eng. hires this quarter",   up: true,  score: 82, scoreColor: "text-[#4ade80]",
-    mix: [[36,"#4ade80"],[24,"#5e6ad2"],[20,"#f5b544"],[12,"#a855f7"],[8,"#f43f5e"]],
+    mix: [[36,"#4ade80"],[24,"#dfff00"],[20,"#f5b544"],[12,"#a855f7"],[8,"#f43f5e"]],
     owner: "J. Sato",   ownerColor: "bg-emerald-500/30 text-emerald-300",
     updated: "9h",  delta: "+4",  deltaUp: true,
   },
   {
     name: "Anthropic", domain: "anthropic.com", initial: "A", color: "bg-orange-500/25 text-orange-300",
     signal: "TechCrunch coverage",           up: true,  score: 96, scoreColor: "text-[#4ade80]",
-    mix: [[60,"#4ade80"],[16,"#f5b544"],[12,"#5e6ad2"],[8,"#a855f7"],[4,"#f43f5e"]],
+    mix: [[60,"#4ade80"],[16,"#f5b544"],[12,"#dfff00"],[8,"#a855f7"],[4,"#f43f5e"]],
     owner: "A. Chen",   ownerColor: "bg-sky-500/30 text-sky-300",
     updated: "14h", delta: "+7",  deltaUp: true,
   },
   {
     name: "Vercel",    domain: "vercel.com",    initial: "V", color: "bg-slate-600/40 text-slate-300",
     signal: "Detected: Segment, Snowflake",  up: true,  score: 67, scoreColor: "text-[#f5b544]",
-    mix: [[28,"#f5b544"],[28,"#4ade80"],[20,"#5e6ad2"],[16,"#a855f7"],[8,"#f43f5e"]],
+    mix: [[28,"#f5b544"],[28,"#4ade80"],[20,"#dfff00"],[16,"#a855f7"],[8,"#f43f5e"]],
     owner: "D. Marwan", ownerColor: "bg-violet-500/30 text-violet-300",
     updated: "1h",  delta: "+2",  deltaUp: true,
   },
   {
     name: "Notion",    domain: "notion.so",     initial: "N", color: "bg-slate-700/50 text-slate-200",
     signal: "Pricing-page traffic spike",    up: true,  score: 78, scoreColor: "text-[#4ade80]",
-    mix: [[44,"#4ade80"],[24,"#5e6ad2"],[16,"#f5b544"],[10,"#a855f7"],[6,"#f43f5e"]],
+    mix: [[44,"#4ade80"],[24,"#dfff00"],[16,"#f5b544"],[10,"#a855f7"],[6,"#f43f5e"]],
     owner: "R. Backer", ownerColor: "bg-amber-500/30 text-amber-300",
     updated: "2h",  delta: "-6",  deltaUp: false,
   },
   {
     name: "Figma",     domain: "figma.com",     initial: "F", color: "bg-pink-500/25 text-pink-300",
     signal: "Config '26 keynote",            up: true,  score: 71, scoreColor: "text-[#f5b544]",
-    mix: [[32,"#4ade80"],[28,"#f5b544"],[20,"#5e6ad2"],[12,"#a855f7"],[8,"#f43f5e"]],
+    mix: [[32,"#4ade80"],[28,"#f5b544"],[20,"#dfff00"],[12,"#a855f7"],[8,"#f43f5e"]],
     owner: "J. Sato",   ownerColor: "bg-emerald-500/30 text-emerald-300",
     updated: "3h",  delta: "+5",  deltaUp: true,
   },
@@ -149,7 +149,7 @@ function ProductMockup() {
       style={{
         border: "1px solid rgba(255,255,255,0.1)",
         background: "#09090b",
-        boxShadow: "0 0 0 1px rgba(94,106,210,0.15), 0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(94,106,210,0.08)",
+        boxShadow: "0 0 0 1px rgba(223,255,0,0.15), 0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(223,255,0,0.08)",
       }}
     >
       {/* ── Top chrome bar ── */}
@@ -188,7 +188,7 @@ function ProductMockup() {
               <circle cx="5" cy="5" r="3.5" stroke="currentColor" strokeWidth="1.3"/>
               <path d="M8 8l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
             </svg>
-            Search <span className="text-[#7170ff] font-semibold">ai</span>
+            Search <span className="text-[#e8ff40] font-semibold">ai</span>
           </div>
           <div className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-slate-500"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -204,8 +204,8 @@ function ProductMockup() {
               <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <div className="flex items-center gap-1 rounded-md px-2.5 py-1 text-[10px] font-semibold text-white"
-            style={{ background: "#5e6ad2" }}>
+          <div className="flex items-center gap-1 rounded-md px-2.5 py-1 text-[10px] font-semibold text-black"
+            style={{ background: "#dfff00" }}>
             + Score account
           </div>
         </div>
@@ -233,14 +233,14 @@ function ProductMockup() {
                   ? "font-medium"
                   : "text-slate-500"
               }`}
-              style={"active" in item && item.active ? { background: "rgba(94,106,210,0.14)", color: "#c9c4ff" } : {}}>
+              style={"active" in item && item.active ? { background: "rgba(223,255,0,0.14)", color: "#dfff00" } : {}}>
               <span>{item.label}</span>
               {"badge" in item && item.badge && (
                 <span className="text-[9px] rounded px-1 py-px text-slate-500"
                   style={{ background: "rgba(255,255,255,0.06)" }}>{item.badge}</span>
               )}
               {"dot" in item && item.dot && (
-                <span className="h-[6px] w-[6px] rounded-full bg-[#5e6ad2]" />
+                <span className="h-[6px] w-[6px] rounded-full bg-[#dfff00]" />
               )}
             </div>
           ))}
@@ -260,9 +260,9 @@ function ProductMockup() {
               <span className="text-[9px] text-slate-600">/ 2,500</span>
             </div>
             <div className="h-[3px] rounded-full mb-1.5" style={{ background: "rgba(255,255,255,0.07)" }}>
-              <div className="h-full rounded-full" style={{ width: "62%", background: "#5e6ad2" }} />
+              <div className="h-full rounded-full" style={{ width: "62%", background: "#dfff00" }} />
             </div>
-            <span className="text-[9px] font-semibold text-[#7170ff]">Top up</span>
+            <span className="text-[9px] font-semibold text-[#e8ff40]">Top up</span>
           </div>
         </div>
 
@@ -275,8 +275,8 @@ function ProductMockup() {
               All accounts
               <svg className="h-2.5 w-2.5" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
-            <div className="flex items-center gap-1 rounded-md px-2 py-[3px] text-[10px] font-medium text-[#c9c4ff]"
-              style={{ background: "rgba(94,106,210,0.14)", border: "1px solid rgba(94,106,210,0.25)" }}>
+            <div className="flex items-center gap-1 rounded-md px-2 py-[3px] text-[10px] font-medium text-[#dfff00]"
+              style={{ background: "rgba(223,255,0,0.14)", border: "1px solid rgba(223,255,0,0.25)" }}>
               Score &gt; 75
             </div>
             <div className="flex items-center gap-1 rounded-md px-2 py-[3px] text-[10px] text-slate-400"
@@ -321,7 +321,7 @@ function ProductMockup() {
                   <td className="px-4 py-2 max-w-[160px]">
                     <div className="flex items-start gap-1">
                       {acc.up
-                        ? <span className="text-[10px] text-[#5e6ad2] flex-shrink-0 mt-px">↑</span>
+                        ? <span className="text-[10px] text-[#dfff00] flex-shrink-0 mt-px">↑</span>
                         : <span className="text-[10px] text-slate-600 flex-shrink-0 mt-px">○</span>
                       }
                       <span className="text-[11px] text-slate-400 leading-snug">{acc.signal}</span>
@@ -365,9 +365,9 @@ export default function LandingPage() {
     <div className="relative min-h-screen bg-[#08090a] overflow-x-hidden">
       {/* Ambient background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className="absolute -top-60 -left-40 w-[900px] h-[900px] rounded-full bg-[#5e6ad2]/8 blur-[160px] animate-orb" />
-        <div className="absolute top-20 right-0 w-[600px] h-[600px] rounded-full bg-[#7170ff]/6 blur-[140px] animate-orb-slow" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#5e6ad2]/5 blur-[120px] animate-orb-med" />
+        <div className="absolute -top-60 -left-40 w-[900px] h-[900px] rounded-full bg-[#dfff00]/8 blur-[160px] animate-orb" />
+        <div className="absolute top-20 right-0 w-[600px] h-[600px] rounded-full bg-[#e8ff40]/6 blur-[140px] animate-orb-slow" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#dfff00]/5 blur-[120px] animate-orb-med" />
       </div>
 
       {/* Nav */}
@@ -414,8 +414,8 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative max-w-6xl mx-auto px-6 pt-24 pb-4 text-center">
         {/* Badge pill */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#5e6ad2]/35 bg-[#5e6ad2]/10 px-3.5 py-1.5 text-sm mb-8">
-          <span className="rounded-full bg-[#5e6ad2] px-2 py-0.5 text-[10px] font-bold text-white">Spring &apos;26</span>
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#dfff00]/35 bg-[#dfff00]/10 px-3.5 py-1.5 text-sm mb-8">
+          <span className="rounded-full bg-[#dfff00] px-2 py-0.5 text-[10px] font-bold text-black">Spring &apos;26</span>
           <span className="text-slate-300">People scoring + warm-account routing</span>
           <svg className="h-3.5 w-3.5 text-slate-400" viewBox="0 0 12 12" fill="none">
             <path d="M2.5 6h7M6.5 3.5L9 6l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -438,7 +438,7 @@ export default function LandingPage() {
         <div className="flex flex-wrap gap-3 justify-center mb-5">
           <Button
             size="lg"
-            className="rounded-full bg-[#5e6ad2] hover:bg-[#7170ff] text-white border-0 px-7 text-sm font-semibold"
+            className="rounded-full bg-[#dfff00] hover:bg-[#e8ff40] text-black border-0 px-7 text-sm font-semibold"
             asChild
           >
             <Link href="/signup">Start scoring free →</Link>
@@ -577,8 +577,8 @@ score = requests.get(
             <div key={t.name} className="rounded-2xl glass border border-white/[0.08] p-6 space-y-4 flex flex-col">
               <p className="text-slate-300 leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
               <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
-                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#5e6ad2]/30 to-[#7170ff]/20 border border-white/[0.08] flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-[#c9c4ff]">{t.name[0]}</span>
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#dfff00]/30 to-[#e8ff40]/20 border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-[#dfff00]">{t.name[0]}</span>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-200">{t.name}</p>
@@ -611,13 +611,13 @@ score = requests.get(
               {COMPARISON.map((c) => (
                 <tr
                   key={c.name}
-                  className={c.you ? "bg-[#5e6ad2]/10" : "hover:bg-white/[0.02] transition-colors"}
+                  className={c.you ? "bg-[#dfff00]/10" : "hover:bg-white/[0.02] transition-colors"}
                 >
                   <td className="px-5 py-4 font-medium">
                     {c.you ? (
-                      <span className="font-bold text-[#c9c4ff] flex items-center gap-1.5">
+                      <span className="font-bold text-[#dfff00] flex items-center gap-1.5">
                         {c.name}
-                        <span className="inline-flex items-center rounded-full bg-[#5e6ad2]/20 border border-[#5e6ad2]/30 px-1.5 py-0.5 text-[10px] font-bold text-[#c9c4ff] tracking-wide">
+                        <span className="inline-flex items-center rounded-full bg-[#dfff00]/20 border border-[#dfff00]/30 px-1.5 py-0.5 text-[10px] font-bold text-[#dfff00] tracking-wide">
                           YOU
                         </span>
                       </span>
@@ -649,7 +649,7 @@ score = requests.get(
               key={p.plan}
               className={`flex flex-col rounded-2xl p-5 gap-4 glass ${
                 p.highlight
-                  ? "border-[#5e6ad2]/40 shadow-[0_0_40px_rgba(94,106,210,0.2)]"
+                  ? "border-[#dfff00]/40 shadow-[0_0_40px_rgba(223,255,0,0.2)]"
                   : "border-white/[0.08]"
               }`}
             >
@@ -657,7 +657,7 @@ score = requests.get(
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-sm text-slate-200">{p.plan}</p>
                   {p.highlight && (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-[#c9c4ff] bg-[#5e6ad2]/15 border border-[#5e6ad2]/30 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-[#dfff00] bg-[#dfff00]/15 border border-[#dfff00]/30 px-2 py-0.5 rounded-full">
                       Popular
                     </span>
                   )}
@@ -671,7 +671,7 @@ score = requests.get(
               <Button
                 className={`w-full rounded-full mt-auto cursor-pointer ${
                   p.highlight
-                    ? "bg-[#5e6ad2] hover:bg-[#7170ff] text-white border-0"
+                    ? "bg-[#dfff00] hover:bg-[#e8ff40] text-black border-0"
                     : "border-white/[0.12] text-slate-300 hover:text-slate-100 hover:bg-white/[0.05]"
                 }`}
                 variant={p.highlight ? "default" : "outline"}

@@ -26,15 +26,15 @@ const HOT_PICKS = [
 ];
 
 const AV_COLORS = [
-  "linear-gradient(135deg,#4ec9d8,#5e6ad2)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
   "linear-gradient(135deg,#4ade80,#22c55e)",
-  "linear-gradient(135deg,#f5b544,#ec4899)",
-  "linear-gradient(135deg,#7170ff,#c9c4ff)",
+  "linear-gradient(135deg,#f5b544,#8a8f98)",
+  "linear-gradient(135deg,#e8ff40,#dfff00)",
   "linear-gradient(135deg,#f87171,#f5b544)",
-  "linear-gradient(135deg,#4ec9d8,#4ade80)",
-  "linear-gradient(135deg,#c9c4ff,#4ec9d8)",
-  "linear-gradient(135deg,#ec4899,#f87171)",
-  "linear-gradient(135deg,#a78bfa,#7170ff)",
+  "linear-gradient(135deg,#dfff00,#4ade80)",
+  "linear-gradient(135deg,#dfff00,#dfff00)",
+  "linear-gradient(135deg,#8a8f98,#f87171)",
+  "linear-gradient(135deg,#a78bfa,#e8ff40)",
   "linear-gradient(135deg,#f5b544,#4ade80)",
 ];
 
@@ -56,9 +56,9 @@ function ScoreRing({ score, band }: { score: number; band: string }) {
   const offset = circ * (1 - score / 100);
   const gradColors =
     band === "HOT"
-      ? ["#4ade80", "#4ec9d8", "#7170ff"]
+      ? ["#4ade80", "#dfff00", "#e8ff40"]
       : band === "WARM"
-      ? ["#f5b544", "#ec4899", "#7170ff"]
+      ? ["#f5b544", "#8a8f98", "#e8ff40"]
       : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
 
   return (
@@ -245,11 +245,11 @@ function OverviewBlock({ result }: { result: IntentScore }) {
 // ─── SignalGrid ───────────────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = [
-  { key: "funding"    as const, label: "Funding", color: "#4ec9d8", grad: "linear-gradient(90deg,#4ec9d8,#38a3b3)" },
+  { key: "funding"    as const, label: "Funding", color: "#dfff00", grad: "linear-gradient(90deg,#dfff00,#38a3b3)" },
   { key: "hiring"     as const, label: "Hiring",  color: "#4ade80", grad: "linear-gradient(90deg,#4ade80,#22c55e)" },
   { key: "news"       as const, label: "News",    color: "#f5b544", grad: "linear-gradient(90deg,#f5b544,#d49530)" },
-  { key: "technology" as const, label: "Tech",    color: "#7170ff", grad: "linear-gradient(90deg,#7170ff,#5e6ad2)" },
-  { key: "web"        as const, label: "Web",     color: "#ec4899", grad: "linear-gradient(90deg,#ec4899,#c0367f)" },
+  { key: "technology" as const, label: "Tech",    color: "#e8ff40", grad: "linear-gradient(90deg,#e8ff40,#dfff00)" },
+  { key: "web"        as const, label: "Web",     color: "#8a8f98", grad: "linear-gradient(90deg,#8a8f98,#c0367f)" },
 ];
 
 function SignalGrid({ result }: { result: IntentScore }) {
@@ -575,7 +575,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
 
         <div className="prompt-feature-row">
           <div className="feat">
-            <span className="ic" style={{ background: "rgba(78,201,216,0.12)", color: "var(--cyan)" }}>
+            <span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "var(--cyan)" }}>
               <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
                 <path d="M2 8l3-3 2 2 3-4" />
               </svg>
@@ -583,7 +583,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             5 signal axes
           </div>
           <div className="feat">
-            <span className="ic" style={{ background: "rgba(94,106,210,0.12)", color: "#c9c4ff" }}>
+            <span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "#dfff00" }}>
               <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
                 <circle cx="6" cy="6" r="4" /><path d="M6 4v3l2 1" />
               </svg>

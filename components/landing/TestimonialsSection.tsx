@@ -24,7 +24,7 @@ export default function TestimonialsSection() {
     <section id="customers" className="border-b border-white/[0.06] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-6xl text-center">
         <p className="inline-flex items-center gap-2 text-[13px] text-[#8a8f98]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#4ec9d8]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#dfff00]" />
           What teams are saying
         </p>
         <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] text-[#f7f8f8] md:text-4xl">
@@ -40,7 +40,7 @@ export default function TestimonialsSection() {
             >
               <p className="flex-1 text-[15px] leading-relaxed text-[#b4bbc8]">&ldquo;{q.text}&rdquo;</p>
               <footer className="mt-6 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#5e6ad2]/30 text-[11px] font-bold text-[#f7f8f8]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#dfff00]/30 text-[11px] font-bold text-[#f7f8f8]">
                   {q.initials}
                 </div>
                 <div>
