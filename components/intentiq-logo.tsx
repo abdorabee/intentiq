@@ -1,4 +1,5 @@
 import Image from "next/image";
+import vesperwiseLogo from "@/public/vesperwise-logo.png";
 
 interface IntentIQLogoProps {
   className?: string;
@@ -9,7 +10,7 @@ interface IntentIQLogoProps {
 export default function IntentIQLogo({ className, size = 24 }: IntentIQLogoProps) {
   return (
     <Image
-      src="/vesperwise-logo.png"
+      src={vesperwiseLogo}
       width={Math.round(size * 2.14)}
       height={size}
       className={className}
