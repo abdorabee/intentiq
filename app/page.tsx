@@ -55,7 +55,7 @@ const jsonLd = {
         "First affordable B2B intent data platform for MENA. 100x cheaper than 6sense, Bombora, and ZoomInfo.",
       logo: {
         "@type": "ImageObject",
-        url: `${CANONICAL}/icon.svg`,
+        url: `${CANONICAL}/vesperwise-logo.png`,
       },
       sameAs: ["https://www.linkedin.com/company/vesperwise"],
     },

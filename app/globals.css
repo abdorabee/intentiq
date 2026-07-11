@@ -8355,3 +8355,748 @@ footer.site-footer {
 .inbox-empty .ic { width: 32px; height: 32px; opacity: 0.35; }
 .inbox-empty .title { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
 .inbox-empty .sub { font-size: 13px; max-width: 280px; line-height: 1.5; }
+
+/* --------------------------------------------------------------------------
+   Apple-led product redesign layer
+   Presentation-only cascade that unifies the existing product surfaces.
+   -------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --r-xs: 6px;
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    --r-xl: 22px;
+    --r-2xl: 28px;
+    --app-font-size: 14px;
+    --apple-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --surface-raised: rgba(255, 255, 255, 0.82);
+    --surface-glass: rgba(255, 255, 255, 0.68);
+    --surface-wash: rgba(10, 14, 26, 0.035);
+    --hairline: rgba(10, 14, 26, 0.08);
+    --control-min: 36px;
+  }
+
+  .dark {
+    --surface-raised: rgba(22, 22, 23, 0.78);
+    --surface-glass: rgba(20, 20, 22, 0.64);
+    --surface-wash: rgba(255, 255, 255, 0.035);
+    --hairline: rgba(255, 255, 255, 0.09);
+    color-scheme: dark;
+  }
+
+  html {
+    background: var(--bg);
+    color-scheme: light;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 16% -8%, rgba(223, 255, 0, 0.11), transparent 32rem),
+      radial-gradient(circle at 88% 8%, rgba(74, 222, 128, 0.06), transparent 28rem),
+      linear-gradient(180deg, var(--bg), color-mix(in oklab, var(--bg) 88%, var(--surface) 12%));
+    font-size: var(--app-font-size);
+    letter-spacing: 0;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="checkbox"],
+  [tabindex] {
+    outline-offset: 3px;
+  }
+
+  :is(button, a, input, select, textarea, [role="button"], [role="checkbox"], [tabindex]):focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--accent) 72%, white 28%);
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  .app {
+    background:
+      radial-gradient(circle at 18% -10%, rgba(223, 255, 0, 0.10), transparent 34rem),
+      radial-gradient(circle at 92% 8%, rgba(74, 222, 128, 0.055), transparent 30rem),
+      var(--bg);
+    color: var(--text-primary);
+  }
+
+  .sidebar,
+  .topbar,
+  .cmd-palette,
+  .nav-mob-drawer {
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+  }
+
+  .sidebar {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-glass) 92%, transparent), color-mix(in oklab, var(--bg) 76%, transparent)),
+      var(--bg-translucent);
+    border-right: 1px solid var(--hairline);
+    padding: 14px 10px;
+    gap: 4px;
+  }
+
+  .sb-head,
+  .sb-user {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .sb-head {
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    margin-bottom: 8px;
+  }
+
+  .sb-head:hover,
+  .sb-user:hover {
+    background: var(--surface-wash);
+    border-color: var(--hairline);
+  }
+
+  .ws-name {
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .ws-name .role {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: capitalize;
+  }
+
+  .sb-search,
+  .search-input,
+  .ap-search,
+  .prompt-holder,
+  .quick-add {
+    min-height: 44px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--surface-raised) 72%, transparent);
+    border: 1px solid var(--hairline);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .sb-search:hover,
+  .search-input:focus-within,
+  .ap-search:focus-within,
+  .prompt-holder:focus-within,
+  .quick-add:focus-within {
+    border-color: color-mix(in oklab, var(--accent) 38%, var(--hairline));
+    background: color-mix(in oklab, var(--surface-raised) 88%, transparent);
+  }
+
+  .sb-section,
+  .cat-section,
+  .cmd-group-label,
+  .billing-page .hc-eyebrow,
+  .billing-page .section-head .s,
+  .lists-page .lst-field-label,
+  .msg-section-label,
+  .panel-head .sub,
+  .stat-card .label,
+  .kpi-head {
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--text-tertiary);
+  }
+
+  .sb-item,
+  .cat-item,
+  .ap-item,
+  .wl-tab,
+  .range-tab,
+  .card-mini-tab,
+  .ap-filter-tab,
+  .hub-tab,
+  .mlp-tab,
+  .lists-page .type-tabs .tt {
+    min-height: 36px;
+    border-radius: 12px;
+    transition:
+      background 160ms var(--apple-ease),
+      color 160ms var(--apple-ease),
+      border-color 160ms var(--apple-ease),
+      transform 160ms var(--apple-ease);
+  }
+
+  .sb-item {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .sb-item:hover,
+  .cat-item:hover,
+  .ap-item:hover,
+  .wl-tab:hover,
+  .hub-tab:hover,
+  .mlp-tab:hover {
+    background: var(--surface-wash);
+    color: var(--text-primary);
+  }
+
+  .sb-item.active,
+  .cat-item.active,
+  .ap-item.active,
+  .wl-tab.active,
+  .range-tab.active,
+  .card-mini-tab.active,
+  .ap-filter-tab.active,
+  .hub-tab.active,
+  .mlp-tab.active,
+  .lists-page .type-tabs .tt.active {
+    background: color-mix(in oklab, var(--accent) 12%, var(--surface-wash));
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+
+  .sb-credits,
+  .kpi,
+  .card,
+  .panel,
+  .stat-card,
+  .people-list,
+  .watchlist-page .wl-table,
+  .lists-page .ld-table,
+  .lists-page .list-card,
+  .lists-page .rules-card,
+  .lists-page .lists-hero,
+  .billing-page .hero-card,
+  .billing-page .panel,
+  .billing-page .plan-card-c,
+  .billing-page .topup-card,
+  .event-card,
+  .ap-shell .ap-node,
+  .ap-shell .ap-history,
+  .cmd-palette,
+  [data-slot="card"] {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 94%, white 2%), color-mix(in oklab, var(--surface-raised) 86%, transparent)),
+      var(--surface-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 18px 50px -34px rgba(0, 0, 0, 0.75);
+  }
+
+  .card,
+  [data-slot="card"] {
+    overflow: hidden;
+  }
+
+  .kpi,
+  .stat-card,
+  .billing-page .hero-card,
+  .lists-page .list-card,
+  .billing-page .plan-card-c,
+  .billing-page .topup-card {
+    transition:
+      transform 180ms var(--apple-ease),
+      border-color 180ms var(--apple-ease),
+      box-shadow 180ms var(--apple-ease),
+      background 180ms var(--apple-ease);
+  }
+
+  .kpi:hover,
+  .stat-card:hover,
+  .billing-page .hero-card:hover,
+  .lists-page .list-card:hover,
+  .billing-page .plan-card-c:hover,
+  .billing-page .topup-card:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--accent) 24%, var(--hairline));
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 24px 70px -36px rgba(0, 0, 0, 0.85);
+  }
+
+  .topbar {
+    height: 56px;
+    padding: 0 24px;
+    background: color-mix(in oklab, var(--bg-translucent) 82%, transparent);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .crumb {
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  .crumb .current {
+    color: var(--text-primary);
+    font-weight: 650;
+  }
+
+  .page,
+  .result-page,
+  .billing-page .bill-content {
+    padding: clamp(18px, 3vw, 36px);
+    scroll-padding-top: 96px;
+  }
+
+  .page-head,
+  .billing-page .bill-head,
+  .lists-page .ld-head,
+  .p-head {
+    align-items: flex-start;
+    gap: 18px;
+    border-bottom: 0;
+    margin-bottom: 22px;
+    padding-bottom: 0;
+  }
+
+  .page-title,
+  .billing-page .bill-head .title,
+  .lists-page .ld-title,
+  .p-title,
+  .msg-detail h1 {
+    font-size: clamp(26px, 3vw, 40px);
+    font-weight: 680;
+    letter-spacing: 0;
+    line-height: 1.05;
+  }
+
+  .page-sub,
+  .billing-page .bill-head .sub,
+  .lists-page .ld-meta,
+  .p-meta {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  .page-actions,
+  .ld-actions,
+  .p-actions,
+  .msg-detail-actions,
+  .billing-page .plan-cta-row,
+  .reply-actions {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tb-btn,
+  .btn-primary,
+  .btn,
+  .reply-btn,
+  .billing-page .pc-cta,
+  .billing-page .tu-cta,
+  .ap-coming-soon a,
+  [data-slot="button"] {
+    min-height: var(--control-min);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-weight: 650;
+    letter-spacing: 0;
+    transition:
+      transform 160ms var(--apple-ease),
+      background 160ms var(--apple-ease),
+      border-color 160ms var(--apple-ease),
+      color 160ms var(--apple-ease),
+      box-shadow 160ms var(--apple-ease);
+  }
+
+  .tb-btn:hover,
+  .btn:hover,
+  .reply-btn:hover,
+  [data-slot="button"]:hover {
+    transform: translateY(-1px);
+  }
+
+  .tb-btn.outlined,
+  .reply-btn,
+  [data-variant="outline"] {
+    background: color-mix(in oklab, var(--surface-raised) 68%, transparent);
+    border-color: var(--hairline);
+  }
+
+  .btn-primary,
+  [data-slot="button"][data-variant="default"],
+  .billing-page .pc-cta.solid {
+    background: linear-gradient(180deg, #ecff58, var(--brand, #dfff00));
+    color: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      0 10px 28px -18px rgba(223, 255, 0, 0.72);
+  }
+
+  .btn-primary:hover,
+  [data-slot="button"][data-variant="default"]:hover,
+  .billing-page .pc-cta.solid:hover {
+    background: linear-gradient(180deg, #f3ff83, var(--brand-hover, #e8ff40));
+  }
+
+  .range-tabs,
+  .input-type-tabs,
+  .billing-page .range-tabs,
+  .lists-page .type-tabs,
+  .ap-filter-tabs,
+  [data-slot="tabs-list"] {
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--surface-raised) 62%, transparent);
+    padding: 3px;
+  }
+
+  .band,
+  [data-slot="badge"] {
+    min-height: 22px;
+    border-radius: 999px;
+    padding: 2px 8px;
+    letter-spacing: 0.02em;
+    font-weight: 700;
+  }
+
+  .kpi-num,
+  .stat-card .num,
+  .billing-page .cb-num,
+  .billing-page .ni-amount,
+  .billing-page .plan-tier-name,
+  .lists-page .hero-block .num,
+  .lists-page .lc-count .n,
+  .score-ring-num,
+  .pl-score,
+  .wl-score-cell,
+  .ld-score {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+
+  .kpi {
+    padding: 18px;
+  }
+
+  .kpi-num,
+  .stat-card .num {
+    font-size: clamp(28px, 3vw, 36px);
+  }
+
+  .card-head,
+  .panel-head,
+  .billing-page .panel-head,
+  .ap-list-head,
+  .mlp-head,
+  .event-card-head,
+  .lists-page .lst-modal-head {
+    min-height: 52px;
+    padding: 14px 18px;
+    border-bottom-color: var(--hairline);
+  }
+
+  .card-title,
+  .panel-head .title,
+  .billing-page .panel-head .t,
+  .ap-list-head .title,
+  .mlp-head .title {
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .wl-head,
+  .wl-row,
+  .pl-head,
+  .pl-row,
+  .lists-page .ld-thead,
+  .lists-page .ld-trow,
+  .cost-row,
+  .ap-row,
+  .mover-row,
+  .activity-row,
+  .msg-row {
+    border-color: var(--hairline);
+  }
+
+  .wl-head,
+  .pl-head,
+  .lists-page .ld-thead,
+  .billing-page .cost-row .lbl,
+  [data-slot="table-head"] {
+    color: var(--text-tertiary);
+    letter-spacing: 0.02em;
+  }
+
+  .wl-row,
+  .pl-row,
+  .lists-page .ld-trow,
+  .mover-row,
+  .activity-row,
+  .msg-row,
+  [data-slot="table-row"] {
+    transition: background 140ms var(--apple-ease), transform 140ms var(--apple-ease);
+  }
+
+  .wl-row:hover,
+  .pl-row:hover,
+  .lists-page .ld-trow:hover,
+  .mover-row:hover,
+  .activity-row:hover,
+  .msg-row:hover,
+  [data-slot="table-row"]:hover {
+    background: color-mix(in oklab, var(--accent) 7%, var(--surface-wash));
+  }
+
+  .checkbox,
+  .lists-page .lst-checkbox,
+  .color-picker .sw,
+  [role="checkbox"] {
+    min-width: 18px;
+    min-height: 18px;
+  }
+
+  .checkbox.checked,
+  .lists-page .lst-checkbox.checked {
+    color: #050505;
+  }
+
+  input,
+  textarea,
+  select,
+  [data-slot="input"],
+  [data-slot="select-trigger"],
+  .lists-page .lst-field-input,
+  .lists-page .rb-row select,
+  .lists-page .rb-row input,
+  .ap-shell .ap-field-input {
+    border-radius: 12px;
+    border-color: var(--hairline);
+    background: color-mix(in oklab, var(--surface-raised) 70%, transparent);
+    min-height: 40px;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .cmd-backdrop,
+  .lst-modal-mask,
+  [data-slot="dialog-overlay"] {
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: saturate(160%) blur(18px);
+    -webkit-backdrop-filter: saturate(160%) blur(18px);
+  }
+
+  .cmd-palette,
+  .lists-page .lst-modal,
+  [data-slot="dialog-content"] {
+    border-radius: 24px;
+    border-color: var(--hairline);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--surface-raised) 95%, white 3%), var(--surface-raised)),
+      var(--surface-raised);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 40px 110px -30px rgba(0, 0, 0, 0.9);
+  }
+
+  .cmd-input-row {
+    min-height: 58px;
+    border-bottom-color: var(--hairline);
+  }
+
+  .cmd-item {
+    min-height: 44px;
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+
+  .cmd-item:hover,
+  .cmd-item.active {
+    background: color-mix(in oklab, var(--accent) 11%, var(--surface-wash));
+  }
+
+  .ap-coming-soon,
+  .inbox-empty,
+  .cmd-empty {
+    min-height: 48vh;
+  }
+
+  .ap-coming-soon-icon,
+  .event-card-head .ic,
+  .watchlist-page .alert-strip .icon,
+  .lists-page .new-card-inner .plus {
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--accent) 15%, transparent);
+    border: 1px solid color-mix(in oklab, var(--accent) 22%, transparent);
+    color: var(--accent);
+  }
+
+  .watchlist-page .alert-strip,
+  .next-action,
+  .billing-page .plan-card-c.current,
+  .billing-page .topup-card.best,
+  .msg-row.selected,
+  .pl-row.selected,
+  .ap-item.active {
+    background:
+      linear-gradient(135deg, color-mix(in oklab, var(--accent) 9%, transparent), transparent 68%),
+      color-mix(in oklab, var(--surface-raised) 86%, transparent);
+    border-color: color-mix(in oklab, var(--accent) 24%, var(--hairline));
+  }
+
+  .inbox-shell,
+  .ap-shell {
+    border: 1px solid var(--hairline);
+    border-radius: 20px;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--surface-raised) 48%, transparent);
+  }
+
+  .page-flush .inbox-shell,
+  .page-flush .billing-page,
+  .page-flush .ap-shell {
+    border-radius: 0;
+    border: 0;
+  }
+
+  .inbox-cats,
+  .msg-list-pane,
+  .ap-list-pane {
+    background: color-mix(in oklab, var(--surface-glass) 62%, transparent);
+    border-color: var(--hairline);
+  }
+
+  .msg-detail-head,
+  .ap-detail-head {
+    background: color-mix(in oklab, var(--surface-glass) 60%, transparent);
+    border-color: var(--hairline);
+  }
+
+  .msg-body,
+  .ap-shell .ap-canvas {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(223, 255, 0, 0.045), transparent 24rem),
+      transparent;
+  }
+
+  .billing-page .plans-grid,
+  .kpis,
+  .stat-strip,
+  .lists-page .ld-stats {
+    gap: 14px;
+  }
+
+  .billing-page .bill-hero {
+    gap: 14px;
+  }
+
+  .billing-page .plans-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+
+  .billing-page .plan-feats {
+    padding-left: 0;
+  }
+
+  .lists-page .list-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+  .people-list,
+  .watchlist-page .wl-table,
+  .lists-page .ld-table {
+    overflow-x: auto;
+  }
+
+  .score-ring svg,
+  .donut svg,
+  .chart-svg,
+  .usage-svg {
+    filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.22));
+  }
+
+  .hero,
+  .top-banner,
+  .primary {
+    background-color: transparent;
+  }
+
+  .primary {
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    border-bottom-color: var(--hairline);
+  }
+
+  .hero h1 {
+    letter-spacing: 0;
+    line-height: 0.96;
+  }
+
+  .hero p.lead {
+    color: var(--text-secondary);
+    font-size: clamp(16px, 2vw, 20px);
+  }
+
+  .hero-screen-wrap .app-screen,
+  .app-screen {
+    border-radius: 28px;
+    border-color: var(--hairline);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 42px 120px -42px rgba(0, 0, 0, 0.9);
+  }
+
+  .hero-mob-preview,
+  .app-screen,
+  .nav-mob-drawer,
+  .auth-card,
+  .contact-card,
+  .legal-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 24px;
+  }
+}
+
+@layer utilities {
+  .apple-surface {
+    background: var(--surface-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 18px 50px -34px rgba(0, 0, 0, 0.8);
+  }
+
+  .apple-glass {
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    background: var(--surface-glass);
+    border: 1px solid var(--hairline);
+  }
+}

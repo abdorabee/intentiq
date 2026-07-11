@@ -14,10 +14,13 @@ import {
   History,
   UserSearch,
   Eye,
+  ListChecks,
+  Upload,
   Zap,
   Inbox,
   CreditCard,
   Key,
+  BrainCircuit,
   LogOut,
   Sun,
   Moon,
@@ -46,11 +49,14 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { href: "/history", label: "History", icon: History },
   { href: "/people", label: "People", icon: UserSearch, beta: true },
   { href: "/watchlist", label: "Watchlist", icon: Eye },
+  { href: "/lists", label: "Lists", icon: ListChecks },
+  { href: "/bulk", label: "Bulk Score", icon: Upload },
   { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
   { href: "/inbox", label: "Inbox", icon: Inbox },
 ];
 
 const BOTTOM_ITEMS: NavItem[] = [
+  { href: "/memory", label: "Profile", icon: BrainCircuit },
   { href: "/billing", label: "Billing", icon: CreditCard },
   { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
 ];
@@ -124,7 +130,7 @@ export default function DashboardNav({
       </div>
       {WORKSPACE_ITEMS.map((item) => {
         const Icon = item.icon;
-        const active = pathname === item.href;
+        const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
         const displayCount = navCount(item);
         return (
           <Link
@@ -164,7 +170,7 @@ export default function DashboardNav({
 
       {BOTTOM_ITEMS.map((item) => {
         const Icon = item.icon;
-        const active = pathname === item.href;
+        const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
         return (
           <Link
             key={item.href}

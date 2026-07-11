@@ -373,9 +373,8 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3.5 glass-nav border-b border-white/[0.06]">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <IntentIQLogo size={24} />
-            <span className="text-sm font-bold text-white">VesperWise</span>
+          <div className="flex items-center gap-2" aria-label="VesperWise">
+            <IntentIQLogo size={42} variant="wordmark" />
           </div>
           <div className="hidden md:flex items-center gap-0.5">
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map((item) => (
@@ -691,9 +690,8 @@ score = requests.get(
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-10">
         <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <IntentIQLogo size={20} />
-            <span className="font-bold text-slate-200 text-sm">VesperWise</span>
+          <div className="flex items-center gap-2" aria-label="VesperWise">
+            <IntentIQLogo size={40} variant="wordmark" />
           </div>
           <p className="text-sm text-slate-500">
             © {new Date().getFullYear()} VesperWise · Built for B2B sales teams

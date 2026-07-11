@@ -495,9 +495,8 @@ export default function DocsView() {
         display: "flex", alignItems: "center",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px", gap: "24px" }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-            <IntentIQLogo size={28} />
-            <span style={{ fontWeight: 600, color: T.txt }}>VesperWise</span>
+          <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+            <IntentIQLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map(label => (
