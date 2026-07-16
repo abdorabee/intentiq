@@ -28,13 +28,17 @@ export function computeStage(
 export async function updatePipelineStage(
   userId: string,
   domain: string,
-  newScore: number
+  newScore: number,
+  options: {
+    previousV2Score: number | null;
+    allowStageTransition: boolean;
+  }
 ): Promise<void> {
   const supabase = createSupabaseAdmin();
 
   const { data: entry } = await supabase
     .from("watchlist")
-    .select("id, pipeline_stage, previous_score, score")
+    .select("id, pipeline_stage")
     .eq("user_id", userId)
     .eq("domain", domain)
     .eq("is_active", true)
@@ -43,17 +47,22 @@ export async function updatePipelineStage(
   if (!entry) return; // Not on watchlist
 
   const currentStage = (entry.pipeline_stage ?? "cold") as PipelineStage;
-  const previousScore = entry.score ?? entry.previous_score ?? null;
-  const newStage = computeStage(currentStage, newScore, previousScore);
+  const canChangeStage =
+    options.allowStageTransition &&
+    options.previousV2Score !== null &&
+    options.previousV2Score !== newScore;
+  const newStage = canChangeStage
+    ? computeStage(currentStage, newScore, options.previousV2Score)
+    : currentStage;
 
   const updates: Record<string, unknown> = {
-    previous_score: entry.score,
+    previous_score: options.previousV2Score,
     score: newScore,
     score_band: newScore >= 75 ? "HOT" : newScore >= 50 ? "WARM" : "COLD",
     last_scored: new Date().toISOString(),
   };
 
-  if (newStage !== currentStage) {
+  if (canChangeStage && newStage !== currentStage) {
     updates.pipeline_stage = newStage;
     updates.stage_changed_at = new Date().toISOString();
   }

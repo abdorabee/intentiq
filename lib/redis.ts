@@ -16,10 +16,35 @@ function getRedis(): Redis | null {
   return _redis;
 }
 
+// Legacy person-score cache TTL. Company scoring v2 uses the explicit,
+// personalized TTL below so one workspace can never receive another's result.
 export const SCORE_TTL_SECONDS = 60 * 60 * 24; // 24 hours
+export const SCORE_RESULT_TTL_SECONDS = 60 * 60 * 6; // 6 hours
+export const SCORE_EVIDENCE_TTL_SECONDS = 60 * 60 * 6; // 6 hours
 
 export function scoreCacheKey(domain: string): string {
   return `score:${domain.toLowerCase().trim()}`;
+}
+
+/** Workspace-neutral evidence cache. Never include seller/profile data here. */
+export function scoreEvidenceCacheKey(domain: string, schemaVersion: string): string {
+  return `score:evidence:${schemaVersion}:${domain.toLowerCase().trim()}`;
+}
+
+/** Personalized score cache, isolated by workspace, seller profile, and scorer. */
+export function scoreResultCacheKey(
+  userId: string,
+  domain: string,
+  profileHash: string,
+  scoringVersion: string
+): string {
+  return [
+    "score:result",
+    scoringVersion,
+    encodeURIComponent(userId),
+    profileHash,
+    domain.toLowerCase().trim(),
+  ].join(":");
 }
 
 export function personScoreCacheKey(identifier: string): string {

@@ -20,7 +20,6 @@ import {
   Inbox,
   CreditCard,
   Key,
-  BrainCircuit,
   LogOut,
   Sun,
   Moon,
@@ -56,7 +55,6 @@ const WORKSPACE_ITEMS: NavItem[] = [
 ];
 
 const BOTTOM_ITEMS: NavItem[] = [
-  { href: "/memory", label: "Profile", icon: BrainCircuit },
   { href: "/billing", label: "Billing", icon: CreditCard },
   { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
 ];

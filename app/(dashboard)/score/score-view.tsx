@@ -2,7 +2,30 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import type { IntentScore } from "@/lib/types";
+import type { IntentScore, ScoreBand } from "@/lib/types";
+
+type ScorableIntentScore = IntentScore & {
+  intent_score: number;
+  score_band: ScoreBand;
+};
+
+function requireScorableResult(value: IntentScore): ScorableIntentScore {
+  if (value.intent_score === null || value.score_band === null || value.score_status === "unscorable") {
+    throw new Error("Not enough current evidence to calculate a reliable score.");
+  }
+  return value as ScorableIntentScore;
+}
+
+async function requestScore(domain: string): Promise<ScorableIntentScore> {
+  const response = await fetch("/api/v1/score", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ domain }),
+  });
+  const payload = await response.json() as IntentScore & { error?: string };
+  if (!response.ok) throw new Error(payload.error ?? "Scoring failed");
+  return requireScorableResult(payload);
+}
 
 export interface RecentScore {
   domain: string;
@@ -21,7 +44,7 @@ const HOT_PICKS = [
   { domain: "stripe.com",     name: "Stripe",      signal: "funding" },
   { domain: "anthropic.com",  name: "Anthropic",   signal: "news" },
   { domain: "linear.app",     name: "Linear",      signal: "hiring" },
-  { domain: "notion.so",      name: "Notion",      signal: "traffic" },
+  { domain: "notion.so",      name: "Notion",      signal: "news" },
   { domain: "databricks.com", name: "Databricks",  signal: "tech" },
 ];
 
@@ -94,9 +117,17 @@ function ScoreRing({ score, band }: { score: number; band: string }) {
 
 // ─── LiveProgressBar ──────────────────────────────────────────────────────────
 
-const STEPS = ["Domain resolved", "Funding signal", "Hiring + news", "Tech + web", "Competitive context", "AI thesis"];
+const STEPS = ["Domain resolved", "Funding signal", "Hiring + news", "Technology trigger", "Web + GitHub context", "AI thesis"];
 
-function LiveProgressBar({ loading, stepIndex }: { loading: boolean; stepIndex: number }) {
+function LiveProgressBar({
+  loading,
+  stepIndex,
+  billingLabel,
+}: {
+  loading: boolean;
+  stepIndex: number;
+  billingLabel?: string;
+}) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -126,7 +157,7 @@ function LiveProgressBar({ loading, stepIndex }: { loading: boolean; stepIndex: 
           </span>
         ))}
       </div>
-      {!loading && <span className="timing">{elapsed}s · 1 credit</span>}
+      {!loading && billingLabel && <span className="timing">{elapsed}s · {billingLabel}</span>}
     </div>
   );
 }
@@ -165,7 +196,7 @@ function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
 // ─── ResultHead ───────────────────────────────────────────────────────────────
 
 interface ResultHeadProps {
-  result: IntentScore;
+  result: ScorableIntentScore;
   onWatchlist: () => void;
   watchlistAdded: boolean;
   watchlistAdding: boolean;
@@ -191,6 +222,10 @@ function ResultHead({ result, onWatchlist, watchlistAdded, watchlistAdding }: Re
           <span>{result.buying_stage}</span>
           <span className="dot" />
           <span>Urgency: {result.urgency}</span>
+          <span className="dot" />
+          <span>Coverage: {Math.round(result.data_coverage * 100)}% ({result.score_status})</span>
+          <span className="dot" />
+          <span>{result.icp_fit_score == null ? "ICP fit unavailable" : `ICP fit: ${result.icp_fit_score}%`}</span>
         </div>
       </div>
       <div className="result-actions">
@@ -216,14 +251,14 @@ function ResultHead({ result, onWatchlist, watchlistAdded, watchlistAdding }: Re
 
 // ─── OverviewBlock ────────────────────────────────────────────────────────────
 
-function OverviewBlock({ result }: { result: IntentScore }) {
+function OverviewBlock({ result }: { result: ScorableIntentScore }) {
   return (
     <div className="overview-block">
       <ScoreRing score={result.intent_score} band={result.score_band} />
       <div className="thesis-block">
         <div className="thesis-head">
           <span className="ic" />
-          AI thesis · Claude
+          AI thesis
         </div>
         <div className="thesis-text">{result.ai_summary}</div>
         <div className="thesis-meta">
@@ -249,16 +284,20 @@ const SIGNAL_CONFIG = [
   { key: "hiring"     as const, label: "Hiring",  color: "#4ade80", grad: "linear-gradient(90deg,#4ade80,#22c55e)" },
   { key: "news"       as const, label: "News",    color: "#f5b544", grad: "linear-gradient(90deg,#f5b544,#d49530)" },
   { key: "technology" as const, label: "Tech",    color: "#e8ff40", grad: "linear-gradient(90deg,#e8ff40,#dfff00)" },
-  { key: "web"        as const, label: "Web",     color: "#8a8f98", grad: "linear-gradient(90deg,#8a8f98,#c0367f)" },
 ];
 
-function SignalGrid({ result }: { result: IntentScore }) {
+const CONTEXT_CONFIG = [
+  { key: "web" as const, label: "Web authority", color: "#8a8f98" },
+  { key: "github" as const, label: "GitHub activity", color: "#a78bfa" },
+];
+
+function SignalGrid({ result }: { result: ScorableIntentScore }) {
   return (
     <>
       <div className="section-label">
         <span className="ic" />
         <strong>Signal axes</strong>
-        <span style={{ color: "var(--text-tertiary)" }}>· 5 contributing inputs</span>
+        <span style={{ color: "var(--text-tertiary)" }}>· 4 purchase-intent triggers</span>
         <span className="line" />
       </div>
       <div className="signal-grid">
@@ -280,6 +319,26 @@ function SignalGrid({ result }: { result: IntentScore }) {
           );
         })}
       </div>
+      <div className="section-label" style={{ marginTop: 24 }}>
+        <span className="ic" style={{ background: "var(--text-tertiary)", boxShadow: "none" }} />
+        <strong>Account context</strong>
+        <span style={{ color: "var(--text-tertiary)" }}>· shown for research, excluded from score</span>
+        <span className="line" />
+      </div>
+      <div className="signal-grid">
+        {CONTEXT_CONFIG.map(({ key, label, color }) => {
+          const signal = result.signals[key];
+          return (
+            <div key={key} className="signal-card">
+              <div className="name"><span className="swatch" style={{ background: color }} />{label}</div>
+              <div className="num">{signal.score}</div>
+              <div className="delta" style={{ color: "var(--text-tertiary)" }}>/{signal.max} · context</div>
+              <div className="bar"><div className="fill" style={{ width: `${Math.round((signal.score / signal.max) * 100)}%`, background: color }} /></div>
+              <div className="delta" style={{ color: "var(--text-tertiary)", marginTop: 8 }}>{signal.detail}</div>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }
@@ -287,14 +346,14 @@ function SignalGrid({ result }: { result: IntentScore }) {
 // ─── CompetitiveAnalysis ──────────────────────────────────────────────────────
 
 interface CompetitiveAnalysisProps {
-  result: IntentScore;
+  result: ScorableIntentScore;
   onCopyEmail: () => void;
   emailCopied: boolean;
 }
 
-const RADAR_AXES = ["funding", "hiring", "news", "technology", "web"] as const;
-const RADAR_ANGLES = [-90, -18, 54, 126, 198].map((d) => (d * Math.PI) / 180);
-const RADAR_LABELS = ["Funding", "Hiring", "News", "Tech", "Web"];
+const RADAR_AXES = ["funding", "hiring", "news", "technology"] as const;
+const RADAR_ANGLES = [-90, 0, 90, 180].map((d) => (d * Math.PI) / 180);
+const RADAR_LABELS = ["Funding", "Hiring", "News", "Tech"];
 const R = 100;
 
 function toXY(angle: number, ratio: number): [number, number] {
@@ -422,7 +481,7 @@ function CompetitiveAnalysis({ result, onCopyEmail, emailCopied }: CompetitiveAn
         <div className="ca-verdict">
           <div className="ai-dot" />
           <div className="text">
-            <span className="label">AI verdict · Claude</span>
+            <span className="label">AI verdict</span>
             {result.recommended_action && <strong>{result.recommended_action} </strong>}
             {result.why_now}
           </div>
@@ -479,7 +538,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
       <div className="prompt-inner">
         <div className="prompt-eyebrow">
           <span className="badge">Score</span>
-          Drop in a domain — we&apos;ll do the rest in &lt; 3 seconds
+          Drop in a domain — we&apos;ll verify coverage and explain the result
         </div>
 
         <h1 className="prompt-h1">
@@ -487,8 +546,8 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
           <span className="grad">score</span>?
         </h1>
         <p className="prompt-sub">
-          Paste any company domain. VesperWise scans funding, hiring, news, tech stack,
-          and web presence — then returns a 0–100 buying-intent score with AI reasoning.
+          Paste any company domain. Four dated purchase triggers drive the score;
+          Web and GitHub are collected as context for the reasoning.
         </p>
 
         <div className="prompt-holder prompt-holder--compact">
@@ -514,11 +573,11 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
 
         <div className="prompt-meta">
           <div className="left">
-            <span><strong>1</strong> credit · refunded if no signals found</span>
+            <span><strong>1</strong> credit on a fresh scorable result · cache hits and unscorable runs are free</span>
             <span>Cached for <strong>6h</strong></span>
           </div>
           <div className="right">
-            <span><strong>&lt; 3s</strong> typical</span>
+            <span>Provider calls are bounded</span>
             <span><strong>{creditsRemaining}</strong> credits left</span>
           </div>
         </div>
@@ -580,7 +639,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
                 <path d="M2 8l3-3 2 2 3-4" />
               </svg>
             </span>
-            5 signal axes
+            4 trigger axes
           </div>
           <div className="feat">
             <span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "#dfff00" }}>
@@ -588,7 +647,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
                 <circle cx="6" cy="6" r="4" /><path d="M6 4v3l2 1" />
               </svg>
             </span>
-            AI thesis from Claude
+            AI thesis
           </div>
           <div className="feat">
             <span className="ic" style={{ background: "rgba(74,222,128,0.12)", color: "var(--hot)" }}>
@@ -596,7 +655,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
                 <path d="M2 9V5m3 4V3m3 6V6" />
               </svg>
             </span>
-            Signal breakdown · 5 inputs
+            Signal breakdown · 4 triggers + context
           </div>
           <div className="feat">
             <span className="ic" style={{ background: "rgba(245,181,68,0.12)", color: "var(--warm)" }}>
@@ -619,7 +678,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   const autoScoredRef = useRef<string | null>(null);
   const [domain, setDomain] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<IntentScore | null>(null);
+  const [result, setResult] = useState<ScorableIntentScore | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -640,12 +699,8 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
       setError(null);
       setResult(null);
       try {
-        const res = await fetch(`/api/v1/score?domain=${encodeURIComponent(d)}`);
-        if (!res.ok) {
-          const err = (await res.json()) as { error?: string };
-          throw new Error(err.error ?? "Scoring failed");
-        }
-        if (!cancelled) setResult((await res.json()) as IntentScore);
+        const payload = await requestScore(d);
+        if (!cancelled) setResult(payload);
       } catch (e) {
         if (!cancelled) setError((e as Error).message);
       } finally {
@@ -678,12 +733,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch(`/api/v1/score?domain=${encodeURIComponent(domain.trim())}`);
-      if (!res.ok) {
-        const err = await res.json() as { error?: string };
-        throw new Error(err.error ?? "Scoring failed");
-      }
-      setResult(await res.json() as IntentScore);
+      setResult(await requestScore(domain.trim()));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -720,6 +770,11 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      {error && (
+        <p role="alert" style={{ color: "var(--red)", fontSize: 13, margin: "0 0 12px" }}>
+          {error}
+        </p>
+      )}
       {!result && !loading ? (
         <ScorePromptStage
           domain={domain}
@@ -730,8 +785,19 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
         />
       ) : (
         <div className="result-page">
-          <LiveProgressBar loading={loading} stepIndex={stepIndex} />
-          {error && <p style={{ color: "var(--red)", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+          <LiveProgressBar
+            loading={loading}
+            stepIndex={stepIndex}
+            billingLabel={
+              result?.charged
+                ? "1 credit"
+                : result?.cached
+                  ? "cache hit · free"
+                  : result
+                    ? "no credit charged"
+                    : undefined
+            }
+          />
           {!loading && result && (
             <>
               <MiniPrompt domain={domain} onChange={setDomain} onScore={handleScore} />

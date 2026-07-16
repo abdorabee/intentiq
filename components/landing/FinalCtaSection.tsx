@@ -31,7 +31,7 @@ export default function FinalCtaSection() {
           </Link>
         </div>
         <p className="mt-6 font-mono text-[12px] tracking-wide text-[#62666d]">
-          20 FREE CREDITS · NO CARD · &lt; 3s TO FIRST SCORE
+          20 FREE CREDITS · NO CARD · COVERAGE-AWARE SCORES
         </p>
       </div>
     </section>

@@ -45,7 +45,7 @@ export default function LandingPage() {
             </a>
           </div>
           <div className="hero-meta">
-            <strong>20 free credits</strong> · No credit card · Results in &lt; 3 seconds
+            <strong>20 free credits</strong> · No credit card · Coverage-aware scoring
           </div>
         </div>
 
@@ -490,20 +490,20 @@ export default function LandingPage() {
           <div className="section-head center">
             <div className="label"><span className="accent"></span>Made for sales teams who close</div>
             <h2 className="h1">Stop guessing.<br /><span className="muted">Start scoring.</span></h2>
-            <p>Every signal that a deal is heating up — funding rounds, hiring spikes, news, tech adoption, traffic — fused into one number, with the reasoning to back it up.</p>
+            <p>Four dated purchase triggers — funding, hiring, news, and technology change — fused into one coverage-aware score, with web and GitHub shown as context.</p>
           </div>
         </div>
 
         <div className="pillars">
           <div className="pillar">
             <div className="pillar-num">01 — Signal</div>
-            <h3>Five live data streams, in parallel.</h3>
-            <p>Funding, hiring velocity, news mentions, tech‑stack changes, web presence. Pulled fresh, decayed by recency, weighted by what predicted closes for your team last quarter.</p>
+            <h3>Four explainable triggers, in parallel.</h3>
+            <p>Funding, hiring velocity, non-funding news, and dated tech‑stack changes. Each contribution is normalized, freshness-decayed, and coverage-adjusted.</p>
           </div>
           <div className="pillar">
             <div className="pillar-num">02 — Reason</div>
             <h3>An AI summary you&apos;d actually paste to your boss.</h3>
-            <p>Claude reads the signals and writes a two‑line buying thesis, the most relevant talk track, and a recommended next action — for every account, every refresh.</p>
+            <p>A bounded AI pass writes a two‑line buying thesis, the most relevant talk track, and a recommended next action, with a deterministic fallback.</p>
           </div>
           <div className="pillar">
             <div className="pillar-num">03 — Act</div>
@@ -522,8 +522,8 @@ export default function LandingPage() {
               <div className="label">Accounts scored to date</div>
             </div>
             <div className="stat">
-              <div className="num">{'<'}<span style={{ color: 'var(--cyan)' }}>3s</span></div>
-              <div className="label">Median time to first score</div>
+              <div className="num"><span style={{ color: 'var(--cyan)' }}>6h</span></div>
+              <div className="label">Personalized result cache</div>
             </div>
             <div className="stat">
               <div className="num">+<span style={{ color: 'var(--hot)' }}>38%</span></div>
@@ -582,7 +582,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="sd-tabs">
-                      <div className="sd-tab active">Signals <span className="pill">5</span></div>
+                      <div className="sd-tab active">Triggers <span className="pill">4</span></div>
                       <div className="sd-tab">Activity</div>
                       <div className="sd-tab">People <span className="pill">12</span></div>
                       <div className="sd-tab">Notes</div>
@@ -597,7 +597,7 @@ export default function LandingPage() {
                           <div className="signal-bar"><div className="fill" style={{ width: '96%', background: 'linear-gradient(90deg,#dfff00,#38a3b3)' }}></div></div>
                         </div>
                         <div className="num">96</div>
-                        <div className="weight">25%</div>
+                        <div className="weight">22</div>
                       </div>
                       <div className="signal-row">
                         <div className="name"><span className="ic ic-hiring"></span>Hiring</div>
@@ -606,34 +606,34 @@ export default function LandingPage() {
                           <div className="signal-bar"><div className="fill" style={{ width: '88%', background: 'linear-gradient(90deg,#4ade80,#22c55e)' }}></div></div>
                         </div>
                         <div className="num">88</div>
-                        <div className="weight">20%</div>
+                        <div className="weight">19</div>
                       </div>
                       <div className="signal-row">
                         <div className="name"><span className="ic ic-news"></span>News</div>
                         <div>
-                          <div className="desc" style={{ marginBottom: '6px' }}>12 high‑authority mentions in 7 days · sentiment +0.74</div>
+                          <div className="desc" style={{ marginBottom: '6px' }}>12 non-funding trigger stories in 7 days</div>
                           <div className="signal-bar"><div className="fill" style={{ width: '92%', background: 'linear-gradient(90deg,#f5b544,#d49530)' }}></div></div>
                         </div>
                         <div className="num">92</div>
-                        <div className="weight">20%</div>
+                        <div className="weight">18</div>
                       </div>
                       <div className="signal-row">
                         <div className="name"><span className="ic ic-tech"></span>Tech</div>
                         <div>
-                          <div className="desc" style={{ marginBottom: '6px' }}>Detected: Snowflake, Segment, Datadog · 2 new this month</div>
+                          <div className="desc" style={{ marginBottom: '6px' }}>Dated adoption: Segment · this month</div>
                           <div className="signal-bar"><div className="fill" style={{ width: '78%', background: 'linear-gradient(90deg,#e8ff40,#dfff00)' }}></div></div>
                         </div>
                         <div className="num">78</div>
-                        <div className="weight">20%</div>
+                        <div className="weight">18</div>
                       </div>
                       <div className="signal-row">
-                        <div className="name"><span className="ic ic-web"></span>Web</div>
+                        <div className="name"><span className="ic ic-web"></span>Web context</div>
                         <div>
                           <div className="desc" style={{ marginBottom: '6px' }}>Domain authority 92 · pricing‑page traffic +18%</div>
                           <div className="signal-bar"><div className="fill" style={{ width: '84%', background: 'linear-gradient(90deg,#8a8f98,#c0367f)' }}></div></div>
                         </div>
-                        <div className="num">84</div>
-                        <div className="weight">15%</div>
+                        <div className="num">—</div>
+                        <div className="weight">context</div>
                       </div>
                     </div>
                   </div>
@@ -674,10 +674,10 @@ export default function LandingPage() {
                     <div className="sd-ai">
                       <div className="sd-ai-head">
                         <span className="sd-ai-dot"></span>
-                        <span>AI summary · Claude</span>
+                        <span>AI summary</span>
                       </div>
                       <div className="sd-ai-text">
-                        Stripe is showing all five intent axes lit. The combination of <strong>fresh capital</strong>,{' '}
+                        Stripe has three strong dated triggers. The combination of <strong>fresh capital</strong>,{' '}
                         <strong>aggressive RevOps hiring</strong>, and a <strong>positive news cycle</strong> historically
                         precedes a tooling refresh inside 60–90 days.
                       </div>
@@ -1100,7 +1100,7 @@ export default function LandingPage() {
             <div className="feat-card">
               <div className="feat-head">
                 <h3>One API call. Any company.</h3>
-                <p>POST a domain. Get back a 0–100 score, the five signals it was built from, and an AI summary in under three seconds. Bulk endpoints up to 1,000 companies per job.</p>
+                <p>POST a domain. Get back a coverage-aware 0–100 score, four intent triggers, context, and an AI summary. Bulk endpoints support up to 1,000 companies per job.</p>
               </div>
               <div className="feat-visual">
                 <div className="code-surface">
@@ -1428,7 +1428,7 @@ export default function LandingPage() {
             <a href="#" className="btn btn-secondary btn-lg">Talk to sales</a>
           </div>
           <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--text-quaternary)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
-            20 FREE CREDITS · NO CARD · &lt; 3s TO FIRST SCORE
+            20 FREE CREDITS · NO CARD · COVERAGE-AWARE SCORES
           </p>
         </div>
       </section>

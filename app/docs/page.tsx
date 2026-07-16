@@ -6,14 +6,14 @@ const CANONICAL = "https://www.vesperwise.com/docs";
 export const metadata: Metadata = {
   title: "API Reference",
   description:
-    "VesperWise API v1 — score any company in under 3 seconds. Authentication, endpoints, webhooks, SDKs, and full parameter reference.",
+    "VesperWise API v1 — coverage-aware company intent scoring. Authentication, endpoints, caching, and response reference.",
   alternates: { canonical: CANONICAL },
   openGraph: {
     siteName: "VesperWise",
     url: CANONICAL,
     title: "API Reference — VesperWise",
     description:
-      "One endpoint. Any company. 3 seconds. Full REST API reference with code samples in curl, Node, and Python.",
+      "One endpoint. Any company. Explicit coverage. REST API reference with code samples in curl, Node, and Python.",
   },
 };
 
