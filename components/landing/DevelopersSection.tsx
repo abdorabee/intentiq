@@ -22,7 +22,7 @@ export default function DevelopersSection() {
             <div className="border-b border-white/[0.06] p-5">
               <h3 className="text-lg font-semibold text-[#f7f8f8]">One API call. Any company.</h3>
               <p className="mt-2 text-[14px] text-[#8a8f98]">
-                POST a domain. Get a 0–100 score, five signals, and an AI summary in under three seconds.
+                POST a domain. Get a coverage-aware score, four intent triggers, account context, and an AI summary.
               </p>
             </div>
             <pre className="overflow-x-auto p-5 font-mono text-[11px] leading-relaxed text-[#8a8f98]">

@@ -80,7 +80,6 @@ const SIGNAL_COLORS: Record<string, string> = {
   hiring: "#4ade80",
   news: "#f5b544",
   technology: "#e8ff40",
-  web: "#8a8f98",
 };
 
 const AV_CLASSES = ["av-1", "av-2", "av-3", "av-4", "av-5", "av-6", "av-7", "av-8"];
@@ -104,7 +103,6 @@ export default function DashboardHomeView({
   pipeline,
   signalMix,
   watchlist,
-  autopilotWorkflows: _autopilotWorkflows,
 }: DashboardHomeViewProps) {
   const [rangeTab, setRangeTab] = useState("7D");
   const [moversTab, setMoversTab] = useState<"Up" | "Down">("Up");
@@ -121,11 +119,11 @@ export default function DashboardHomeView({
   // Donut chart computation
   const totalPct = signalMix.reduce((acc, s) => acc + s.pct, 0) || 1;
   const circumference = 2 * Math.PI * 40; // r=40
-  let dashOffset = 0;
   const donutSegments = signalMix.map((s, i) => {
     const dash = (s.pct / totalPct) * circumference;
-    const offset = -dashOffset;
-    dashOffset += dash;
+    const offset = -signalMix
+      .slice(0, i)
+      .reduce((sum, prior) => sum + (prior.pct / totalPct) * circumference, 0);
     return { ...s, dash, offset, color: SIGNAL_COLORS[s.key] ?? "var(--text-tertiary)", idx: i };
   });
 

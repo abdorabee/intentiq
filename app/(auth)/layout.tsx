@@ -11,9 +11,9 @@ const FACTS = [
     sub: "Across fintech, SaaS, and enterprise sales teams.",
   },
   {
-    stat: "<3s",
+    stat: "6h",
     label: "median time to first score",
-    sub: "Five signals, one number, in under three seconds.",
+    sub: "Four intent triggers with a personalized result cache.",
   },
   {
     stat: "+38%",

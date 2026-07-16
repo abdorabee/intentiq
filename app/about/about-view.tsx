@@ -41,8 +41,8 @@ const TIMELINE = [
 ];
 
 const PRINCIPLES = [
-  { n: "01", title: "Reasoning ships with the number",      desc: "A score with no explanation is a dashboard tile, and dashboard tiles get ignored. Every score I surface has a two‑line buying thesis next to it — written by Claude, anchored to the underlying signals." },
-  { n: "02", title: "Three seconds or it doesn't count",    desc: "If first‑score latency exceeds three seconds on the median request, I treat it as a bug to fix tonight. Caching, parallel signal fetch, and a small surface area are how I hold that line." },
+  { n: "01", title: "Reasoning ships with the number",      desc: "A score with no explanation is a dashboard tile, and dashboard tiles get ignored. Every score includes bounded, schema-validated reasoning anchored to the underlying evidence." },
+  { n: "02", title: "Bounded latency, honest coverage",    desc: "Provider calls have explicit timeouts, neutral evidence is reused safely, and missing data lowers coverage instead of silently becoming zero intent." },
   { n: "03", title: "Reps are the customer, not buyers",    desc: "Sales VPs sign the contract; AEs decide whether the tool gets used. Every feature has to pass the \"would a busy rep click this on a Tuesday at 4 PM\" test. Most ideas don't." },
   { n: "04", title: "One score, not seven",                 desc: "Composite scores beat per‑signal scores for the only metric that matters: whether a human acts on them. I'll resist the urge to add a second number until I'm forced to." },
   { n: "05", title: "Sales is a craft, not a queue",        desc: "Autopilot routes, drafts, and notifies — never sends without a human in the loop. I won't ship \"send 1,000 emails in one click.\" Plenty of vendors do; I won't be one of them." },
@@ -60,7 +60,7 @@ const DESK = [
   ["DESIGN","Figma"],["NOTES","Obsidian"],["COFFEE","Always on"],
 ];
 
-const STACK = ["Next.js 16","React 19","Tailwind 4","Supabase","Upstash Redis","Clerk","Polar.sh","Anthropic Claude","Vercel","Cursor"];
+const STACK = ["Next.js 16","React 19","Tailwind 4","Supabase","Upstash Redis","Clerk","Polar.sh","OpenRouter","Vercel","Cursor"];
 
 /* ─── Small helpers ──────────────────────────────────────────── */
 function SectionHead({ eyebrow, h2, sub }: { eyebrow: string; h2: React.ReactNode; sub?: string }) {

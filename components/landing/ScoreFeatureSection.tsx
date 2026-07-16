@@ -8,11 +8,10 @@ function SectionAccentLabel({ children }: { children: string }) {
 }
 
 const SIGNALS = [
-  { name: "Funding", desc: "Series H, $6.5B at $91.5B valuation · 4 days ago", score: 96, weight: "25%", bar: "from-[#dfff00] to-[#38a3b3]" },
-  { name: "Hiring", desc: "+182 open roles in Eng / RevOps · +28 vs last 30 days", score: 88, weight: "20%", bar: "from-[#4ade80] to-[#22c55e]" },
-  { name: "News", desc: "12 high-authority mentions in 7 days · sentiment +0.74", score: 92, weight: "20%", bar: "from-[#f5b544] to-[#d49530]" },
-  { name: "Tech", desc: "Detected: Snowflake, Segment, Datadog · 2 new this month", score: 78, weight: "20%", bar: "from-[#e8ff40] to-[#dfff00]" },
-  { name: "Web", desc: "Domain authority 92 · pricing-page traffic +18%", score: 84, weight: "15%", bar: "from-[#8a8f98] to-[#c0367f]" },
+  { name: "Funding", desc: "Series H, $6.5B at $91.5B valuation · 4 days ago", score: 96, weight: "22", bar: "from-[#dfff00] to-[#38a3b3]" },
+  { name: "Hiring", desc: "+182 open roles in Eng / RevOps · +28 vs last 30 days", score: 88, weight: "19", bar: "from-[#4ade80] to-[#22c55e]" },
+  { name: "News", desc: "12 non-funding trigger stories in 7 days", score: 92, weight: "18", bar: "from-[#f5b544] to-[#d49530]" },
+  { name: "Tech", desc: "Dated stack change: Segment adopted this month", score: 78, weight: "18", bar: "from-[#e8ff40] to-[#dfff00]" },
 ];
 
 export default function ScoreFeatureSection() {
@@ -49,7 +48,7 @@ export default function ScoreFeatureSection() {
                 </div>
               </div>
               <div className="mt-4 flex gap-1 border-b border-white/[0.06] pb-2 text-[11px]">
-                <span className="rounded-md bg-white/[0.06] px-2 py-1 text-[#f7f8f8]">Signals 5</span>
+                <span className="rounded-md bg-white/[0.06] px-2 py-1 text-[#f7f8f8]">Intent triggers 4</span>
                 <span className="px-2 py-1 text-[#62666d]">Activity</span>
                 <span className="px-2 py-1 text-[#62666d]">People 12</span>
               </div>
@@ -70,6 +69,9 @@ export default function ScoreFeatureSection() {
                     <span className="text-right text-[#62666d]">{s.weight}</span>
                   </div>
                 ))}
+                <p className="border-t border-white/[0.06] pt-3 text-[10px] text-[#62666d]">
+                  Relative weights shown at right. Web authority and GitHub activity are context only.
+                </p>
               </div>
             </div>
 
@@ -115,10 +117,10 @@ export default function ScoreFeatureSection() {
                 </div>
               </div>
               <div className="mt-4 rounded-lg border border-[#dfff00]/20 bg-[#dfff00]/5 p-3">
-                <p className="text-[10px] uppercase tracking-wide text-[#e8ff40]">AI summary · Claude</p>
+                <p className="text-[10px] uppercase tracking-wide text-[#e8ff40]">AI summary</p>
                 <p className="mt-2 text-[12px] leading-relaxed text-[#b4bbc8]">
-                  Stripe is showing all five intent axes lit. Fresh capital, aggressive RevOps hiring, and a positive news
-                  cycle precede a tooling refresh inside 60–90 days.
+                  Stripe has fresh capital, aggressive RevOps hiring, and a positive non-funding news cycle—three dated
+                  triggers that can precede a tooling refresh.
                 </p>
               </div>
               <div className="mt-3 rounded-lg border border-white/[0.06] bg-[#131517] p-3">

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "VesperWise — B2B Buyer Intent Signals for SMB Sales Teams",
   description:
     "VesperWise tracks hiring spikes, funding rounds, tech stack changes, news mentions, " +
-    "and web activity to surface companies ready to buy — before your competitors know. " +
+    "with web authority and GitHub activity as supporting context — before your competitors know. " +
     "Affordable intent data from $49/mo. 100x cheaper than 6sense or Bombora.",
   alternates: {
     canonical: CANONICAL,
@@ -39,7 +39,7 @@ const jsonLd = {
       operatingSystem: "Web",
       description:
         "B2B buyer intent signal platform tracking hiring spikes, funding rounds, " +
-        "tech stack changes, news mentions, and web activity for SMB sales teams.",
+        "tech stack changes and news triggers, with web and GitHub context for SMB sales teams.",
       offers: {
         "@type": "Offer",
         priceCurrency: "USD",
@@ -109,35 +109,34 @@ export default async function RootPage() {
         <p>
           Detect when a company is rapidly expanding a specific team — a strong
           signal they are investing in a new initiative and actively buying tools.
-          VesperWise scores hiring velocity as 20% of the composite intent score.
+          Hiring uses relative weight 19 in the composite intent score.
         </p>
 
         <h2>Funding Rounds</h2>
         <p>
           Track when companies close Series A, B, or seed rounds. Freshly funded
           companies have budget and are actively evaluating new software.
-          Funding signals carry 25% of the total intent score.
+          Funding uses relative weight 22 in the composite intent score.
         </p>
 
         <h2>News Mentions</h2>
         <p>
           Monitor press coverage and announcements that signal strategic shifts,
           new leadership, or expansion — all buying triggers. News signals
-          contribute 20% of the composite intent score.
+          use relative weight 18 in the composite intent score.
         </p>
 
         <h2>Tech Stack Changes</h2>
         <p>
           Identify when companies adopt or drop tools in your category. Stack
           changes reveal evaluation cycles you can enter at exactly the right
-          moment. Technology signals account for 20% of the intent score.
+          moment. Dated technology changes use relative weight 18.
         </p>
 
-        <h2>Web Activity</h2>
+        <h2>Account Context</h2>
         <p>
-          Surface companies researching topics relevant to your product right now,
-          based on content consumption and web presence signals. Web signals
-          contribute 15% of the composite intent score.
+          Web authority, static technology presence, and GitHub activity help reps
+          understand an account. These context signals do not change intent scores.
         </p>
 
         <h2>Why VesperWise</h2>
@@ -153,7 +152,8 @@ export default async function RootPage() {
         <p>
           One REST API call returns a composite intent score (0–100), a score
           band (HOT / WARM / COLD), an AI-generated summary, a why-now insight,
-          and a specific recommended outreach action. Results in under 3 seconds.
+          and a specific recommended outreach action. Provider calls are bounded,
+          and personalized cache hits are free.
           No CRM integration required.
         </p>
       </div>

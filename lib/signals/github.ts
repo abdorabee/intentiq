@@ -1,4 +1,6 @@
-import type { SignalResult } from "@/lib/types";
+import type { SignalEvidence, SignalResult } from "@/lib/types";
+
+const SOURCE = "github";
 
 interface GitHubOrg {
   login: string;
@@ -39,10 +41,14 @@ function companyNameFromDomain(domain: string): string {
   return parts.length >= 2 ? parts[parts.length - 2] : parts[0];
 }
 
-async function resolveOrgLogin(companyName: string): Promise<string | null> {
+async function resolveOrgLogin(
+  companyName: string,
+  signal?: AbortSignal
+): Promise<string | null> {
   const directRes = await fetch(`https://api.github.com/orgs/${companyName}`, {
     headers: githubHeaders(),
     next: { revalidate: 86400 },
+    signal,
   });
   if (directRes.ok) {
     const org = (await directRes.json()) as GitHubOrg;
@@ -52,7 +58,7 @@ async function resolveOrgLogin(companyName: string): Promise<string | null> {
   if (directRes.status === 404) {
     const searchRes = await fetch(
       `https://api.github.com/search/users?q=${encodeURIComponent(companyName)}+type:org&per_page=3`,
-      { headers: githubHeaders(), next: { revalidate: 86400 } }
+      { headers: githubHeaders(), next: { revalidate: 86400 }, signal }
     );
     if (!searchRes.ok) return null;
     const data = (await searchRes.json()) as GitHubSearchResult;
@@ -62,13 +68,27 @@ async function resolveOrgLogin(companyName: string): Promise<string | null> {
   return null;
 }
 
-export async function fetchGitHubSignal(domain: string): Promise<SignalResult> {
+export async function fetchGitHubSignal(
+  domain: string,
+  signal?: AbortSignal
+): Promise<SignalResult> {
+  const fetchedAt = new Date().toISOString();
   try {
     const companyName = companyNameFromDomain(domain);
-    const orgLogin = await resolveOrgLogin(companyName);
+    const orgLogin = await resolveOrgLogin(companyName, signal);
 
     if (!orgLogin) {
-      return { score: 0, max: 20, detail: "Org not found on GitHub" };
+      return {
+        score: 0,
+        max: 20,
+        detail: "Org not found on GitHub",
+        status: "not_found",
+        observed_at: null,
+        fetched_at: fetchedAt,
+        source: SOURCE,
+        evidence: [],
+        metadata: { context_only: true },
+      };
     }
 
     const now = Date.now();
@@ -82,20 +102,24 @@ export async function fetchGitHubSignal(domain: string): Promise<SignalResult> {
       fetch(`https://api.github.com/orgs/${orgLogin}`, {
         headers: githubHeaders(),
         next: { revalidate: 86400 },
+        signal,
       }),
       fetch(`https://api.github.com/orgs/${orgLogin}/repos?sort=pushed&per_page=30&type=public`, {
         headers: githubHeaders(),
         next: { revalidate: 86400 },
+        signal,
       }),
       // Public org events — includes pushes/releases even from private repos when event type is public
       fetch(`https://api.github.com/orgs/${orgLogin}/events?per_page=100`, {
         headers: githubHeaders(),
         next: { revalidate: 3600 }, // 1hr cache — events are time-sensitive
+        signal,
       }),
       // Public member count — visible even for fully private orgs
-      fetch(`https://api.github.com/orgs/${orgLogin}/public_members?per_page=1`, {
+      fetch(`https://api.github.com/orgs/${orgLogin}/public_members?per_page=11`, {
         headers: githubHeaders(),
         next: { revalidate: 86400 },
+        signal,
       }),
     ]);
 
@@ -105,17 +129,12 @@ export async function fetchGitHubSignal(domain: string): Promise<SignalResult> {
     const repos       = reposRes.ok ? (await reposRes.json()) as GitHubRepo[] : [];
     const events      = eventsRes.ok ? (await eventsRes.json()) as GitHubEvent[] : [];
 
-    // Member count from Link header (GitHub returns X-Total-Count or we use ?per_page=100 trick)
-    // Simpler: count returned members with per_page=100
+    // Only the >10 threshold is used below, so fetching 11 avoids inaccurate
+    // pagination-based total estimates.
     let memberCount = 0;
     if (membersRes.ok) {
       const membersData = await membersRes.json() as unknown[];
-      // Check Link header for pagination total; fall back to array length
-      const linkHeader = membersRes.headers.get("Link") ?? "";
-      const lastPageMatch = linkHeader.match(/page=(\d+)>; rel="last"/);
-      memberCount = lastPageMatch
-        ? parseInt(lastPageMatch[1]) * 100 // rough estimate
-        : membersData.length;
+      memberCount = membersData.length;
     }
 
     // ── Public repo signals ────────────────────────────────────────────────────
@@ -137,9 +156,13 @@ export async function fetchGitHubSignal(domain: string): Promise<SignalResult> {
         fetch(`https://api.github.com/repos/${orgLogin}/${r.name}/releases?per_page=5`, {
           headers: githubHeaders(),
           next: { revalidate: 86400 },
+          signal,
         })
           .then((res) => (res.ok ? (res.json() as Promise<GitHubRelease[]>) : []))
-          .catch(() => [] as GitHubRelease[])
+          .catch((error) => {
+            if (signal?.aborted) throw error;
+            return [] as GitHubRelease[];
+          })
       )
     );
 
@@ -194,14 +217,101 @@ export async function fetchGitHubSignal(domain: string): Promise<SignalResult> {
       details.push(sizeHint);
     }
 
+    const evidence: SignalEvidence[] = [];
+    const organizationUrl = `https://github.com/${orgLogin}`;
+    const activityDates = [
+      ...recentlyPushed.map((repo) => repo.pushed_at),
+      ...newRepos.map((repo) => repo.created_at),
+      ...publicReleases.map((release) => release.published_at),
+      ...recentEvents.map((event) => event.created_at),
+    ]
+      .filter((value): value is string => Boolean(value))
+      .map((value) => new Date(value))
+      .filter((date) => Number.isFinite(date.getTime()));
+    const latestActivity = activityDates.reduce<Date | null>(
+      (latest, date) => (!latest || date > latest ? date : latest),
+      null
+    );
+
+    if (pushActivity > 0 && latestActivity) {
+      evidence.push({
+        label: `${pushActivity} active repository signal(s)`,
+        observed_at: latestActivity.toISOString(),
+        source: SOURCE,
+        fetched_at: fetchedAt,
+        source_url: organizationUrl,
+        metadata: { push_activity: pushActivity },
+      });
+    }
+    if (newRepoCount > 0) {
+      const latestCreated = newRepos
+        .map((repo) => repo.created_at ? new Date(repo.created_at) : null)
+        .filter((date): date is Date => date !== null && Number.isFinite(date.getTime()))
+        .reduce<Date | null>((latest, date) => (!latest || date > latest ? date : latest), null);
+      evidence.push({
+        label: `${newRepoCount} new repository signal(s)`,
+        observed_at: latestCreated?.toISOString() ?? latestActivity?.toISOString() ?? null,
+        source: SOURCE,
+        fetched_at: fetchedAt,
+        source_url: organizationUrl,
+        metadata: { new_repositories: newRepoCount },
+      });
+    }
+    if (releaseCount > 0) {
+      evidence.push({
+        label: `${releaseCount} recent release signal(s)`,
+        observed_at: latestActivity?.toISOString() ?? null,
+        source: SOURCE,
+        fetched_at: fetchedAt,
+        source_url: organizationUrl,
+        metadata: { releases: releaseCount },
+      });
+    }
+    if (org.public_repos > 20 || memberCount > 10) {
+      evidence.push({
+        label: "GitHub organization size snapshot",
+        observed_at: fetchedAt,
+        source: SOURCE,
+        fetched_at: fetchedAt,
+        source_url: organizationUrl,
+        metadata: { public_repositories: org.public_repos, visible_members_at_least: memberCount },
+      });
+    }
+
+    const observedAt = latestActivity?.toISOString() ?? (score > 0 ? fetchedAt : null);
+
     return {
       score: Math.min(score, 20),
       max: 20,
       detail: details.length > 0
         ? details.join("; ")
         : "No recent public GitHub activity detected",
+      status: score > 0 ? "ok" : "no_signal",
+      observed_at: observedAt,
+      fetched_at: fetchedAt,
+      source: SOURCE,
+      evidence,
+      metadata: {
+        organization: orgLogin,
+        public_repositories: org.public_repos,
+        visible_members_at_least: memberCount,
+        context_only: true,
+      },
     };
-  } catch {
-    return { score: 0, max: 20, detail: "GitHub data unavailable" };
+  } catch (error) {
+    return {
+      score: 0,
+      max: 20,
+      detail: "GitHub data unavailable",
+      status: "unavailable",
+      observed_at: null,
+      fetched_at: fetchedAt,
+      source: SOURCE,
+      evidence: [],
+      metadata: {
+        reason: error instanceof Error ? error.message : "unknown_error",
+        context_only: true,
+      },
+    };
   }
 }

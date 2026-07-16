@@ -7,8 +7,8 @@ export default function SignalsShowcase() {
     <section id="signals" className="border-b border-white/[0.06] bg-[#0a0b0d] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-4xl">
         <SectionLabel text="Signals" />
-        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#f7f8f8] md:text-3xl">Five signals. One intent score.</h2>
-        <p className="mt-2 text-sm text-[#8a8f98]">Five live data signals, weighted and scored in real time.</p>
+        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#f7f8f8] md:text-3xl">Four triggers. Explicit context.</h2>
+        <p className="mt-2 text-sm text-[#8a8f98]">Dated purchase triggers drive the score; Web and GitHub help explain the account.</p>
         <div className="mt-10">
           {SIGNALS.map((signal) => (
             <ScanlineRow

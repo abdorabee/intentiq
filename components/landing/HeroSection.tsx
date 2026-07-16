@@ -47,7 +47,7 @@ export default function HeroSection() {
             <span className="mx-2 text-[#3d4249]">•</span>
             <span className="text-[#8a8f98]">No credit card</span>
             <span className="mx-2 text-[#3d4249]">•</span>
-            <span className="text-[#8a8f98]">Results in &lt; 3 seconds</span>
+            <span className="text-[#8a8f98]">Coverage-aware scoring</span>
           </p>
         </div>
 

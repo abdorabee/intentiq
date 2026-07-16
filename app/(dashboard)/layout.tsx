@@ -19,17 +19,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const admin = createSupabaseAdmin();
 
-  // Upsert first — guarantees the row exists before we select it.
-  // Running both concurrently via Promise.all caused a race where the select
-  // returned null for brand-new users, setting onboardingCompleted=false and
-  // triggering an infinite redirect loop to the non-existent /onboarding page.
+  // Upsert first — guarantees the row exists before we select it. Existing
+  // users are left untouched, while new users must complete onboarding.
   await admin.from("users").upsert(
     {
       id: userId,
       email: user?.emailAddresses[0]?.emailAddress ?? "",
       plan: "free",
       credits_remaining: 20,
-      onboarding_completed: true,
+      onboarding_completed: false,
     },
     { onConflict: "id", ignoreDuplicates: true }
   );
@@ -41,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .single();
 
   const creditsRemaining = profile?.credits_remaining ?? 0;
-  const onboardingCompleted = profile?.onboarding_completed ?? true;
+  const onboardingCompleted = profile?.onboarding_completed ?? false;
   const plan = (profile?.plan as "free" | "starter" | "growth" | "pro" | "agency" | undefined) ?? "free";
 
   const { count: inboxCount } = await admin

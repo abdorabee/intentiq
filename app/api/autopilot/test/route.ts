@@ -3,7 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { scoreCompany, domainToCompanyName } from "@/lib/score-service";
 import { evaluateConditions } from "@/lib/autopilot";
-import type { DbAutopilotWorkflow, ScoreBand } from "@/lib/types";
+import { evaluateV2ScoreTransition } from "@/lib/score-transition";
+import type { DbAutopilotWorkflow } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -16,10 +17,9 @@ export async function POST(req: NextRequest) {
 
   const supabase = createSupabaseAdmin();
 
-  const [{ data: workflow }, { data: user }, { data: watchlistEntry }] = await Promise.all([
+  const [{ data: workflow }, { data: user }] = await Promise.all([
     supabase.from("autopilot_workflows").select("*").eq("id", workflow_id).eq("user_id", userId).single(),
     supabase.from("users").select("*").eq("id", userId).single(),
-    supabase.from("watchlist").select("score, score_band").eq("user_id", userId).eq("domain", domain.toLowerCase()).eq("is_active", true).maybeSingle(),
   ]);
 
   if (!workflow) return NextResponse.json({ error: "Workflow not found" }, { status: 404 });
@@ -36,8 +36,38 @@ export async function POST(req: NextRequest) {
     businessProfile: user.business_profile,
   });
 
-  const oldScore = watchlistEntry?.score ?? null;
-  const oldBand = (watchlistEntry?.score_band ?? null) as ScoreBand | null;
+  const transition = evaluateV2ScoreTransition(scoreResult);
+  const oldScore = transition.previousScore;
+  const oldBand = transition.previousBand;
+
+  if (
+    scoreResult.score_status !== "complete" ||
+    scoreResult.intent_score === null ||
+    scoreResult.score_band === null ||
+    !transition.canTriggerAutomation
+  ) {
+    return NextResponse.json({
+      test_result: {
+        domain,
+        company: scoreResult.company,
+        old_score: oldScore,
+        new_score: scoreResult.intent_score,
+        old_band: oldBand,
+        new_band: scoreResult.score_band,
+        triggered: false,
+        trigger_reasons: [
+          scoreResult.is_baseline
+            ? "Automation suppressed for the first v2 baseline"
+            : scoreResult.cached || scoreResult.idempotent_replayed
+              ? "Automation suppressed for a cached or replayed result"
+              : scoreResult.score_status !== "complete"
+                ? `Automation suppressed for ${scoreResult.score_status} scoring coverage`
+                : "Automation suppressed because no persisted v2 score transition occurred",
+        ],
+        actions_that_would_fire: [],
+      },
+    });
+  }
 
   const { triggered, reasons } = evaluateConditions(
     typedWorkflow.conditions,
