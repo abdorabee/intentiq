@@ -11,11 +11,7 @@ import {
 } from "@/lib/redis";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { fetchFundingSignal } from "@/lib/signals/funding";
-import {
-  buildHiringSignalFromJobs,
-  fetchHiringSignal,
-  type HiringJob,
-} from "@/lib/signals/hiring";
+import { fetchHiringSignal } from "@/lib/signals/hiring";
 import { fetchNewsSignal } from "@/lib/signals/news";
 import { fetchTechnologySignal } from "@/lib/signals/technology";
 import { fetchWebSignal } from "@/lib/signals/web";
@@ -26,28 +22,35 @@ import {
   HIRING_EVIDENCE_SCHEMA_VERSION,
 } from "@/lib/hiring-refresh-queue";
 import {
+  enqueueWebEnrichment,
+  webEnrichmentSignalsForStatuses,
+  WEB_ENRICHMENT_SCHEMA_VERSION,
+} from "@/lib/web-enrichment-queue";
+import {
   computeActiveIntentScore,
+  computeIntentScoreV3,
+  DEFAULT_SCORING_POLICY_V3,
   getActiveScoringVersion,
   SCORING_VERSION,
+  SCORING_VERSION_V3,
 } from "@/lib/scorer";
+import {
+  resolveScoringPolicy,
+  type ScoringPolicyRow,
+} from "@/lib/scoring-policy";
 import { generateReasoning } from "@/lib/reasoning";
 import { updatePipelineStage } from "@/lib/pipeline";
 import { createInboxNotification } from "@/lib/inbox";
 import { evaluateV2ScoreTransition } from "@/lib/score-transition";
 import {
-  chooseHiringEvidencePriority,
+  chooseBestSignalEvidence,
   prepareEvidenceForPersistence,
-  type SignalEvidenceRow,
-} from "./score-evidence";
-export {
-  chooseHiringEvidencePriority,
-  prepareEvidenceForPersistence,
+  signalFromEvidenceRow,
   type SignalEvidenceRow,
 } from "./score-evidence";
 import type {
   BusinessProfile,
   IntentScore,
-  SignalEvidence,
   SignalResult,
   SignalSet,
   SignalStatus,
@@ -66,6 +69,7 @@ const SIGNAL_KEYS = [
   "hiring",
   "news",
   "technology",
+  "web_activity",
   "web",
   "github",
 ] as const;
@@ -78,6 +82,7 @@ const SOURCE_BY_SIGNAL: Record<SignalKey, string> = {
   hiring: "explorium-events",
   news: "gnews",
   technology: "builtwith",
+  web_activity: "firecrawl",
   web: "open-page-rank",
   github: "github",
 };
@@ -87,6 +92,7 @@ const MAX_BY_SIGNAL: Record<SignalKey, number> = {
   hiring: 20,
   news: 20,
   technology: 20,
+  web_activity: 15,
   web: 15,
   github: 20,
 };
@@ -326,7 +332,10 @@ function isSignalResult(value: unknown): value is SignalResult {
 
 function isSignalSet(value: unknown): value is SignalSet {
   if (!isRecord(value) || typeof value.latestSignalDate !== "string") return false;
-  return SIGNAL_KEYS.every((key) => isSignalResult(value[key]));
+  return SIGNAL_KEYS
+    .filter((key) => key !== "web_activity")
+    .every((key) => isSignalResult(value[key])) &&
+    (value.web_activity === undefined || isSignalResult(value.web_activity));
 }
 
 function isEvidenceSnapshot(value: unknown): value is EvidenceSnapshot {
@@ -355,7 +364,12 @@ function inferSignalStatus(signal: SignalResult): SignalStatus {
 
 function sourceStatuses(signals: SignalSet): Record<SignalKey, SignalStatus> {
   return Object.fromEntries(
-    SIGNAL_KEYS.map((key) => [key, inferSignalStatus(signals[key])])
+    SIGNAL_KEYS.map((key) => [
+      key,
+      key === "web_activity" && !signals.web_activity
+        ? "unavailable"
+        : inferSignalStatus(signals[key] as SignalResult),
+    ])
   ) as Record<SignalKey, SignalStatus>;
 }
 
@@ -401,61 +415,6 @@ function evidenceRowForSignal(
   };
 }
 
-function signalFromEvidenceRow(row: SignalEvidenceRow): SignalResult | null {
-  if (isSignalResult(row.raw_payload)) {
-    const evidence = Array.isArray(row.evidence)
-      ? row.evidence as SignalEvidence[]
-      : row.raw_payload.evidence ?? [];
-    return {
-      ...row.raw_payload,
-      status: row.status,
-      observed_at: row.observed_at,
-      fetched_at: row.fetched_at,
-      evidence,
-    };
-  }
-
-  if (
-    row.signal_type === "hiring" &&
-    row.source === "scrapling" &&
-    row.schema_version === HIRING_EVIDENCE_SCHEMA_VERSION &&
-    isRecord(row.raw_payload)
-  ) {
-    const rawEvidence = isRecord(row.raw_payload.evidence)
-      ? row.raw_payload.evidence
-      : isRecord(row.evidence) ? row.evidence : null;
-    const rawJobs = rawEvidence && Array.isArray(rawEvidence.jobs) ? rawEvidence.jobs : [];
-    const jobs: HiringJob[] = rawJobs.flatMap((job) => {
-      if (!isRecord(job) || typeof job.title !== "string" || !job.title.trim()) return [];
-      return [{
-        title: job.title,
-        department: typeof job.department === "string" ? job.department : null,
-        requisition_id: typeof job.requisition_id === "string" ? job.requisition_id : null,
-        location: typeof job.location === "string" ? job.location : null,
-        posted_at: typeof job.posted_at === "string" ? job.posted_at : null,
-        source_url: typeof job.source_url === "string" ? job.source_url : null,
-      }];
-    });
-    const normalized = buildHiringSignalFromJobs(jobs, row.fetched_at);
-    const status = row.status === "stale"
-      ? "stale"
-      : row.status === "ok" ? normalized.status : row.status;
-    return {
-      ...normalized,
-      status,
-      observed_at: normalized.observed_at ?? row.observed_at,
-      fetched_at: row.fetched_at,
-      metadata: {
-        ...normalized.metadata,
-        source: "scrapling",
-        entity_match: rawEvidence?.entity_match,
-      },
-    };
-  }
-
-  return null;
-}
-
 function isUsableEvidenceStatus(status: SignalStatus): boolean {
   return status === "ok" || status === "no_signal" || status === "stale";
 }
@@ -489,7 +448,11 @@ async function loadDatabaseEvidence(
     .from("signal_evidence")
     .select("canonical_domain, signal_type, source, schema_version, status, observed_at, fetched_at, expires_at, evidence, raw_payload, shadow")
     .eq("canonical_domain", domain)
-    .in("schema_version", [SIGNAL_EVIDENCE_SCHEMA_VERSION, HIRING_EVIDENCE_SCHEMA_VERSION])
+    .in("schema_version", [
+      SIGNAL_EVIDENCE_SCHEMA_VERSION,
+      HIRING_EVIDENCE_SCHEMA_VERSION,
+      WEB_ENRICHMENT_SCHEMA_VERSION,
+    ])
     .eq("shadow", false)
     .gt("expires_at", new Date().toISOString())
     .order("fetched_at", { ascending: false });
@@ -523,6 +486,10 @@ async function fetchSignal(key: SignalKey, domain: string): Promise<SignalResult
         // supplied display name influence the shared News cache.
         case "news": return fetchNewsSignal(domainToCompanyName(domain), controller.signal);
         case "technology": return fetchTechnologySignal(domain, controller.signal);
+        case "web_activity": return unavailableSignal(
+          "web_activity",
+          "awaiting_firecrawl_change_baseline"
+        );
         case "web": return fetchWebSignal(domain, controller.signal);
         case "github": return fetchGitHubSignal(domain, controller.signal);
       }
@@ -555,21 +522,73 @@ function latestSignalDate(signals: Record<SignalKey, SignalResult>): string {
     : new Date().toISOString();
 }
 
+async function loadScoringPolicy(
+  supabase: SupabaseAdmin,
+  userId: string,
+  profileHash: string,
+  businessProfile: BusinessProfile | null
+) {
+  const columns = "id, user_id, icp_key, vertical, policy, active, created_at";
+  const [owned, defaults] = await Promise.all([
+    supabase
+      .from("scoring_policies")
+      .select(columns)
+      .eq("active", true)
+      .eq("user_id", userId)
+      .limit(100),
+    supabase
+      .from("scoring_policies")
+      .select(columns)
+      .eq("active", true)
+      .is("user_id", null)
+      .limit(100),
+  ]);
+  if (owned.error || defaults.error) {
+    console.warn(
+      "[score-service] scoring policy lookup failed; using default",
+      owned.error ?? defaults.error
+    );
+    return DEFAULT_SCORING_POLICY_V3;
+  }
+  return resolveScoringPolicy(
+    [...(owned.data ?? []), ...(defaults.data ?? [])] as ScoringPolicyRow[],
+    {
+    userId,
+    profileHash,
+    verticals: businessProfile?.target_industries ?? [],
+    }
+  );
+}
+
 async function getEvidenceSnapshot(
   supabase: SupabaseAdmin,
   domain: string
 ): Promise<EvidenceSnapshot> {
   const cacheKey = scoreEvidenceCacheKey(
     domain,
-    `${SIGNAL_EVIDENCE_SCHEMA_VERSION}-${HIRING_EVIDENCE_SCHEMA_VERSION}`
+    `${SIGNAL_EVIDENCE_SCHEMA_VERSION}-${HIRING_EVIDENCE_SCHEMA_VERSION}-${WEB_ENRICHMENT_SCHEMA_VERSION}`
   );
   const cached = await cacheGet<EvidenceSnapshot>(cacheKey);
   if (isEvidenceSnapshot(cached)) return cached;
 
   if (USE_MOCK) {
-    const signals = getMockSignals(domain);
+    const mockSignals = getMockSignals(domain);
+    const signals: SignalSet = {
+      ...mockSignals,
+      web_activity: mockSignals.web_activity ?? {
+        score: 0,
+        max: 15,
+        detail: "No meaningful web changes — MOCK",
+        status: "no_signal",
+        observed_at: null,
+        fetched_at: new Date().toISOString(),
+        source: "mock",
+        evidence: [],
+        metadata: { mock: true },
+      },
+    };
     const rows = SIGNAL_KEYS.map((key) =>
-      evidenceRowForSignal(domain, key, signals[key], "mock")
+      evidenceRowForSignal(domain, key, signals[key] as SignalResult, "mock")
     );
     const snapshot = { signals, rows };
     await cacheSet(cacheKey, snapshot, SCORE_EVIDENCE_TTL_SECONDS);
@@ -582,34 +601,26 @@ async function getEvidenceSnapshot(
 
   await Promise.all(SIGNAL_KEYS.map(async (key) => {
     const candidates = databaseRows.get(key) ?? [];
-    const primaryRows = candidates.filter((row) =>
-      row.source === SOURCE_BY_SIGNAL[key] && row.schema_version === SIGNAL_EVIDENCE_SCHEMA_VERSION
-    );
-    const primaryGoodRow = primaryRows.find((row) =>
+    const usableStoredRows = candidates.filter((row) =>
       isUsableEvidenceStatus(row.status) && signalFromEvidenceRow(row) !== null
     );
-    const primaryGoodSignal = primaryGoodRow ? signalFromEvidenceRow(primaryGoodRow) : null;
-    const scraplingRow = key === "hiring"
-      ? candidates.find((row) =>
-          row.source === "scrapling" &&
-          row.schema_version === HIRING_EVIDENCE_SCHEMA_VERSION &&
-          isUsableEvidenceStatus(row.status) &&
-          signalFromEvidenceRow(row) !== null
-        ) ?? null
-      : null;
-    const scraplingSignal = scraplingRow ? signalFromEvidenceRow(scraplingRow) : null;
-    const hiringPriority = key === "hiring"
-      ? chooseHiringEvidencePriority(primaryGoodRow ?? null, scraplingRow)
-      : null;
+    const bestStoredRow = chooseBestSignalEvidence(usableStoredRows);
+    const bestStoredSignal = bestStoredRow ? signalFromEvidenceRow(bestStoredRow) : null;
 
     if (
-      primaryGoodRow &&
-      primaryGoodSignal &&
-      primaryGoodRow.status !== "stale" &&
-      isFreshEvidence(primaryGoodRow)
+      bestStoredRow &&
+      bestStoredSignal &&
+      bestStoredRow.status !== "stale" &&
+      isFreshEvidence(bestStoredRow)
     ) {
-      resolved[key] = primaryGoodSignal;
-      rows.push(primaryGoodRow);
+      resolved[key] = {
+        ...bestStoredSignal,
+        metadata: {
+          ...bestStoredSignal.metadata,
+          selected_source: bestStoredRow.source,
+        },
+      };
+      rows.push(bestStoredRow);
       return;
     }
 
@@ -620,41 +631,39 @@ async function getEvidenceSnapshot(
     rows.push(refreshedRow);
 
     if (refreshed.status === "ok" || refreshed.status === "no_signal") {
-      resolved[key] = refreshed;
+      const selectedRow = chooseBestSignalEvidence([refreshedRow, ...usableStoredRows]);
+      const selectedSignal = selectedRow ? signalFromEvidenceRow(selectedRow) : null;
+      resolved[key] = selectedSignal
+        ? {
+            ...selectedSignal,
+            metadata: {
+              ...selectedSignal.metadata,
+              selected_source: selectedRow?.source,
+              primary_status: refreshed.status,
+            },
+          }
+        : refreshed;
+      if (selectedRow && selectedRow !== refreshedRow) rows.push(selectedRow);
       return;
     }
 
-    // A promoted Scrapling row is a hiring fallback only. Fresh Explorium
-    // evidence always wins, and the two sources are never added together.
-    if (
-      key === "hiring" &&
-      hiringPriority === "scrapling" &&
-      scraplingRow &&
-      scraplingSignal
-    ) {
-      resolved[key] = isFreshEvidence(scraplingRow) && scraplingRow.status !== "stale"
+    // Promoted crawl evidence is selected as one alternative source; it is
+    // never added to provider evidence.
+    if (bestStoredRow && bestStoredSignal) {
+      resolved[key] = isFreshEvidence(bestStoredRow) && bestStoredRow.status !== "stale"
         ? {
-            ...scraplingSignal,
+            ...bestStoredSignal,
             metadata: {
-              ...scraplingSignal.metadata,
-              fallback_source: "scrapling",
+              ...bestStoredSignal.metadata,
+              fallback_source: bestStoredRow.source,
               primary_status: refreshed.status ?? "unavailable",
             },
           }
-        : staleSignal(scraplingSignal, {
-            fallback_source: "scrapling",
+        : staleSignal(bestStoredSignal, {
+            fallback_source: bestStoredRow.source,
             primary_status: refreshed.status ?? "unavailable",
           });
-      rows.push(scraplingRow);
-      return;
-    }
-
-    if (primaryGoodRow && primaryGoodSignal) {
-      resolved[key] = staleSignal(primaryGoodSignal, {
-        refresh_status: refreshed.status ?? "unavailable",
-        primary_source: SOURCE_BY_SIGNAL[key],
-      });
-      rows.push(primaryGoodRow);
+      rows.push(bestStoredRow);
       return;
     }
 
@@ -667,12 +676,12 @@ async function getEvidenceSnapshot(
   };
   const snapshot = { signals, rows };
   const needsRetry = SIGNAL_KEYS.some((key) => {
-    const signal = signals[key];
+    const signal = signals[key] as SignalResult;
     return (
       signal.status === "stale" ||
       signal.status === "unavailable" ||
       signal.status === "not_found" ||
-      signal.metadata?.fallback_source === "scrapling"
+      typeof signal.metadata?.fallback_source === "string"
     );
   });
   await cacheSet(
@@ -1085,6 +1094,31 @@ async function failScoreRun(
   }
 }
 
+async function persistShadowScore(
+  supabase: SupabaseAdmin,
+  input: {
+    runId: string;
+    userId: string;
+    domain: string;
+    result: ReturnType<typeof computeIntentScoreV3>;
+  }
+): Promise<void> {
+  const { error } = await supabase.from("score_shadow_results").upsert({
+    score_run_id: input.runId,
+    user_id: input.userId,
+    canonical_domain: input.domain,
+    scoring_version: input.result.scoring_version,
+    scoring_policy_id: input.result.scoring_policy_id ?? null,
+    score_status: input.result.score_status,
+    score: input.result.intent_score,
+    data_coverage: input.result.data_coverage,
+    signal_coverage: input.result.signal_coverage ?? null,
+    contributions: input.result.contributions,
+    result: input.result,
+  }, { onConflict: "score_run_id,scoring_version" });
+  if (error) console.warn("[score-service] v3 shadow persistence failed", error);
+}
+
 async function runAutomationSideEffects(
   userId: string,
   domain: string,
@@ -1094,7 +1128,8 @@ async function runAutomationSideEffects(
   if (
     result.score_status !== "complete" ||
     result.intent_score === null ||
-    result.score_band === null
+    result.score_band === null ||
+    result.scoring_version === SCORING_VERSION_V3
   ) {
     return;
   }
@@ -1262,13 +1297,30 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<StoredInt
   try {
     const snapshot = await getEvidenceSnapshot(supabase, lookupDomain);
     evidence = snapshot.rows;
+    const shouldComputeV3Shadow =
+      scoringVersion === SCORING_VERSION &&
+      process.env.SCORING_V3_SHADOW_ENABLED === "true";
+    const policy = scoringVersion === SCORING_VERSION_V3 || shouldComputeV3Shadow
+      ? await loadScoringPolicy(supabase, userId, profileHash, profile)
+      : DEFAULT_SCORING_POLICY_V3;
     const partial = computeActiveIntentScore(
       lookupCompany,
       lookupDomain,
       snapshot.signals,
       new Date(),
-      scoringVersion === SCORING_VERSION
+      scoringVersion === SCORING_VERSION,
+      scoringVersion === SCORING_VERSION_V3,
+      policy
     );
+    const v3Shadow = shouldComputeV3Shadow
+      ? computeIntentScoreV3(
+          lookupCompany,
+          lookupDomain,
+          snapshot.signals,
+          new Date(partial.last_updated),
+          policy
+        )
+      : null;
     const statuses = sourceStatuses(snapshot.signals);
 
     if (["unavailable", "not_found", "stale"].includes(statuses.hiring)) {
@@ -1276,6 +1328,13 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<StoredInt
         console.warn("[score-service] hiring refresh enqueue failed", error);
       });
     }
+    const webEnrichmentSignals = webEnrichmentSignalsForStatuses(
+      statuses,
+      process.env.WEB_ENRICHMENT_FUNDING_FALLBACK === "true"
+    );
+    void enqueueWebEnrichment(lookupDomain, webEnrichmentSignals).catch((error) => {
+      console.warn("[score-service] web enrichment enqueue failed", error);
+    });
 
     if (
       partial.score_status === "unscorable" ||
@@ -1337,7 +1396,10 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<StoredInt
     ]);
     evidence.push(...firmographics.rows);
     const { used_fallback: modelFallback, ...reasoningResult } = reasoning;
-    const automationEligible = partial.score_status === "complete" && !isBaseline;
+    const automationEligible =
+      partial.score_status === "complete" &&
+      !isBaseline &&
+      scoringVersion === SCORING_VERSION;
     const result: StoredIntentScore = {
       ...partial,
       ...reasoningResult,
@@ -1355,8 +1417,19 @@ export async function scoreCompany(opts: ScoreCompanyOptions): Promise<StoredInt
       previous_v2_band: null,
     };
 
-    const stored = await completeScoreRun(supabase, run.run_id, result, evidence);
+    const persisted = await completeScoreRun(supabase, run.run_id, result, evidence);
+    const stored = scoringVersion === SCORING_VERSION_V3
+      ? { ...persisted, automation_eligible: false }
+      : persisted;
     terminal = true;
+    if (v3Shadow) {
+      await persistShadowScore(supabase, {
+        runId: run.run_id,
+        userId,
+        domain: lookupDomain,
+        result: v3Shadow,
+      });
+    }
     await cacheSet(resultCacheKey, stored, SCORE_RESULT_TTL_SECONDS);
     await runAutomationSideEffects(userId, lookupDomain, lookupCompany, stored);
     return stored;

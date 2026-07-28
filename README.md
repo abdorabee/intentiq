@@ -72,6 +72,9 @@ MOCK_SIGNALS=true
 
 # Core scoring rollout (default true). Set false for the saturated four-trigger rollback engine.
 SCORING_V2_ENABLED=true
+# V3 remains opt-in and automation-disabled. Shadow comparison stores v3 beside active v2.
+SCORING_V3_ENABLED=false
+SCORING_V3_SHADOW_ENABLED=false
 
 # Optional hiring refresh worker; requires a Redis TCP/TLS URL, not Upstash REST
 BULLMQ_REDIS_URL=
@@ -80,6 +83,15 @@ SCRAPLING_PROMOTED_ADAPTERS=
 SCRAPLING_BROWSER_ENABLED=false
 SCRAPLING_JOB_TIMEOUT_MS=90000
 # PYTHON_BIN=python3
+
+# Fresh public-web evidence worker (Firecrawl; shadow mode by default)
+FIRECRAWL_API_KEY=
+WEB_ENRICHMENT_SHADOW_MODE=true
+WEB_ENRICHMENT_PROMOTED_SIGNALS=
+WEB_ENRICHMENT_WATCHLIST_INTERVAL_MS=21600000
+WEB_ENRICHMENT_DAILY_PAGE_BUDGET=1500
+# Crawl funding only when the structured provider is missing/stale.
+WEB_ENRICHMENT_FUNDING_FALLBACK=false
 ```
 
 Set `MOCK_SIGNALS=true` to use deterministic mock signals seeded by domain — no external API keys required for local dev.
@@ -153,7 +165,7 @@ curl -X POST http://localhost:3000/api/v1/score \
 
 `GET /api/v1/score?domain=acme.com&company=Acme` remains available as a compatibility wrapper. New integrations should use `POST`. Reusing an idempotency key with the same request replays its terminal result; reusing it for different input is rejected.
 
-Important response fields include `scoring_version`, `score_status`, `data_coverage`, `contributions`, `source_status`, `cached`, and `charged`. Each structured evidence item exposes `source`, `fetched_at`, `observed_at`, and a `source_url` when the provider supplies one. `icp_fit_score` is returned separately when the workspace has a verified business profile; it is never blended into `intent_score`.
+Important response fields include `scoring_version`, `scoring_policy_id`, `score_status`, `data_coverage`, `signal_coverage`, `contributions`, `source_status`, `cached`, and `charged`. Each contribution records raw strength, recency, effective weight, score points, source, confidence, reason codes, and evidence URLs. `icp_fit_score` is returned separately when the workspace has a verified business profile; it is never blended into `intent_score`.
 
 ### Route groups
 
@@ -210,6 +222,43 @@ When Explorium hiring evidence is `unavailable`, `not_found`, or `stale`, the we
 Scrapling evidence is written in shadow mode by default. Only evidence deliberately promoted with `shadow=false` can affect scoring, and it is used as a fallback—never added to fresh Explorium hiring evidence. See [`workers/hiring-refresh/README.md`](workers/hiring-refresh/README.md) for deployment, safety constraints, and test commands.
 
 The worker requires `BULLMQ_REDIS_URL` with a Redis TCP/TLS connection. `UPSTASH_REDIS_REST_URL` is used by the web app cache and is not BullMQ-compatible.
+
+### Fresh web enrichment worker (Firecrawl)
+
+Every company score best-effort enqueues a deduplicated `web-enrichment` job.
+The Firecrawl worker extracts dated hiring, company-announcement, and
+technology-change evidence and maintains first-party page snapshots for
+meaningful web-activity changes. Funding is excluded by default and is crawled
+only when `WEB_ENRICHMENT_FUNDING_FALLBACK=true` and the structured source is
+missing or stale. Scrapling remains a separate careers/ATS fallback worker.
+
+Site maps are cached for seven days, each account scrape is capped at five
+targeted pages, and a daily page budget stops new work before the configured
+limit. `web_enrichment_runs` records latency, attempts, pages, and estimated
+provider credits. The first snapshot creates a baseline and never creates
+intent; only a later material content delta can produce `web_activity`.
+
+New evidence is shadow-only by default. Promoted rows compete with provider
+evidence through freshness, positive-event, entity-match, and confidence
+selection; only one source is used for each trigger, so observations are never
+double-counted. A crawl that finds no verified dated event is `unavailable`,
+not zero intent. See
+[`workers/web-enrichment/README.md`](workers/web-enrichment/README.md) for
+deployment, promotion, and safety constraints.
+
+### Scoring v3 rollout and outcomes
+
+V3 uses funding 25%, hiring 25%, news 20%, technology change 20%, and meaningful
+web activity 10%, with per-signal half-lives of 180, 45, 30, 90, and 14 days.
+It requires four signal-equivalents and 75% weighted coverage. Keep v2 active
+and set `SCORING_V3_SHADOW_ENABLED=true` to persist comparable v3 results in
+`score_shadow_results`. `SCORING_V3_ENABLED=true` makes v3 user-facing, but v3
+automation remains database-disabled until a separate promotion migration.
+
+Custom organization, ICP, or vertical policies can be managed through
+`/api/user/scoring-policy`. Pipeline users can attach `closed_won`,
+`closed_lost`, `no_decision`, or `disqualified` to the exact score snapshot;
+these labels are stored in `score_outcomes`.
 
 ### Chat copilot
 

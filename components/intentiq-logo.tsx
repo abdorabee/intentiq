@@ -8,20 +8,21 @@ interface IntentIQLogoProps {
 }
 
 export default function IntentIQLogo({ className, size = 24 }: IntentIQLogoProps) {
+  const width = Math.round(size * 2.14);
+
   return (
     <Image
       src={vesperwiseLogo}
-      width={Math.round(size * 2.14)}
+      width={width}
       height={size}
       className={className}
       alt=""
       aria-hidden
-      unoptimized
       style={{
         display: "block",
         flexShrink: 0,
-        height: size,
-        width: "auto",
+        width,
+        height: "auto",
       }}
     />
   );

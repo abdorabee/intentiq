@@ -23,6 +23,14 @@ import {
 import type { PipelineCompany, PipelineSignals } from "@/app/api/dashboard/pipeline/route";
 
 type StageKey = "cold" | "warming" | "hot" | "engaged" | "converted";
+type OutcomeKey = "closed_won" | "closed_lost" | "no_decision" | "disqualified";
+
+const OUTCOME_LABELS: Record<OutcomeKey, string> = {
+  closed_won: "Closed won",
+  closed_lost: "Closed lost",
+  no_decision: "No decision",
+  disqualified: "Disqualified",
+};
 
 const STAGE_ORDER: StageKey[] = ["cold", "warming", "hot", "engaged", "converted"];
 
@@ -200,7 +208,7 @@ const SIGNAL_LABELS: Array<{ key: keyof PipelineSignals; label: string }> = [
   { key: "hiring", label: "hire" },
   { key: "news", label: "news" },
   { key: "technology", label: "tech" },
-  { key: "web", label: "web" },
+  { key: "web_activity", label: "web" },
 ];
 
 function SignalPills({ signals }: { signals: PipelineSignals }) {
@@ -229,18 +237,12 @@ function KanbanCard({
   globalIndex,
   userInitials,
   onSelect,
-  onRescore,
-  onStageChange,
-  rescoring,
 }: {
   company: PipelineCompany;
   stage: StageKey;
   globalIndex: number;
   userInitials: string;
   onSelect: (c: PipelineCompany) => void;
-  onRescore: (domain: string) => void;
-  onStageChange: (domain: string, stage: StageKey) => void;
-  rescoring: string | null;
 }) {
   const cfg = STAGE_CONFIG[stage];
   const iqNum = `IQ-${String(1000 + globalIndex).padStart(4, "0")}`;
@@ -314,18 +316,14 @@ function KanbanColumn({
   globalOffset,
   userInitials,
   onSelect,
-  onRescore,
   onStageChange,
-  rescoring,
 }: {
   stage: StageKey;
   companies: PipelineCompany[];
   globalOffset: number;
   userInitials: string;
   onSelect: (c: PipelineCompany) => void;
-  onRescore: (domain: string) => void;
   onStageChange: (domain: string, stage: StageKey) => void;
-  rescoring: string | null;
 }) {
   const [dragOver, setDragOver] = useState(false);
   const cfg = STAGE_CONFIG[stage];
@@ -382,9 +380,6 @@ function KanbanColumn({
               globalIndex={globalOffset + idx}
               userInitials={userInitials}
               onSelect={onSelect}
-              onRescore={onRescore}
-              onStageChange={onStageChange}
-              rescoring={rescoring}
             />
           ))
         )}
@@ -407,6 +402,8 @@ export default function PipelinePage() {
   const [selected, setSelected] = useState<PipelineCompany | null>(null);
   const [rescoring, setRescoring] = useState<string | null>(null);
   const [dialogEmailCopied, setDialogEmailCopied] = useState(false);
+  const [outcomeSaving, setOutcomeSaving] = useState(false);
+  const [outcomeError, setOutcomeError] = useState<string | null>(null);
 
   const fetchPipeline = useCallback(async () => {
     setLoading(true);
@@ -443,6 +440,10 @@ export default function PipelinePage() {
                 key_triggers: data.key_triggers ?? c.key_triggers,
                 urgency: data.urgency ?? c.urgency,
                 last_scored: new Date().toISOString(),
+                score_id: data.score_id ?? c.score_id,
+                score_status: data.score_status ?? c.score_status,
+                data_coverage: data.data_coverage ?? c.data_coverage,
+                outcome: data.score_id && data.score_id !== c.score_id ? null : c.outcome,
               }
             : c
         )
@@ -459,6 +460,10 @@ export default function PipelinePage() {
               ai_summary: data.ai_summary ?? prev.ai_summary,
               key_triggers: data.key_triggers ?? prev.key_triggers,
               urgency: data.urgency ?? prev.urgency,
+              score_id: data.score_id ?? prev.score_id,
+              score_status: data.score_status ?? prev.score_status,
+              data_coverage: data.data_coverage ?? prev.data_coverage,
+              outcome: data.score_id && data.score_id !== prev.score_id ? null : prev.outcome,
             }
           : prev
       );
@@ -480,6 +485,41 @@ export default function PipelinePage() {
         );
       }
     } catch { /* ignore */ }
+  }
+
+  async function handleOutcome(outcome: OutcomeKey | null) {
+    if (!selected?.score_id) return;
+    setOutcomeSaving(true);
+    setOutcomeError(null);
+    try {
+      const res = await fetch("/api/dashboard/pipeline/outcomes", {
+        method: outcome ? "PUT" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(outcome
+          ? { score_id: selected.score_id, outcome }
+          : { score_id: selected.score_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Unable to save outcome");
+      const nextOutcome = outcome
+        ? {
+            outcome,
+            occurred_at: data.outcome?.occurred_at ?? new Date().toISOString(),
+            value: data.outcome?.value ?? null,
+            reason: data.outcome?.reason ?? null,
+          }
+        : null;
+      setSelected((current) => current ? { ...current, outcome: nextOutcome } : current);
+      setCompanies((current) => current.map((company) =>
+        company.score_id === selected.score_id
+          ? { ...company, outcome: nextOutcome }
+          : company
+      ));
+    } catch (error) {
+      setOutcomeError(error instanceof Error ? error.message : "Unable to save outcome");
+    } finally {
+      setOutcomeSaving(false);
+    }
   }
 
   function handleCopyDialogEmail() {
@@ -603,9 +643,7 @@ export default function PipelinePage() {
                 globalOffset={globalOffsets[stage]}
                 userInitials={userInitials}
                 onSelect={setSelected}
-                onRescore={handleRescore}
                 onStageChange={handleStageChange}
-                rescoring={rescoring}
               />
             ))}
           </div>
@@ -613,7 +651,7 @@ export default function PipelinePage() {
       )}
 
       {/* Detail Dialog — unchanged */}
-      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setDialogEmailCopied(false); } }}>
+      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setDialogEmailCopied(false); setOutcomeError(null); } }}>
         <DialogContent className="border-slate-200 dark:border-foreground/[0.08] bg-white dark:bg-[#0c1122] max-w-lg">
           {selected && selectedCfg && (
             <>
@@ -631,6 +669,14 @@ export default function PipelinePage() {
                   {selected.urgency && (
                     <span className={`text-[10px] px-2 py-0.5 border font-medium ${urgencyConfig(selected.urgency)}`}>
                       {selected.urgency}
+                    </span>
+                  )}
+                  {selected.score_status && (
+                    <span className="text-[10px] border border-slate-200 dark:border-foreground/[0.10] px-2 py-0.5 text-slate-500">
+                      {selected.score_status}
+                      {selected.data_coverage != null
+                        ? ` · ${Math.round(selected.data_coverage * 100)}% coverage`
+                        : ""}
                     </span>
                   )}
                 </div>
@@ -660,6 +706,46 @@ export default function PipelinePage() {
                       );
                     })}
                   </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+                    Score outcome
+                  </p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {(Object.keys(OUTCOME_LABELS) as OutcomeKey[]).map((outcome) => {
+                      const active = selected.outcome?.outcome === outcome;
+                      return (
+                        <button
+                          key={outcome}
+                          disabled={!selected.score_id || outcomeSaving}
+                          onClick={() => handleOutcome(outcome)}
+                          className={`text-[10px] px-2.5 py-1 border transition-colors disabled:opacity-50 ${
+                            active
+                              ? "border-[#dfff00]/50 bg-[#dfff00]/15 text-[#dfff00]"
+                              : "border-slate-200 dark:border-foreground/[0.08] text-slate-500 hover:border-slate-400"
+                          }`}
+                        >
+                          {OUTCOME_LABELS[outcome]}
+                        </button>
+                      );
+                    })}
+                    {selected.outcome && (
+                      <button
+                        disabled={outcomeSaving}
+                        onClick={() => handleOutcome(null)}
+                        className="text-[10px] px-2.5 py-1 border border-slate-200 dark:border-foreground/[0.08] text-slate-500"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  {!selected.score_id && (
+                    <p className="mt-1 text-[10px] text-slate-500">
+                      Re-score this account to attach an outcome to an exact score snapshot.
+                    </p>
+                  )}
+                  {outcomeError && <p className="mt-1 text-[10px] text-red-400">{outcomeError}</p>}
                 </div>
 
                 {selected.ai_summary && (
