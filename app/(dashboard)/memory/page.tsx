@@ -102,7 +102,7 @@ function IcpFitExplainer() {
             ))}
           </div>
           <p className="text-[10px] text-slate-500 mt-3">
-            Signals used: industry keywords in news/tech, hiring velocity vs. company size target, buyer role in job postings, technology maturity.
+            Fit uses verified firmographics only: industry alignment contributes 60% and employee-range alignment contributes 40%. It remains unavailable when either your profile or the company data is insufficient.
           </p>
         </div>
       </div>
@@ -116,6 +116,7 @@ export default function MemoryPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/user/profile")
@@ -133,15 +134,24 @@ export default function MemoryPage() {
     if (!draft || !hasChanges) return;
     setSaving(true);
     setSaved(false);
+    setSaveError(null);
     try {
-      await fetch("/api/user/profile", {
+      const response = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
+        body: JSON.stringify({ business_profile: draft }),
       });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error ?? "Failed to save profile");
+      }
+
       setProfile({ ...draft });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Failed to save profile");
     } finally {
       setSaving(false);
     }
@@ -192,7 +202,7 @@ export default function MemoryPage() {
   return (
     <div className="space-y-8 max-w-3xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <BrainCircuit className="h-4 w-4 text-cyan-500" />
@@ -202,6 +212,11 @@ export default function MemoryPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400 tracking-wide mt-1">
             What VesperWise knows about your business — drives every score, recommendation, and ICP fit calculation.
           </p>
+          {saveError && (
+            <p role="alert" className="mt-2 text-xs text-red-500 dark:text-red-400">
+              {saveError}
+            </p>
+          )}
         </div>
         <button
           onClick={handleSave}

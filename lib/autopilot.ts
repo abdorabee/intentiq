@@ -1,5 +1,9 @@
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { scoreCompany, domainToCompanyName } from "@/lib/score-service";
+import {
+  domainToCompanyName,
+  InsufficientCreditsError,
+  scoreCompany,
+} from "@/lib/score-service";
 import type {
   AutopilotCondition,
   AutopilotConditionLogic,
@@ -11,6 +15,7 @@ import type {
   SignalSet,
   PipelineStage,
 } from "@/lib/types";
+import { evaluateV2ScoreTransition } from "@/lib/score-transition";
 
 // ─── Condition Evaluation ───────────────────────────────────────────────────
 
@@ -344,12 +349,6 @@ export async function executeWorkflow(
   let hasError = false;
 
   for (const company of companies) {
-    // Check if user has enough credits for at least a rescore
-    if (user.credits_remaining - totalCreditsUsed < 1) {
-      hasError = true;
-      break;
-    }
-
     try {
       // Rescore the company (this deducts 1 credit internally)
       const scoreResult = await scoreCompany({
@@ -359,14 +358,28 @@ export async function executeWorkflow(
         productCategory: user.product_category ?? "B2B SaaS",
         businessProfile: user.business_profile,
       });
-      totalCreditsUsed += 1;
+      if (scoreResult.charged) totalCreditsUsed += 1;
       companiesChecked++;
+
+      // Partial/unscorable results cannot drive workflow actions. Baselines,
+      // cached/replayed results, and unchanged scores are filtered by the
+      // persisted same-version transition below.
+      if (
+        scoreResult.score_status !== "complete" ||
+        scoreResult.intent_score === null ||
+        scoreResult.score_band === null
+      ) {
+        continue;
+      }
+
+      const transition = evaluateV2ScoreTransition(scoreResult);
+      if (!transition.canTriggerAutomation) continue;
 
       // Evaluate conditions
       const ctx: EvalContext = {
-        oldScore: company.score,
+        oldScore: transition.previousScore,
         newScore: scoreResult.intent_score,
-        oldBand: company.score_band,
+        oldBand: transition.previousBand,
         newBand: scoreResult.score_band,
         signals: scoreResult.signals,
       };
@@ -411,9 +424,9 @@ export async function executeWorkflow(
           domain: company.domain,
           company_name: scoreResult.company,
           trigger_reason: reasons.join("; "),
-          old_score: company.score,
+          old_score: transition.previousScore,
           new_score: scoreResult.intent_score,
-          old_band: company.score_band,
+          old_band: transition.previousBand,
           new_band: scoreResult.score_band,
           action_type: action.type,
           action_result: result,
@@ -424,6 +437,9 @@ export async function executeWorkflow(
     } catch (err) {
       console.error(`[autopilot] Error processing ${company.domain}:`, err);
       hasError = true;
+      // Cached scores are free, so only the transactional scorer knows whether
+      // a balance is actually required. Stop once a true cache miss is rejected.
+      if (err instanceof InsufficientCreditsError) break;
     }
   }
 

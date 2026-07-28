@@ -22,6 +22,11 @@ interface BulkResult {
   email_subject: string;
   talk_track: string;
   signals: SignalSet;
+  score_status: "complete" | "partial";
+  data_coverage: number;
+  icp_fit_score: number | null;
+  cached: boolean;
+  charged: boolean;
   last_updated: string;
 }
 
@@ -36,7 +41,7 @@ interface BulkResponse {
 const LOADING_PHASES = [
   { emoji: "\u{1F9E0}", text: "Thinking...", sub: "Parsing your CSV and warming up the pipeline" },
   { emoji: "\u{1F50D}", text: "Investigating...", sub: "Pulling funding rounds, hiring trends, and news signals" },
-  { emoji: "\u{1F4CA}", text: "Crunching numbers...", sub: "Computing weighted intent scores across 5 signal dimensions" },
+  { emoji: "\u{1F4CA}", text: "Crunching numbers...", sub: "Computing coverage-aware scores across 4 purchase-intent triggers" },
   { emoji: "\u{2728}", text: "Reasoning...", sub: "AI is analyzing patterns and writing summaries" },
   { emoji: "\u{1F3AF}", text: "Ranking...", sub: "Sorting companies by purchase intent — hottest leads first" },
   { emoji: "\u{1F4E6}", text: "Shipping...", sub: "Packaging your results. Almost there!" },
@@ -47,14 +52,15 @@ function useLoadingPhase(isLoading: boolean) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    if (!isLoading) {
-      setPhase(0);
-      return;
-    }
+    if (!isLoading) return;
+    const reset = setTimeout(() => setPhase(0), 0);
     const interval = setInterval(() => {
       setPhase((p) => (p + 1) % LOADING_PHASES.length);
     }, 3500);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(reset);
+      clearInterval(interval);
+    };
   }, [isLoading]);
 
   return LOADING_PHASES[phase];
@@ -117,6 +123,11 @@ export default function BulkScorerPage() {
       { key: "domain",             label: "Domain" },
       { key: "intent_score",       label: "Intent Score" },
       { key: "score_band",         label: "Score Band" },
+      { key: "score_status",       label: "Score Status" },
+      { key: "data_coverage",      label: "Data Coverage" },
+      { key: "icp_fit_score",      label: "ICP Fit Score" },
+      { key: "cached",             label: "Cache Hit" },
+      { key: "charged",            label: "Credit Charged" },
       { key: "buying_stage",       label: "Buying Stage" },
       { key: "urgency",            label: "Urgency" },
       { key: "ai_summary",         label: "AI Summary" },
@@ -129,7 +140,8 @@ export default function BulkScorerPage() {
       { key: "hiring_signal",      label: "Hiring Signal" },
       { key: "news_signal",        label: "News Signal" },
       { key: "technology_signal",   label: "Technology Signal" },
-      { key: "web_signal",         label: "Web Signal" },
+      { key: "web_context",        label: "Web Context" },
+      { key: "github_context",     label: "GitHub Context" },
       { key: "scored_at",          label: "Scored At" },
     ];
 
@@ -138,6 +150,11 @@ export default function BulkScorerPage() {
       domain:             r.domain,
       intent_score:       r.intent_score,
       score_band:         r.score_band,
+      score_status:       r.score_status,
+      data_coverage:      `${Math.round(r.data_coverage * 100)}%`,
+      icp_fit_score:      r.icp_fit_score ?? "",
+      cached:             r.cached,
+      charged:            r.charged,
       buying_stage:       r.buying_stage,
       urgency:            r.urgency,
       ai_summary:         r.ai_summary,
@@ -150,7 +167,8 @@ export default function BulkScorerPage() {
       hiring_signal:      formatSignal(r.signals?.hiring),
       news_signal:        formatSignal(r.signals?.news),
       technology_signal:  formatSignal(r.signals?.technology),
-      web_signal:         formatSignal(r.signals?.web),
+      web_context:        formatSignal(r.signals?.web),
+      github_context:     formatSignal(r.signals?.github),
       scored_at:          r.last_updated,
     }));
 

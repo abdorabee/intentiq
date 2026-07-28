@@ -1,4 +1,5 @@
 import type { BusinessProfile } from "@/lib/types";
+import { businessProfileSchema } from "./business-profile";
 
 // ─── Tool Definitions (OpenAI-compatible format) ────────────────────────────
 
@@ -135,25 +136,6 @@ Your job is to learn about the user's business through a natural conversation so
 export function parseBusinessProfile(
   args: Record<string, unknown>
 ): BusinessProfile | null {
-  const p = args as Record<string, unknown>;
-  if (
-    typeof p.product_category !== "string" ||
-    !Array.isArray(p.target_industries) ||
-    typeof p.company_size !== "string" ||
-    typeof p.buyer_role !== "string" ||
-    typeof p.sales_motion !== "string" ||
-    typeof p.deal_size !== "string" ||
-    typeof p.sales_cycle !== "string"
-  ) {
-    return null;
-  }
-  return {
-    product_category: p.product_category,
-    target_industries: p.target_industries.map(String),
-    company_size: p.company_size,
-    buyer_role: p.buyer_role,
-    sales_motion: p.sales_motion,
-    deal_size: p.deal_size,
-    sales_cycle: p.sales_cycle,
-  };
+  const parsed = businessProfileSchema.safeParse(args);
+  return parsed.success ? parsed.data as BusinessProfile : null;
 }

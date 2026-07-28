@@ -186,6 +186,198 @@ button, a, [role="button"] { touch-action: manipulation; }
   .data-row, .api-key-row, .bulk-row { flex-wrap: wrap; gap: 8px; }
 }
 
+/* --------------------------------------------------------------------------
+   Apple-led redesign responsive pass
+   -------------------------------------------------------------------------- */
+@media (max-width: 1180px) {
+  .billing-page .bill-hero,
+  .billing-page .split-row,
+  .detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .inbox-shell {
+    grid-template-columns: 180px minmax(280px, 0.8fr) minmax(0, 1fr);
+  }
+
+  .ap-shell {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  :root {
+    --control-min: 44px;
+  }
+
+  .topbar {
+    height: 60px;
+    padding-inline: 14px;
+  }
+
+  .page,
+  .result-page,
+  .billing-page .bill-content {
+    padding: 18px 16px 36px !important;
+  }
+
+  .page-title,
+  .billing-page .bill-head .title,
+  .lists-page .ld-title,
+  .p-title,
+  .msg-detail h1 {
+    font-size: 28px !important;
+  }
+
+  .inbox-shell,
+  .ap-shell {
+    grid-template-columns: 1fr !important;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .inbox-cats,
+  .msg-list-pane,
+  .ap-list-pane {
+    border-right: 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .inbox-cats {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px 12px;
+  }
+
+  .inbox-cats .cat-section {
+    display: none;
+  }
+
+  .inbox-cats .cat-item {
+    width: auto;
+    min-width: max-content;
+    min-height: 40px;
+  }
+
+  .msg-list-pane {
+    max-height: 42vh;
+  }
+
+  .ap-list-pane {
+    max-height: 46vh;
+  }
+
+  .ap-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 6px;
+  }
+
+  .wl-head,
+  .pl-head,
+  .lists-page .ld-thead {
+    min-width: 900px;
+  }
+
+  .wl-row,
+  .pl-row,
+  .lists-page .ld-trow {
+    min-width: 900px;
+  }
+
+  .billing-page .plans-grid,
+  .billing-page .topup-grid,
+  .lists-page .list-grid,
+  .stat-strip,
+  .lists-page .ld-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page,
+  .result-page,
+  .billing-page .bill-content {
+    padding: 14px 12px 32px !important;
+  }
+
+  .page-head,
+  .billing-page .bill-head,
+  .lists-page .ld-head,
+  .p-head {
+    flex-direction: column;
+  }
+
+  .page-actions,
+  .ld-actions,
+  .p-actions,
+  .msg-detail-actions,
+  .tools-row,
+  .billing-page .plan-cta-row,
+  .reply-actions {
+    width: 100%;
+  }
+
+  .tb-btn,
+  .btn-primary,
+  .btn,
+  [data-slot="button"] {
+    min-height: 44px;
+  }
+
+  .page-actions > *,
+  .ld-actions > *,
+  .p-actions > *,
+  .msg-detail-actions > *,
+  .tools-row > .search-input {
+    flex: 1 1 auto;
+  }
+
+  .kpis,
+  .stat-strip,
+  .billing-page .plans-grid,
+  .billing-page .topup-grid,
+  .lists-page .list-grid,
+  .lists-page .ld-stats,
+  .event-rows,
+  .mode-picker {
+    grid-template-columns: 1fr !important;
+  }
+
+  .billing-page .plan-feats,
+  .billing-page .cb-burn,
+  .signals-card {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .billing-page .cb-burn .div {
+    width: 100%;
+    height: 1px;
+  }
+
+  .msg-detail-head,
+  .msg-body,
+  .ap-detail-head,
+  .ap-shell .ap-canvas-inner {
+    padding: 16px !important;
+  }
+
+  .cmd-backdrop {
+    align-items: flex-start;
+    padding-top: 8vh;
+  }
+
+  .cmd-palette,
+  .lists-page .lst-modal,
+  [data-slot="dialog-content"] {
+    border-radius: 20px;
+  }
+}
+
 /* ============================================================
    MARKETING & LEGAL PAGES (inline-style grids)
    ============================================================ */

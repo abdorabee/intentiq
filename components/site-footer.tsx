@@ -71,9 +71,8 @@ export default function SiteFooter() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Link href="/" className="brand">
-              <IntentIQLogo className="logo" size={22} />
-              <span>VesperWise</span>
+            <Link href="/" className="brand" aria-label="VesperWise home">
+              <IntentIQLogo className="logo" size={42} variant="wordmark" />
             </Link>
             <p>
               B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the

@@ -22,7 +22,7 @@ const COLS = [
     color: "#4ade80",
     cards: [
       { id: "IQ-2046", company: "Stripe", summary: "Series H · $6.5B. Auto-routed via Autopilot.", score: 94, band: "hot", highlight: true },
-      { id: "IQ-2041", company: "Anthropic", summary: "Press + funding + hiring all 90+. Five axes lit.", score: 96, band: "hot", highlight: true },
+      { id: "IQ-2041", company: "Anthropic", summary: "Funding, hiring, news, and technology triggers all active.", score: 96, band: "hot", highlight: true },
     ],
   },
   {

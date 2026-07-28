@@ -11,6 +11,8 @@ import {
   CreditCard,
   Key,
   List,
+  Upload,
+  BrainCircuit,
 } from "lucide-react";
 
 export type SearchResultKind = "page" | "company" | "person" | "watchlist" | "list" | "action";
@@ -42,8 +44,10 @@ export const SEARCH_NAV_ITEMS: SearchNavItem[] = [
   { id: "people", kind: "page", label: "People", href: "/people", keywords: "people contacts person scoring", icon: UserSearch },
   { id: "watchlist", kind: "page", label: "Watchlist", href: "/watchlist", keywords: "watchlist monitor accounts", icon: Eye },
   { id: "lists", kind: "page", label: "Lists", href: "/lists", keywords: "lists segments accounts", icon: List },
+  { id: "bulk", kind: "page", label: "Bulk Score", href: "/bulk", keywords: "bulk csv upload score companies", icon: Upload },
   { id: "autopilot", kind: "page", label: "Autopilot", href: "/autopilot", keywords: "autopilot workflows automation", icon: Zap },
-  { id: "memory", kind: "page", label: "Inbox", href: "/memory", keywords: "inbox memory messages", icon: Inbox },
+  { id: "inbox", kind: "page", label: "Inbox", href: "/inbox", keywords: "inbox notifications messages alerts", icon: Inbox },
+  { id: "memory", kind: "page", label: "Profile", href: "/memory", keywords: "profile memory settings business profile", icon: BrainCircuit },
   { id: "billing", kind: "page", label: "Billing", href: "/billing", keywords: "billing credits plan invoice", icon: CreditCard },
   { id: "api-keys", kind: "page", label: "API Keys", href: "/api-keys", keywords: "api keys developer token", icon: Key },
 ];

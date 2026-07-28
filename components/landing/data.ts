@@ -71,8 +71,8 @@ export const HOW_IT_WORKS = [
   },
   {
     step: "02",
-    title: "5 live signals fetched in parallel",
-    body: "Funding rounds, hiring velocity, news triggers, tech stack, and web presence — all fetched simultaneously.",
+    title: "4 intent triggers fetched in parallel",
+    body: "Funding rounds, hiring velocity, non-funding news triggers, and dated technology changes — with web and GitHub as context.",
   },
   {
     step: "03",
@@ -82,16 +82,16 @@ export const HOW_IT_WORKS = [
   {
     step: "04",
     title: "AI reasoning + recommended action",
-    body: "Claude generates a plain-English summary, a 'why now' insight, and a specific outreach action to take.",
+    body: "A bounded AI request generates a plain-English summary, a 'why now' insight, and a specific outreach action, with a deterministic fallback.",
   },
 ];
 
 export const SIGNALS = [
-  { name: "FUNDING INTELLIGENCE", category: "Series rounds, valuations, investor data", weight: "25%" },
-  { name: "HIRING VELOCITY", category: "Open roles, growth rate, team expansion", weight: "20%" },
-  { name: "NEWS TRIGGERS", category: "Press mentions, product launches, partnerships", weight: "20%" },
-  { name: "TECHNOLOGY STACK", category: "Tools adopted, migrations, modernization", weight: "20%" },
-  { name: "WEB PRESENCE", category: "Traffic trends, domain authority, growth signals", weight: "15%" },
+  { name: "FUNDING INTELLIGENCE", category: "Series rounds, valuations, investor data", weight: "22 rel." },
+  { name: "HIRING VELOCITY", category: "Open roles, growth rate, team expansion", weight: "19 rel." },
+  { name: "NEWS TRIGGERS", category: "Non-funding launches, partnerships, leadership", weight: "18 rel." },
+  { name: "TECHNOLOGY CHANGES", category: "Dated adoptions, migrations, modernization", weight: "18 rel." },
+  { name: "WEB + GITHUB", category: "Account context only", weight: "context" },
 ];
 
 export const CODE_EXAMPLES = {

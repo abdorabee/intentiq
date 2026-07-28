@@ -1,9 +1,37 @@
 // ─── Signal Types ─────────────────────────────────────────────────────────────
 
+export type SignalStatus =
+  | "ok"
+  | "no_signal"
+  | "stale"
+  | "not_found"
+  | "unavailable";
+
+export interface SignalEvidence {
+  label: string;
+  observed_at: string | null;
+  /** Provider identifier exposed with the public score payload. */
+  source: string;
+  /** Timestamp when this evidence was fetched or verified. */
+  fetched_at: string;
+  source_url?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface SignalResult {
   score: number;
   max: number;
   detail: string;
+  /** Omitted only by legacy cached signal payloads. */
+  status?: SignalStatus;
+  /** Timestamp of the newest event that contributed to a positive score. */
+  observed_at?: string | null;
+  /** Timestamp of the most recent successful or attempted source fetch. */
+  fetched_at?: string;
+  /** Provider identifier; omitted only by legacy cached payloads. */
+  source?: string;
+  evidence?: SignalEvidence[];
+  metadata?: Record<string, unknown>;
 }
 
 export interface SignalSet {
@@ -19,14 +47,31 @@ export interface SignalSet {
 // ─── Score Types ──────────────────────────────────────────────────────────────
 
 export type ScoreBand = "HOT" | "WARM" | "COLD";
+export type ScoreStatus = "complete" | "partial" | "unscorable";
 export type BuyingStage = "awareness" | "consideration" | "decision";
 export type UrgencyLevel = "act-now" | "this-week" | "this-month" | "nurture";
+
+export type IntentSignalKey = "funding" | "hiring" | "news" | "technology";
+
+export interface SignalContribution {
+  type: IntentSignalKey;
+  status: SignalStatus;
+  rawScore: number;
+  decayedScore: number;
+  freshness: number;
+  daysAgo: number | null;
+  summary: string;
+  baseWeight: number;
+  effectiveWeight: number;
+  contribution: number;
+  observedAt: string | null;
+}
 
 export interface IntentScore {
   company: string;
   domain: string;
-  intent_score: number;
-  score_band: ScoreBand;
+  intent_score: number | null;
+  score_band: ScoreBand | null;
   last_updated: string;
   signals: SignalSet;
   ai_summary: string;
@@ -39,10 +84,23 @@ export interface IntentScore {
   talk_track: string;
   score_decay_date: string;
   model_tier: "premium" | "free";
-  icp_fit_score?: number;       // 0-100, how well the company fits the user's ICP
-  raw_score?: number;           // pre-spread weighted sum (debug)
-  confidence?: number;          // 0-1, based on active signal count × avg freshness
-  score_explanation?: string;   // gpt-4o-mini generated 2-sentence explanation
+  scoring_version: string;
+  score_status: ScoreStatus;
+  data_coverage: number;
+  contributions: SignalContribution[];
+  cached: boolean;
+  charged: boolean;
+  icp_fit_score: number | null; // 0-100, how well the company fits the user's ICP
+  model_fallback: boolean;
+  automation_eligible: boolean;
+  is_baseline: boolean;
+  profile_hash: string;
+  source_status: Partial<Record<keyof Omit<SignalSet, "latestSignalDate">, SignalStatus>>;
+  score_id?: string;
+  score_run_id?: string;
+  raw_score?: number | null;    // weighted score before freshness decay
+  confidence?: number;          // backward-compatible alias for data_coverage
+  score_explanation?: string;   // bounded reasoning summary for older clients
 }
 
 // ─── API Types ────────────────────────────────────────────────────────────────
@@ -133,6 +191,22 @@ export interface DbScore {
   why_now: string | null;
   email_subject: string | null;
   talk_track: string | null;
+  score_run_id: string | null;
+  scoring_version: string;
+  profile_hash: string | null;
+  score_status: Exclude<ScoreStatus, "unscorable">;
+  data_coverage: number | null;
+  confidence: number | null;
+  raw_score: number | null;
+  contributions: SignalContribution[];
+  source_status: Partial<Record<keyof Omit<SignalSet, "latestSignalDate">, SignalStatus>>;
+  is_baseline: boolean;
+  automation_eligible: boolean;
+  evidence_ids: string[];
+  model_tier: "premium" | "free" | null;
+  model_fallback: boolean;
+  score_explanation: string | null;
+  icp_fit_score: number | null;
   expires_at: string;
   created_at: string;
 }

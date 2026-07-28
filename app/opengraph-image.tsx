@@ -72,7 +72,7 @@ export default function OGImage() {
             lineHeight: 1.5,
           }}
         >
-          One API call. 5 live signals. AI reasoning. 0–100 intent score.
+          One API call. 4 dated triggers. Explicit coverage. 0–100 intent score.
           100× cheaper than 6sense.
         </div>
 
@@ -80,8 +80,8 @@ export default function OGImage() {
         <div style={{ display: "flex", gap: 48 }}>
           {[
             { value: "$49/mo", label: "Starting price" },
-            { value: "5 signals", label: "Funding · Hiring · News · Tech · Web" },
-            { value: "&lt;3s", label: "Per score" },
+            { value: "4 triggers", label: "Funding · Hiring · News · Technology" },
+            { value: "6h", label: "Personalized result cache" },
           ].map((stat) => (
             <div key={stat.label} style={{ display: "flex", flexDirection: "column" }}>
               <span style={{ fontSize: 28, fontWeight: 700, color: "#DFFF00" }}>

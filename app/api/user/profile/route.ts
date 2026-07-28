@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { profileUpdateSchema } from "@/lib/business-profile";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import type { BusinessProfile } from "@/lib/types";
 
 export async function GET() {
   const { userId } = await auth();
@@ -26,12 +26,28 @@ export async function PUT(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = (await req.json()) as { business_profile: BusinessProfile };
-  const profile = body.business_profile;
-
-  if (!profile?.product_category) {
-    return NextResponse.json({ error: "business_profile is required" }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
   }
+
+  const parsed = profileUpdateSchema.safeParse(body);
+  if (!parsed.success) {
+    const hasProfile = typeof body === "object" && body !== null && "business_profile" in body;
+    return NextResponse.json(
+      {
+        error: hasProfile ? "Invalid business_profile" : "business_profile is required",
+        issues: parsed.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+      },
+      { status: 400 }
+    );
+  }
+  const profile = parsed.data.business_profile;
 
   const supabase = createSupabaseAdmin();
   const { error } = await supabase

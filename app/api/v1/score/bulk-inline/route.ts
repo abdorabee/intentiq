@@ -41,34 +41,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── Credit check ──────────────────────────────────────────────────────────
+  // ── Seller profile ────────────────────────────────────────────────────────
+  // Individual score runs reserve credits atomically. Avoid pre-charging or
+  // requiring one credit per CSV row because personalized cache hits are free.
   const skipCredits = process.env.DISABLE_CREDIT_CHECK === "true";
   const supabase = createSupabaseAdmin();
-
-  let businessProfile: import("@/lib/types").BusinessProfile | null = null;
-
-  if (!skipCredits) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("credits_remaining, product_category, business_profile")
-      .eq("id", userId)
-      .single();
-
-    if (!user || user.credits_remaining < rows.length) {
-      return NextResponse.json(
-        { error: `Not enough credits. Need ${rows.length}, have ${user?.credits_remaining ?? 0}.` },
-        { status: 402 }
-      );
-    }
-    businessProfile = (user.business_profile as import("@/lib/types").BusinessProfile) ?? null;
-  } else {
-    const { data: user } = await supabase
-      .from("users")
-      .select("business_profile")
-      .eq("id", userId)
-      .single();
-    businessProfile = (user?.business_profile as import("@/lib/types").BusinessProfile) ?? null;
-  }
+  const { data: user } = await supabase
+    .from("users")
+    .select("product_category, business_profile")
+    .eq("id", userId)
+    .single();
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const businessProfile = (user.business_profile as import("@/lib/types").BusinessProfile) ?? null;
 
   // ── Score each company sequentially ────────────────────────────────────────
   const results: Array<{
@@ -85,6 +69,11 @@ export async function POST(req: NextRequest) {
     email_subject: string;
     talk_track: string;
     signals: import("@/lib/types").SignalSet;
+    score_status: "complete" | "partial";
+    data_coverage: number;
+    icp_fit_score: number | null;
+    cached: boolean;
+    charged: boolean;
     last_updated: string;
   }> = [];
 
@@ -102,9 +91,22 @@ export async function POST(req: NextRequest) {
         domain,
         userId,
         companyName,
+        productCategory: user.product_category ?? "B2B SaaS",
         businessProfile,
         skipCredits,
       });
+
+      if (
+        result.score_status === "unscorable" ||
+        result.intent_score === null ||
+        result.score_band === null
+      ) {
+        errors.push({
+          domain,
+          error: `Insufficient data coverage (${Math.round(result.data_coverage * 100)}%)`,
+        });
+        continue;
+      }
 
       results.push({
         domain: result.domain ?? domain,
@@ -120,6 +122,11 @@ export async function POST(req: NextRequest) {
         email_subject: result.email_subject ?? "",
         talk_track: result.talk_track ?? "",
         signals: result.signals,
+        score_status: result.score_status,
+        data_coverage: result.data_coverage,
+        icp_fit_score: result.icp_fit_score,
+        cached: result.cached,
+        charged: result.charged,
         last_updated: result.last_updated ?? new Date().toISOString(),
       });
     } catch (err) {

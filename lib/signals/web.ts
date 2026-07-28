@@ -1,5 +1,7 @@
 import type { SignalResult } from "@/lib/types";
 
+const SOURCE = "open-page-rank";
+
 // Open PageRank API (free — 100 req/day)
 // Sign up at: https://www.domcop.com/openpagerank/
 interface OPRResponse {
@@ -10,12 +12,33 @@ interface OPRResponse {
   }>;
 }
 
-export async function fetchWebSignal(domain: string): Promise<SignalResult> {
+export async function fetchWebSignal(
+  domain: string,
+  signal?: AbortSignal
+): Promise<SignalResult> {
+  const fetchedAt = new Date().toISOString();
+  const apiKey = process.env.OPEN_PAGE_RANK_API_KEY;
+
+  if (!apiKey) {
+    return {
+      score: 0,
+      max: 15,
+      detail: "Web authority data unavailable",
+      status: "unavailable",
+      observed_at: null,
+      fetched_at: fetchedAt,
+      source: SOURCE,
+      evidence: [],
+      metadata: { reason: "missing_api_key", context_only: true },
+    };
+  }
+
   try {
     const url = `https://openpagerank.com/api/v1.0/getPageRank?domains[]=${domain}`;
     const res = await fetch(url, {
-      headers: { "API-OPR": process.env.OPEN_PAGE_RANK_API_KEY ?? "" },
+      headers: { "API-OPR": apiKey },
       next: { revalidate: 86400 },
+      signal,
     });
 
     if (!res.ok) throw new Error(`OpenPageRank ${res.status}`);
@@ -24,7 +47,17 @@ export async function fetchWebSignal(domain: string): Promise<SignalResult> {
     const result = data.response?.[0];
 
     if (!result || result.status_code !== 200) {
-      return { score: 0, max: 15, detail: "Domain not indexed" };
+      return {
+        score: 0,
+        max: 15,
+        detail: "Domain not indexed",
+        status: "not_found",
+        observed_at: null,
+        fetched_at: fetchedAt,
+        source: SOURCE,
+        evidence: [],
+        metadata: { context_only: true },
+      };
     }
 
     const opr = result.page_rank_integer ?? 0;
@@ -56,8 +89,37 @@ export async function fetchWebSignal(domain: string): Promise<SignalResult> {
       detail += ` — top 100K globally`;
     }
 
-    return { score, max: 15, detail };
-  } catch {
-    return { score: 0, max: 15, detail: "Web authority data unavailable" };
+    return {
+      score,
+      max: 15,
+      detail,
+      status: "ok",
+      observed_at: fetchedAt,
+      fetched_at: fetchedAt,
+      source: SOURCE,
+      evidence: [{
+        label: `Open PageRank ${opr}/10`,
+        observed_at: fetchedAt,
+        source: SOURCE,
+        fetched_at: fetchedAt,
+        metadata: { global_rank: globalRank },
+      }],
+      metadata: { page_rank: opr, global_rank: globalRank, context_only: true },
+    };
+  } catch (error) {
+    return {
+      score: 0,
+      max: 15,
+      detail: "Web authority data unavailable",
+      status: "unavailable",
+      observed_at: null,
+      fetched_at: fetchedAt,
+      source: SOURCE,
+      evidence: [],
+      metadata: {
+        reason: error instanceof Error ? error.message : "unknown_error",
+        context_only: true,
+      },
+    };
   }
 }

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { toCSV, downloadCSV as triggerDownload, csvFilename, formatSignal } from "@/lib/csv";
-import type { DbScore, ScoreBand, SignalSet } from "@/lib/types";
+import type { DbScore, IntentSignalKey, ScoreBand, SignalSet } from "@/lib/types";
 import type { HistoryStats, ActivityBucket } from "./page";
 
 interface HistoryViewProps { stats: HistoryStats; }
@@ -96,12 +96,16 @@ const AV_COLORS = [
   "linear-gradient(135deg,#8a8f98,#f87171)",
 ];
 
-const SIGNAL_META: { key: keyof Omit<SignalSet, "latestSignalDate">; abbr: string; color: string; max: number }[] = [
-  { key: "funding", abbr: "FU", color: "#f5b544", max: 25 },
-  { key: "hiring", abbr: "HI", color: "#4ade80", max: 20 },
-  { key: "news", abbr: "NE", color: "#8a8f98", max: 20 },
-  { key: "technology", abbr: "TE", color: "#e8ff40", max: 20 },
-  { key: "web", abbr: "WE", color: "#dfff00", max: 15 },
+const SIGNAL_META: { key: IntentSignalKey; abbr: string; color: string }[] = [
+  { key: "funding", abbr: "FU", color: "#f5b544" },
+  { key: "hiring", abbr: "HI", color: "#4ade80" },
+  { key: "news", abbr: "NE", color: "#8a8f98" },
+  { key: "technology", abbr: "TE", color: "#e8ff40" },
+];
+
+const CONTEXT_META = [
+  { key: "web" as const, label: "Web authority" },
+  { key: "github" as const, label: "GitHub activity" },
 ];
 
 function avColor(name: string) { return AV_COLORS[(name?.charCodeAt(0) ?? 0) % AV_COLORS.length]; }
@@ -345,6 +349,10 @@ export function HistoryView({ stats }: HistoryViewProps) {
       { key: "domain", label: "Domain" },
       { key: "score", label: "Intent Score" },
       { key: "score_band", label: "Score Band" },
+      { key: "score_status", label: "Score Status" },
+      { key: "data_coverage", label: "Data Coverage" },
+      { key: "icp_fit_score", label: "ICP Fit Score" },
+      { key: "scoring_version", label: "Scoring Version" },
       { key: "buying_stage", label: "Buying Stage" },
       { key: "urgency", label: "Urgency" },
       { key: "ai_summary", label: "AI Summary" },
@@ -357,12 +365,16 @@ export function HistoryView({ stats }: HistoryViewProps) {
       { key: "hiring_signal", label: "Hiring Signal" },
       { key: "news_signal", label: "News Signal" },
       { key: "technology_signal", label: "Technology Signal" },
-      { key: "web_signal", label: "Web Signal" },
+      { key: "web_context", label: "Web Context" },
+      { key: "github_context", label: "GitHub Context" },
       { key: "scored_at", label: "Scored At" },
     ];
     const csvRows = rows.map((r) => ({
       company_name: r.company_name, domain: r.domain, score: r.score,
-      score_band: r.score_band, buying_stage: r.buying_stage ?? "",
+      score_band: r.score_band, score_status: r.score_status,
+      data_coverage: r.data_coverage == null ? "" : `${Math.round(r.data_coverage * 100)}%`,
+      icp_fit_score: r.icp_fit_score ?? "", scoring_version: r.scoring_version,
+      buying_stage: r.buying_stage ?? "",
       urgency: r.urgency ?? "", ai_summary: r.ai_summary ?? "",
       why_now: r.why_now ?? "", recommended_action: r.recommended_action ?? "",
       key_triggers: (r.key_triggers ?? []).join("; "),
@@ -371,7 +383,8 @@ export function HistoryView({ stats }: HistoryViewProps) {
       hiring_signal: r.signals ? formatSignal(r.signals.hiring) : "",
       news_signal: r.signals ? formatSignal(r.signals.news) : "",
       technology_signal: r.signals ? formatSignal(r.signals.technology) : "",
-      web_signal: r.signals ? formatSignal(r.signals.web) : "",
+      web_context: r.signals ? formatSignal(r.signals.web) : "",
+      github_context: r.signals ? formatSignal(r.signals.github) : "",
       scored_at: new Date(r.created_at).toISOString(),
     }));
     triggerDownload(toCSV(columns, csvRows), csvFilename("vesperwise-history"));
@@ -722,7 +735,9 @@ export function HistoryView({ stats }: HistoryViewProps) {
                     <span style={{ width: 6, height: 6, borderRadius: 999, background: "var(--accent-2)", display: "inline-block" }} />
                     <strong style={{ color: "var(--text-secondary)", fontWeight: 500 }}>AI summary</strong>
                     <span style={{ flex: 1, height: 1, background: "var(--border-subtle)" }} />
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-quaternary)" }}>claude-sonnet</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-quaternary)" }}>
+                      {drawerRow.model_fallback ? "deterministic fallback" : "schema-validated AI"}
+                    </span>
                   </div>
                   <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 14, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.55 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-tertiary)", marginBottom: 8 }}>
@@ -765,18 +780,37 @@ export function HistoryView({ stats }: HistoryViewProps) {
                     <strong style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Key triggers</strong>
                     <span style={{ flex: 1, height: 1, background: "var(--border-subtle)" }} />
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-quaternary)" }}>
-                      {countFiringSignals(drawerRow.signals)} of 5 firing
+                      {countFiringSignals(drawerRow.signals)} of 4 firing
                     </span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
-                    {SIGNAL_META.map(({ key, abbr, color, max }) => {
+                    {SIGNAL_META.map(({ key, abbr, color }) => {
                       const sig = drawerRow.signals[key];
                       if (!sig) return null;
                       return (
                         <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", fontSize: 12 }}>
                           <div style={{ width: 24, height: 24, borderRadius: 4, background: color, display: "grid", placeItems: "center", fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: "var(--bg)", flexShrink: 0 }}>{abbr}</div>
                           <div style={{ flex: 1, color: "var(--text-secondary)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sig.detail || key}</div>
-                          <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-tertiary)", flexShrink: 0 }}>+{sig.score} / {max}</div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-tertiary)", flexShrink: 0 }}>{sig.score} / {sig.max}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 11, color: "var(--text-tertiary)" }}>
+                    <strong style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Account context</strong>
+                    <span>· excluded from intent score</span>
+                    <span style={{ flex: 1, height: 1, background: "var(--border-subtle)" }} />
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 14 }}>
+                    {CONTEXT_META.map(({ key, label }) => {
+                      const signal = drawerRow.signals[key];
+                      return (
+                        <div key={key} style={{ padding: "8px 10px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", fontSize: 12 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                            <strong style={{ color: "var(--text-secondary)", fontWeight: 500 }}>{label}</strong>
+                            <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-tertiary)" }}>{signal.score}/{signal.max}</span>
+                          </div>
+                          <div style={{ color: "var(--text-tertiary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{signal.detail}</div>
                         </div>
                       );
                     })}
@@ -823,7 +857,7 @@ export function HistoryView({ stats }: HistoryViewProps) {
 
             <div className="drawer-foot" style={{ display: "flex", gap: 8, alignItems: "center", padding: "14px 22px", borderTop: "1px solid var(--border)" }}>
               <div style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-tertiary)" }}>
-                Run <strong style={{ color: "var(--text-secondary)", fontWeight: 500 }}>#{runId(drawerRow.id)}</strong> · cached for 24h · 1 credit
+                Run <strong style={{ color: "var(--text-secondary)", fontWeight: 500 }}>#{runId(drawerRow.id)}</strong> · {drawerRow.scoring_version} · 6h personalized cache
               </div>
               <button className="tb-btn outlined" onClick={() => { setDrawerOpen(false); router.push(`/score?domain=${drawerRow.domain}`); }}>
                 <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 6a4 4 0 018-1M10 6a4 4 0 01-8 1M8 3v2h2M4 9V7H2" /></svg>
