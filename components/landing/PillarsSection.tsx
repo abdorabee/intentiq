@@ -2,14 +2,14 @@ const PILLARS = [
   {
     n: "01",
     label: "Signal",
-    title: "Five live data streams, in parallel.",
-    body: "Funding, hiring velocity, news triggers, tech stack, and web presence — fetched simultaneously and weighted into one score.",
+    title: "Four explainable triggers, in parallel.",
+    body: "Funding, hiring velocity, non-funding news, and dated technology changes — normalized, freshness-decayed, and coverage-adjusted.",
   },
   {
     n: "02",
     label: "Reason",
     title: "An AI summary you'd actually paste to your boss.",
-    body: "Claude reads the signals and writes a two-line buying thesis, a why-now insight, and the play to run next.",
+    body: "A bounded AI request writes a two-line buying thesis, a why-now insight, and the play to run next, with a deterministic fallback.",
   },
   {
     n: "03",
@@ -32,7 +32,7 @@ export default function PillarsSection() {
         </h2>
         <p className="mt-1 text-4xl font-semibold tracking-[-0.03em] text-[#62666d] md:text-5xl">Start scoring.</p>
         <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-[#8a8f98]">
-          Every signal that a deal is heating up — funding rounds, hiring spikes, news, tech adoption, traffic — fused
+          Four dated purchase triggers — funding, hiring, news, and technology change — fused
           into one number, with the reasoning to back it up.
         </p>
       </div>

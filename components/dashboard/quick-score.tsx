@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { IntentScore } from "@/lib/types";
+import type { IntentScore, ScoreBand } from "@/lib/types";
 
-const QUICK_STEPS = ["Funding", "Hiring", "News", "Tech", "Web", "AI"];
+type ScorableIntentScore = IntentScore & { intent_score: number; score_band: ScoreBand };
+
+const QUICK_STEPS = ["Funding", "Hiring", "News", "Tech", "Context", "AI"];
 
 function QuickThinking({ domain }: { domain: string }) {
   const [active, setActive] = useState(0);
@@ -59,7 +61,7 @@ function QuickThinking({ domain }: { domain: string }) {
 export default function QuickScore() {
   const [domain, setDomain] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<IntentScore | null>(null);
+  const [result, setResult] = useState<ScorableIntentScore | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function score() {
@@ -67,9 +69,17 @@ export default function QuickScore() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/v1/score?domain=${encodeURIComponent(domain.trim())}`);
-      if (!res.ok) throw new Error((await res.json()).error);
-      setResult(await res.json());
+      const res = await fetch("/api/v1/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: domain.trim() }),
+      });
+      const payload = await res.json() as IntentScore & { error?: string };
+      if (!res.ok) throw new Error(payload.error ?? "Scoring failed");
+      if (payload.intent_score === null || payload.score_band === null) {
+        throw new Error("Not enough current evidence to calculate a reliable score.");
+      }
+      setResult(payload as ScorableIntentScore);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -117,6 +127,9 @@ export default function QuickScore() {
             <div className="flex-1 min-w-0">
               <p className="font-medium text-foreground text-sm">{result.company}</p>
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{result.ai_summary}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {Math.round(result.data_coverage * 100)}% data coverage · {result.score_status}
+              </p>
             </div>
           </div>
         );

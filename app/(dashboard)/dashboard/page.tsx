@@ -157,8 +157,8 @@ export default async function DashboardPage() {
 
   // Signal mix
   type SignalMixRow = { key: string; label: string; pct: number };
-  const signalKeys = ["funding", "hiring", "news", "technology", "web"] as const;
-  const signalTotals: Record<string, number> = { funding: 0, hiring: 0, news: 0, technology: 0, web: 0 };
+  const signalKeys = ["funding", "hiring", "news", "technology"] as const;
+  const signalTotals: Record<string, number> = { funding: 0, hiring: 0, news: 0, technology: 0 };
   let sigCount = 0;
   (
     activityScoresRaw as Array<{
@@ -177,8 +177,7 @@ export default async function DashboardPage() {
     funding: "Funding",
     hiring: "Hiring",
     news: "News",
-    technology: "Tech stack",
-    web: "Web presence",
+    technology: "Technology changes",
   };
   const signalMix: SignalMixRow[] =
     sigCount > 0

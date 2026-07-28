@@ -1,13 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { SignalSet, BuyingStage, UrgencyLevel } from "@/lib/types";
+import type { SignalSet, BuyingStage, UrgencyLevel, IntentSignalKey, SignalContribution } from "@/lib/types";
 import {
   DollarSign,
   Users,
   Newspaper,
   Cpu,
-  Globe,
   AlertTriangle,
   ArrowRight,
 } from "lucide-react";
@@ -15,7 +14,7 @@ import {
 // ─── Signal Radar Chart (pure SVG) ──────────────────────────────────────────
 
 const SIGNAL_META: Array<{
-  key: keyof Omit<SignalSet, "latestSignalDate">;
+  key: IntentSignalKey;
   label: string;
   icon: typeof DollarSign;
   color: string;
@@ -25,7 +24,6 @@ const SIGNAL_META: Array<{
   { key: "hiring", label: "Hiring", icon: Users, color: "rgb(16,185,129)", lightColor: "rgb(5,150,105)" },
   { key: "news", label: "News", icon: Newspaper, color: "rgb(245,158,11)", lightColor: "rgb(217,119,6)" },
   { key: "technology", label: "Tech", icon: Cpu, color: "rgb(59,130,246)", lightColor: "rgb(37,99,235)" },
-  { key: "web", label: "Web", icon: Globe, color: "rgb(236,72,153)", lightColor: "rgb(219,39,119)" },
 ];
 
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
@@ -143,17 +141,26 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
 
 // ─── Signal Contribution Donut ──────────────────────────────────────────────
 
-export function SignalDonut({ signals, totalScore }: { signals: SignalSet; totalScore: number }) {
+export function SignalDonut({
+  signals,
+  totalScore,
+  contributions,
+}: {
+  signals: SignalSet;
+  totalScore: number;
+  contributions: SignalContribution[];
+}) {
   const r = 40;
   const circumference = 2 * Math.PI * r;
   const segments = SIGNAL_META.reduce<
     Array<ReturnType<typeof Object.assign> & { score: number; pct: number; dashLength: number; offset: number }>
   >((acc, m) => {
     const sig = signals[m.key];
-    const pct = totalScore > 0 ? sig.score / totalScore : 0;
+    const score = contributions.find((item) => item.type === m.key)?.contribution ?? 0;
+    const pct = totalScore > 0 ? score / totalScore : 0;
     const dashLength = pct * circumference;
     const offset = acc.reduce((sum, s) => sum + s.dashLength, 0);
-    acc.push({ ...m, score: sig.score, pct, dashLength, offset });
+    acc.push({ ...m, score, pct, dashLength, offset, rawScore: sig.score });
     return acc;
   }, []);
 

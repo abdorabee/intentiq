@@ -27,20 +27,20 @@ const HOW_IT_WORKS = [
   },
   {
     step: "02",
-    title: "5 live signals fetched in parallel",
-    body: "Funding rounds, hiring velocity, news triggers, tech stack, and web presence — all fetched simultaneously.",
+    title: "4 intent triggers fetched in parallel",
+    body: "Funding, hiring, news, and dated technology changes are scored; web and GitHub are retained as context.",
     gradient: "from-indigo-400 to-violet-500",
   },
   {
     step: "03",
-    title: "Weighted intent score computed",
-    body: "A composite 0–100 score with configurable signal weights. HOT ≥75, WARM ≥50, COLD <50.",
+    title: "Coverage-aware intent score computed",
+    body: "An explainable 0–100 score with freshness and source coverage. HOT ≥75, WARM ≥50, COLD <50.",
     gradient: "from-violet-500 to-purple-400",
   },
   {
     step: "04",
     title: "AI reasoning + recommended action",
-    body: "Claude generates a plain-English summary, a 'why now' insight, and a specific outreach action to take.",
+    body: "One bounded, schema-validated AI call generates a plain-English summary, a 'why now' insight, and a specific outreach action.",
     gradient: "from-indigo-500 to-violet-500",
   },
 ];
@@ -373,9 +373,8 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3.5 glass-nav border-b border-white/[0.06]">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <IntentIQLogo size={24} />
-            <span className="text-sm font-bold text-white">VesperWise</span>
+          <div className="flex items-center gap-2" aria-label="VesperWise">
+            <IntentIQLogo size={42} variant="wordmark" />
           </div>
           <div className="hidden md:flex items-center gap-0.5">
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map((item) => (
@@ -459,7 +458,7 @@ export default function LandingPage() {
           <span className="mx-2 text-slate-700">·</span>
           No credit card
           <span className="mx-2 text-slate-700">·</span>
-          Results in &lt; 3 seconds
+          Coverage-aware scoring
         </p>
 
         {/* Product mockup */}
@@ -524,7 +523,7 @@ score = requests.get(
       <section className="max-w-4xl mx-auto px-6 py-24 space-y-16">
         <div className="text-center space-y-2">
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-100">How it works</h2>
-          <p className="text-slate-400">From domain to deal signal in under 3 seconds.</p>
+          <p className="text-slate-400">From domain to auditable triggers, coverage, and a recommended action.</p>
         </div>
         <div className="space-y-10">
           {HOW_IT_WORKS.map((item, idx) => (
@@ -691,9 +690,8 @@ score = requests.get(
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-10">
         <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <IntentIQLogo size={20} />
-            <span className="font-bold text-slate-200 text-sm">VesperWise</span>
+          <div className="flex items-center gap-2" aria-label="VesperWise">
+            <IntentIQLogo size={40} variant="wordmark" />
           </div>
           <p className="text-sm text-slate-500">
             © {new Date().getFullYear()} VesperWise · Built for B2B sales teams

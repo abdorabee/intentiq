@@ -8,7 +8,7 @@ export default function HowItWorks() {
       <div className="mx-auto max-w-4xl">
         <SectionLabel text="Process" />
         <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#f7f8f8] md:text-3xl">How it works</h2>
-        <p className="mt-2 text-sm text-[#8a8f98]">From domain to deal signal in under 3 seconds.</p>
+        <p className="mt-2 text-sm text-[#8a8f98]">From domain to auditable triggers, coverage, and a recommended action.</p>
         <div className="mt-10">
           {HOW_IT_WORKS.map((item) => (
             <ScanlineRow

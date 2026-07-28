@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Check, Mail, Zap } from "lucide-react";
-import type { IntentScore } from "@/lib/types";
+import type { IntentScore, ScoreBand } from "@/lib/types";
+
+type ScorableIntentScore = IntentScore & { intent_score: number; score_band: ScoreBand };
 import {
   SignalRadarChart,
   SignalDonut,
@@ -19,7 +21,6 @@ const SIGNAL_LABELS = {
   hiring:     "Hiring Signals",
   news:       "News & Trigger Events",
   technology: "Technology Stack",
-  web:        "Web & Digital",
 };
 
 const SIGNAL_COLORS: Record<string, string> = {
@@ -27,7 +28,6 @@ const SIGNAL_COLORS: Record<string, string> = {
   hiring:     "from-emerald-500 to-green-400",
   news:       "from-amber-500 to-orange-400",
   technology: "from-blue-500 to-cyan-400",
-  web:        "from-pink-500 to-rose-400",
 };
 
 const THINKING_STEPS = [
@@ -35,8 +35,8 @@ const THINKING_STEPS = [
   "Scanning hiring velocity",
   "Reading news & trigger events",
   "Analyzing technology stack",
-  "Measuring web presence",
-  "Computing intent score with AI",
+  "Collecting account context",
+  "Computing coverage and writing account reasoning",
 ];
 
 export function ThinkingLoader({ domain }: { domain: string }) {
@@ -126,7 +126,7 @@ function icpFitConfig(score: number) {
   return { label: "Weak Fit", cls: "bg-slate-500 text-white border-slate-600" };
 }
 
-export function ScoreResult({ result }: { result: IntentScore }) {
+export function ScoreResult({ result }: { result: ScorableIntentScore }) {
   const [watchlistAdded, setWatchlistAdded] = useState(false);
   const [watchlistAdding, setWatchlistAdding] = useState(false);
   const [watchlistError, setWatchlistError] = useState<string | null>(null);
@@ -182,11 +182,14 @@ export function ScoreResult({ result }: { result: IntentScore }) {
             <p className="text-slate-400 text-sm">{result.domain}</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge className={cfg.badge}>{result.score_band}</Badge>
-              {icpFit && result.icp_fit_score! > 0 && (
+              {icpFit && result.icp_fit_score != null && (
                 <span className={`text-[11px] px-2 py-0.5 border font-medium rounded-sm ${icpFit.cls}`}>
                   {icpFit.label} · {result.icp_fit_score}%
                 </span>
               )}
+              <span className="text-[11px] px-2 py-0.5 border border-slate-300 dark:border-foreground/[0.12] text-slate-500 rounded-sm">
+                {Math.round(result.data_coverage * 100)}% coverage · {result.score_status}
+              </span>
               <Button
                 size="sm"
                 onClick={handleAddToWatchlist}
@@ -222,7 +225,7 @@ export function ScoreResult({ result }: { result: IntentScore }) {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-600 mb-2 text-center">Score Composition</p>
-              <SignalDonut signals={result.signals} totalScore={result.intent_score} />
+              <SignalDonut signals={result.signals} totalScore={result.intent_score} contributions={result.contributions} />
             </div>
           </div>
 
@@ -243,6 +246,26 @@ export function ScoreResult({ result }: { result: IntentScore }) {
                 </div>
               );
             })}
+          </div>
+
+          <div className="pt-4 border-t border-slate-200 dark:border-foreground/[0.06]">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-600 mb-3">
+              Account context · excluded from score
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(["web", "github"] as const).map((key) => {
+                const signal = result.signals[key];
+                return (
+                  <div key={key} className="border border-slate-200 dark:border-foreground/[0.08] p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium capitalize text-slate-700 dark:text-slate-200">{key}</span>
+                      <span className="font-mono text-xs text-slate-400">{signal.score}/{signal.max}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">{signal.detail}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>
