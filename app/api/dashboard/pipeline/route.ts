@@ -7,6 +7,7 @@ export interface PipelineSignals {
   hiring?: { score: number; max: number };
   news?: { score: number; max: number };
   technology?: { score: number; max: number };
+  web_activity?: { score: number; max: number };
   web?: { score: number; max: number };
 }
 
@@ -25,6 +26,15 @@ export interface PipelineCompany {
   urgency: string | null;
   pipeline_stage: string;
   signals: PipelineSignals | null;
+  score_id: string | null;
+  score_status: "complete" | "partial" | null;
+  data_coverage: number | null;
+  outcome: {
+    outcome: "closed_won" | "closed_lost" | "no_decision" | "disqualified";
+    occurred_at: string;
+    value: number | null;
+    reason: string | null;
+  } | null;
 }
 
 export async function GET() {
@@ -51,14 +61,36 @@ export async function GET() {
   // Fetch last 3 scores per domain (for trend computation + AI fields)
   const { data: recentScores } = await supabase
     .from("scores")
-    .select("domain, score, created_at, email_subject, talk_track, ai_summary, key_triggers, urgency, signals")
+    .select("id, domain, score, score_status, data_coverage, created_at, email_subject, talk_track, ai_summary, key_triggers, urgency, signals")
     .eq("user_id", userId)
     .in("domain", domains)
     .order("created_at", { ascending: false })
     .limit(domains.length * 3);
 
   // Group scores by domain (already sorted newest first)
-  const scoresByDomain = new Map<string, Array<{ score: number; email_subject: string | null; talk_track: string | null; ai_summary: string | null; key_triggers: string[] | null; urgency: string | null; signals: PipelineSignals | null }>>();
+  const scoreIds = (recentScores ?? []).map((score) => score.id);
+  const { data: outcomes } = scoreIds.length > 0
+    ? await supabase
+        .from("score_outcomes")
+        .select("score_id, outcome, occurred_at, value, reason")
+        .eq("user_id", userId)
+        .in("score_id", scoreIds)
+    : { data: [] };
+  const outcomesByScore = new Map(
+    (outcomes ?? []).map((outcome) => [outcome.score_id, outcome])
+  );
+  const scoresByDomain = new Map<string, Array<{
+    id: string;
+    score: number;
+    score_status: "complete" | "partial";
+    data_coverage: number | null;
+    email_subject: string | null;
+    talk_track: string | null;
+    ai_summary: string | null;
+    key_triggers: string[] | null;
+    urgency: string | null;
+    signals: PipelineSignals | null;
+  }>>();
   for (const s of recentScores ?? []) {
     if (!scoresByDomain.has(s.domain)) scoresByDomain.set(s.domain, []);
     const arr = scoresByDomain.get(s.domain)!;
@@ -87,6 +119,10 @@ export async function GET() {
       urgency: latest?.urgency ?? null,
       pipeline_stage: w.pipeline_stage ?? "cold",
       signals: latest?.signals ?? null,
+      score_id: latest?.id ?? null,
+      score_status: latest?.score_status ?? null,
+      data_coverage: latest?.data_coverage == null ? null : Number(latest.data_coverage),
+      outcome: latest ? outcomesByScore.get(latest.id) ?? null : null,
     };
   });
 

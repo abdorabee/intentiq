@@ -202,7 +202,7 @@ export default function MemoryPage() {
   return (
     <div className="space-y-8 max-w-3xl">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <BrainCircuit className="h-4 w-4 text-cyan-500" />

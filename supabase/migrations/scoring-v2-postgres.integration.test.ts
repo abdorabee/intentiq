@@ -15,6 +15,10 @@ const migrationSql = readFileSync(
   new URL("./20260715000000_scoring_v2_pipeline.sql", import.meta.url),
   "utf8"
 );
+const migrationV3Sql = readFileSync(
+  new URL("./20260727000000_scoring_v3.sql", import.meta.url),
+  "utf8"
+);
 
 const fixtureSql = `
 create extension if not exists pgcrypto;
@@ -131,6 +135,7 @@ suite("scoring v2 Postgres RPC integration", () => {
     await pool.query("drop schema if exists public cascade; create schema public");
     await pool.query(fixtureSql);
     await pool.query(migrationSql);
+    await pool.query(migrationV3Sql);
   }, 30_000);
 
   afterAll(async () => {
@@ -159,6 +164,7 @@ suite("scoring v2 Postgres RPC integration", () => {
     domain = "acme.test",
     profileHash = "profile-a",
     bindIdempotency = false,
+    scoringVersion = "v2-linear-2026-07",
   }: {
     userId: string;
     requestKey: string;
@@ -166,6 +172,7 @@ suite("scoring v2 Postgres RPC integration", () => {
     domain?: string;
     profileHash?: string;
     bindIdempotency?: boolean;
+    scoringVersion?: string;
   }): Promise<BeginRunRow> {
     const { rows } = await pool.query<BeginRunRow>(
       `select * from public.begin_score_run(
@@ -177,7 +184,7 @@ suite("scoring v2 Postgres RPC integration", () => {
         fingerprint,
         domain,
         "Acme",
-        "v2-linear-2026-07",
+        scoringVersion,
         profileHash,
         bindIdempotency,
       ]
@@ -357,5 +364,59 @@ suite("scoring v2 Postgres RPC integration", () => {
     );
     expect(Number(state.rows[0].credits_remaining)).toBe(1);
     expect(state.rows[0]).toMatchObject({ status: "failed", credit_reserved: false });
+  });
+
+  it("persists v3 policy metadata in shadow-safe scores and binds one outcome to the exact score", async () => {
+    await createUser("user-v3", 2);
+    const run = await beginRun({
+      userId: "user-v3",
+      requestKey: "v3-run",
+      scoringVersion: "v3-five-signal-2026-07",
+    });
+    const result = {
+      ...scoredResult(82),
+      scoring_version: "v3-five-signal-2026-07",
+      scoring_policy_id: "default-v3",
+      scoring_policy: {
+        id: "default-v3",
+        version: "v3-five-signal-2026-07",
+        weights: {
+          funding: 25,
+          hiring: 25,
+          news: 20,
+          technology: 20,
+          web_activity: 10,
+        },
+      },
+      signal_coverage: 5,
+      automation_eligible: false,
+    };
+    const completion = await pool.query(
+      "select * from public.complete_score_run($1::uuid, $2::jsonb, '[]'::jsonb)",
+      [run.run_id, JSON.stringify(result)]
+    );
+    const scoreId = completion.rows[0].completed_score_id;
+    const stored = await pool.query(
+      "select scoring_policy_id, signal_coverage, automation_eligible from public.scores where id = $1",
+      [scoreId]
+    );
+    expect(stored.rows[0]).toMatchObject({
+      scoring_policy_id: "default-v3",
+      automation_eligible: false,
+    });
+    expect(Number(stored.rows[0].signal_coverage)).toBe(5);
+
+    await pool.query(
+      `insert into public.score_outcomes
+        (score_id, user_id, domain, outcome, source, actor_id)
+       values ($1, 'user-v3', 'acme.test', 'closed_won', 'manual', 'user-v3')`,
+      [scoreId]
+    );
+    await expect(pool.query(
+      `insert into public.score_outcomes
+        (score_id, user_id, domain, outcome, source, actor_id)
+       values ($1, 'user-v3', 'acme.test', 'closed_lost', 'manual', 'user-v3')`,
+      [scoreId]
+    )).rejects.toThrow();
   });
 });

@@ -101,6 +101,7 @@ const SIGNAL_META: { key: IntentSignalKey; abbr: string; color: string }[] = [
   { key: "hiring", abbr: "HI", color: "#4ade80" },
   { key: "news", abbr: "NE", color: "#8a8f98" },
   { key: "technology", abbr: "TE", color: "#e8ff40" },
+  { key: "web_activity", abbr: "WA", color: "#a855f7" },
 ];
 
 const CONTEXT_META = [

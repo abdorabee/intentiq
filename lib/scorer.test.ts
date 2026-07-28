@@ -3,9 +3,12 @@ import {
   computeActiveIntentScore,
   computeFreshness,
   computeIntentScore,
+  computeIntentScoreV3,
+  DEFAULT_SCORING_POLICY_V3,
   getActiveScoringVersion,
   LEGACY_SCORING_VERSION,
   SCORING_VERSION,
+  SCORING_VERSION_V3,
 } from "./scorer";
 import type { SignalResult, SignalSet, SignalStatus } from "./types";
 
@@ -366,5 +369,162 @@ describe("computeIntentScore v2", () => {
     expect(contextUnavailable.data_coverage).toBe(1);
     expect(contextHeavy.contributions.map((item) => item.type))
       .toEqual(["funding", "hiring", "news", "technology"]);
+  });
+});
+
+describe("computeIntentScore v3", () => {
+  function v3Score(signals: SignalSet) {
+    return computeIntentScoreV3(
+      "Acme",
+      "acme.test",
+      signals,
+      NOW,
+      DEFAULT_SCORING_POLICY_V3
+    );
+  }
+
+  it("uses all five readiness triggers with the default policy", () => {
+    const result = v3Score(signalSet({
+      funding: signal(25, 25),
+      hiring: signal(20, 20),
+      news: signal(20, 20),
+      technology: signal(20, 20),
+      web_activity: signal(15, 15),
+    }));
+
+    expect(result.intent_score).toBe(100);
+    expect(result.scoring_version).toBe(SCORING_VERSION_V3);
+    expect(result.scoring_policy_id).toBe("default-v3");
+    expect(result.contributions.map((item) => item.type)).toEqual([
+      "funding",
+      "hiring",
+      "news",
+      "technology",
+      "web_activity",
+    ]);
+    expect(result.contributions.map((item) => item.baseWeight)).toEqual([25, 25, 20, 20, 10]);
+  });
+
+  it.each([
+    ["funding", 180],
+    ["hiring", 45],
+    ["news", 30],
+    ["technology", 90],
+    ["web_activity", 14],
+  ] as const)("applies the %s half-life at %d days", (key, days) => {
+    const result = v3Score(signalSet({
+      funding: signal(0, 25),
+      hiring: signal(0, 20),
+      news: signal(0, 20),
+      technology: signal(0, 20),
+      web_activity: signal(0, 15),
+      [key]: signal(
+        key === "funding" ? 25 : key === "web_activity" ? 15 : 20,
+        key === "funding" ? 25 : key === "web_activity" ? 15 : 20,
+        "ok",
+        days
+      ),
+    }));
+
+    const contribution = result.contributions.find((item) => item.type === key);
+    expect(contribution?.freshness).toBeCloseTo(0.5, 6);
+    expect(contribution?.halfLifeDays).toBe(days);
+  });
+
+  it("requires four signal-equivalents and 75 percent weighted coverage", () => {
+    const fourSignals = v3Score(signalSet({
+      funding: signal(0, 25, "unavailable", null),
+      web_activity: signal(0, 15),
+    }));
+    const threeSignals = v3Score(signalSet({
+      funding: signal(0, 25, "unavailable", null),
+      hiring: signal(0, 20, "unavailable", null),
+      web_activity: signal(0, 15),
+    }));
+    const staleEquivalent = v3Score(signalSet({
+      funding: signal(25, 25, "stale", 0),
+      hiring: signal(20, 20, "stale", 0),
+      web_activity: signal(15, 15),
+    }));
+
+    expect(fourSignals.score_status).toBe("partial");
+    expect(fourSignals.data_coverage).toBe(0.75);
+    expect(fourSignals.signal_coverage).toBe(4);
+    expect(threeSignals.score_status).toBe("unscorable");
+    expect(threeSignals.intent_score).toBeNull();
+    expect(staleEquivalent.signal_coverage).toBe(4);
+    expect(staleEquivalent.score_status).toBe("partial");
+  });
+
+  it("exposes reproducible per-signal explanation inputs", () => {
+    const result = v3Score(signalSet({
+      funding: {
+        ...signal(12.5, 25, "ok", 180),
+        source: "explorium",
+        fetched_at: NOW.toISOString(),
+        evidence: [{
+          label: "Series A",
+          observed_at: observedDaysAgo(180),
+          source: "explorium",
+          fetched_at: NOW.toISOString(),
+          source_url: "https://example.test/round",
+        }],
+        metadata: { confidence: 0.92, selected_source: "explorium" },
+      },
+      web_activity: signal(0, 15),
+    }));
+    const funding = result.contributions.find((item) => item.type === "funding");
+
+    expect(funding).toMatchObject({
+      rawScore: 50,
+      freshness: 0.5,
+      decayedScore: 25,
+      baseWeight: 25,
+      effectiveWeight: 25,
+      confidence: 0.92,
+      selectedSource: "explorium",
+      reasonCodes: ["positive_evidence"],
+      sourceUrls: ["https://example.test/round"],
+      fetchedAt: NOW.toISOString(),
+    });
+    expect(result.contributions.reduce((sum, item) => sum + item.contribution, 0))
+      .toBeCloseTo(result.intent_score ?? 0, 3);
+  });
+
+  it("grades funding strength by amount, stage, and round count without changing v2", () => {
+    const smallSeed = v3Score(signalSet({
+      funding: {
+        ...signal(20, 25, "ok", 10),
+        metadata: {
+          total_funding_value: 750_000,
+          last_funding_round_type: "Pre-Seed",
+          funding_rounds: 1,
+        },
+      },
+      web_activity: signal(0, 15),
+    }));
+    const laterRound = v3Score(signalSet({
+      funding: {
+        ...signal(20, 25, "ok", 10),
+        metadata: {
+          total_funding_value: 35_000_000,
+          last_funding_round_type: "Series B",
+          funding_rounds: 4,
+        },
+      },
+      web_activity: signal(0, 15),
+    }));
+
+    const smallStrength = smallSeed.contributions.find((item) => item.type === "funding")?.rawScore;
+    const laterStrength = laterRound.contributions.find((item) => item.type === "funding")?.rawScore;
+    expect(smallStrength).toBe(30);
+    expect(laterStrength).toBe(95);
+    expect(laterRound.intent_score).toBeGreaterThan(smallSeed.intent_score ?? 0);
+  });
+
+  it("keeps v3 opt-in while preserving v2 and rollback versions", () => {
+    expect(getActiveScoringVersion("true", "true")).toBe(SCORING_VERSION_V3);
+    expect(getActiveScoringVersion("true", "false")).toBe(SCORING_VERSION);
+    expect(getActiveScoringVersion("false", "false")).toBe(LEGACY_SCORING_VERSION);
   });
 });
