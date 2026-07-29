@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:web-enrichment": "vitest run workers/web-enrichment/*.test.mjs lib/signals/crawled.test.ts lib/web-enrichment-contract.test.ts lib/score-evidence.test.ts lib/web-enrichment-queue.test.ts",
     "test:scoring-db": "SCORING_V2_DB_TESTS=true vitest run supabase/migrations/scoring-v2-postgres.integration.test.ts",
     "test:watch": "vitest",
     "generate:favicon": "node scripts/generate-favicon.mjs"

@@ -1,3 +1,5 @@
+import { UnrecoverableError } from "bullmq";
+
 import {
   normalizeExtractedObservations,
   selectCandidateUrls,
@@ -6,6 +8,16 @@ import {
 const API_BASE = "https://api.firecrawl.dev/v2";
 const POLL_INTERVAL_MS = 1_500;
 const MAX_POLL_MS = 60_000;
+const RETRYABLE_HTTP_STATUSES = new Set([408, 409, 425, 429]);
+
+export class FirecrawlApiError extends Error {
+  constructor(message, status, retryable) {
+    super(message);
+    this.name = "FirecrawlApiError";
+    this.status = status;
+    this.retryable = retryable;
+  }
+}
 
 const EVENT_SCHEMA = {
   type: "object",
@@ -56,7 +68,7 @@ function extractionPrompt(domain, signals) {
   ].join(" ");
 }
 
-async function firecrawlRequest(apiKey, path, options = {}, timeoutMs = 20_000) {
+export async function firecrawlRequest(apiKey, path, options = {}, timeoutMs = 20_000) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -72,7 +84,12 @@ async function firecrawlRequest(apiKey, path, options = {}, timeoutMs = 20_000) 
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
       const error = typeof body?.error === "string" ? body.error : `HTTP ${response.status}`;
-      throw new Error(`Firecrawl ${path}: ${error}`);
+      const message = `Firecrawl ${path}: ${error}`;
+      const retryable =
+        RETRYABLE_HTTP_STATUSES.has(response.status) ||
+        response.status >= 500;
+      if (!retryable) throw new UnrecoverableError(message);
+      throw new FirecrawlApiError(message, response.status, true);
     }
     return body;
   } finally {

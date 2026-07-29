@@ -64,10 +64,20 @@ robots, access-policy, or SSRF violations.
 
 ```bash
 node workers/web-enrichment/worker.mjs
-npx vitest run workers/web-enrichment/*.test.mjs lib/signals/crawled.test.ts lib/web-enrichment-contract.test.ts
+npm run test:web-enrichment
 ```
 
 ```bash
 docker build -f workers/web-enrichment/Dockerfile -t vesperwise-web-enrichment .
 docker run --env-file .env.web-enrichment vesperwise-web-enrichment
 ```
+
+## Railway shadow deployment
+
+Create a dedicated persistent worker service and set its Railway Config File
+Path to `/workers/web-enrichment/railway.json`. Populate the secret values from
+`env.example` in Railway and retain the checked-in shadow defaults. The worker
+does not need a public domain or HTTP healthcheck.
+
+Follow `docs/runbooks/firecrawl-shadow-rollout.md` for schema verification,
+smoke cases, quality gates, signal-by-signal promotion, and rollback.
