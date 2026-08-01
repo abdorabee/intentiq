@@ -125,6 +125,9 @@ button, a, [role="button"] { touch-action: manipulation; }
   }
   .nav-mob-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
 
+  /* Hide desktop Log in / Sign up CTAs — the mobile drawer has its own */
+  nav.primary .row > .btn { display: none; }
+
   /* Touch targets — WCAG 44×44px min on mobile */
   .btn, .btn-lg { min-height: 44px; padding-inline: 16px; }
   .btn-lg { min-height: 48px; font-size: 15px; }
@@ -153,7 +156,8 @@ button, a, [role="button"] { touch-action: manipulation; }
   .hm-grid { grid-template-columns: repeat(2, 1fr) !important; }
 
   /* Score / watchlist tables — let them scroll */
-  .score-table-wrap, .wl-table-wrap, .table-wrap, .wl-list {
+  .score-table-wrap, .wl-table-wrap, .table-wrap, .wl-list,
+  .billing-page .panel, .billing-page .ledger {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -286,6 +290,16 @@ button, a, [role="button"] { touch-action: manipulation; }
   .pl-row,
   .lists-page .ld-trow {
     min-width: 900px;
+  }
+
+  .billing-page .inv-thead,
+  .billing-page .inv-row {
+    min-width: 620px;
+  }
+
+  .billing-page .ledger-thead,
+  .billing-page .ledger-row {
+    min-width: 680px;
   }
 
   .billing-page .plans-grid,

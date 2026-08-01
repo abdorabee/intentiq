@@ -62,11 +62,15 @@ export async function POST(req: NextRequest) {
       // Preserve the input row and leave score fields blank.
     }
     const latest = latestByDomain.get(domain);
+    const targetingEligible =
+      latest?.score_status === "complete" &&
+      Number(latest.data_coverage ?? 0) >= 1;
     scored.push({
       ...row,
       intent_score: latest?.score ?? "",
       score_band: latest?.score_band ?? "",
       score_status: latest?.score_status ?? "not_scored",
+      targeting_eligible: targetingEligible ? "yes" : "no",
       data_coverage: latest?.data_coverage == null
         ? ""
         : `${Math.round(Number(latest.data_coverage) * 100)}%`,
@@ -77,7 +81,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Sort by intent score descending
-  scored.sort((a, b) => Number(b.intent_score || -1) - Number(a.intent_score || -1));
+  scored.sort((a, b) => {
+    const eligibility = Number(b.targeting_eligible === "yes") -
+      Number(a.targeting_eligible === "yes");
+    return eligibility || Number(b.intent_score || -1) - Number(a.intent_score || -1);
+  });
 
   // Build dynamic columns from the data keys
   if (scored.length === 0) {

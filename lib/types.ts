@@ -39,6 +39,8 @@ export interface SignalSet {
   hiring: SignalResult;
   news: SignalResult;
   technology: SignalResult;
+  /** Dated, meaningful first-party site changes. OpenPageRank remains `web`. */
+  web_activity?: SignalResult;
   web: SignalResult;
   github: SignalResult;
   latestSignalDate: string; // ISO date string
@@ -51,7 +53,19 @@ export type ScoreStatus = "complete" | "partial" | "unscorable";
 export type BuyingStage = "awareness" | "consideration" | "decision";
 export type UrgencyLevel = "act-now" | "this-week" | "this-month" | "nurture";
 
-export type IntentSignalKey = "funding" | "hiring" | "news" | "technology";
+export type CoreIntentSignalKey = "funding" | "hiring" | "news" | "technology";
+export type IntentSignalKey = CoreIntentSignalKey | "web_activity";
+
+export interface ScoringPolicy {
+  id: string;
+  version: string;
+  weights: Record<IntentSignalKey, number>;
+  halfLivesDays: Record<IntentSignalKey, number>;
+  minimumCoverage: number;
+  minimumSignalEquivalent: number;
+  vertical?: string | null;
+  icpKey?: string | null;
+}
 
 export interface SignalContribution {
   type: IntentSignalKey;
@@ -65,6 +79,12 @@ export interface SignalContribution {
   effectiveWeight: number;
   contribution: number;
   observedAt: string | null;
+  halfLifeDays?: number;
+  confidence?: number;
+  selectedSource?: string | null;
+  reasonCodes?: string[];
+  sourceUrls?: string[];
+  fetchedAt?: string | null;
 }
 
 export interface IntentScore {
@@ -85,8 +105,11 @@ export interface IntentScore {
   score_decay_date: string;
   model_tier: "premium" | "free";
   scoring_version: string;
+  scoring_policy_id?: string;
+  scoring_policy?: ScoringPolicy;
   score_status: ScoreStatus;
   data_coverage: number;
+  signal_coverage?: number;
   contributions: SignalContribution[];
   cached: boolean;
   charged: boolean;
@@ -193,9 +216,12 @@ export interface DbScore {
   talk_track: string | null;
   score_run_id: string | null;
   scoring_version: string;
+  scoring_policy_id: string | null;
+  scoring_policy: ScoringPolicy | null;
   profile_hash: string | null;
   score_status: Exclude<ScoreStatus, "unscorable">;
   data_coverage: number | null;
+  signal_coverage: number | null;
   confidence: number | null;
   raw_score: number | null;
   contributions: SignalContribution[];
@@ -234,6 +260,7 @@ export interface DbCreditLog {
 // ─── Pipeline & Chat Types ───────────────────────────────────────────────────
 
 export type PipelineStage = "cold" | "warming" | "hot" | "engaged" | "converted";
+export type ScoreOutcome = "closed_won" | "closed_lost" | "no_decision" | "disqualified";
 export type UserRole = "sdr" | "ae" | "manager" | "admin";
 
 export interface DbChatSession {

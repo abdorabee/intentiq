@@ -21,6 +21,7 @@ const SIGNAL_LABELS = {
   hiring:     "Hiring Signals",
   news:       "News & Trigger Events",
   technology: "Technology Stack",
+  web_activity: "Meaningful Web Activity",
 };
 
 const SIGNAL_COLORS: Record<string, string> = {
@@ -28,6 +29,7 @@ const SIGNAL_COLORS: Record<string, string> = {
   hiring:     "from-emerald-500 to-green-400",
   news:       "from-amber-500 to-orange-400",
   technology: "from-blue-500 to-cyan-400",
+  web_activity: "from-violet-500 to-fuchsia-400",
 };
 
 const THINKING_STEPS = [
@@ -210,6 +212,11 @@ export function ScoreResult({ result }: { result: ScorableIntentScore }) {
             <p className="mt-2 text-xs text-slate-500">
               Decays by {new Date(result.score_decay_date).toLocaleDateString()}
             </p>
+            {result.score_status === "partial" && (
+              <p className="mt-2 border border-amber-500/25 bg-amber-500/10 px-2.5 py-1.5 text-xs text-amber-500">
+                Partial evidence: treat this score as directional until missing or stale sources refresh.
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -232,6 +239,7 @@ export function ScoreResult({ result }: { result: ScorableIntentScore }) {
           <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-foreground/[0.06]">
             {(Object.keys(SIGNAL_LABELS) as Array<keyof typeof SIGNAL_LABELS>).map((key) => {
               const sig = result.signals[key];
+              if (!sig) return null;
               const pct = (sig.score / sig.max) * 100;
               return (
                 <div key={key}>
@@ -246,6 +254,82 @@ export function ScoreResult({ result }: { result: ScorableIntentScore }) {
                 </div>
               );
             })}
+          </div>
+
+          <div className="pt-4 border-t border-slate-200 dark:border-foreground/[0.06]">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-600">
+                Why this score
+              </p>
+              <span className="text-[10px] font-mono text-slate-500">
+                {result.scoring_policy_id ?? result.scoring_version}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {result.contributions.map((item) => (
+                <div
+                  key={item.type}
+                  className="border border-slate-200 dark:border-foreground/[0.08] p-3"
+                >
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                    <div>
+                      <p className="text-[10px] uppercase text-slate-500">Signal</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-200">
+                        {SIGNAL_LABELS[item.type] ?? item.type}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase text-slate-500">Strength</p>
+                      <p className="font-mono text-slate-600 dark:text-slate-300">
+                        {item.rawScore.toFixed(1)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase text-slate-500">Recency</p>
+                      <p className="font-mono text-slate-600 dark:text-slate-300">
+                        ×{item.freshness.toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase text-slate-500">Weight</p>
+                      <p className="font-mono text-slate-600 dark:text-slate-300">
+                        {item.effectiveWeight.toFixed(1)}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase text-slate-500">Score points</p>
+                      <p className="font-mono font-semibold text-slate-700 dark:text-slate-200">
+                        +{item.contribution.toFixed(1)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 flex-wrap text-[10px] text-slate-500">
+                    <span>{item.status}</span>
+                    {item.selectedSource && <span>source: {item.selectedSource}</span>}
+                    {item.daysAgo != null && <span>{Math.round(item.daysAgo)}d old</span>}
+                    {item.confidence != null && (
+                      <span>{Math.round(item.confidence * 100)}% evidence confidence</span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">{item.summary}</p>
+                  {item.sourceUrls && item.sourceUrls.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {item.sourceUrls.slice(0, 3).map((url) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[10px] text-cyan-600 hover:underline"
+                        >
+                          Evidence
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-slate-200 dark:border-foreground/[0.06]">

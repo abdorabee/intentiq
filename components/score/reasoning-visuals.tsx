@@ -7,6 +7,7 @@ import {
   Users,
   Newspaper,
   Cpu,
+  Activity,
   AlertTriangle,
   ArrowRight,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const SIGNAL_META: Array<{
   { key: "hiring", label: "Hiring", icon: Users, color: "rgb(16,185,129)", lightColor: "rgb(5,150,105)" },
   { key: "news", label: "News", icon: Newspaper, color: "rgb(245,158,11)", lightColor: "rgb(217,119,6)" },
   { key: "technology", label: "Tech", icon: Cpu, color: "rgb(59,130,246)", lightColor: "rgb(37,99,235)" },
+  { key: "web_activity", label: "Web", icon: Activity, color: "rgb(168,85,247)", lightColor: "rgb(147,51,234)" },
 ];
 
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
@@ -32,15 +34,16 @@ function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
 }
 
 export function SignalRadarChart({ signals }: { signals: SignalSet }) {
+  const signalMeta = SIGNAL_META.filter((item) => signals[item.key] !== undefined);
   const cx = 100,
     cy = 100,
     maxR = 75;
-  const count = SIGNAL_META.length;
+  const count = signalMeta.length;
   const angleStep = 360 / count;
 
   // Compute percentage for each signal
-  const values = SIGNAL_META.map((m) => {
-    const sig = signals[m.key];
+  const values = signalMeta.map((m) => {
+    const sig = signals[m.key]!;
     return sig.score / sig.max;
   });
 
@@ -75,7 +78,7 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
         ))}
 
         {/* Axis lines */}
-        {SIGNAL_META.map((_, i) => {
+        {signalMeta.map((_, i) => {
           const { x, y } = polarToCartesian(cx, cy, maxR, i * angleStep);
           return (
             <line
@@ -110,7 +113,7 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
               cx={x}
               cy={y}
               r="3"
-              fill={SIGNAL_META[i].color}
+              fill={signalMeta[i].color}
               stroke="#000"
               strokeWidth="0.5"
               className="dark:stroke-black stroke-white"
@@ -119,7 +122,7 @@ export function SignalRadarChart({ signals }: { signals: SignalSet }) {
         })}
 
         {/* Labels */}
-        {SIGNAL_META.map((m, i) => {
+        {signalMeta.map((m, i) => {
           const { x, y } = polarToCartesian(cx, cy, maxR + 16, i * angleStep);
           return (
             <text
@@ -152,10 +155,12 @@ export function SignalDonut({
 }) {
   const r = 40;
   const circumference = 2 * Math.PI * r;
-  const segments = SIGNAL_META.reduce<
+  const segments = SIGNAL_META
+    .filter((item) => signals[item.key] !== undefined)
+    .reduce<
     Array<ReturnType<typeof Object.assign> & { score: number; pct: number; dashLength: number; offset: number }>
   >((acc, m) => {
-    const sig = signals[m.key];
+    const sig = signals[m.key]!;
     const score = contributions.find((item) => item.type === m.key)?.contribution ?? 0;
     const pct = totalScore > 0 ? score / totalScore : 0;
     const dashLength = pct * circumference;
