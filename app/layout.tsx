@@ -7,6 +7,7 @@ import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.css";
 import "./theme-overrides.css";
 import "./responsive.css";
+import "./bulk-workspace.css";
 
 const inter = Inter({
   variable: "--font-inter",
