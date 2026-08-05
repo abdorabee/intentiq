@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     title: "VesperWise — B2B Buyer Intent Signals for SMB Sales Teams",
     description:
       "Track hiring spikes, funding rounds, tech stack changes, and news mentions. " +
-      "Surface companies ready to buy before your competitors do. From $49/mo.",
+      "Surface companies ready to buy before your competitors do. From $29/mo.",
     images: [
       {
         url: "/opengraph-image",

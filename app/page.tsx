@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description:
     "VesperWise tracks hiring spikes, funding rounds, tech stack changes, news mentions, " +
     "with web authority and GitHub activity as supporting context — before your competitors know. " +
-    "Affordable intent data from $49/mo. 100x cheaper than 6sense or Bombora.",
+    "Affordable intent data from $29/mo. 100x cheaper than 6sense or Bombora.",
   alternates: {
     canonical: CANONICAL,
   },
@@ -43,7 +43,7 @@ const jsonLd = {
       offers: {
         "@type": "Offer",
         priceCurrency: "USD",
-        description: "Free tier available. Paid plans from $49/mo.",
+        description: "Free tier available. Paid plans from $29/mo.",
       },
     },
     {
@@ -102,7 +102,7 @@ export default async function RootPage() {
         <p>
           VesperWise tracks buying signals across thousands of companies so your
           sales team knows who is ready to buy before your competitors do.
-          Affordable intent data for small and mid-size B2B teams. From $49/mo.
+          Affordable intent data for small and mid-size B2B teams. From $29/mo.
         </p>
 
         <h2>Hiring Spikes</h2>
