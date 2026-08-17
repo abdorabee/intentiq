@@ -20,6 +20,7 @@ import {
   Inbox,
   CreditCard,
   Key,
+  Settings,
   LogOut,
   Sun,
   Moon,
@@ -56,7 +57,8 @@ const WORKSPACE_ITEMS: NavItem[] = [
 
 const BOTTOM_ITEMS: NavItem[] = [
   { href: "/billing", label: "Billing", icon: CreditCard },
-  { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
+  { href: "/api-keys", label: "API Keys", icon: Key },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 interface DashboardNavProps {

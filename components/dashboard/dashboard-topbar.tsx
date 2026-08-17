@@ -9,7 +9,6 @@ import { focusWatchlistAdd } from "@/lib/watchlist-events";
 
 const CRUMB: Record<string, { parent: string; current: string }> = {
   "/dashboard": { parent: "Workspace", current: "Dashboard" },
-  "/memory": { parent: "Workspace", current: "Memory" },
   "/pipeline": { parent: "Workspace", current: "Intent Hub" },
   "/people": { parent: "Workspace", current: "People" },
   "/history": { parent: "Workspace", current: "History" },

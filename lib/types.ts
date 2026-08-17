@@ -186,6 +186,15 @@ export interface DbUser {
   onboarding_completed: boolean;
   role: UserRole;
   created_at: string;
+  notify_weekly_digest: boolean;
+  notify_credit_low: boolean;
+  notify_hot_signal: boolean;
+}
+
+export interface NotificationPreferences {
+  notify_weekly_digest: boolean;
+  notify_credit_low: boolean;
+  notify_hot_signal: boolean;
 }
 
 export interface DbApiKey {
@@ -414,6 +423,11 @@ export const PLAN_WATCHLIST_LIMIT: Record<DbUser["plan"], number | null> = {
   agency: null, // unlimited
 };
 
+/**
+ * Requests/minute advertised in pricing copy (lib/billing-plans.ts) but NOT enforced
+ * anywhere in the codebase. `rateLimitKey()` in lib/redis.ts is unused, and
+ * @upstash/ratelimit is installed but never imported. See README "Known limitations".
+ */
 export const PLAN_RATE_LIMIT: Record<DbUser["plan"], number> = {
   free: 10,
   starter: 100,

@@ -1,5 +1,5 @@
 import type { DbUser } from "@/lib/types";
-import { PLAN_CREDITS, PLAN_RATE_LIMIT, PLAN_WATCHLIST_LIMIT } from "@/lib/types";
+import { PLAN_AUTOPILOT_LIMIT, PLAN_CREDITS, PLAN_RATE_LIMIT, PLAN_WATCHLIST_LIMIT } from "@/lib/types";
 
 export type PlanKey = DbUser["plan"];
 
@@ -24,6 +24,11 @@ export interface TopupDef {
 function watchlistLabel(limit: number | null): string {
   if (limit == null) return "Unlimited watchlist";
   return `Watchlist · ${limit} accounts`;
+}
+
+function autopilotLabel(limit: number | null): string {
+  if (limit == null) return "Unlimited Autopilot flows";
+  return `Autopilot · ${limit} flows`;
 }
 
 export const BILLING_PLANS: BillingPlanDef[] = [
@@ -83,7 +88,7 @@ export const BILLING_PLANS: BillingPlanDef[] = [
       `${PLAN_CREDITS.growth.toLocaleString()} credits / mo`,
       "Up to 10 seats",
       "Bulk & person scoring",
-      "Autopilot · 25 flows",
+      autopilotLabel(PLAN_AUTOPILOT_LIMIT.growth),
       watchlistLabel(PLAN_WATCHLIST_LIMIT.growth),
       `API access · ${PLAN_RATE_LIMIT.growth} rpm`,
     ],
@@ -91,7 +96,7 @@ export const BILLING_PLANS: BillingPlanDef[] = [
       "10 seats",
       "Bulk · 1,000/job · 3 concurrent",
       watchlistLabel(PLAN_WATCHLIST_LIMIT.growth),
-      "Autopilot · 25 workflows",
+      autopilotLabel(PLAN_AUTOPILOT_LIMIT.growth),
       `API · ${PLAN_RATE_LIMIT.growth} rpm`,
       "Priority email support",
     ],
@@ -107,7 +112,7 @@ export const BILLING_PLANS: BillingPlanDef[] = [
       `${PLAN_CREDITS.pro.toLocaleString()} credits / mo`,
       "25 seats",
       "Bulk · 5,000/job · 8 concurrent",
-      "Autopilot · unlimited flows",
+      autopilotLabel(PLAN_AUTOPILOT_LIMIT.pro),
       watchlistLabel(PLAN_WATCHLIST_LIMIT.pro),
       `API · ${PLAN_RATE_LIMIT.pro} rpm`,
     ],
@@ -115,7 +120,7 @@ export const BILLING_PLANS: BillingPlanDef[] = [
       "25 seats",
       "Bulk · 5,000/job · 8 concurrent",
       watchlistLabel(PLAN_WATCHLIST_LIMIT.pro),
-      "Autopilot · unlimited flows",
+      autopilotLabel(PLAN_AUTOPILOT_LIMIT.pro),
       `API · ${PLAN_RATE_LIMIT.pro} rpm`,
       "SSO & SCIM",
       "Custom scoring weights",

@@ -171,23 +171,38 @@ Important response fields include `scoring_version`, `scoring_policy_id`, `score
 
 | Group | Path | Purpose |
 |-------|------|---------|
-| `(auth)` | `/login`, `/signup` | Unauthenticated layout |
-| `(dashboard)` | `/score`, `/people`, `/bulk`, `/watchlist`, `/pipeline`, `/history`, `/autopilot`, `/settings`, `/billing`, `/api-keys` | Authenticated layout |
-| `api/v1/` | `/score`, `/score/bulk`, `/score/person`, `/watchlist`, `/prioritize` | Public REST API |
-| `api/billing/` | `/checkout`, `/topup`, `/webhook` | Polar.sh integration |
-| `api/user/` | `/keys` | API key management |
+| `(auth)` | `/login`, `/signup` (+ `/sso-callback` under each) | Unauthenticated layout |
+| `(dashboard)` | `/dashboard`, `/analyze`, `/score`, `/people`, `/bulk`, `/watchlist`, `/lists` (+`/lists/[id]`), `/pipeline`, `/history`, `/autopilot`, `/inbox`, `/onboarding`, `/memory` (redirects to `/settings?tab=profile`), `/settings`, `/billing`, `/api-keys` | Authenticated layout |
+| Public marketing | `/`, `/about`, `/contact`, `/docs`, `/privacy`, `/terms`, `/legal/dpa`, `/legal/security` | Unauthenticated, indexable |
+| `api/v1/` | `/score`, `/score/bulk`, `/score/bulk-inline`, `/score/history`, `/score/person`, `/watchlist`, `/prioritize` | Public REST API |
+| `api/billing/` | `/checkout`, `/topup`, `/portal`, `/webhook` | Polar.sh integration |
+| `api/user/` | `/profile`, `/api-keys`, `/notifications`, `/scoring-policy` | Self-serve account data |
+| `api/dashboard/` | `/lists` (+`/[id]`, `/[id]/members`), `/person-scores`, `/pipeline` (+`/stages`, `/outcomes`), `/scores`, `/search`, `/watchlist` | Dashboard-internal reads/writes |
+| `api/autopilot/` | `/workflows` (+`/[id]`), `/runs` (+`/[id]`), `/execute`, `/test` | Autopilot engine |
+| `api/chat/`, `api/inbox/`, `api/onboarding/chat`, `api/contact` | — | Chat copilot, inbox notifications, onboarding chat, contact form |
+
+### Settings (`/settings`)
+
+A tabs-based account hub: **Profile & Account** (identity + the ICP/business-profile editor that used to live at `/memory`, which now redirects to `/settings?tab=profile`), **API Keys** (create/revoke, SHA-256-hashed, raw key shown once on creation), **Notifications** (email preference toggles — see Known limitations), and **Billing** (a lightweight plan/credits summary linking out to the full `/billing` page). All reads/writes follow the standard pattern below.
 
 ### Key modules
 
-- `lib/types.ts` — shared types, `PLAN_CREDITS`, `PLAN_WATCHLIST_LIMIT`, `PLAN_RATE_LIMIT`
-- `lib/supabase.ts` — `createSupabaseServerClient()` (cookie-based) and `createSupabaseAdmin()` (service role)
+- `lib/types.ts` — shared types, `PLAN_CREDITS`, `PLAN_WATCHLIST_LIMIT`, `PLAN_RATE_LIMIT`, `PLAN_AUTOPILOT_LIMIT`
+- `lib/supabase.ts` — `createSupabaseAdmin()` (service role, bypasses RLS) is the **only** Supabase client. There is no cookie-based server client — Clerk owns the session.
+- `lib/billing-plans.ts` — `BILLING_PLANS`, `BILLING_TOPUPS`, `getPlanDef()`
+- `lib/billing-stats.ts` — `buildBillingStats()` and small pure helpers (`formatRenewDate`, `daysUntilReset`)
 - `lib/redis.ts` — Upstash wrapper; no-ops if env vars not set
 - `lib/score-service.ts` — evidence reuse, personalized caching, idempotent runs, persistence, and charging
 - `lib/scorer.ts` — versioned linear intent model, freshness, coverage, and bands
 - `lib/reasoning.ts` — one bounded, schema-validated OpenRouter request with a deterministic fallback
 - `lib/signals/mock.ts` — deterministic mock signals for dev
-- `lib/hiring-refresh-queue.ts` — best-effort BullMQ producer for first-party hiring refreshes
-- `proxy.ts` — Next.js 16 middleware (named export `proxy`); refreshes Clerk session, redirects unauthenticated users from dashboard paths
+- `lib/hiring-refresh-queue.ts` / `lib/web-enrichment-queue.ts` — best-effort BullMQ producers for the two enrichment workers
+- `lib/dashboard-search.ts` — the ⌘K command palette's page index
+- `proxy.ts` — Clerk middleware (named export `proxy`, wraps `clerkMiddleware`); a public-route allowlist covers marketing pages, `/api/v1/*`, the billing webhook, and `/api/contact` — everything else (including all dashboard pages and every other `/api/*` route) is `auth.protect()`'d automatically
+
+### Standard user-data pattern (`app/api/user/*`)
+
+Every self-serve account route follows the same shape: `const { userId } = await auth()` (Clerk) → 401 if absent → `createSupabaseAdmin()` → scope every query with `.eq("id", userId)` (the `users` table) or `.eq("user_id", userId)` (owned rows, e.g. `api_keys`). There is **no Postgres RLS enforcement in effect** on these paths — the service-role client bypasses RLS entirely, so ownership is enforced solely in application code. See `app/api/user/profile/route.ts` as the canonical example.
 
 ### Billing
 
@@ -263,6 +278,15 @@ these labels are stored in `score_outcomes`.
 ### Chat copilot
 
 Real-time chat with embedded score cards. Claude is routed through OpenRouter. Conversation history is persisted to `chat_sessions` / `chat_messages`. Chats cost 0.25 credits per message.
+
+## Known limitations
+
+- **`PLAN_RATE_LIMIT` is advertised, not enforced.** It's defined in `lib/types.ts` and shown in pricing copy (`lib/billing-plans.ts`), but no middleware or route handler applies it. `rateLimitKey()` in `lib/redis.ts` is unused, and `@upstash/ratelimit` is an installed dependency with zero imports anywhere in the codebase.
+- **The queued bulk endpoint has no processor.** `POST /api/v1/score/bulk` writes a `queued` `bulk_jobs` row and stops there — only `POST /api/v1/score/bulk-inline` (≤50 companies) actually scores and returns results, synchronously. The hiring-refresh and web-enrichment workers do not process `bulk_jobs`.
+- **Notification preferences are stored, not delivered.** `/settings?tab=notifications` persists three booleans (`notify_weekly_digest`, `notify_credit_low`, `notify_hot_signal`) to the `users` table; no email sender is wired to them yet.
+- **`package.json`'s name is the legacy `intentiq`.** The product rebranded to VesperWise; the private package name was left alone to avoid churning the lockfile for no user-visible benefit.
+- **Most of `components/landing/` is unreferenced.** Only `LandingPage`, `LandingNav`, and a few small helpers are reachable from `app/page.tsx`. Treat other files in that directory as dead unless you confirm otherwise before editing.
+- **RLS is not the security boundary.** All server-side Supabase access uses the service-role client (`createSupabaseAdmin()`), which bypasses Postgres RLS. Row ownership is enforced entirely in application code via `.eq("id"/"user_id", userId)`.
 
 ## Database migrations
 
