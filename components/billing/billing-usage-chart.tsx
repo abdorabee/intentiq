@@ -76,9 +76,10 @@ export function BillingUsageChart({ stats }: BillingUsageChartProps) {
       ? effectiveTodayIdx + depletionDays
       : null;
   const depletionX = depletionIdx != null ? (depletionIdx + 0.5) * barStep : null;
+  const [now] = useState(() => Date.now());
   const depletionDate =
     depletionDays != null
-      ? new Date(Date.now() + depletionDays * 86400000).toLocaleDateString("en-US", {
+      ? new Date(now + depletionDays * 86400000).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         })

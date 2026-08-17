@@ -32,7 +32,6 @@ export function ListOverview({ summaries, hero }: ListOverviewProps) {
   }, [summaries, search, tab]);
 
   const mix = hero.bandMix;
-  const mixTotal = Math.max(mix.hot + mix.warm + mix.cold, 1);
   const hottestSummary = hero.hottestList ? summaries.find((s) => s.id === hero.hottestList!.id) : null;
 
   return (

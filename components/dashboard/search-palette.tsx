@@ -52,7 +52,9 @@ const itemActiveClass = "active";
 export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mounted, setMounted] = useState(false);
+  // Computed once during the initial render (never in an effect) — true on the
+  // client where `document` exists, false during SSR so createPortal is skipped.
+  const [mounted] = useState(() => typeof document !== "undefined");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [remote, setRemote] = useState<RemoteResults>(EMPTY);
@@ -120,35 +122,46 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
 
   const flatRows = useMemo(() => sections.flatMap((s) => s.rows), [sections]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // The next three blocks adjust state during render in response to a changed
+  // prop/value (open, query, search-eligibility) instead of doing it inside a
+  // useEffect — see https://react.dev/learn/you-might-not-need-an-effect.
 
-  useEffect(() => {
+  const [trackedOpen, setTrackedOpen] = useState(open);
+  if (open !== trackedOpen) {
+    setTrackedOpen(open);
     if (!open) {
       setQuery("");
       setRemote(EMPTY);
       setActiveIndex(0);
-      return;
     }
+  }
+
+  const searchEligible = trimmedQuery.length >= 2;
+  const [trackedQuery, setTrackedQuery] = useState(query);
+  if (query !== trackedQuery) {
+    setTrackedQuery(query);
+    setActiveIndex(0);
+    // Eligibility is fully derived from query text, so a query change is the
+    // only thing that can flip it — set the loading/empty state that the
+    // effect below is about to act on right here, during the same render.
+    if (searchEligible) {
+      setLoading(true);
+    } else {
+      setRemote(EMPTY);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!open) return;
     const t = window.setTimeout(() => inputRef.current?.focus(), 0);
     return () => window.clearTimeout(t);
   }, [open]);
 
   useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (trimmedQuery.length < 2) {
-      setRemote(EMPTY);
-      setLoading(false);
-      return;
-    }
+    if (!open || !searchEligible) return;
 
     const controller = new AbortController();
-    setLoading(true);
     const timer = window.setTimeout(() => {
       fetch(`/api/dashboard/search?q=${encodeURIComponent(trimmedQuery)}`, {
         signal: controller.signal,
@@ -169,7 +182,7 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [trimmedQuery, open]);
+  }, [trimmedQuery, open, searchEligible]);
 
   const selectRow = useCallback(
     (row: PaletteRow) => {

@@ -39,20 +39,25 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
   const isBilling = pathname === "/billing";
   const isWatchlist = pathname === "/watchlist";
   const listDetailMatch = pathname.match(/^\/lists\/([^/]+)$/);
+  const listId = listDetailMatch?.[1];
   const [listName, setListName] = useState<string | null>(null);
+  const [trackedListId, setTrackedListId] = useState(listId);
   const { open: openSearch } = useDashboardSearch();
 
+  // Reset the stale name during render when navigating to a different list
+  // (or away from list detail entirely), rather than in an effect.
+  if (listId !== trackedListId) {
+    setTrackedListId(listId);
+    setListName(null);
+  }
+
   useEffect(() => {
-    if (!listDetailMatch) {
-      setListName(null);
-      return;
-    }
-    const id = listDetailMatch[1];
-    fetch(`/api/dashboard/lists/${id}`)
+    if (!listId) return;
+    fetch(`/api/dashboard/lists/${listId}`)
       .then((r) => r.json())
       .then((d) => setListName(d.list?.name ?? null))
       .catch(() => setListName(null));
-  }, [listDetailMatch?.[1]]);
+  }, [listId]);
 
   const crumb = CRUMB[pathname] ?? (
     listDetailMatch

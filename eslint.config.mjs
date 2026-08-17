@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude Code's own tooling scripts (hooks, memory helpers) — not
+    // application source, and intentionally written as plain CommonJS/Node
+    // scripts rather than following the app's TypeScript/ESM conventions.
+    ".claude/**",
   ]),
 ]);
 

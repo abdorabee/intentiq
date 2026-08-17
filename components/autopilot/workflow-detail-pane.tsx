@@ -51,11 +51,15 @@ export default function WorkflowDetailPane({
   const [lastFire, setLastFire] = useState<{ company: string; ago: string } | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!workflow) return;
+  // Sync the name draft during render when the selected workflow (or its
+  // name) changes, instead of in an effect.
+  const workflowKey = workflow ? `${workflow.id}:${workflow.name}` : null;
+  const [trackedWorkflowKey, setTrackedWorkflowKey] = useState(workflowKey);
+  if (workflow && workflowKey !== trackedWorkflowKey) {
+    setTrackedWorkflowKey(workflowKey);
     setNameDraft(workflow.name);
     setRenaming(false);
-  }, [workflow?.id, workflow?.name]);
+  }
 
   useEffect(() => {
     if (!workflow || tab !== "logs") return;
@@ -74,11 +78,15 @@ export default function WorkflowDetailPane({
     })();
   }, [workflow?.id, tab, runs]);
 
+  const hasRunsForWorkflow = !!workflow && runs.length > 0;
+  const [trackedHasRuns, setTrackedHasRuns] = useState(hasRunsForWorkflow);
+  if (hasRunsForWorkflow !== trackedHasRuns) {
+    setTrackedHasRuns(hasRunsForWorkflow);
+    if (!hasRunsForWorkflow) setLastFire(null);
+  }
+
   useEffect(() => {
-    if (!workflow || runs.length === 0) {
-      setLastFire(null);
-      return;
-    }
+    if (!workflow || runs.length === 0) return;
     (async () => {
       const res = await fetch(`/api/autopilot/runs/${runs[0].id}`);
       if (res.ok) {
