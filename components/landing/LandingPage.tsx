@@ -1385,7 +1385,7 @@ export default function LandingPage() {
               <div className="price-feats">
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>Everything in Starter</div>
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>250 watchlist accounts</div>
-                <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>5 Autopilot workflows</div>
+                <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>20 Autopilot workflows</div>
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>Bulk scoring (1,000 / job)</div>
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>HubSpot + Salesforce</div>
               </div>

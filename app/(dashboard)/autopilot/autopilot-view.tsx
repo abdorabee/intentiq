@@ -43,10 +43,19 @@ export function AutopilotView({ workflowLimit }: AutopilotViewProps) {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchWorkflows(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // fetchWorkflows is async — every setState call inside it happens after an
+  // await, never synchronously, so this isn't the pattern the rule targets.
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { fetchWorkflows(); }, []);
+
+  const [trackedSelectedId, setTrackedSelectedId] = useState(selectedId);
+  if (selectedId !== trackedSelectedId) {
+    setTrackedSelectedId(selectedId);
+    if (!selectedId) setRuns([]);
+  }
 
   useEffect(() => {
-    if (!selectedId) { setRuns([]); return; }
+    if (!selectedId) return;
     fetch(`/api/autopilot/runs?workflow_id=${selectedId}`)
       .then(r => r.json())
       .then(data => setRuns(data.runs ?? []));

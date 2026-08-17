@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { getPlanDef, type PlanKey } from "@/lib/billing-plans";
 import type { BillingStats } from "@/lib/billing-stats";
 import {
@@ -44,9 +45,10 @@ export function BillingHero({ stats }: BillingHeroProps) {
       : "$0.10";
 
   const invoiceTotal = nextInvoiceAmount(plan) + stats.cycleTopupSpend;
+  const [now] = useState(() => Date.now());
   const depleteDate =
     stats.daysUntilDeplete != null
-      ? new Date(Date.now() + stats.daysUntilDeplete * 86400000).toLocaleDateString("en-US", {
+      ? new Date(now + stats.daysUntilDeplete * 86400000).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         })
