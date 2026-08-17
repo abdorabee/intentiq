@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 /* ── Design tokens ───────────────────────────────────────────── */
 const T = {
@@ -93,8 +93,8 @@ const ARCH_COLS = [
   {
     label: "Ingress",
     nodes: [
-      { ic: "UI",  grad: "linear-gradient(135deg,#dfff00,#dfff00)", name: "Customer browser", sub: "intentiq.dev",         tag: "TLS 1.3", tagClass: "tls" },
-      { ic: "API", grad: "linear-gradient(135deg,#f5b544,#8a8f98)", name: "REST clients",      sub: "api.intentiq.dev",     tag: "TLS 1.3", tagClass: "tls" },
+      { ic: "UI",  grad: "linear-gradient(135deg,#dfff00,#dfff00)", name: "Customer browser", sub: "vesperwise.com",         tag: "TLS 1.3", tagClass: "tls" },
+      { ic: "API", grad: "linear-gradient(135deg,#f5b544,#8a8f98)", name: "REST clients",      sub: "www.vesperwise.com/api/v1",     tag: "TLS 1.3", tagClass: "tls" },
     ],
   },
   {
@@ -124,7 +124,7 @@ const TAG_COLORS: Record<string, { bg: string; fg: string }> = {
 
 /* ── Controls ────────────────────────────────────────────────── */
 const CONTROLS = [
-  { name: "Encryption · transit",   ref: "CC6.1 · CC6.7",         body: <span>All traffic to <Code>intentiq.dev</Code> uses <Strong>TLS 1.3</Strong> with strong ciphers; HSTS preloaded on the apex; certificates from Let&rsquo;s Encrypt auto‑rotated every 60 days. Internal service‑to‑service hops use mTLS where the subprocessor supports it.</span> },
+  { name: "Encryption · transit",   ref: "CC6.1 · CC6.7",         body: <span>All traffic to <Code>vesperwise.com</Code> uses <Strong>TLS 1.3</Strong> with strong ciphers; HSTS preloaded on the apex; certificates from Let&rsquo;s Encrypt auto‑rotated every 60 days. Internal service‑to‑service hops use mTLS where the subprocessor supports it.</span> },
   { name: "Encryption · at rest",   ref: "CC6.1",                  body: <span><Strong>AES‑256</Strong> on Supabase Postgres and Vercel Blob; key management by the underlying provider with key rotation per their published schedule. We do not hold our own KMS keys today.</span> },
   { name: "Tenant isolation",       ref: "CC6.6",                  body: <span>Every multi‑tenant table enforces <Strong>Postgres Row‑Level Security</Strong> against the authenticated user&rsquo;s tenant ID. Queries cannot omit the tenant predicate — RLS is enforced at the DB, not the application layer.</span> },
   { name: "API authentication",     ref: "CC6.1 · CC6.6",          body: <span>API keys are bearer tokens, displayed once on creation, then stored as <Strong>SHA‑256 hashes</Strong>. Per‑user rate limits with Upstash; lockout on 10 failed attempts in 60s. Revocation propagates within 30 seconds.</span> },
@@ -144,7 +144,7 @@ const RESOURCES = [
   { label: "Auto‑signed · public", title: "Data Processing Agreement",  meta: "v1.6 · GDPR Art. 28 · SCCs included",          href: "/legal/dpa",          icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M3 2h8v10H3z"/><path d="M5 6h4M5 8h3"/></svg> },
   { label: "Spreadsheet",          title: "CAIQ Lite · SIG Core (pre‑filled)", meta: "Updated May '26 · 287 questions",       href: "#",                   icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><rect x="2" y="3" width="10" height="8" rx="1"/><path d="M5 6h4M5 8h2"/></svg> },
   { label: "Public · live",        title: "Subprocessor inventory",      meta: "9 subprocessors · 30‑day change notice",       href: "/legal/subprocessors",icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="4" cy="4" r="2"/><circle cx="10" cy="4" r="2"/><circle cx="7" cy="10" r="2"/></svg> },
-  { label: "Live",                  title: "Status page · uptime history",meta: "status.intentiq.dev · 99.97% / 90d",          href: "#",                   icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg> },
+  { label: "Public",                title: "Security overview",          meta: "vesperwise.com/legal/security",                href: "/legal/security",     icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg> },
   { label: "PDF",                   title: "Security one‑pager",          meta: "For a 5‑minute review",                       href: "#",                   icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14"><path d="M2 7l4-4h6v8H6z"/></svg> },
 ];
 
@@ -175,7 +175,7 @@ export default function SecurityView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 50, background: "rgba(8,9,10,0.72)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}` } as React.CSSProperties}>
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
-            <IntentIQLogo size={42} variant="wordmark" />
+            <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -389,18 +389,18 @@ export default function SecurityView() {
             <div>
               <h3 style={{ fontSize: "22px", fontWeight: 500, letterSpacing: "-0.022em", color: T.txtPrimary, marginBottom: "8px" }}>Found something? Tell us.</h3>
               <p style={{ fontSize: "14px", lineHeight: 1.6, color: T.txtTertiary, letterSpacing: "-0.006em", maxWidth: "480px", marginBottom: "14px" }}>
-                We pay bounties up to <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>$5,000</strong> for severe issues, settled in 14 days. No legal threats for good‑faith research. Encrypt your report with the PGP key on the right — or just email <Code>security@intentiq.dev</Code> in the clear.
+                We pay bounties up to <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>$5,000</strong> for severe issues, settled in 14 days. No legal threats for good‑faith research. Encrypt your report with the PGP key on the right — or just email <Code>security@vesperwise.com</Code> in the clear.
               </p>
               <div style={{ display: "flex", gap: "8px" }}>
-                <a href="mailto:security@intentiq.dev" style={{ display: "inline-flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 16px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, color: "#000000", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
-                  Email security@intentiq.dev
+                <a href="mailto:security@vesperwise.com" style={{ display: "inline-flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 16px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, color: "#000000", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+                  Email security@vesperwise.com
                   <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
                 </a>
                 <button style={{ display: "inline-flex", alignItems: "center", height: "36px", padding: "0 16px", borderRadius: "6px", fontSize: "14px", fontWeight: 500, color: T.txtPrimary, background: "rgba(255,255,255,0.05)", border: `1px solid ${T.border}`, cursor: "pointer", fontFamily: T.fontSans }}>Disclosure policy</button>
               </div>
             </div>
             <div style={{ fontFamily: T.fontMono, fontSize: "11px", color: T.txtTertiary, background: "rgba(255,255,255,0.03)", border: `1px solid ${T.border}`, borderRadius: "6px", padding: "14px 16px", lineHeight: 1.55, letterSpacing: "0.02em" }}>
-              <span style={{ color: T.txtQuaternary, textTransform: "uppercase" as const, fontSize: "10px", display: "block", marginBottom: "6px", letterSpacing: "0.06em" }}>PGP fingerprint · security@intentiq.dev</span>
+              <span style={{ color: T.txtQuaternary, textTransform: "uppercase" as const, fontSize: "10px", display: "block", marginBottom: "6px", letterSpacing: "0.06em" }}>PGP fingerprint · security@vesperwise.com</span>
               <span style={{ color: T.txtPrimary, wordBreak: "break-all" as const }}>8C42 9B17 D6E3 7F4A 1C0E&nbsp;&nbsp;5D8A 9F36 A1B2 04EC 7F31</span>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 /* ─── Design tokens ──────────────────────────────────────────── */
 const T = {
@@ -35,9 +35,9 @@ const NUMBERS = [
 
 const TIMELINE = [
   { time: "At work",          isNow: false, title: "An idea shows up uninvited", body: <>I&apos;m at my day job, staring at a sales pipeline that nobody could read. Halfway through a boring meeting, a thought won&apos;t leave me alone: <em style={{ color: T.txt }}>this should just be one number.</em> I scribble it on a notepad and try to focus on the meeting. I don&apos;t.</> },
-  { time: "That night",       isNow: false, title: "Home, room, laptop, go",      body: <>Get home, eat, open the laptop in my room. By 1 AM there&apos;s a tiny script that prints a number next to a company name. It&apos;s ugly. It works. I buy <code style={{ fontFamily: T.mono, fontSize: "13px", padding: "1px 5px", borderRadius: "3px", background: "rgba(255,255,255,0.05)" }}>intentiq.dev</code> while I should be sleeping.</> },
+  { time: "That night",       isNow: false, title: "Home, room, laptop, go",      body: <>Get home, eat, open the laptop in my room. By 1 AM there&apos;s a tiny script that prints a number next to a company name. It&apos;s ugly. It works. I buy <code style={{ fontFamily: T.mono, fontSize: "13px", padding: "1px 5px", borderRadius: "3px", background: "rgba(255,255,255,0.05)" }}>vesperwise.com</code> while I should be sleeping.</> },
   { time: "The months after", isNow: false, title: "Evenings, weekends, three rewrites", body: "Day job in the day. VesperWise at night. I throw the whole thing away twice — once because it was slow, once because it was ugly. Friends ask what I'm working on. I say \"a side project,\" which is technically true." },
-  { time: "Today",            isNow: true,  title: "Still in the same room. Now you can sign up.", body: <>Still just me. Same desk, same lamp, slightly more confident. If you want in, sign up free — or just email <a href="mailto:ar@intentiq.dev" style={{ color: T.txt, textDecoration: "underline", textDecorationColor: T.borderStrong, textUnderlineOffset: "3px" }}>ar@intentiq.dev</a>. I&apos;m the one who replies.</> },
+  { time: "Today",            isNow: true,  title: "Still in the same room. Now you can sign up.", body: <>Still just me. Same desk, same lamp, slightly more confident. If you want in, sign up free — or just email <a href="mailto:support@vesperwise.com" style={{ color: T.txt, textDecoration: "underline", textDecorationColor: T.borderStrong, textUnderlineOffset: "3px" }}>support@vesperwise.com</a>. I&apos;m the one who replies.</> },
 ];
 
 const PRINCIPLES = [
@@ -46,7 +46,7 @@ const PRINCIPLES = [
   { n: "03", title: "Reps are the customer, not buyers",    desc: "Sales VPs sign the contract; AEs decide whether the tool gets used. Every feature has to pass the \"would a busy rep click this on a Tuesday at 4 PM\" test. Most ideas don't." },
   { n: "04", title: "One score, not seven",                 desc: "Composite scores beat per‑signal scores for the only metric that matters: whether a human acts on them. I'll resist the urge to add a second number until I'm forced to." },
   { n: "05", title: "Sales is a craft, not a queue",        desc: "Autopilot routes, drafts, and notifies — never sends without a human in the loop. I won't ship \"send 1,000 emails in one click.\" Plenty of vendors do; I won't be one of them." },
-  { n: "06", title: "If I'm the only person who works here, I'm the only person you email", desc: "Support, sales, security, billing — every reply you get from @intentiq.dev comes from me. When that breaks, it'll be because VesperWise grew. Until then, that's the promise." },
+  { n: "06", title: "If I'm the only person who works here, I'm the only person you email", desc: "Support, sales, security, billing — every reply you get from @vesperwise.com comes from me. When that breaks, it'll be because VesperWise grew. Until then, that's the promise." },
 ];
 
 const SCOPE = [
@@ -91,7 +91,7 @@ export default function AboutView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 40, height: "56px", background: "rgba(5,6,8,0.90)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${T.borderSubtle}`, display: "flex", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px", gap: "24px" }}>
           <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-            <IntentIQLogo size={42} variant="wordmark" />
+            <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {(["Product","Autopilot","Developers","Pricing","Customers","Company"] as const).map(label => (
@@ -255,7 +255,7 @@ export default function AboutView() {
               {/* Social links */}
               <div style={{ display: "flex", gap: "8px", marginTop: "8px", paddingTop: "18px", borderTop: `1px solid ${T.borderSubtle}`, flexWrap: "wrap" }}>
                 {[
-                  { href: "mailto:ar@intentiq.dev", label: "ar@intentiq.dev", icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "11px", height: "11px" }}><path d="M2 4l5 4 5-4"/><rect x="1.5" y="3" width="11" height="9" rx="1"/></svg> },
+                  { href: "mailto:support@vesperwise.com", label: "support@vesperwise.com", icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "11px", height: "11px" }}><path d="M2 4l5 4 5-4"/><rect x="1.5" y="3" width="11" height="9" rx="1"/></svg> },
                   { href: "https://x.com/laflame_archive", label: "twitter / X", icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "11px", height: "11px" }}><circle cx="7" cy="7" r="5.5"/><path d="M2 7h10M7 1.5c1.5 2 1.5 9 0 11M7 1.5c-1.5 2-1.5 9 0 11"/></svg> },
                   { href: "https://www.linkedin.com/in/abdel-rahman-rabee-3543011b6/", label: "linkedin", icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "11px", height: "11px" }}><path d="M2 2v10h10V2zM5 6v4M5 4v.01M9 6v4M9 8a1.5 1.5 0 013 0v2"/></svg> },
                   { href: "https://github.com/abdorabee", label: "github", icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "11px", height: "11px" }}><path d="M5 11c-2 0-3-1-3-3.5C2 6 3 5 3 5s0-1 .5-1.5C4 3 5 3.5 5 3.5c.5-.3 2-.3 3 0 0 0 1-.5 1.5 0 .5.5.5 1.5.5 1.5s1 1 1 2.5C11 10 10 11 8 11"/></svg> },
@@ -328,7 +328,7 @@ export default function AboutView() {
             <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "11px 22px", borderRadius: "999px", background: T.accent, color: "#000000", fontWeight: 500, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>
               Start scoring free <span>→</span>
             </Link>
-            <a href="mailto:ar@intentiq.dev" style={{ display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: "999px", border: `1px solid ${T.border}`, color: T.txtSec, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>
+            <a href="mailto:support@vesperwise.com" style={{ display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: "999px", border: `1px solid ${T.border}`, color: T.txtSec, fontSize: "14px", textDecoration: "none", letterSpacing: "-0.006em" }}>
               Email me directly
             </a>
           </div>

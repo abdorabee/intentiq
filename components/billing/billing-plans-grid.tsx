@@ -72,7 +72,7 @@ export function BillingPlansGrid({ currentPlan }: BillingPlansGridProps) {
                 <div className="pc-cta current">Current plan</div>
               ) : rank > 0 ? (
                 p.key === "agency" ? (
-                  <a href="mailto:sales@intentiq.io" className="pc-cta outline">
+                  <a href="mailto:sales@vesperwise.com" className="pc-cta outline">
                     Talk to sales
                   </a>
                 ) : (

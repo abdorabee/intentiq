@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     url: CANONICAL,
     title: "API Reference — VesperWise",
     description:
-      "One endpoint. Any company. Explicit coverage. REST API reference with code samples in curl, Node, and Python.",
+      "One endpoint. Any company. Explicit coverage. REST API reference with curl and Node examples.",
   },
 };
 

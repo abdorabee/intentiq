@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 const NAV_ITEMS = [
   { label: "Product",    href: "#product" },
@@ -21,7 +21,7 @@ export default function LandingNav() {
       <nav className="primary">
         <div className="row">
           <Link href="/" className="brand" aria-label="VesperWise home">
-            <IntentIQLogo className="logo" size={42} variant="wordmark" />
+            <VesperWiseLogo className="logo" size={42} variant="wordmark" />
           </Link>
 
           {/* Desktop nav links */}
@@ -90,7 +90,7 @@ export default function LandingNav() {
 
             {/* Brand in drawer */}
             <Link href="/" className="brand" style={{ marginBottom: "16px" }} aria-label="VesperWise home">
-              <IntentIQLogo className="logo" size={42} variant="wordmark" />
+              <VesperWiseLogo className="logo" size={42} variant="wordmark" />
             </Link>
 
             {/* Nav links */}

@@ -1,6 +1,6 @@
 import LandingNav from "@/components/landing/LandingNav";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 export default function LandingPage() {
   return (
@@ -87,7 +87,7 @@ export default function LandingPage() {
               {/* Sidebar */}
               <aside className="app-sidebar">
                 <div className="app-sb-head">
-                  <IntentIQLogo className="ws-logo" size={22} />
+                  <VesperWiseLogo className="ws-logo" size={22} />
                   <div className="ws-name">Acme Sales</div>
                   <svg className="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 4.5l3 3 3-3"/></svg>
                 </div>

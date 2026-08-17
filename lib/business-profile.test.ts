@@ -4,7 +4,6 @@ import {
   normalizeBusinessProfile,
   profileUpdateSchema,
 } from "./business-profile";
-import { parseBusinessProfile } from "./onboarding-prompt";
 import type { BusinessProfile } from "./types";
 
 const VALID_PROFILE: BusinessProfile = {
@@ -65,18 +64,5 @@ describe("profileUpdateSchema", () => {
         target_industries: ["Technology"],
       });
     }
-  });
-});
-
-describe("onboarding profile validation", () => {
-  it("does not complete onboarding from an empty AI tool payload", () => {
-    expect(parseBusinessProfile({
-      ...VALID_PROFILE,
-      target_industries: [],
-    })).toBeNull();
-    expect(parseBusinessProfile({
-      ...VALID_PROFILE,
-      buyer_role: "   ",
-    })).toBeNull();
   });
 });

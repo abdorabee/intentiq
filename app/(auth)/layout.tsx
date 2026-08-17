@@ -1,93 +1,41 @@
-"use client";
-
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import IntentIQLogo from "@/components/intentiq-logo";
 
-const FACTS = [
-  {
-    stat: "2.4M",
-    label: "accounts scored to date",
-    sub: "Across fintech, SaaS, and enterprise sales teams.",
-  },
-  {
-    stat: "6h",
-    label: "median time to first score",
-    sub: "Four intent triggers with a personalized result cache.",
-  },
-  {
-    stat: "+38%",
-    label: "lift in HOT-band reply rate",
-    sub: "Teams that score first, book first.",
-  },
-  {
-    stat: "99.97%",
-    label: "API uptime, last 90 days",
-    sub: "Built for sales ops that can't afford downtime.",
-  },
-];
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
-const QUOTES = [
+const CAPABILITIES = [
   {
-    text: "We replaced our 6sense seat with VesperWise for a tenth of the cost. AE adoption was the surprise.",
-    name: "Sana Kapoor",
-    role: "VP Sales · Roundwave",
-    av: "SK",
+    title: "Account intent scores",
+    description: "See a clear 0-100 view of purchase readiness for each company.",
   },
   {
-    text: "Autopilot caught a Series B and routed the account to my closer at 4:42 AM. Meeting booked by 9.",
-    name: "Marcus Ng",
-    role: "Head of GTM · Northbeam",
-    av: "MN",
+    title: "Evidence behind every score",
+    description: "Review the funding, hiring, news, technology, and web signals that shaped it.",
   },
   {
-    text: "The 0–100 score is the only signal we put in our Mondays. Reps trust it because the reasoning shows up next to the number.",
-    name: "Rhea Doshi",
-    role: "Sales Ops Lead · Halcyon",
-    av: "RD",
+    title: "Recommended next actions",
+    description: "Turn current account evidence into a practical sales follow-up.",
   },
-];
+] as const;
 
 function LeftPanel() {
-  const [factIdx, setFactIdx] = useState(0);
-  const [quoteIdx, setQuoteIdx] = useState(0);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setFactIdx((i) => (i + 1) % FACTS.length);
-        setQuoteIdx((i) => (i + 1) % QUOTES.length);
-        setVisible(true);
-      }, 400);
-    }, 4000);
-    return () => clearInterval(id);
-  }, []);
-
-  const fact = FACTS[factIdx];
-  const quote = QUOTES[quoteIdx];
-
   return (
     <div
       className="auth-left-panel"
       style={{
-        flex: "0 0 44%",
+        width: "100%",
+        minHeight: "100dvh",
+        padding: "44px",
+        display: "flex",
+        flexDirection: "column",
         background:
           "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018)), #0d0f11",
         borderRight: "1px solid rgba(255,255,255,0.09)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "44px",
         position: "relative",
         overflow: "hidden",
-        minHeight: "100vh",
       }}
     >
-      {/* Glow */}
       <div
-        aria-hidden
+        aria-hidden="true"
         style={{
           position: "absolute",
           top: "-160px",
@@ -95,163 +43,114 @@ function LeftPanel() {
           width: "620px",
           height: "620px",
           borderRadius: "50%",
-          background: "rgba(223,255,0,0.12)",
+          background: "rgba(223,255,0,0.1)",
           filter: "blur(280px)",
           pointerEvents: "none",
         }}
       />
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          bottom: "-160px",
-          right: "-140px",
-          width: "520px",
-          height: "520px",
-          borderRadius: "50%",
-          background: "rgba(74,222,128,0.08)",
-          filter: "blur(260px)",
-          pointerEvents: "none",
-        }}
-      />
 
-      {/* Logo */}
       <Link
         href="/"
+        aria-label="VesperWise home"
         style={{
           display: "inline-flex",
-          alignItems: "center",
-          gap: "10px",
+          width: "fit-content",
           textDecoration: "none",
           position: "relative",
           zIndex: 1,
         }}
       >
-        <IntentIQLogo size={48} variant="wordmark" />
+        <VesperWiseLogo size={48} variant="wordmark" />
       </Link>
 
-      {/* Middle — rotating stat */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          transition: "opacity 0.4s ease",
-          opacity: visible ? 1 : 0,
-        }}
-      >
-        <div
+      <div style={{ position: "relative", zIndex: 1, margin: "auto 0" }}>
+        <p
           style={{
-            fontSize: "clamp(56px, 7vw, 84px)",
-            fontWeight: 720,
-            letterSpacing: "0",
-            lineHeight: 1,
-            background: "linear-gradient(135deg, #ffffff 45%, #b8bec8 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            marginBottom: "14px",
+            marginBottom: "18px",
+            color: "#dfff00",
+            fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
+            fontSize: "11px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
           }}
         >
-          {fact.stat}
-        </div>
-        <div
+          Sales intelligence you can inspect
+        </p>
+        <h1
           style={{
-            fontSize: "18px",
-            fontWeight: 650,
+            maxWidth: "430px",
+            margin: 0,
             color: "#f7f8f8",
-            letterSpacing: "0",
-            marginBottom: "8px",
+            fontSize: "clamp(38px, 4.3vw, 60px)",
+            fontWeight: 650,
+            letterSpacing: "-0.04em",
+            lineHeight: 1.05,
           }}
         >
-          {fact.label}
-        </div>
-        <div
+          Know why an account is ready before you reach out.
+        </h1>
+        <p
           style={{
-            fontSize: "14px",
-            color: "#a8afb9",
-            lineHeight: 1.6,
-            maxWidth: "320px",
+            maxWidth: "420px",
+            marginTop: "22px",
+            color: "#9298a1",
+            fontSize: "15px",
+            lineHeight: 1.7,
           }}
         >
-          {fact.sub}
-        </div>
+          VesperWise combines current company signals into an explainable score, then gives your team a clear next move.
+        </p>
 
-        {/* Dot indicators */}
-        <div
-          style={{
-            display: "flex",
-            gap: "6px",
-            marginTop: "24px",
-          }}
-        >
-          {FACTS.map((_, i) => (
+        <div style={{ marginTop: "34px", maxWidth: "440px" }}>
+          {CAPABILITIES.map((capability) => (
             <div
-              key={i}
+              key={capability.title}
               style={{
-                width: i === factIdx ? "20px" : "6px",
-                height: "6px",
-                borderRadius: "999px",
-                background: i === factIdx ? "#dfff00" : "rgba(255,255,255,0.15)",
-                transition: "all 0.4s ease",
+                display: "grid",
+                gridTemplateColumns: "20px 1fr",
+                gap: "12px",
+                padding: "16px 0",
+                borderTop: "1px solid rgba(255,255,255,0.08)",
               }}
-            />
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  marginTop: "4px",
+                  color: "#dfff00",
+                  fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
+                  fontSize: "11px",
+                }}
+              >
+                ✓
+              </span>
+              <div>
+                <h2 style={{ margin: 0, color: "#e7e9ec", fontSize: "14px", fontWeight: 600 }}>
+                  {capability.title}
+                </h2>
+                <p style={{ margin: "5px 0 0", color: "#777d85", fontSize: "13px", lineHeight: 1.55 }}>
+                  {capability.description}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Bottom — rotating quote */}
-      <div
+      <p
         style={{
           position: "relative",
           zIndex: 1,
-          transition: "opacity 0.4s ease",
-          opacity: visible ? 1 : 0,
-          borderTop: "1px solid rgba(255,255,255,0.07)",
-          paddingTop: "28px",
-          maxWidth: "420px",
+          margin: 0,
+          color: "#737980",
+          fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
+          fontSize: "11px",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
         }}
       >
-        <p
-          style={{
-            fontSize: "13px",
-            color: "#c8ced8",
-            lineHeight: 1.7,
-            marginBottom: "16px",
-            fontStyle: "italic",
-          }}
-        >
-          &ldquo;{quote.text}&rdquo;
-        </p>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div
-            style={{
-              width: "30px",
-              height: "30px",
-              borderRadius: "999px",
-              background: "linear-gradient(180deg, #ecff58, #dfff00)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#050505",
-              fontSize: "10px",
-              fontWeight: 700,
-              flexShrink: 0,
-            }}
-          >
-            {quote.av}
-          </div>
-          <div>
-            <div
-              style={{ fontSize: "12px", fontWeight: 600, color: "#f7f8f8" }}
-            >
-              {quote.name}
-            </div>
-            <div style={{ fontSize: "11px", color: "#62666d" }}>
-              {quote.role}
-            </div>
-          </div>
-        </div>
-      </div>
+        Start with 20 free credits · no credit card
+      </p>
     </div>
   );
 }
@@ -265,14 +164,13 @@ export default function AuthLayout({
     <div
       className="auth-shell"
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         background:
           "radial-gradient(circle at 12% -12%, rgba(223,255,0,0.12), transparent 36rem), radial-gradient(circle at 92% 10%, rgba(74,222,128,0.07), transparent 30rem), #08090a",
         display: "flex",
         fontFamily: "var(--font-sans, Inter, system-ui, sans-serif)",
       }}
     >
-      {/* Left panel — hidden on small screens */}
       <style>{`
         @media (max-width: 768px) {
           .auth-left { display: none !important; }
@@ -287,7 +185,6 @@ export default function AuthLayout({
         <LeftPanel />
       </div>
 
-      {/* Right panel — form */}
       <div
         className="auth-right"
         style={{
@@ -302,7 +199,7 @@ export default function AuthLayout({
         }}
       >
         <div
-          aria-hidden
+          aria-hidden="true"
           style={{
             position: "absolute",
             inset: "auto 12% 10% auto",

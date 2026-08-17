@@ -20,9 +20,9 @@ describe("dashboard profile navigation cleanup", () => {
     expect(shellSource).toContain("const effectiveCollapsed = isMobile ? false : collapsed");
   });
 
-  it("keeps direct profile, onboarding, and settings access in place", () => {
+  it("keeps direct profile, standalone onboarding, and settings access in place", () => {
     expect(existsSync(new URL("../../app/(dashboard)/memory/page.tsx", import.meta.url))).toBe(true);
-    expect(existsSync(new URL("../../app/(dashboard)/onboarding/page.tsx", import.meta.url))).toBe(true);
+    expect(existsSync(new URL("../../app/onboarding/page.tsx", import.meta.url))).toBe(true);
 
     const settingsSource = readFileSync(
       new URL("../../app/(dashboard)/settings/page.tsx", import.meta.url),

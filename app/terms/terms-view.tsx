@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 /* ── Design tokens (matching chrome.css + doc.css) ─────────── */
 const T = {
@@ -178,7 +178,7 @@ export default function TermsView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 50, background: "rgba(8,9,10,0.72)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}` } as React.CSSProperties}>
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
-            <IntentIQLogo size={42} variant="wordmark" />
+            <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -270,7 +270,7 @@ export default function TermsView() {
 
           {/* ── 02 ── */}
           <Section id="s2" num="02" title="Account & access">
-            <P>You need a verified work email to create an account. You agree to provide accurate information, keep credentials confidential, and notify us promptly at <A href="mailto:security@intentiq.com">security@intentiq.com</A> of any suspected unauthorized access. You are responsible for activity under your account, including activity by your seat holders.</P>
+            <P>You need a verified work email to create an account. You agree to provide accurate information, keep credentials confidential, and notify us promptly at <A href="mailto:security@vesperwise.com">security@vesperwise.com</A> of any suspected unauthorized access. You are responsible for activity under your account, including activity by your seat holders.</P>
             <P>API keys are bearer credentials. Treat them like passwords. We hash all keys at rest (SHA&#8209;256) and never log key material in plaintext. We may rotate or revoke any key on credible suspicion of compromise.</P>
           </Section>
 
@@ -333,7 +333,7 @@ export default function TermsView() {
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="Warranties">
             <P>VesperWise warrants that the Service will perform materially in accordance with our published documentation and the SLAs in your order form (if any). Your exclusive remedy for a warranty breach is the SLA service credit described therein, or termination per Section&nbsp;10.</P>
-            <P caps>EXCEPT AS EXPRESSLY STATED, THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; WITHOUT WARRANTY OF ANY KIND. INTENTIQ DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON&#8209;INFRINGEMENT.</P>
+            <P caps>EXCEPT AS EXPRESSLY STATED, THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; WITHOUT WARRANTY OF ANY KIND. VESPERWISE DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON&#8209;INFRINGEMENT.</P>
           </Section>
 
           {/* ── 08 ── */}
@@ -374,7 +374,7 @@ export default function TermsView() {
             <H3>Assignment</H3>
             <P>Neither party may assign this Agreement without the other&rsquo;s prior written consent, except in connection with a merger, acquisition, or sale of substantially all assets, on notice.</P>
             <H3>Notices</H3>
-            <P>Legal notices must be sent to <Code>legal@intentiq.com</Code> (to us) or your account&#8209;owner email (to you). Notices are deemed received the next business day.</P>
+            <P>Legal notices must be sent to <Code>legal@vesperwise.com</Code> (to us) or your account&#8209;owner email (to you). Notices are deemed received the next business day.</P>
             <H3>Force majeure</H3>
             <P>Neither party is liable for delay or failure due to events beyond reasonable control (acts of war, pandemic, internet outage at an upstream provider, etc.).</P>
             <H3>Severability</H3>
@@ -385,7 +385,7 @@ export default function TermsView() {
 
           {/* Doc footer */}
           <div style={{ marginTop: "56px", paddingTop: "24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: T.txtTertiary }}>
-            <span>Questions? <A href="mailto:legal@intentiq.com">legal@intentiq.com</A></span>
+            <span>Questions? <A href="mailto:legal@vesperwise.com">legal@vesperwise.com</A></span>
             <div style={{ display: "flex", gap: "18px" }}>
               <A href="/privacy">Privacy →</A>
               <A href="/legal/dpa">DPA →</A>

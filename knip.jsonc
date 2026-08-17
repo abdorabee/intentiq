@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "entry": [
+    "scripts/**/*.{js,mjs,ts}!",
+    "workers/hiring-refresh/worker.mjs!",
+    "workers/web-enrichment/worker.mjs!",
+    // Dormant Autopilot is an intentional future entrypoint while its public route is gated.
+    "app/(dashboard)/autopilot/autopilot-view.tsx!",
+    "components/autopilot/**/*.tsx!",
+    "lib/autopilot.ts!",
+    "lib/autopilot-display.ts!"
+  ],
+  "project": [
+    "**/*.mjs!",
+    "**/*.ts!",
+    "**/*.tsx!",
+    "!**/*.test.mjs!",
+    "!**/*.test.ts!",
+    "!**/*.test.tsx!"
+  ],
+  "ignoreDependencies": [
+    // Used by operational scripts and the local Supabase CLI, not application imports.
+    "dotenv",
+    "supabase"
+  ]
+}

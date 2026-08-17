@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 /* ── Design tokens ───────────────────────────────────────────── */
 const T = {
@@ -226,7 +226,7 @@ export default function DpaView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 50, background: "rgba(8,9,10,0.72)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}` } as React.CSSProperties}>
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
-            <IntentIQLogo size={42} variant="wordmark" />
+            <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -306,7 +306,7 @@ export default function DpaView() {
 
           {/* Info callout */}
           <InfoCallout>
-            <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>You don&rsquo;t need to sign anything.</strong>{" "}This DPA is automatically incorporated into the Terms of Service when you create an account. If your procurement team requires a counter‑signed copy, email <Code>legal@intentiq.dev</Code> and you&rsquo;ll have a DocuSign within one business day.
+            <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>You don&rsquo;t need to sign anything.</strong>{" "}This DPA is automatically incorporated into the Terms of Service when you create an account. If your procurement team requires a counter‑signed copy, email <Code>legal@vesperwise.com</Code> and you&rsquo;ll have a DocuSign within one business day.
           </InfoCallout>
 
           {/* ── 01 ── */}
@@ -364,7 +364,7 @@ export default function DpaView() {
               "A description of the nature of the breach, including categories and approximate numbers of Data Subjects and records concerned;",
               "The likely consequences;",
               "Measures taken or proposed to address the breach and mitigate possible adverse effects;",
-              <span key="d">The point of contact for further information (<Code>security@intentiq.dev</Code>).</span>,
+              <span key="d">The point of contact for further information (<Code>security@vesperwise.com</Code>).</span>,
             ]} />
           </Section>
 
@@ -426,7 +426,7 @@ export default function DpaView() {
 
           {/* ── Annex II ── */}
           <Section id="a2" num="A2" title="Annex II · Technical & organizational measures">
-            <P>VesperWise implements the following measures. The full Security page, including diagrams and control mappings, is at <A href="/legal/security">intentiq.dev/security</A>.</P>
+            <P>VesperWise implements the following measures. The full Security page, including diagrams and control mappings, is at <A href="/legal/security">vesperwise.com/security</A>.</P>
             <DocTable
               headers={["Control area", "Measure"]}
               rows={[
@@ -448,7 +448,7 @@ export default function DpaView() {
 
           {/* Doc footer */}
           <div style={{ marginTop: "56px", paddingTop: "24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: T.txtTertiary }}>
-            <span>Questions? <A href="mailto:legal@intentiq.dev">legal@intentiq.dev</A></span>
+            <span>Questions? <A href="mailto:legal@vesperwise.com">legal@vesperwise.com</A></span>
             <div style={{ display: "flex", gap: "18px" }}>
               <A href="/terms">Terms →</A>
               <A href="/privacy">Privacy →</A>

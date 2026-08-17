@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 /* ── Design tokens (identical to terms-view.tsx) ─────────── */
 const T = {
@@ -203,7 +203,7 @@ export default function PrivacyView() {
       <nav style={{ position: "sticky", top: "36px", zIndex: 50, background: "rgba(8,9,10,0.72)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}` } as React.CSSProperties}>
         <div style={{ display: "flex", alignItems: "center", height: "56px", padding: "0 24px", maxWidth: "1320px", margin: "0 auto", gap: "28px" }}>
           <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontWeight: 600, letterSpacing: "-0.022em", fontSize: "15px", color: T.txtPrimary, textDecoration: "none" }}>
-            <IntentIQLogo size={42} variant="wordmark" />
+            <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {NAV_LINKS.map(({ label, href }) => (
@@ -271,7 +271,7 @@ export default function PrivacyView() {
           <div style={{ display: "flex", gap: "18px", alignItems: "center", flexWrap: "wrap", marginBottom: "32px", paddingBottom: "24px", borderBottom: `1px solid ${T.border}`, fontSize: "12px", color: T.txtTertiary, fontFamily: T.fontMono, letterSpacing: "0.02em" }}>
             <span><span style={{ color: T.txtQuaternary, marginRight: "4px" }}>Effective</span><span style={{ color: T.txtSecondary }}>May 12, 2026</span></span>
             <span><span style={{ color: T.txtQuaternary, marginRight: "4px" }}>Version</span>v2.4</span>
-            <span><span style={{ color: T.txtQuaternary, marginRight: "4px" }}>Applies to</span><span style={{ color: T.txtSecondary }}>intentiq.dev + the API</span></span>
+            <span><span style={{ color: T.txtQuaternary, marginRight: "4px" }}>Applies to</span><span style={{ color: T.txtSecondary }}>vesperwise.com + the API</span></span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "2px 8px", border: `1px solid ${T.border}`, borderRadius: "999px", background: "rgba(255,255,255,0.02)", color: T.txtSecondary }}>
               <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan }} />
               In force
@@ -283,12 +283,12 @@ export default function PrivacyView() {
             <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>The short version.</strong>{" "}We collect
             what we need to run the product, bill you, and keep things secure. We never sell your
             data, never train models on it, and never share it with advertisers. Questions? Email{" "}
-            <A href="mailto:privacy@intentiq.dev">Abdel-Rahaman</A> directly.
+            <A href="mailto:privacy@vesperwise.com">Abdel-Rahaman</A> directly.
           </InfoCallout>
 
           {/* ── 01 ── */}
           <Section id="s1" num="01" title="Overview" first>
-            <P>VesperWise Labs, Inc. (&ldquo;VesperWise&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the VesperWise platform available at <A href="https://intentiq.dev">intentiq.dev</A> and via the VesperWise API (collectively, the <Strong>&ldquo;Service&rdquo;</Strong>). This Privacy Policy explains what data we collect, why we collect it, and how we handle it.</P>
+            <P>VesperWise Labs, Inc. (&ldquo;VesperWise&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the VesperWise platform available at <A href="https://vesperwise.com">vesperwise.com</A> and via the VesperWise API (collectively, the <Strong>&ldquo;Service&rdquo;</Strong>). This Privacy Policy explains what data we collect, why we collect it, and how we handle it.</P>
             <P>You can use the marketing site without giving us any personal data. Once you create an account or call the API, this policy applies. Our <A href="/terms">Terms of Service</A> and this policy together govern your use of the Service.</P>
           </Section>
 
@@ -389,7 +389,7 @@ export default function PrivacyView() {
               <span key="f"><Strong>Withdraw consent</Strong> — where processing is based on consent (e.g. marketing emails), withdraw at any time</span>,
               <span key="g"><Strong>Lodge a complaint</Strong> — with your local data protection authority if you believe we have mishandled your data</span>,
             ]} />
-            <P>To exercise any right, email <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A>. We will respond within 30 days. We may ask you to verify your identity before fulfilling a request.</P>
+            <P>To exercise any right, email <A href="mailto:privacy@vesperwise.com">privacy@vesperwise.com</A>. We will respond within 30 days. We may ask you to verify your identity before fulfilling a request.</P>
           </Section>
 
           {/* ── 09 ── */}
@@ -418,7 +418,7 @@ export default function PrivacyView() {
 
           {/* ── 11 ── */}
           <Section id="s11" num="11" title="Children">
-            <P>VesperWise is a B2B product intended for business professionals. We do not knowingly collect personal data from anyone under 16. If you believe a minor has provided us with data, please contact <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A> and we will delete it promptly.</P>
+            <P>VesperWise is a B2B product intended for business professionals. We do not knowingly collect personal data from anyone under 16. If you believe a minor has provided us with data, please contact <A href="mailto:privacy@vesperwise.com">privacy@vesperwise.com</A> and we will delete it promptly.</P>
           </Section>
 
           {/* ── 12 ── */}
@@ -428,14 +428,14 @@ export default function PrivacyView() {
             <P>VesperWise Labs, Inc. · 340 Brannan St., 4th fl., San Francisco, CA 94107</P>
             <H3>Data Protection contact</H3>
             <P>
-              <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A>
+              <A href="mailto:privacy@vesperwise.com">privacy@vesperwise.com</A>
               {" "}— replies come from Abdel-Rahaman directly. We aim to respond within 2 business days.
             </P>
           </Section>
 
           {/* Doc footer */}
           <div style={{ marginTop: "56px", paddingTop: "24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: T.txtTertiary }}>
-            <span>Questions? <A href="mailto:privacy@intentiq.dev">privacy@intentiq.dev</A></span>
+            <span>Questions? <A href="mailto:privacy@vesperwise.com">privacy@vesperwise.com</A></span>
             <div style={{ display: "flex", gap: "18px" }}>
               <A href="/terms">Terms →</A>
               <A href="/legal/dpa">DPA →</A>

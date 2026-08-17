@@ -1,5 +1,5 @@
 import Link from "next/link";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 type FooterLink = { label: string; href: string };
 
@@ -72,7 +72,7 @@ export default function SiteFooter() {
         <div className="footer-grid">
           <div className="footer-brand">
             <Link href="/" className="brand" aria-label="VesperWise home">
-              <IntentIQLogo className="logo" size={42} variant="wordmark" />
+              <VesperWiseLogo className="logo" size={42} variant="wordmark" />
             </Link>
             <p>
               B2B intent scoring for sales teams that close. From $29/mo. Built in Cairo, San Francisco, and on the

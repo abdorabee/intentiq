@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import SiteFooter from "@/components/site-footer";
-import IntentIQLogo from "@/components/intentiq-logo";
+import VesperWiseLogo from "@/components/vesperwise-logo";
 
 /* ─── Design tokens ──────────────────────────────────────────── */
 const T = {
@@ -95,7 +95,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     heading: "SDKs",
     items: [
-      { id: "sdks",      method: "PKG", label: "Node, Python, Go" },
+      { id: "sdks",      method: "PKG", label: "Node" },
       { id: "changelog", method: "LOG", label: "Changelog" },
     ],
   },
@@ -359,7 +359,7 @@ function CodeBlock({ label = "Request", panes, respStatus, respLatency, respCont
 /* ─── Score request code panes ───────────────────────────────── */
 const curlPane = (
   <>
-    {cm.kw("curl")} {cm.flag("-X")} POST {cm.url("https://api.intentiq.dev/v1/score")} {" \\\n  "}
+    {cm.kw("curl")} {cm.flag("-X")} POST {cm.url("https://www.vesperwise.com/api/v1/score")} {" \\\n  "}
     {cm.flag("-H")} {cm.str('"Authorization: Bearer $IIQ_KEY"')} {" \\\n  "}
     {cm.flag("-H")} {cm.str('"Content-Type: application/json"')} {" \\\n  "}
     {cm.flag("-d")} {cm.str("'{ \"domain\": \"stripe.com\" }'")}
@@ -374,17 +374,6 @@ const nodePane = (
     {"  domain: "}{cm.str('"stripe.com"')}{","}{"\n"}
     {"});"}{"\n\n"}
     console.{cm.fn("log")}{"(score.score_band, score.intent_score);"}
-  </>
-);
-
-const pythonPane = (
-  <>
-    {cm.kw("from")} intentiq {cm.kw("import")} VesperWise{"\n\n"}
-    iiq {" = "}{cm.fn("VesperWise")}{"(api_key=os.environ["}{cm.str('"IIQ_KEY"')}{"])\n\n"}
-    score {" = "} iiq.scores.{cm.fn("create")}{"(\n"}
-    {"    domain="}{cm.str('"stripe.com"')}{","}{"\n"}
-    {")"}
-    {"\n\n"}{cm.fn("print")}{"(score.score_band, score.intent_score)"}
   </>
 );
 
@@ -484,7 +473,7 @@ export default function DocsView() {
       }}>
         <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(223,255,0,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v1</span>
         <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>API Reference</strong> · base URL{" "}
-          <code style={{ fontFamily: T.mono, fontSize: "12px", color: T.cyan }}>https://api.intentiq.dev/v1</code>
+          <code style={{ fontFamily: T.mono, fontSize: "12px", color: T.cyan }}>https://www.vesperwise.com/api/v1</code>
           {" · "}99.97% uptime over 90d
         </span>
       </div>
@@ -498,7 +487,7 @@ export default function DocsView() {
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "0 24px", gap: "24px" }}>
           <Link href="/" aria-label="VesperWise home" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-            <IntentIQLogo size={42} variant="wordmark" />
+            <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
             {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map(label => (
@@ -696,7 +685,6 @@ export default function DocsView() {
               panes={[
                 { lang: "curl",   content: curlPane },
                 { lang: "Node",   content: nodePane },
-                { lang: "Python", content: pythonPane },
               ]}
               respStatus="200 OK · POST /v1/score"
               respLatency="1.42s · cache miss"
@@ -891,13 +879,10 @@ export default function DocsView() {
 
           {/* SDKs */}
           <section id="sdks" style={secStyle}>
-            <h1 style={h1Style}>Official SDKs</h1>
-            <Summary>Thin wrappers around the REST API with retry/backoff, typed responses, and idiomatic ergonomics. Source on <A href="#">GitHub</A>; bug reports welcome.</Summary>
+            <h1 style={h1Style}>Node SDK</h1>
+            <Summary>The Node client wraps the REST API with typed responses. Python and Go integrations should call the documented HTTP endpoints directly.</Summary>
             <ParamTable>
-              <ParamRow name="Node / TypeScript" type="@vesperwise/node">Node 18+, fully typed. <IC>npm i @vesperwise/node</IC>.</ParamRow>
-              <ParamRow name="Python" type="intentiq">Python 3.10+, sync and async clients. <IC>pip install intentiq</IC>.</ParamRow>
-              <ParamRow name="Go" type="github.com/intentiq/go-sdk">Go 1.21+, context‑aware, zero deps outside stdlib + <IC>x/sync</IC>.</ParamRow>
-              <ParamRow name="Community" type="Ruby · PHP · Elixir" isLast>Maintained by customers. Listed on our <A href="#">community SDKs</A> page; we don&apos;t guarantee parity.</ParamRow>
+              <ParamRow name="Node / TypeScript" type="@vesperwise/node" isLast>Node 18+, fully typed. <IC>npm i @vesperwise/node</IC>.</ParamRow>
             </ParamTable>
           </section>
 
@@ -914,7 +899,7 @@ export default function DocsView() {
 
             {/* Doc footer */}
             <div style={{ marginTop: "48px", paddingTop: "24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: T.txtTert }}>
-              <span>Questions? <a href="mailto:developers@intentiq.dev" style={{ color: T.txt, textDecoration: "underline", textDecorationColor: T.borderStrong, textUnderlineOffset: "3px" }}>developers@intentiq.dev</a></span>
+              <span>Questions? <a href="mailto:developers@vesperwise.com" style={{ color: T.txt, textDecoration: "underline", textDecorationColor: T.borderStrong, textUnderlineOffset: "3px" }}>developers@vesperwise.com</a></span>
               <div style={{ display: "flex", gap: "18px" }}>
                 <a href="#" style={{ color: T.txt, textDecoration: "none" }}>Status →</a>
                 <Link href="/legal/security" style={{ color: T.txt, textDecoration: "none" }}>Security →</Link>

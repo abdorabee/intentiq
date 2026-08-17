@@ -1,13 +1,17 @@
 import Image from "next/image";
+
 import vesperwiseLogo from "@/public/vesperwise-logo.png";
 
-interface IntentIQLogoProps {
+interface VesperWiseLogoProps {
   className?: string;
   size?: number;
   variant?: "mark" | "wordmark";
 }
 
-export default function IntentIQLogo({ className, size = 24 }: IntentIQLogoProps) {
+export default function VesperWiseLogo({
+  className,
+  size = 24,
+}: VesperWiseLogoProps) {
   const width = Math.round(size * 2.14);
 
   return (
@@ -16,14 +20,14 @@ export default function IntentIQLogo({ className, size = 24 }: IntentIQLogoProps
       width={width}
       height={size}
       className={className}
-      alt=""
-      aria-hidden
+      alt="VesperWise"
       style={{
         display: "block",
         flexShrink: 0,
         width,
         height: "auto",
       }}
+      priority
     />
   );
 }
