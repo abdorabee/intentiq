@@ -173,8 +173,7 @@ button, a, [role="button"] { touch-action: manipulation; }
 @media (max-width: 640px) {
   .page { padding: 12px 12px 32px; }
 
-  /* Topbar: hide band chips + filter button, shrink to essentials */
-  .topbar .band             { display: none; }
+  /* Topbar: hide filter button, shrink to essentials */
   .topbar .tb-btn.outlined  { display: none; }
   .topbar .tb-btn .kbd      { display: none; }
 
