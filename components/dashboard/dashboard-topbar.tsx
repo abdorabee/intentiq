@@ -23,18 +23,11 @@ const CRUMB: Record<string, { parent: string; current: string }> = {
   "/settings": { parent: "Workspace", current: "Settings" },
 };
 
-interface BandCounts {
-  hot: number;
-  warm: number;
-  cold: number;
-}
-
 interface DashboardTopbarProps {
-  bandCounts?: BandCounts;
   onMenuClick?: () => void;
 }
 
-export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTopbarProps) {
+export default function DashboardTopbar({ onMenuClick }: DashboardTopbarProps) {
   const pathname = usePathname();
   const isLists = pathname === "/lists" || pathname.startsWith("/lists/");
   const isBilling = pathname === "/billing";
@@ -60,10 +53,6 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
       ? { parent: "Lists", current: listName ?? "List detail" }
       : { parent: "Workspace", current: "VesperWise" }
   );
-
-  const hot = bandCounts?.hot ?? 0;
-  const warm = bandCounts?.warm ?? 0;
-  const cold = bandCounts?.cold ?? 0;
 
   function openNewListModal() {
     window.dispatchEvent(new Event("lists-open-modal"));
@@ -99,23 +88,6 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
           <span className="current">{crumb.current}</span>
         )}
       </div>
-
-      {!isLists && !isBilling && (
-        <>
-          <span className="band band-hot">
-            <span className="dot" />
-            HOT {hot}
-          </span>
-          <span className="band band-warm">
-            <span className="dot" />
-            WARM {warm}
-          </span>
-          <span className="band band-cold">
-            <span className="dot" />
-            COLD {cold}
-          </span>
-        </>
-      )}
 
       <span className="spacer" />
 

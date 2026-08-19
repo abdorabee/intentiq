@@ -154,8 +154,6 @@ export default function LandingPage() {
                     <span>Workspace</span><span className="sep">/</span>
                     <span className="current">Intent Hub</span>
                   </div>
-                  <span className="band band-hot" style={{ marginLeft: '8px' }}><span className="dot"></span>HOT 12</span>
-                  <span className="band band-warm"><span className="dot"></span>WARM 38</span>
                   <div className="toolbar-spacer"></div>
                   <button className="toolbar-btn">
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="11" height="11"><circle cx="5" cy="5" r="3"/><path d="M7 7l3 3"/></svg>

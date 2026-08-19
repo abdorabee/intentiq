@@ -25,7 +25,7 @@ export default function DashboardShell({
   pipelineHotCount,
 }: DashboardShellProps) {
   const pathname = usePathname();
-  const flushPages = ["/billing", "/inbox"];
+  const flushPages = ["/billing", "/inbox", "/score"];
   const pageClass = flushPages.includes(pathname) ? "page page-flush" : "page";
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

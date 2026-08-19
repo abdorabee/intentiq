@@ -3,6 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import type { IntentScore, ScoreBand } from "@/lib/types";
+import { CHAT_CREDIT_COST } from "@/lib/types";
+import { extractDomain, seedChatSession, streamChat } from "@/lib/chat-client";
+import { avColor, ScoreResultCard, scoreFromToolResult } from "@/components/score/score-result-card";
+import type { ScoreCardData } from "@/components/score/score-result-card";
 
 type ScorableIntentScore = IntentScore & {
   intent_score: number;
@@ -48,81 +52,39 @@ const HOT_PICKS = [
   { domain: "databricks.com", name: "Databricks",  signal: "tech" },
 ];
 
-const AV_COLORS = [
-  "linear-gradient(135deg,#dfff00,#dfff00)",
-  "linear-gradient(135deg,#4ade80,#22c55e)",
-  "linear-gradient(135deg,#f5b544,#8a8f98)",
-  "linear-gradient(135deg,#e8ff40,#dfff00)",
-  "linear-gradient(135deg,#f87171,#f5b544)",
-  "linear-gradient(135deg,#dfff00,#4ade80)",
-  "linear-gradient(135deg,#dfff00,#dfff00)",
-  "linear-gradient(135deg,#8a8f98,#f87171)",
-  "linear-gradient(135deg,#a78bfa,#e8ff40)",
-  "linear-gradient(135deg,#f5b544,#4ade80)",
-];
+type ToolChip = {
+  name: string;
+  status: "running" | "done";
+  result?: unknown;
+};
 
-function avColor(name: string): string {
-  return AV_COLORS[(name.charCodeAt(0) ?? 0) % AV_COLORS.length];
+type ThreadMessage =
+  | { id: string; role: "user"; content: string }
+  | { id: string; role: "assistant"; kind: "score"; result: ScoreCardData }
+  | { id: string; role: "assistant"; kind: "text"; content: string; tools: ToolChip[] }
+  | { id: string; role: "assistant"; kind: "thinking"; mode: "score" | "chat" }
+  | { id: string; role: "error"; content: string };
+
+function messageTools(message: ThreadMessage): ToolChip[] {
+  return message.role === "assistant" && message.kind === "text" ? message.tools : [];
 }
 
-function bandClass(band: string | null): string {
-  if (band === "HOT") return "band-hot";
-  if (band === "WARM") return "band-warm";
-  return "band-cold";
+function nextId(): string {
+  return crypto.randomUUID();
 }
 
-// ─── ScoreRing ────────────────────────────────────────────────────────────────
-
-function ScoreRing({ score, band }: { score: number; band: string }) {
-  const r = 42;
-  const circ = 2 * Math.PI * r;
-  const offset = circ * (1 - score / 100);
-  const gradColors =
-    band === "HOT"
-      ? ["#4ade80", "#dfff00", "#e8ff40"]
-      : band === "WARM"
-      ? ["#f5b544", "#8a8f98", "#e8ff40"]
-      : ["var(--text-tertiary)", "var(--text-tertiary)", "var(--text-tertiary)"];
-
-  return (
-    <div className="score-ring">
-      <svg viewBox="0 0 100 100">
-        <defs>
-          <linearGradient id="scoreGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor={gradColors[0]} />
-            <stop offset="55%" stopColor={gradColors[1]} />
-            <stop offset="100%" stopColor={gradColors[2]} />
-          </linearGradient>
-        </defs>
-        <circle cx="50" cy="50" r={r} stroke="var(--border)" strokeWidth="6" fill="none" />
-        <circle
-          cx="50" cy="50" r={r}
-          stroke="url(#scoreGrad)" strokeWidth="6" fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          style={{ transform: "rotate(-90deg)", transformOrigin: "50% 50%" }}
-        />
-      </svg>
-      <div className="score-ring-center">
-        <span className={`score-ring-band ${bandClass(band)}`}>
-          <span className="dot" />{band}
-        </span>
-        <div className="score-ring-num">{score}</div>
-        <div className="score-ring-of">/ 100</div>
-      </div>
-    </div>
-  );
+function billingLabel(result: ScoreCardData & { charged?: boolean; cached?: boolean }): string {
+  if ("charged" in result && result.charged) return "1 credit";
+  if ("cached" in result && result.cached) return "cache hit · free";
+  return "no credit charged";
 }
-
-// ─── LiveProgressBar ──────────────────────────────────────────────────────────
 
 const STEPS = ["Domain resolved", "Funding signal", "Hiring + news", "Technology trigger", "Web + GitHub context", "AI thesis"];
 
 function LiveProgressBar({
   loading,
   stepIndex,
-  billingLabel,
+  billingLabel: label,
 }: {
   loading: boolean;
   stepIndex: number;
@@ -157,369 +119,28 @@ function LiveProgressBar({
           </span>
         ))}
       </div>
-      {!loading && billingLabel && <span className="timing">{elapsed}s · {billingLabel}</span>}
+      {!loading && label && <span className="timing">{elapsed}s · {label}</span>}
     </div>
   );
 }
 
-// ─── MiniPrompt ───────────────────────────────────────────────────────────────
-
-interface MiniPromptProps {
-  domain: string;
-  onChange: (v: string) => void;
-  onScore: () => void;
-}
-
-function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
+function ToolChips({ tools }: { tools: ToolChip[] }) {
+  if (tools.length === 0) return null;
   return (
-    <div className="prompt-holder prompt-holder--compact" style={{ marginBottom: 18 }}>
-      <div className="prompt-prefix">
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
-          <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
-        </svg>
-      </div>
-      <input
-        className="prompt-input"
-        type="text"
-        value={domain}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && onScore()}
-        style={{ fontSize: 14 }}
-      />
-      <div className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
-        Re-score
-      </div>
+    <div className="chat-tools">
+      {tools.map((tool) => (
+        <div key={tool.name} className={`chat-tool ${tool.status}`}>
+          <span className="chat-tool-dot" />
+          {tool.status === "running" ? `Running ${tool.name.replace(/_/g, " ")}…` : tool.name.replace(/_/g, " ")}
+        </div>
+      ))}
     </div>
   );
 }
 
-// ─── ResultHead ───────────────────────────────────────────────────────────────
-
-interface ResultHeadProps {
-  result: ScorableIntentScore;
-  onWatchlist: () => void;
-  watchlistAdded: boolean;
-  watchlistAdding: boolean;
+function AssistantText({ content }: { content: string }) {
+  return <div className="chat-md">{content}</div>;
 }
-
-function ResultHead({ result, onWatchlist, watchlistAdded, watchlistAdding }: ResultHeadProps) {
-  return (
-    <div className="result-head">
-      <div className="result-avatar" style={{ background: avColor(result.company) }}>
-        {result.company[0]}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="result-title-row">
-          <span className="result-id">IQ-{result.domain.slice(-4).toUpperCase()}</span>
-          <span className={`band ${bandClass(result.score_band)}`}>
-            <span className="dot" />{result.score_band}
-          </span>
-          <span className="result-title">{result.company}</span>
-        </div>
-        <div className="result-meta">
-          <span style={{ color: "var(--text-secondary)" }}>{result.domain}</span>
-          <span className="dot" />
-          <span>{result.buying_stage}</span>
-          <span className="dot" />
-          <span>Urgency: {result.urgency}</span>
-          <span className="dot" />
-          <span>Coverage: {Math.round(result.data_coverage * 100)}% ({result.score_status})</span>
-          <span className="dot" />
-          <span>{result.icp_fit_score == null ? "ICP fit unavailable" : `ICP fit: ${result.icp_fit_score}%`}</span>
-        </div>
-      </div>
-      <div className="result-actions">
-        <button
-          className="tb-btn outlined"
-          onClick={onWatchlist}
-          disabled={watchlistAdding || watchlistAdded}
-        >
-          {watchlistAdded ? "Watching ✓" : watchlistAdding ? "Adding…" : "Save to list"}
-        </button>
-        <a
-          className="tb-btn outlined"
-          href={`https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(result.company)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Open account →
-        </a>
-      </div>
-    </div>
-  );
-}
-
-// ─── OverviewBlock ────────────────────────────────────────────────────────────
-
-function OverviewBlock({ result }: { result: ScorableIntentScore }) {
-  return (
-    <div className="overview-block">
-      <ScoreRing score={result.intent_score} band={result.score_band} />
-      <div className="thesis-block">
-        <div className="thesis-head">
-          <span className="ic" />
-          AI thesis
-        </div>
-        <div className="thesis-text">{result.ai_summary}</div>
-        <div className="thesis-meta">
-          <span>Generated just now</span>
-          <span className="dot" />
-          {result.confidence != null && (
-            <>
-              <span>Confidence {result.confidence.toFixed(2)}</span>
-              <span className="dot" />
-            </>
-          )}
-          <span>Urgency: {result.urgency}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── SignalGrid ───────────────────────────────────────────────────────────────
-
-const SIGNAL_CONFIG = [
-  { key: "funding"    as const, label: "Funding", color: "#dfff00", grad: "linear-gradient(90deg,#dfff00,#38a3b3)" },
-  { key: "hiring"     as const, label: "Hiring",  color: "#4ade80", grad: "linear-gradient(90deg,#4ade80,#22c55e)" },
-  { key: "news"       as const, label: "News",    color: "#f5b544", grad: "linear-gradient(90deg,#f5b544,#d49530)" },
-  { key: "technology" as const, label: "Tech",    color: "#e8ff40", grad: "linear-gradient(90deg,#e8ff40,#dfff00)" },
-];
-
-const CONTEXT_CONFIG = [
-  { key: "web" as const, label: "Web authority", color: "#8a8f98" },
-  { key: "github" as const, label: "GitHub activity", color: "#a78bfa" },
-];
-
-function SignalGrid({ result }: { result: ScorableIntentScore }) {
-  return (
-    <>
-      <div className="section-label">
-        <span className="ic" />
-        <strong>Signal axes</strong>
-        <span style={{ color: "var(--text-tertiary)" }}>· 4 purchase-intent triggers</span>
-        <span className="line" />
-      </div>
-      <div className="signal-grid">
-        {SIGNAL_CONFIG.map(({ key, label, color, grad }) => {
-          const sig = result.signals[key];
-          const pct = sig ? Math.round((sig.score / sig.max) * 100) : 0;
-          return (
-            <div key={key} className="signal-card">
-              <div className="name">
-                <span className="swatch" style={{ background: color }} />
-                {label}
-              </div>
-              <div className="num">{sig?.score ?? "—"}</div>
-              <div className="delta" style={{ color: "var(--text-tertiary)" }}>/{sig?.max ?? 100}</div>
-              <div className="bar">
-                <div className="fill" style={{ width: `${pct}%`, background: grad }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="section-label" style={{ marginTop: 24 }}>
-        <span className="ic" style={{ background: "var(--text-tertiary)", boxShadow: "none" }} />
-        <strong>Account context</strong>
-        <span style={{ color: "var(--text-tertiary)" }}>· shown for research, excluded from score</span>
-        <span className="line" />
-      </div>
-      <div className="signal-grid">
-        {CONTEXT_CONFIG.map(({ key, label, color }) => {
-          const signal = result.signals[key];
-          return (
-            <div key={key} className="signal-card">
-              <div className="name"><span className="swatch" style={{ background: color }} />{label}</div>
-              <div className="num">{signal.score}</div>
-              <div className="delta" style={{ color: "var(--text-tertiary)" }}>/{signal.max} · context</div>
-              <div className="bar"><div className="fill" style={{ width: `${Math.round((signal.score / signal.max) * 100)}%`, background: color }} /></div>
-              <div className="delta" style={{ color: "var(--text-tertiary)", marginTop: 8 }}>{signal.detail}</div>
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-// ─── CompetitiveAnalysis ──────────────────────────────────────────────────────
-
-interface CompetitiveAnalysisProps {
-  result: ScorableIntentScore;
-  onCopyEmail: () => void;
-  emailCopied: boolean;
-}
-
-const RADAR_AXES = ["funding", "hiring", "news", "technology"] as const;
-const RADAR_ANGLES = [-90, 0, 90, 180].map((d) => (d * Math.PI) / 180);
-const RADAR_LABELS = ["Funding", "Hiring", "News", "Tech"];
-const R = 100;
-
-function toXY(angle: number, ratio: number): [number, number] {
-  return [Math.cos(angle) * R * ratio, Math.sin(angle) * R * ratio];
-}
-
-function CompetitiveAnalysis({ result, onCopyEmail, emailCopied }: CompetitiveAnalysisProps) {
-  const companyPoints = RADAR_AXES.map((key, i) => {
-    const sig = result.signals[key];
-    const ratio = sig ? sig.score / sig.max : 0;
-    return toXY(RADAR_ANGLES[i], ratio);
-  });
-  const pointsStr = companyPoints.map(([x, y]) => `${x},${y}`).join(" ");
-
-  const ringPoints = (ratio: number) =>
-    RADAR_ANGLES.map((a) => toXY(a, ratio))
-      .map(([x, y]) => `${x},${y}`)
-      .join(" ");
-
-  const strengths = RADAR_AXES.filter((k) => {
-    const s = result.signals[k];
-    return s && s.score / s.max > 0.7;
-  });
-  const gaps = RADAR_AXES.filter((k) => {
-    const s = result.signals[k];
-    return s && s.score / s.max < 0.4;
-  });
-
-  return (
-    <>
-      <div className="section-label" style={{ marginTop: 32 }}>
-        <span className="ic" style={{ background: "var(--accent-2)", boxShadow: "0 0 6px var(--accent-2)" }} />
-        <strong>Signal radar</strong>
-        <span style={{ color: "var(--text-tertiary)" }}>· {result.company} vs signal benchmarks</span>
-        <span className="line" />
-      </div>
-
-      <div className="ca-radar-block">
-        <div className="ca-radar-wrap">
-          <svg className="ca-radar-svg" viewBox="-130 -130 260 260">
-            <g fill="none" stroke="var(--border)" strokeWidth="1">
-              {[0.25, 0.5, 0.75, 1].map((ratio) => (
-                <polygon key={ratio} points={ringPoints(ratio)} />
-              ))}
-            </g>
-            <g stroke="var(--border-subtle)" strokeWidth="1">
-              {RADAR_ANGLES.map((a, i) => (
-                <line key={i} x1="0" y1="0" x2={Math.cos(a) * R} y2={Math.sin(a) * R} />
-              ))}
-            </g>
-            <polygon points={pointsStr} fill="rgba(74,222,128,0.18)" stroke="#4ade80" strokeWidth="2" />
-            {companyPoints.map(([x, y], i) => (
-              <circle key={i} cx={x} cy={y} r="3" fill="#4ade80" />
-            ))}
-            <g fontFamily="JetBrains Mono" fontSize="9" fill="#8a8f98">
-              {RADAR_ANGLES.map((a, i) => {
-                const lx = Math.cos(a) * (R + 14);
-                const ly = Math.sin(a) * (R + 14);
-                const anchor = lx < -5 ? "end" : lx > 5 ? "start" : "middle";
-                return (
-                  <text key={i} x={lx} y={ly} textAnchor={anchor} dominantBaseline="middle">
-                    {RADAR_LABELS[i]}
-                  </text>
-                );
-              })}
-            </g>
-          </svg>
-        </div>
-
-        <div className="ca-radar-legend">
-          <div className="ca-legend-row">
-            <span className="swatch" style={{ background: "#4ade80" }} />
-            <span className="name">
-              <span className="co-av" style={{ background: avColor(result.company) }}>{result.company[0]}</span>
-              <span className="label">{result.company}</span>
-              <span className="you-tag">You</span>
-            </span>
-            <span className="avg">{result.intent_score}</span>
-          </div>
-
-          <div className="sg-grid">
-            <div className="sg-col win">
-              <div className="head">Where {result.company} leads</div>
-              <div className="list">
-                {strengths.length > 0 ? (
-                  strengths.map((k) => {
-                    const s = result.signals[k];
-                    return (
-                      <div key={k} className="it">
-                        <span>
-                          <strong style={{ textTransform: "capitalize" }}>{k}</strong> · {s?.score}/{s?.max} · {s?.detail?.slice(0, 80)}
-                        </span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="it"><span>No dominant signals detected</span></div>
-                )}
-              </div>
-            </div>
-            <div className="sg-col gap">
-              <div className="head">Signals to watch</div>
-              <div className="list">
-                {gaps.length > 0 ? (
-                  gaps.map((k) => {
-                    const s = result.signals[k];
-                    return (
-                      <div key={k} className="it">
-                        <span>
-                          <strong style={{ textTransform: "capitalize" }}>{k}</strong> · {s?.score}/{s?.max} · {s?.detail?.slice(0, 80)}
-                        </span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="it"><span>No weak signals — all axes are healthy</span></div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="ca-block" style={{ marginBottom: 40 }}>
-        <div className="ca-verdict">
-          <div className="ai-dot" />
-          <div className="text">
-            <span className="label">AI verdict</span>
-            {result.recommended_action && <strong>{result.recommended_action} </strong>}
-            {result.why_now}
-          </div>
-          <div className="verdict-actions">
-            <button
-              className="tb-btn outlined"
-              onClick={onCopyEmail}
-              disabled={!result.email_subject && !result.talk_track}
-            >
-              {emailCopied ? "Copied!" : "Copy email + talk track"}
-            </button>
-            <a
-              className="tb-btn"
-              style={{
-                background: "var(--accent)",
-                color: "#fff",
-                padding: "0 12px",
-                height: 30,
-                display: "inline-flex",
-                alignItems: "center",
-                borderRadius: "var(--r-sm)",
-                fontSize: 13,
-                textDecoration: "none",
-              }}
-              href={`https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(result.company)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Draft outreach →
-            </a>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ─── ScorePromptStage ─────────────────────────────────────────────────────────
 
 interface ScorePromptStageProps {
   domain: string;
@@ -527,9 +148,10 @@ interface ScorePromptStageProps {
   onScore: () => void;
   creditsRemaining: number;
   recentScores: RecentScore[];
+  busy: boolean;
 }
 
-function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recentScores }: ScorePromptStageProps) {
+function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recentScores, busy }: ScorePromptStageProps) {
   return (
     <div className="prompt-stage">
       <div className="prompt-bg">
@@ -538,7 +160,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
       <div className="prompt-inner">
         <div className="prompt-eyebrow">
           <span className="badge">Score</span>
-          Drop in a domain — we&apos;ll verify coverage and explain the result
+          Drop in a domain — we&apos;ll verify coverage and you can ask follow-ups
         </div>
 
         <h1 className="prompt-h1">
@@ -547,7 +169,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
         </h1>
         <p className="prompt-sub">
           Paste any company domain. Four dated purchase triggers drive the score;
-          Web and GitHub are collected as context for the reasoning.
+          then keep chatting about the account.
         </p>
 
         <div className="prompt-holder prompt-holder--compact">
@@ -562,18 +184,19 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             placeholder="stripe.com"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onScore()}
+            onKeyDown={(e) => e.key === "Enter" && !busy && onScore()}
             autoFocus
+            disabled={busy}
           />
-          <div className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
+          <button type="button" className="prompt-go" onClick={onScore} disabled={busy}>
             Score
             <span className="kbd-inline">↵</span>
-          </div>
+          </button>
         </div>
 
         <div className="prompt-meta">
           <div className="left">
-            <span><strong>1</strong> credit on a fresh scorable result · cache hits and unscorable runs are free</span>
+            <span><strong>1</strong> credit on a fresh scorable result · follow-ups {CHAT_CREDIT_COST} credits</span>
             <span>Cached for <strong>6h</strong></span>
           </div>
           <div className="right">
@@ -588,11 +211,11 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
         </div>
         <div className="suggestion-row">
           {HOT_PICKS.map((pick) => (
-            <div key={pick.domain} className="sugg" onClick={() => setDomain(pick.domain)} style={{ cursor: "pointer" }}>
+            <button key={pick.domain} type="button" className="sugg" onClick={() => setDomain(pick.domain)}>
               <div className="av" style={{ background: avColor(pick.name) }}>{pick.name[0]}</div>
               {pick.domain}
               <span className="mono-sm">▲ {pick.signal}</span>
-            </div>
+            </button>
           ))}
         </div>
 
@@ -604,7 +227,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             </div>
             <div className="recent-row">
               {recentScores.map((r) => (
-                <div key={r.domain} className="recent" onClick={() => setDomain(r.domain)} style={{ cursor: "pointer" }}>
+                <button key={r.domain} type="button" className="sugg recent" onClick={() => setDomain(r.domain)}>
                   <div className="av" style={{ background: avColor(r.company_name) }}>{r.company_name[0]}</div>
                   {r.domain}
                   <span
@@ -626,7 +249,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
                   >
                     {r.score ?? "—"}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </>
@@ -647,7 +270,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
                 <circle cx="6" cy="6" r="4" /><path d="M6 4v3l2 1" />
               </svg>
             </span>
-            AI thesis
+            Interactive chat
           </div>
           <div className="feat">
             <span className="ic" style={{ background: "rgba(74,222,128,0.12)", color: "var(--hot)" }}>
@@ -671,79 +294,164 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
   );
 }
 
-// ─── ScoreView (main export) ──────────────────────────────────────────────────
-
 export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   const searchParams = useSearchParams();
   const autoScoredRef = useRef<string | null>(null);
-  const [domain, setDomain] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ScorableIntentScore | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<ThreadMessage[]>([]);
+  const [busy, setBusy] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-
-  const [watchlistAdded, setWatchlistAdded] = useState(false);
-  const [watchlistAdding, setWatchlistAdding] = useState(false);
-  const [emailCopied, setEmailCopied] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [watchlistByDomain, setWatchlistByDomain] = useState<Record<string, "adding" | "added">>({});
+  const [copiedDomain, setCopiedDomain] = useState<string | null>(null);
+  const scoring = busy && messages.some((m) => m.role === "assistant" && m.kind === "thinking" && m.mode === "score");
 
   useEffect(() => {
     const d = searchParams.get("domain")?.trim();
     if (!d) return;
-    setDomain(d);
+    setInput(d);
     if (autoScoredRef.current === d) return;
     autoScoredRef.current = d;
-
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      setResult(null);
-      try {
-        const payload = await requestScore(d);
-        if (!cancelled) setResult(payload);
-      } catch (e) {
-        if (!cancelled) setError((e as Error).message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    void submitMessage(d);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {
-    setWatchlistAdded(false);
-    setEmailCopied(false);
-  }, [result]);
-
-  useEffect(() => {
-    if (!loading) { setStepIndex(0); return; }
+    if (!scoring) { setStepIndex(0); return; }
     setStepIndex(0);
     const t = setInterval(() => {
       setStepIndex((s) => (s < STEPS.length - 1 ? s + 1 : s));
     }, 430);
     return () => clearInterval(t);
-  }, [loading]);
+  }, [scoring]);
 
-  async function handleScore() {
-    if (!domain.trim()) return;
-    setLoading(true);
-    setError(null);
-    setResult(null);
+  useEffect(() => {
+    threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  async function runScore(raw: string, domain: string) {
+    const thinkingId = nextId();
+    setMessages((prev) => [
+      ...prev,
+      { id: nextId(), role: "user", content: raw },
+      { id: thinkingId, role: "assistant", kind: "thinking", mode: "score" },
+    ]);
+    setBusy(true);
     try {
-      setResult(await requestScore(domain.trim()));
+      const payload = await requestScore(domain);
+      setMessages((prev) => prev.map((m) => (
+        m.id === thinkingId
+          ? { id: thinkingId, role: "assistant", kind: "score", result: payload }
+          : m
+      )));
+      try {
+        const id = await seedChatSession({
+          sessionId: sessionId ?? undefined,
+          title: payload.domain,
+          user: `Score ${payload.domain}`,
+          assistant: payload.ai_summary || `${payload.company} scored ${payload.intent_score}/100 (${payload.score_band}).`,
+        });
+        setSessionId(id);
+      } catch {
+        // Follow-ups can still create a session on first chat turn.
+      }
     } catch (e) {
-      setError((e as Error).message);
+      setMessages((prev) => prev.map((m) => (
+        m.id === thinkingId
+          ? { id: thinkingId, role: "error", content: (e as Error).message }
+          : m
+      )));
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   }
 
-  async function handleAddToWatchlist() {
-    if (!result) return;
-    setWatchlistAdding(true);
+  async function runFollowUp(text: string) {
+    const thinkingId = nextId();
+    setMessages((prev) => [
+      ...prev,
+      { id: nextId(), role: "user", content: text },
+      { id: thinkingId, role: "assistant", kind: "thinking", mode: "chat" },
+    ]);
+    setBusy(true);
+    try {
+      const nextSession = await streamChat(
+        { message: text, session_id: sessionId ?? undefined },
+        (event) => {
+          setMessages((prev) => {
+            const current = prev.find((m) => m.id === thinkingId);
+            if (!current) return prev;
+            if (event.type === "text") {
+              const next: ThreadMessage = current.role === "assistant" && current.kind === "text"
+                ? { ...current, content: current.content + event.content }
+                : { id: thinkingId, role: "assistant", kind: "text", content: event.content, tools: messageTools(current) };
+              return prev.map((m) => (m.id === thinkingId ? next : m));
+            }
+            if (event.type === "tool_call") {
+              const tools: ToolChip[] = [...messageTools(current), { name: event.name, status: "running" }];
+              const next: ThreadMessage = current.role === "assistant" && current.kind === "text"
+                ? { ...current, tools }
+                : { id: thinkingId, role: "assistant", kind: "text", content: "", tools };
+              return prev.map((m) => (m.id === thinkingId ? next : m));
+            }
+            if (event.type === "tool_result") {
+              const tools: ToolChip[] = messageTools(current).map((t) => (
+                t.name === event.name && t.status === "running" ? { ...t, status: "done", result: event.result } : t
+              ));
+              const card = scoreFromToolResult(event.name, event.result);
+              const base: ThreadMessage = current.role === "assistant" && current.kind === "text"
+                ? { ...current, tools }
+                : { id: thinkingId, role: "assistant", kind: "text", content: "", tools };
+              if (!card) return prev.map((m) => (m.id === thinkingId ? base : m));
+              const extras = prev.filter((m) => m.id === `${thinkingId}-score-${event.name}`);
+              if (extras.length > 0) return prev.map((m) => (m.id === thinkingId ? base : m));
+              return [
+                ...prev.map((m) => (m.id === thinkingId ? base : m)),
+                { id: `${thinkingId}-score-${event.name}`, role: "assistant", kind: "score", result: card },
+              ];
+            }
+            return prev;
+          });
+        },
+      );
+      if (nextSession) setSessionId(nextSession);
+      setMessages((prev) => {
+        const current = prev.find((m) => m.id === thinkingId);
+        if (current && current.role === "assistant" && current.kind === "thinking") {
+          return prev.map((m) => (
+            m.id === thinkingId
+              ? { id: thinkingId, role: "assistant", kind: "text", content: "", tools: [] }
+              : m
+          ));
+        }
+        return prev;
+      });
+    } catch (e) {
+      setMessages((prev) => prev.map((m) => (
+        m.id === thinkingId
+          ? { id: thinkingId, role: "error", content: (e as Error).message }
+          : m
+      )));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitMessage(rawInput?: string) {
+    const raw = (rawInput ?? input).trim();
+    if (!raw || busy) return;
+    setInput("");
+    const domain = extractDomain(raw);
+    if (domain) {
+      await runScore(raw, domain);
+      return;
+    }
+    await runFollowUp(raw);
+  }
+
+  async function handleAddToWatchlist(result: ScoreCardData) {
+    setWatchlistByDomain((prev) => ({ ...prev, [result.domain]: "adding" }));
     try {
       const res = await fetch("/api/dashboard/watchlist", {
         method: "POST",
@@ -752,67 +460,142 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
       });
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Failed to add");
-      setWatchlistAdded(true);
+      setWatchlistByDomain((prev) => ({ ...prev, [result.domain]: "added" }));
     } catch {
-      // swallow watchlist errors silently
-    } finally {
-      setWatchlistAdding(false);
+      setWatchlistByDomain((prev) => {
+        const next = { ...prev };
+        delete next[result.domain];
+        return next;
+      });
     }
   }
 
-  function handleCopyEmail() {
-    if (!result) return;
+  function handleCopyEmail(result: ScoreCardData) {
     const text = [result.email_subject, result.talk_track].filter(Boolean).join("\n\n");
+    if (!text) return;
     navigator.clipboard.writeText(text);
-    setEmailCopied(true);
-    setTimeout(() => setEmailCopied(false), 2000);
+    setCopiedDomain(result.domain);
+    setTimeout(() => setCopiedDomain((d) => (d === result.domain ? null : d)), 2000);
   }
 
+  function handleNewChat() {
+    if (busy) return;
+    setMessages([]);
+    setSessionId(null);
+    setInput("");
+    autoScoredRef.current = null;
+  }
+
+  const active = messages.length > 0;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      {error && (
-        <p role="alert" style={{ color: "var(--red)", fontSize: 13, margin: "0 0 12px" }}>
-          {error}
-        </p>
-      )}
-      {!result && !loading ? (
+    <div className="score-chat">
+      {!active ? (
         <ScorePromptStage
-          domain={domain}
-          setDomain={setDomain}
-          onScore={handleScore}
+          domain={input}
+          setDomain={setInput}
+          onScore={() => void submitMessage()}
           creditsRemaining={creditsRemaining}
           recentScores={recentScores}
+          busy={busy}
         />
       ) : (
-        <div className="result-page">
-          <LiveProgressBar
-            loading={loading}
-            stepIndex={stepIndex}
-            billingLabel={
-              result?.charged
-                ? "1 credit"
-                : result?.cached
-                  ? "cache hit · free"
-                  : result
-                    ? "no credit charged"
-                    : undefined
-            }
-          />
-          {!loading && result && (
-            <>
-              <MiniPrompt domain={domain} onChange={setDomain} onScore={handleScore} />
-              <ResultHead
-                result={result}
-                onWatchlist={handleAddToWatchlist}
-                watchlistAdded={watchlistAdded}
-                watchlistAdding={watchlistAdding}
+        <>
+          <div className="score-chat-thread" ref={threadRef}>
+            <div className="score-chat-col">
+              {messages.map((message) => {
+                if (message.role === "user") {
+                  return (
+                    <div key={message.id} className="chat-row user">
+                      <div className="chat-bubble user">{message.content}</div>
+                    </div>
+                  );
+                }
+                if (message.role === "error") {
+                  return (
+                    <div key={message.id} className="chat-row assistant">
+                      <p className="chat-error" role="alert">{message.content}</p>
+                    </div>
+                  );
+                }
+                if (message.kind === "thinking") {
+                  return (
+                    <div key={message.id} className="chat-row assistant">
+                      {message.mode === "score" ? (
+                        <LiveProgressBar loading stepIndex={stepIndex} />
+                      ) : (
+                        <div className="chat-thinking">
+                          <span className="pulse" />
+                          Thinking…
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                if (message.kind === "score") {
+                  return (
+                    <div key={message.id} className="chat-row assistant">
+                      {"charged" in message.result || "cached" in message.result ? (
+                        <LiveProgressBar
+                          loading={false}
+                          stepIndex={STEPS.length - 1}
+                          billingLabel={billingLabel(message.result as ScoreCardData & { charged?: boolean; cached?: boolean })}
+                        />
+                      ) : null}
+                      <ScoreResultCard
+                        result={message.result}
+                        onWatchlist={() => void handleAddToWatchlist(message.result)}
+                        watchlistAdded={watchlistByDomain[message.result.domain] === "added"}
+                        watchlistAdding={watchlistByDomain[message.result.domain] === "adding"}
+                        onCopyEmail={() => handleCopyEmail(message.result)}
+                        emailCopied={copiedDomain === message.result.domain}
+                      />
+                    </div>
+                  );
+                }
+                return (
+                  <div key={message.id} className="chat-row assistant">
+                    <ToolChips tools={message.tools} />
+                    {message.content && <AssistantText content={message.content} />}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="score-chat-composer">
+            <div className="prompt-holder prompt-holder--compact">
+              <div className="prompt-prefix">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+                  <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
+                </svg>
+              </div>
+              <input
+                className="prompt-input"
+                type="text"
+                placeholder="Ask a follow-up or score another domain"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !busy && void submitMessage()}
+                disabled={busy}
+                aria-label="Chat message"
               />
-              <OverviewBlock result={result} />
-              <SignalGrid result={result} />
-              <CompetitiveAnalysis result={result} onCopyEmail={handleCopyEmail} emailCopied={emailCopied} />
-            </>
-          )}
-        </div>
+              <button type="button" className="prompt-go" onClick={() => void submitMessage()} disabled={busy || !input.trim()}>
+                Send
+              </button>
+            </div>
+            <div className="prompt-meta">
+              <div className="left">
+                <span>Follow-ups <strong>{CHAT_CREDIT_COST}</strong> credits · new domain <strong>1</strong> credit</span>
+              </div>
+              <div className="right">
+                <button type="button" className="chat-new" onClick={handleNewChat} disabled={busy}>
+                  New chat
+                </button>
+                <span><strong>{creditsRemaining}</strong> credits left</span>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
