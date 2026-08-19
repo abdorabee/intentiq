@@ -2,6 +2,7 @@ export type ChatSseEvent =
   | { type: "text"; content: string }
   | { type: "tool_call"; name: string; args: Record<string, unknown> }
   | { type: "tool_result"; name: string; result: unknown }
+  | { type: "ui"; blocks: unknown }
   | { type: "done"; session_id: string }
   | { type: "error"; message: string };
 
