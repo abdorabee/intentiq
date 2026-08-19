@@ -65,33 +65,32 @@ export function ListDetailView({ detail }: ListDetailViewProps) {
 
   const rel = formatRelativeTime(list.updated_at);
   const rules = list.rules ?? [];
+  const typeLabel = list.list_type === "smart" ? "Smart list" : "Manual list";
 
   return (
     <>
-      <div className="ld-head">
-        <div className="ld-icon" style={{ background: `linear-gradient(135deg, ${list.color}, ${list.color}99)` }}>
-          {list.icon_initials ?? list.name.slice(0, 2).toUpperCase()}
-        </div>
-        <div className="ld-info">
-          <div className="ld-title-row">
-            <div className="ld-title">{list.name}</div>
-            <span className="ld-tag">{list.list_type === "smart" ? "Smart list" : "Manual list"}</span>
-          </div>
-          <div className="ld-meta">
-            <span className="mono">{stats.accountCount} accounts</span>
-            <span className="dot" />
-            <span className="mono">avg score {stats.avgScore || "—"}</span>
-            <span className="dot" />
-            <span>Updated <span className="mono" style={{ color: "var(--text-secondary)" }}>{rel.label}</span></span>
+      <div className="page-head">
+        <div>
+          <div className="page-title">{list.name}</div>
+          <div className="page-sub">
+            <span className={`lc-tag ${list.list_type}`}>{typeLabel}</span>
+            {" · "}
+            <span className="mono" style={{ color: "var(--text-secondary)" }}>{stats.accountCount} accounts</span>
+            {" · avg score "}
+            <span className="mono" style={{ color: "var(--text-secondary)" }}>{stats.avgScore || "—"}</span>
+            {" · updated "}
+            <span className="mono" style={{ color: "var(--text-secondary)" }}>{rel.label}</span>
             {list.list_type === "smart" && (
               <>
-                <span className="dot" />
-                <span>Auto-refresh <span style={{ color: list.auto_refresh ? "var(--hot)" : "var(--text-tertiary)" }}>{list.auto_refresh ? "on" : "off"}</span></span>
+                {" · auto-refresh "}
+                <span className="mono" style={{ color: list.auto_refresh ? "var(--hot)" : "var(--text-tertiary)" }}>
+                  {list.auto_refresh ? "on" : "off"}
+                </span>
               </>
             )}
           </div>
         </div>
-        <div className="ld-actions">
+        <div className="page-actions">
           <button type="button" className="tb-btn outlined" onClick={handleRefresh} disabled={refreshing}>
             {refreshing ? "Refreshing…" : "Refresh now"}
           </button>
@@ -104,54 +103,55 @@ export function ListDetailView({ detail }: ListDetailViewProps) {
       </div>
 
       {list.list_type === "smart" && rules.length > 0 && (
-        <div className="rules-card">
-          <div className="rules-head">
-            <strong>Rules</strong> — accounts that match all of:
-            <span className="line" />
+        <div className="card lists-rules-card">
+          <div className="card-head">
+            <div className="card-title">Rules</div>
+            <div className="card-sub">Accounts that match all of</div>
           </div>
-          <div className="rules-row">
-            {rules.map((rule, i) => {
-              const parts = ruleToDisplayParts(rule);
-              return (
-                <span key={i} style={{ display: "contents" }}>
-                  {i > 0 && <span className="conj">AND</span>}
-                  <span className="chip field">{parts.field}</span>
-                  <span className="chip op">{parts.op}</span>
-                  <span className="chip val">{parts.val}</span>
-                </span>
-              );
-            })}
+          <div className="card-body">
+            <div className="rules-row">
+              {rules.map((rule, i) => {
+                const parts = ruleToDisplayParts(rule);
+                return (
+                  <span key={i} className="rules-group">
+                    {i > 0 && <span className="conj">AND</span>}
+                    <span className="chip field">{parts.field}</span>
+                    <span className="chip op">{parts.op}</span>
+                    <span className="chip val">{parts.val}</span>
+                  </span>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
 
-      <div className="ld-stats">
-        <div className="ld-stat">
-          <div className="l">Accounts</div>
-          <div className="n">{stats.accountCount}</div>
-          <div className={`d${stats.weeklyDelta === 0 ? " flat" : ""}`}>{deltaLabel(stats.weeklyDelta)}</div>
+      <div className="stat-strip">
+        <div className="stat-card">
+          <div className="label">Accounts</div>
+          <div className="num">{stats.accountCount}</div>
+          <div className={`delta${stats.weeklyDelta === 0 ? " flat" : ""}`}>{deltaLabel(stats.weeklyDelta)}</div>
         </div>
-        <div className="ld-stat">
-          <div className="l">HOT</div>
-          <div className="n hot">{bandMix.hot}</div>
-          <div className={`d${stats.hotWeeklyDelta === 0 ? " flat" : ""}`}>{deltaLabel(stats.hotWeeklyDelta)}</div>
+        <div className="stat-card">
+          <div className="label">HOT</div>
+          <div className="num hot">{bandMix.hot}</div>
+          <div className={`delta${stats.hotWeeklyDelta === 0 ? " flat" : ""}`}>{deltaLabel(stats.hotWeeklyDelta)}</div>
         </div>
-        <div className="ld-stat">
-          <div className="l">Avg score</div>
-          <div className="n">{stats.avgScore || "—"}</div>
-          <div className={`d${stats.avgScoreDelta === 0 ? " flat" : ""}`}>
-            {stats.avgScoreDelta > 0 ? `▲ ${stats.avgScoreDelta} pts` : stats.avgScoreDelta < 0 ? `▼ ${Math.abs(stats.avgScoreDelta)} pts` : "stable"}
+        <div className="stat-card">
+          <div className="label">Avg score</div>
+          <div className="num">{stats.avgScore || "—"}</div>
+          <div className={`delta${stats.avgScoreDelta === 0 ? " flat" : ""}`}>
+            {stats.avgScoreDelta > 0
+              ? `▲ ${stats.avgScoreDelta} pts`
+              : stats.avgScoreDelta < 0
+                ? `▼ ${Math.abs(stats.avgScoreDelta)} pts`
+                : "stable"}
           </div>
         </div>
-        <div className="ld-stat">
-          <div className="l">WARM</div>
-          <div className="n warm">{bandMix.warm}</div>
-          <div className="d flat">stable</div>
-        </div>
-        <div className="ld-stat">
-          <div className="l">Re-score window</div>
-          <div className="n" style={{ fontSize: 18 }}>{stats.rescoreWindowDays}d</div>
-          <div className="d flat">est. refresh cycle</div>
+        <div className="stat-card">
+          <div className="label">WARM</div>
+          <div className="num">{bandMix.warm}</div>
+          <div className="delta flat">stable</div>
         </div>
       </div>
 
@@ -178,7 +178,6 @@ export function ListDetailView({ detail }: ListDetailViewProps) {
 
       <div className="ld-table">
         <div className="ld-thead">
-          <div />
           <div>Account</div>
           <div>Score</div>
           <div>7d trend</div>
@@ -187,30 +186,18 @@ export function ListDetailView({ detail }: ListDetailViewProps) {
           <div />
         </div>
         {filtered.length === 0 ? (
-          <div style={{ padding: 24, textAlign: "center", color: "var(--text-tertiary)", fontSize: 13 }}>
-            No accounts match this list yet.
-          </div>
+          <div className="ld-empty">No accounts match this list yet.</div>
         ) : (
           filtered.map((row) => (
             <div key={row.domain} className="ld-trow">
-              <div className="lst-checkbox checked">
-                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" width="8" height="8">
-                  <path d="M2 5l2 2 4-4" />
-                </svg>
-              </div>
               <div className="ld-co">
                 <div className={`av ${row.avatarClass}`}>{row.initial}</div>
-                <div style={{ minWidth: 0 }}>
+                <div className="ld-co-text">
                   <div className="name">{row.company_name}</div>
                   <div className="domain">{row.domain}</div>
                 </div>
               </div>
-              <div
-                className="ld-score"
-                style={{
-                  color: row.score_band === "HOT" ? "var(--hot)" : row.score_band === "WARM" ? "var(--warm)" : "var(--text-primary)",
-                }}
-              >
+              <div className={`ld-score${row.score_band === "HOT" ? " hot" : row.score_band === "WARM" ? " warm" : ""}`}>
                 {row.score ?? "—"}
               </div>
               <div className="ld-spark">
@@ -218,10 +205,7 @@ export function ListDetailView({ detail }: ListDetailViewProps) {
                   <div
                     key={i}
                     className={`b${i === row.sparkline.length - 1 ? " cur" : ""}`}
-                    style={{
-                      height: `${Math.max(h, 8)}%`,
-                      background: i === row.sparkline.length - 1 && row.score_band === "HOT" ? "var(--hot)" : undefined,
-                    }}
+                    style={{ height: `${Math.max(h, 8)}%` }}
                   />
                 ))}
               </div>
@@ -241,7 +225,7 @@ export function ListDetailView({ detail }: ListDetailViewProps) {
                   <span className="n">—</span>
                 )}
               </div>
-              <div className="ld-actions">
+              <div className="ld-row-actions">
                 <Link href={`/score?domain=${encodeURIComponent(row.domain)}`} className="ld-icon-btn" title="Score">
                   <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" width="11" height="11">
                     <path d="M2 4l5 4 5-4M2 3h10v6H2z" />

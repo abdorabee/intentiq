@@ -227,7 +227,6 @@ button, a, [role="button"] { touch-action: manipulation; }
 
   .page-title,
   .billing-page .bill-head .title,
-  .lists-page .ld-title,
   .p-title,
   .msg-detail h1 {
     font-size: 28px !important;
@@ -305,8 +304,7 @@ button, a, [role="button"] { touch-action: manipulation; }
   .billing-page .plans-grid,
   .billing-page .topup-grid,
   .lists-page .list-grid,
-  .stat-strip,
-  .lists-page .ld-stats {
+  .stat-strip {
     grid-template-columns: 1fr 1fr !important;
   }
 }
@@ -320,13 +318,11 @@ button, a, [role="button"] { touch-action: manipulation; }
 
   .page-head,
   .billing-page .bill-head,
-  .lists-page .ld-head,
   .p-head {
     flex-direction: column;
   }
 
   .page-actions,
-  .ld-actions,
   .p-actions,
   .msg-detail-actions,
   .tools-row,
@@ -343,7 +339,6 @@ button, a, [role="button"] { touch-action: manipulation; }
   }
 
   .page-actions > *,
-  .ld-actions > *,
   .p-actions > *,
   .msg-detail-actions > *,
   .tools-row > .search-input {
@@ -355,7 +350,6 @@ button, a, [role="button"] { touch-action: manipulation; }
   .billing-page .plans-grid,
   .billing-page .topup-grid,
   .lists-page .list-grid,
-  .lists-page .ld-stats,
   .event-rows,
   .mode-picker {
     grid-template-columns: 1fr !important;
