@@ -6235,6 +6235,13 @@ footer.site-footer {
 }
 } /* end Lists CSS */
 
+.lists-page .stat-strip {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.lists-page .lists-stat-name {
+  font-size: 22px;
+}
+
 /* â”€â”€ Billing page CSS (ported from IntentIQ Billing.html) â€” unlayered â”€â”€ */
 
 /* page-flush fill + reset landing .section-head leakage */
