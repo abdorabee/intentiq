@@ -34,9 +34,7 @@ const NAV_LINKS = [
   { label: "Product",    href: "/#product"   },
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
-  { label: "Pricing",    href: "/#pricing"   },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
+  { label: "Pricing",    href: "/pricing"    },
 ];
 
 function Section({ id, num, title, children, first }: {
@@ -120,10 +118,7 @@ export default function SubprocessorsView() {
       `}</style>
 
       <div style={{ position: "sticky", top: 0, zIndex: 100, height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", color: T.txtSecondary, background: "rgba(8,9,10,0.92)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}`, letterSpacing: "-0.011em", gap: 0 } as React.CSSProperties}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginRight: "10px", fontSize: "11px", fontWeight: 600, color: T.cyan, background: T.cyanSoft, padding: "1px 8px", borderRadius: "999px" }}>v1.2</span>
         <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>Subprocessors</strong>
-        <span style={{ margin: "0 6px", color: T.txtQuaternary }}>·</span>
-        last updated May 12, 2026
       </div>
 
       <nav style={{ position: "sticky", top: "36px", zIndex: 50, background: "rgba(8,9,10,0.72)", backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)", borderBottom: `1px solid ${T.border}` } as React.CSSProperties}>
@@ -141,7 +136,7 @@ export default function SubprocessorsView() {
           <div style={{ flex: 1 }} />
           <Link href="/login" style={{ fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", textDecoration: "none" }}>Sign in</Link>
           <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtPrimary, padding: "0 14px", height: "32px", borderRadius: "6px", border: `1px solid ${T.border}`, background: "rgba(255,255,255,0.05)", textDecoration: "none" }}>Start free</Link>
-          <Link href="/#" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+          <Link href="/contact#contact-form" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
             Talk to us
             <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
           </Link>
@@ -189,102 +184,62 @@ export default function SubprocessorsView() {
 
         <main style={{ maxWidth: "720px", fontSize: "15px", lineHeight: 1.65, color: T.txtSecondary, letterSpacing: "-0.006em" }}>
 
-          <div style={{ display: "flex", gap: "18px", alignItems: "center", flexWrap: "wrap", marginBottom: "32px", paddingBottom: "24px", borderBottom: `1px solid ${T.border}`, fontSize: "12px", color: T.txtTertiary, fontFamily: T.fontMono, letterSpacing: "0.02em" }}>
-            <span><span style={{ color: T.txtQuaternary, marginRight: "4px" }}>Effective</span><span style={{ color: T.txtSecondary }}>May 12, 2026</span></span>
-            <span><span style={{ color: T.txtQuaternary, marginRight: "4px" }}>Version</span>v1.2</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "2px 8px", border: `1px solid ${T.border}`, borderRadius: "999px", background: "rgba(255,255,255,0.02)", color: T.txtSecondary }}>
-              <span style={{ width: "5px", height: "5px", borderRadius: "999px", background: T.cyan }} />
-              In force
-            </span>
-          </div>
-
           <Section id="s1" num="01" title="Overview" first>
             <P>VesperWise Labs, Inc. (&ldquo;VesperWise&rdquo;, &ldquo;we&rdquo;) uses a small number of third-party service providers (&ldquo;subprocessors&rdquo;) to help us operate the Service. Each subprocessor has been selected for security, reliability, and data protection practices that meet or exceed our standards.</P>
             <P>We give each subprocessor only the minimum data required to perform their service. No subprocessor receives access to API keys, billing data (except Polar for payment processing), or raw customer lists.</P>
           </Section>
 
           <Section id="s2" num="02" title="Current subprocessors">
-            <P>The table below lists every subprocessor we use, the service they provide, and the security certifications they hold.</P>
+            <P>The table below lists every subprocessor we use and the service they provide.</P>
             <DocTable
-              headers={["Provider", "Service", "Location", "Security"]}
+              headers={["Provider", "Service", "Location"]}
               rows={[
                 [
                   <Strong key="name">Clerk</Strong>,
                   "Authentication, MFA, session management",
-                  "United States",
-                  "SOC 2 Type II"
+                  "United States"
                 ],
                 [
                   <Strong key="name">Polar.sh</Strong>,
                   "Payment processing (billing, subscription management, card data storage)",
-                  "Norway (EU)",
-                  "PCI DSS Level 1 via Stripe"
+                  "Norway (EU)"
                 ],
                 [
                   <Strong key="name">Supabase</Strong>,
                   "Postgres database, object storage",
-                  "United States (AWS us-east-1)",
-                  "SOC 2 Type II"
+                  "United States"
                 ],
                 [
                   <Strong key="name">Vercel</Strong>,
                   "Hosting, serverless functions, edge CDN",
-                  "United States (global edge)",
-                  "SOC 2 Type II, ISO 27001"
+                  "United States"
                 ],
                 [
                   <Strong key="name">Upstash</Strong>,
                   "Redis cache, rate limiting",
-                  "United States (AWS us-east-1)",
-                  "SOC 2 Type II"
+                  "United States"
                 ],
                 [
                   <Strong key="name">OpenRouter</Strong>,
-                  "AI model routing (Anthropic Claude)",
-                  "United States",
-                  "Zero-data-retention API mode"
+                  "AI model routing",
+                  "United States"
                 ],
               ]}
             />
-            <P><Strong>Card data:</Strong> VesperWise never receives or stores raw card data. Polar.sh collects payment details and stores them with Stripe (PCI DSS Level 1). We receive only metadata (last 4 digits, brand, expiry) via webhook.</P>
-            <P><Strong>AI processing:</Strong> OpenRouter proxies requests to Anthropic Claude using a zero-data-retention configuration. Prompts and completions are not stored or used for training. See our <A href="/privacy#s6">Privacy Policy § 06 AI processing</A> for full details.</P>
+            <P><Strong>Card data:</Strong> VesperWise never receives or stores raw card data. Polar.sh collects payment details and stores them with Stripe. We receive only metadata (last 4 digits, brand, expiry) via webhook.</P>
+            <P><Strong>AI processing:</Strong> OpenRouter proxies requests to AI providers. See our <A href="/privacy#s6">Privacy Policy § 06 AI processing</A> for details.</P>
           </Section>
 
           <Section id="s3" num="03" title="Change notice">
-            <P>Before adding a new subprocessor that will process Personal Data (as defined in our <A href="/legal/dpa">DPA</A>), we will notify you at least <Strong>30 days in advance</Strong> by:</P>
-            <ol style={{ margin: "12px 0 18px", paddingLeft: 0 }}>
-              <li style={{ position: "relative", paddingLeft: "22px", marginBottom: "6px", fontSize: "15px", lineHeight: 1.65, color: T.txtSecondary, letterSpacing: "-0.006em" }}>
-                <span style={{ position: "absolute", left: 0, top: 0, fontFamily: T.fontMono, fontSize: "12px", color: T.txtQuaternary }}>1.</span>
-                Email to the account owner on file
-              </li>
-              <li style={{ position: "relative", paddingLeft: "22px", marginBottom: "6px", fontSize: "15px", lineHeight: 1.65, color: T.txtSecondary, letterSpacing: "-0.006em" }}>
-                <span style={{ position: "absolute", left: 0, top: 0, fontFamily: T.fontMono, fontSize: "12px", color: T.txtQuaternary }}>2.</span>
-                Updating this page (version number and effective date will change)
-              </li>
-            </ol>
-            <P>You may object to a new subprocessor on reasonable data-protection grounds by emailing <A href="mailto:legal@vesperwise.com">legal@vesperwise.com</A> within the notice period. If we cannot resolve your objection, you may terminate per Section&nbsp;10 of the <A href="/terms">Terms</A> and receive a prorated refund of prepaid fees.</P>
+            <P>Before adding a new subprocessor, we will update this page. For questions about subprocessor changes, email <A href="mailto:support@vesperwise.com">support@vesperwise.com</A>.</P>
           </Section>
 
           <Section id="s4" num="04" title="Security standards">
-            <P>Every subprocessor is required to maintain:</P>
-            <ul style={{ margin: "12px 0 18px", paddingLeft: 0 }}>
-              {[
-                "SOC 2 Type II or equivalent third-party security audit",
-                "Encryption in transit (TLS 1.3) and at rest (AES-256)",
-                "Contractual data processing terms no less protective than our DPA",
-                "Written incident response procedures with breach notification within 72 hours",
-              ].map((item, i) => (
-                <li key={i} style={{ position: "relative", paddingLeft: "22px", marginBottom: "6px", fontSize: "15px", lineHeight: 1.65, color: T.txtSecondary, letterSpacing: "-0.006em" }}>
-                  <span style={{ position: "absolute", left: "8px", top: "11px", width: "4px", height: "4px", borderRadius: "999px", background: T.txtQuaternary, display: "block" }} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <P>VesperWise remains fully liable for the acts and omissions of our subprocessors under our <A href="/legal/dpa">DPA § 05</A> and <A href="/terms">Terms of Service</A>.</P>
+            <P>We select subprocessors that maintain encryption in transit and at rest. For full security details, see our <A href="/legal/security">Security page</A>.</P>
           </Section>
 
           <div style={{ marginTop: "56px", paddingTop: "24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: T.txtTertiary }}>
-            <span>Questions? <A href="mailto:legal@vesperwise.com">legal@vesperwise.com</A></span>
+            <span>Questions? <A href="mailto:support@vesperwise.com">support@vesperwise.com</A></span>
             <div style={{ display: "flex", gap: "18px" }}>
               <A href="/privacy">Privacy →</A>
               <A href="/legal/dpa">DPA →</A>

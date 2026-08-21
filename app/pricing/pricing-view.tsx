@@ -28,8 +28,6 @@ const NAV_LINKS = [
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
   { label: "Pricing",    href: "/pricing"    },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
 ];
 
 export default function PricingView() {
@@ -132,7 +130,7 @@ export default function PricingView() {
                 "Everything in Free",
                 `${PLAN_WATCHLIST_LIMIT.starter} watchlist accounts`,
                 "API + CSV exports",
-                "Slack integration",
+                `${PLAN_AUTOPILOT_LIMIT.starter} Autopilot workflow${PLAN_AUTOPILOT_LIMIT.starter === 1 ? '' : 's'}`,
               ].map((feat) => (
                 <div key={feat} style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "13px", color: T.txtSecondary, lineHeight: 1.5 }}>
                   <svg style={{ width: "14px", height: "14px", flexShrink: 0, color: T.cyan, marginTop: "2px" }} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>
@@ -163,7 +161,6 @@ export default function PricingView() {
                 `${PLAN_WATCHLIST_LIMIT.growth} watchlist accounts`,
                 `${PLAN_AUTOPILOT_LIMIT.growth} Autopilot workflows`,
                 "Bulk scoring (1,000 / job)",
-                "HubSpot + Salesforce",
               ].map((feat) => (
                 <div key={feat} style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "13px", color: T.txtSecondary, lineHeight: 1.5 }}>
                   <svg style={{ width: "14px", height: "14px", flexShrink: 0, color: T.cyan, marginTop: "2px" }} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>
