@@ -4,6 +4,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { COPILOT_TOOLS, executeTool, buildCopilotContext, buildCopilotSystemPrompt } from "@/lib/copilot";
 import { CHAT_CREDIT_COST } from "@/lib/types";
 import type { DbUser } from "@/lib/types";
+import { sanitizeUiBlocks } from "@/lib/gen-ui";
 
 const COPILOT_MODEL = process.env.COPILOT_MODEL ?? "anthropic/claude-sonnet-4";
 const COPILOT_MAX_TOKENS = Number(process.env.COPILOT_MAX_TOKENS) || 1024;
@@ -233,6 +234,14 @@ export async function POST(req: NextRequest) {
                 user.product_category ?? "B2B SaaS",
                 user.business_profile ?? null
               );
+              if (tc.function.name === "present_ui") {
+                const blocks = sanitizeUiBlocks(
+                  result && typeof result === "object" && "blocks" in result
+                    ? (result as { blocks: unknown }).blocks
+                    : result
+                );
+                send({ type: "ui", blocks });
+              }
               send({ type: "tool_result", name: tc.function.name, result });
 
               messages.push({
