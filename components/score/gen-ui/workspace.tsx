@@ -190,11 +190,11 @@ function OutreachStudio({ block, onPrompt }: { block: Extract<UiBlock, { type: "
         <button type="button" className="tb-btn outlined" onClick={copy} disabled={!subject && !body}>
           {copied ? "Copied!" : "Copy"}
         </button>
-        {onPrompt && block.company && (
+        {onPrompt && (
           <button
             type="button"
             className="tb-btn outlined"
-            onClick={() => onPrompt(`Rewrite the outreach for ${block.company} to be shorter and more specific to the strongest trigger.`)}
+            onClick={() => onPrompt("Rewrite this outreach to be shorter and more specific to the strongest trigger.")}
           >
             Refine in chat
           </button>
