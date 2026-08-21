@@ -254,6 +254,13 @@ export function sanitizeUiBlocks(input: unknown, allowedDomains?: string[]): UiB
       }
     }
 
+    if (block.type === "action_rail" && block.suggestions?.length) {
+      block = {
+        ...block,
+        suggestions: block.suggestions.map((s) => ({ label: s.label, prompt: s.label })),
+      };
+    }
+
     out.push(block);
     if (out.length >= 12) break;
   }

@@ -295,7 +295,14 @@ export function SuggestionChips({
   return (
     <div className="gen-chips">
       {suggestions.map((s) => (
-        <button key={s.prompt} type="button" className="sugg" disabled={disabled} onClick={() => onPrompt(s.prompt)}>
+        <button
+          key={s.label}
+          type="button"
+          className="sugg"
+          disabled={disabled}
+          title={s.prompt}
+          onClick={() => onPrompt(s.prompt)}
+        >
           {s.label}
         </button>
       ))}
