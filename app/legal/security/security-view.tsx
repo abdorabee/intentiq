@@ -44,8 +44,7 @@ const CURRENT_CONTROLS = [
     items: [
       "Clerk for user authentication",
       "Dashboard access requires active session",
-      "API keys shown once, stored as SHA-256 hashes",
-      "API keys scoped to user_id, revocable via dashboard",
+      "API keys hashed SHA-256, shown once, revocable, scoped to user_id",
     ],
   },
   {
