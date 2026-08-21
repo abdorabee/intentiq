@@ -471,15 +471,7 @@ export default function LandingPage() {
 
       {/* Trust strip */}
       <section className="trust">
-        <div className="trust-label">Powering pipelines at sales orgs you&apos;ve heard of</div>
-        <div className="trust-row">
-          <div className="logo italic">Roundwave</div>
-          <div className="logo">▲ Signaltree</div>
-          <div className="logo mono">&#47;&#47; MERIDIAN</div>
-          <div className="logo italic">Carbide</div>
-          <div className="logo">◆ Northbeam</div>
-          <div className="logo mono">[ HALCYON ]</div>
-        </div>
+        <div className="trust-label">Solo-built · v0.1 · Priced for SMB sales teams</div>
       </section>
 
       {/* Pillars */}
@@ -516,20 +508,20 @@ export default function LandingPage() {
         <div className="container">
           <div className="stats">
             <div className="stat">
-              <div className="num"><span className="grad">2.4M</span></div>
-              <div className="label">Accounts scored to date</div>
-            </div>
-            <div className="stat">
               <div className="num"><span style={{ color: 'var(--cyan)' }}>6h</span></div>
               <div className="label">Personalized result cache</div>
             </div>
             <div className="stat">
-              <div className="num">+<span style={{ color: 'var(--hot)' }}>38%</span></div>
-              <div className="label">Avg lift in HOT‑band reply rate</div>
+              <div className="num"><span className="grad">5</span></div>
+              <div className="label">Intent signals scored in parallel</div>
             </div>
             <div className="stat">
-              <div className="num">99.97<span style={{ color: 'var(--text-tertiary)', fontSize: '24px' }}>%</span></div>
-              <div className="label">API uptime, last 90 days</div>
+              <div className="num"><span style={{ color: 'var(--hot)' }}>AI</span></div>
+              <div className="label">Reasoning on every score</div>
+            </div>
+            <div className="stat">
+              <div className="num"><span style={{ color: 'var(--accent-2)' }}>$29</span></div>
+              <div className="label">Starting price per month</div>
             </div>
           </div>
         </div>
@@ -1283,54 +1275,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Quotes */}
-      <section className="section-tight" id="customers">
-        <div className="container">
-          <div className="section-head center">
-            <div className="label"><span className="accent"></span>What teams are saying</div>
-            <h2 className="h2">&ldquo;Finally, a number my AEs<br />actually pay attention to.&rdquo;</h2>
-          </div>
-
-          <div className="quotes">
-            <div className="quote-card">
-              <blockquote>
-                We replaced our 6sense seat with VesperWise for a tenth of the cost. The AE adoption was the surprise — they read the AI summary, they don&apos;t read the dashboard.
-              </blockquote>
-              <div className="quote-author">
-                <div className="av av-1">SK</div>
-                <div className="meta">
-                  <div className="name">Sana Kapoor</div>
-                  <div className="role">VP Sales · Roundwave</div>
-                </div>
-              </div>
-            </div>
-            <div className="quote-card">
-              <blockquote>
-                Autopilot caught a Series B announcement and routed the account to my closer at 4:42 AM. Meeting was booked by 9. That&apos;s the entire pitch.
-              </blockquote>
-              <div className="quote-author">
-                <div className="av av-3">MN</div>
-                <div className="meta">
-                  <div className="name">Marcus Ng</div>
-                  <div className="role">Head of GTM · Northbeam</div>
-                </div>
-              </div>
-            </div>
-            <div className="quote-card">
-              <blockquote>
-                The 0–100 score is the only signal we put in our Mondays now. Reps trust it because the reasoning shows up next to the number.
-              </blockquote>
-              <div className="quote-author">
-                <div className="av av-6">RD</div>
-                <div className="meta">
-                  <div className="name">Rhea Doshi</div>
-                  <div className="role">Sales Ops Lead · Halcyon</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Quotes section removed - no customer testimonials yet (v0.1) */}
 
       {/* Pricing */}
       <section className="section" id="pricing">
@@ -1383,7 +1328,7 @@ export default function LandingPage() {
               <div className="price-feats">
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>Everything in Starter</div>
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>250 watchlist accounts</div>
-                <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>5 Autopilot workflows</div>
+                <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>20 Autopilot workflows</div>
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>Bulk scoring (1,000 / job)</div>
                 <div className="price-feat"><svg className="chk" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7l3 3 5-7"/></svg>HubSpot + Salesforce</div>
               </div>
@@ -1406,7 +1351,7 @@ export default function LandingPage() {
           </div>
 
           <p style={{ textAlign: 'center', marginTop: '18px', fontSize: '12px', color: 'var(--text-quaternary)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
-            Need 25k+ scores? <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'underline', textDecorationColor: 'var(--border-strong)' }}>See Agency plan →</a>
+            Need 25,000+ scores? <a href="/contact#contact-form" style={{ color: 'var(--text-secondary)', textDecoration: 'underline', textDecorationColor: 'var(--border-strong)' }}>Contact us for Agency pricing ($499/mo) →</a>
           </p>
         </div>
       </section>
@@ -1423,7 +1368,7 @@ export default function LandingPage() {
               Start scoring free
               <svg className="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
             </a>
-            <a href="#" className="btn btn-secondary btn-lg">Talk to sales</a>
+            <a href="/contact#contact-form" className="btn btn-secondary btn-lg">Contact us</a>
           </div>
           <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--text-quaternary)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
             20 FREE CREDITS · NO CARD · COVERAGE-AWARE SCORES

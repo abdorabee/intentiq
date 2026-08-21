@@ -103,7 +103,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInUrl="/login"
+      signUpUrl="/signup"
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/dashboard"
+    >
       <html lang="en" className="dark" suppressHydrationWarning>
         <head>
           <script
