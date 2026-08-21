@@ -388,6 +388,8 @@ function KanbanColumn({
   );
 }
 
+type ViewMode = "board" | "list" | "timeline";
+
 export default function PipelinePage() {
   const { user } = useUser();
   const userInitials = (() => {
@@ -397,6 +399,7 @@ export default function PipelinePage() {
     return user.emailAddresses[0]?.emailAddress[0]?.toUpperCase() ?? "U";
   })();
 
+  const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [companies, setCompanies] = useState<PipelineCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<PipelineCompany | null>(null);
@@ -559,19 +562,19 @@ export default function PipelinePage() {
       {/* Hub Tools bar */}
       <div className="hub-tools">
         <div className="hub-tabs">
-          <div className="hub-tab active">
+          <div className={`hub-tab${viewMode === "board" ? " active" : ""}`} onClick={() => setViewMode("board")}>
             <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="1" y="2" width="3" height="8" /><rect x="5" y="2" width="3" height="6" /><rect x="9" y="2" width="2" height="9" />
             </svg>
             Board
           </div>
-          <div className="hub-tab">
+          <div className={`hub-tab${viewMode === "list" ? " active" : ""}`} onClick={() => setViewMode("list")}>
             <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M2 3h8M2 6h8M2 9h8" />
             </svg>
             List
           </div>
-          <div className="hub-tab">
+          <div className={`hub-tab${viewMode === "timeline" ? " active" : ""}`} onClick={() => setViewMode("timeline")}>
             <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="6" cy="6" r="4" /><path d="M6 2v4l3 1" />
             </svg>
@@ -632,7 +635,7 @@ export default function PipelinePage() {
             Go to Watchlist →
           </Link>
         </div>
-      ) : (
+      ) : viewMode === "board" ? (
         <div className="kanban-wrap">
           <div className="kanban">
             {STAGE_ORDER.map((stage) => (
@@ -647,6 +650,14 @@ export default function PipelinePage() {
               />
             ))}
           </div>
+        </div>
+      ) : viewMode === "list" ? (
+        <div style={{ flex: 1, padding: "24px", color: "var(--text-tertiary)", fontSize: 13 }}>
+          List view coming soon
+        </div>
+      ) : (
+        <div style={{ flex: 1, padding: "24px", color: "var(--text-tertiary)", fontSize: 13 }}>
+          Timeline view coming soon
         </div>
       )}
 
