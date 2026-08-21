@@ -2,6 +2,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { scoreCompany } from "@/lib/score-service";
 import { scorePerson } from "@/lib/person-score-service";
 import type { BusinessProfile, DbUser, PipelineStage, ConversationAnalysis } from "@/lib/types";
+import { sanitizeUiBlocks } from "@/lib/gen-ui";
 
 // ─── OpenRouter Tool Definitions (OpenAI-compatible format) ──────────────────
 
@@ -222,6 +223,52 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "present_ui",
+      description: "Render an interactive VesperWise workspace in the chat instead of a long markdown answer. Prefer this after you have score or pipeline data. Keep prose to a few sentences and put the experience in blocks.",
+      parameters: {
+        type: "object",
+        properties: {
+          blocks: {
+            type: "array",
+            description: "Ordered UI blocks. Allowed types: intent_hero, signal_explorer, thesis, outreach_studio, action_rail, comparison, markdown.",
+            items: {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["intent_hero", "signal_explorer", "thesis", "outreach_studio", "action_rail", "comparison", "markdown"],
+                },
+                company: { type: "string" },
+                domain: { type: "string" },
+                intent_score: { type: "number" },
+                score_band: { type: "string", enum: ["HOT", "WARM", "COLD"] },
+                buying_stage: { type: "string" },
+                urgency: { type: "string" },
+                data_coverage: { type: "number" },
+                score_status: { type: "string" },
+                icp_fit_score: { type: "number" },
+                summary: { type: "string" },
+                recommended_action: { type: "string" },
+                why_now: { type: "string" },
+                subject: { type: "string" },
+                talk_track: { type: "string" },
+                text: { type: "string" },
+                selected_key: { type: "string" },
+                axes: { type: "array", items: { type: "object" } },
+                suggestions: { type: "array", items: { type: "object" } },
+                accounts: { type: "array", items: { type: "object" } },
+              },
+              required: ["type"],
+            },
+          },
+        },
+        required: ["blocks"],
+      },
+    },
+  },
 ];
 
 // ─── Tool Executor ───────────────────────────────────────────────────────────
@@ -255,6 +302,9 @@ export async function executeTool(
         urgency: result.urgency,
         key_triggers: result.key_triggers,
         why_now: result.why_now,
+        email_subject: result.email_subject,
+        talk_track: result.talk_track,
+        signals: result.signals,
       };
     }
 
@@ -477,6 +527,18 @@ export async function executeTool(
       return { actions };
     }
 
+    case "present_ui": {
+      const { data } = await supabase
+        .from("scores")
+        .select("domain")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(80);
+      const domains = [...new Set((data ?? []).map((row) => String(row.domain).toLowerCase()))];
+      const blocks = sanitizeUiBlocks(args.blocks ?? args, domains.length > 0 ? domains : undefined);
+      return { ok: true, blocks };
+    }
+
     case "analyze_conversation": {
       // Claude has already extracted and structured the analysis via vision or text reading.
       // Deduct 1 credit for the analysis and return the structured result.
@@ -605,6 +667,13 @@ ${hotSection}
 CONVERSATION ANALYSIS:
 When the user shares a screenshot or pastes raw chat/email/Slack content, ALWAYS call the analyze_conversation tool immediately — do not describe what you see first, just call the tool.
 After the tool returns, lead your response with the intent verdict ("This looks like a [HOT/WARM/COLD] prospect") and highlight the 2-3 strongest signals with direct quotes. Always offer to run a full domain score if you identified the company ("Want me to run a full intent score on [Company]?").
+
+GENERATIVE UI:
+You are composing an interactive workspace, not a markdown essay. After you have score or pipeline data, call present_ui with a compact block list tailored to the user's goal:
+- Score / why this band → intent_hero + signal_explorer + thesis + action_rail
+- Draft email → outreach_studio + action_rail (include subject and talk_track)
+- Compare accounts → comparison (2-4 scored domains only)
+Keep spoken text to 1-3 sentences. Put evidence in signal_explorer axes (key, label, score, max, detail). Always include suggested next prompts on action_rail. Never invent scores or domains that are not in tool results.
 
 GUIDELINES:
 - Always cite specific data from scores and signals. Never fabricate company data.

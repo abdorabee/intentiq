@@ -5,8 +5,11 @@ import { useSearchParams } from "next/navigation";
 import type { IntentScore, ScoreBand } from "@/lib/types";
 import { CHAT_CREDIT_COST } from "@/lib/types";
 import { extractDomain, seedChatSession, streamChat } from "@/lib/chat-client";
-import { avColor, ScoreResultCard, scoreFromToolResult } from "@/components/score/score-result-card";
+import { avColor, scoreFromToolResult } from "@/components/score/score-result-card";
 import type { ScoreCardData } from "@/components/score/score-result-card";
+import { GenUiWorkspace, SuggestionChips } from "@/components/score/gen-ui/workspace";
+import { sanitizeUiBlocks, suggestionsFromBlocks, workspaceFromScore } from "@/lib/gen-ui";
+import type { UiBlock } from "@/lib/gen-ui";
 
 type ScorableIntentScore = IntentScore & {
   intent_score: number;
@@ -60,13 +63,13 @@ type ToolChip = {
 
 type ThreadMessage =
   | { id: string; role: "user"; content: string }
-  | { id: string; role: "assistant"; kind: "score"; result: ScoreCardData }
+  | { id: string; role: "assistant"; kind: "ui"; blocks: UiBlock[]; content: string; tools: ToolChip[]; billing?: string }
   | { id: string; role: "assistant"; kind: "text"; content: string; tools: ToolChip[] }
   | { id: string; role: "assistant"; kind: "thinking"; mode: "score" | "chat" }
   | { id: string; role: "error"; content: string };
 
 function messageTools(message: ThreadMessage): ToolChip[] {
-  return message.role === "assistant" && message.kind === "text" ? message.tools : [];
+  return message.role === "assistant" && (message.kind === "text" || message.kind === "ui") ? message.tools : [];
 }
 
 function nextId(): string {
@@ -304,7 +307,6 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [watchlistByDomain, setWatchlistByDomain] = useState<Record<string, "adding" | "added">>({});
-  const [copiedDomain, setCopiedDomain] = useState<string | null>(null);
   const scoring = busy && messages.some((m) => m.role === "assistant" && m.kind === "thinking" && m.mode === "score");
 
   useEffect(() => {
@@ -342,7 +344,15 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
       const payload = await requestScore(domain);
       setMessages((prev) => prev.map((m) => (
         m.id === thinkingId
-          ? { id: thinkingId, role: "assistant", kind: "score", result: payload }
+          ? {
+              id: thinkingId,
+              role: "assistant",
+              kind: "ui",
+              blocks: workspaceFromScore(payload),
+              content: "",
+              tools: [],
+              billing: billingLabel(payload),
+            }
           : m
       )));
       try {
@@ -383,33 +393,61 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
             const current = prev.find((m) => m.id === thinkingId);
             if (!current) return prev;
             if (event.type === "text") {
+              if (current.role === "assistant" && current.kind === "ui") {
+                return prev.map((m) => (m.id === thinkingId ? { ...current, content: current.content + event.content } : m));
+              }
               const next: ThreadMessage = current.role === "assistant" && current.kind === "text"
                 ? { ...current, content: current.content + event.content }
                 : { id: thinkingId, role: "assistant", kind: "text", content: event.content, tools: messageTools(current) };
               return prev.map((m) => (m.id === thinkingId ? next : m));
             }
+            if (event.type === "ui") {
+              const blocks = sanitizeUiBlocks(event.blocks);
+              if (blocks.length === 0) return prev;
+              const next: ThreadMessage = {
+                id: thinkingId,
+                role: "assistant",
+                kind: "ui",
+                blocks,
+                content: current.role === "assistant" && "content" in current ? current.content : "",
+                tools: messageTools(current),
+              };
+              return prev.map((m) => (m.id === thinkingId ? next : m));
+            }
             if (event.type === "tool_call") {
               const tools: ToolChip[] = [...messageTools(current), { name: event.name, status: "running" }];
-              const next: ThreadMessage = current.role === "assistant" && current.kind === "text"
-                ? { ...current, tools }
-                : { id: thinkingId, role: "assistant", kind: "text", content: "", tools };
-              return prev.map((m) => (m.id === thinkingId ? next : m));
+              if (current.role === "assistant" && (current.kind === "text" || current.kind === "ui")) {
+                return prev.map((m) => (m.id === thinkingId ? { ...current, tools } : m));
+              }
+              return prev.map((m) => (
+                m.id === thinkingId
+                  ? { id: thinkingId, role: "assistant", kind: "text", content: "", tools }
+                  : m
+              ));
             }
             if (event.type === "tool_result") {
               const tools: ToolChip[] = messageTools(current).map((t) => (
                 t.name === event.name && t.status === "running" ? { ...t, status: "done", result: event.result } : t
               ));
               const card = scoreFromToolResult(event.name, event.result);
+              if (current.role === "assistant" && current.kind === "ui") {
+                return prev.map((m) => (m.id === thinkingId ? { ...current, tools } : m));
+              }
+              if (card) {
+                const next: ThreadMessage = {
+                  id: thinkingId,
+                  role: "assistant",
+                  kind: "ui",
+                  blocks: workspaceFromScore(card),
+                  content: current.role === "assistant" && "content" in current ? current.content : "",
+                  tools,
+                };
+                return prev.map((m) => (m.id === thinkingId ? next : m));
+              }
               const base: ThreadMessage = current.role === "assistant" && current.kind === "text"
                 ? { ...current, tools }
                 : { id: thinkingId, role: "assistant", kind: "text", content: "", tools };
-              if (!card) return prev.map((m) => (m.id === thinkingId ? base : m));
-              const extras = prev.filter((m) => m.id === `${thinkingId}-score-${event.name}`);
-              if (extras.length > 0) return prev.map((m) => (m.id === thinkingId ? base : m));
-              return [
-                ...prev.map((m) => (m.id === thinkingId ? base : m)),
-                { id: `${thinkingId}-score-${event.name}`, role: "assistant", kind: "score", result: card },
-              ];
+              return prev.map((m) => (m.id === thinkingId ? base : m));
             }
             return prev;
           });
@@ -450,32 +488,24 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     await runFollowUp(raw);
   }
 
-  async function handleAddToWatchlist(result: ScoreCardData) {
-    setWatchlistByDomain((prev) => ({ ...prev, [result.domain]: "adding" }));
+  async function handleAddToWatchlist(company: string, domain: string) {
+    setWatchlistByDomain((prev) => ({ ...prev, [domain]: "adding" }));
     try {
       const res = await fetch("/api/dashboard/watchlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: result.domain, company_name: result.company }),
+        body: JSON.stringify({ domain, company_name: company }),
       });
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Failed to add");
-      setWatchlistByDomain((prev) => ({ ...prev, [result.domain]: "added" }));
+      setWatchlistByDomain((prev) => ({ ...prev, [domain]: "added" }));
     } catch {
       setWatchlistByDomain((prev) => {
         const next = { ...prev };
-        delete next[result.domain];
+        delete next[domain];
         return next;
       });
     }
-  }
-
-  function handleCopyEmail(result: ScoreCardData) {
-    const text = [result.email_subject, result.talk_track].filter(Boolean).join("\n\n");
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    setCopiedDomain(result.domain);
-    setTimeout(() => setCopiedDomain((d) => (d === result.domain ? null : d)), 2000);
   }
 
   function handleNewChat() {
@@ -487,6 +517,8 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   }
 
   const active = messages.length > 0;
+  const lastUi = [...messages].reverse().find((m) => m.role === "assistant" && m.kind === "ui");
+  const chips = lastUi && lastUi.kind === "ui" ? suggestionsFromBlocks(lastUi.blocks) : [];
 
   return (
     <div className="score-chat">
@@ -526,29 +558,31 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                       ) : (
                         <div className="chat-thinking">
                           <span className="pulse" />
-                          Thinking…
+                          Designing view…
                         </div>
                       )}
                     </div>
                   );
                 }
-                if (message.kind === "score") {
+                if (message.kind === "ui") {
                   return (
                     <div key={message.id} className="chat-row assistant">
-                      {"charged" in message.result || "cached" in message.result ? (
+                      {message.billing && (
                         <LiveProgressBar
                           loading={false}
                           stepIndex={STEPS.length - 1}
-                          billingLabel={billingLabel(message.result as ScoreCardData & { charged?: boolean; cached?: boolean })}
+                          billingLabel={message.billing}
                         />
-                      ) : null}
-                      <ScoreResultCard
-                        result={message.result}
-                        onWatchlist={() => void handleAddToWatchlist(message.result)}
-                        watchlistAdded={watchlistByDomain[message.result.domain] === "added"}
-                        watchlistAdding={watchlistByDomain[message.result.domain] === "adding"}
-                        onCopyEmail={() => handleCopyEmail(message.result)}
-                        emailCopied={copiedDomain === message.result.domain}
+                      )}
+                      <ToolChips tools={message.tools} />
+                      {message.content && <AssistantText content={message.content} />}
+                      <GenUiWorkspace
+                        blocks={message.blocks}
+                        handlers={{
+                          onWatchlist: (company, d) => void handleAddToWatchlist(company, d),
+                          watchlistByDomain,
+                          onPrompt: (prompt) => void submitMessage(prompt),
+                        }}
                       />
                     </div>
                   );
@@ -563,6 +597,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
             </div>
           </div>
           <div className="score-chat-composer">
+            <SuggestionChips suggestions={chips} onPrompt={(prompt) => void submitMessage(prompt)} disabled={busy} />
             <div className="prompt-holder prompt-holder--compact">
               <div className="prompt-prefix">
                 <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">

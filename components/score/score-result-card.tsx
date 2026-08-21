@@ -39,13 +39,13 @@ export function avColor(name: string): string {
   return AV_COLORS[(name.charCodeAt(0) ?? 0) % AV_COLORS.length];
 }
 
-function bandClass(band: string | null): string {
+export function bandClass(band: string | null): string {
   if (band === "HOT") return "band-hot";
   if (band === "WARM") return "band-warm";
   return "band-cold";
 }
 
-function ScoreRing({ score, band }: { score: number; band: string }) {
+export function ScoreRing({ score, band }: { score: number; band: string }) {
   const gradId = useId().replace(/:/g, "");
   const r = 42;
   const circ = 2 * Math.PI * r;
