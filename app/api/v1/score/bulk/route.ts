@@ -100,11 +100,38 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "job_id required" }, { status: 400 });
   }
 
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  const authHeader = req.headers.get("authorization");
   const supabase = createSupabaseAdmin();
+  let userId: string | null = null;
+
+  if (authHeader?.startsWith("Bearer ")) {
+    const apiKey = authHeader.slice(7);
+    const { createHash } = await import("crypto");
+    const keyHash = createHash("sha256").update(apiKey).digest("hex");
+
+    const { data: keyRow } = await supabase
+      .from("api_keys")
+      .select("user_id, is_active")
+      .eq("key_hash", keyHash)
+      .single();
+
+    if (!keyRow?.is_active) {
+      return NextResponse.json({ error: "Invalid or inactive API key" }, { status: 401 });
+    }
+    userId = keyRow.user_id;
+  }
+
+  if (!userId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  // ── Fetch job with user_id filter ───────────────────────────────────────────
   const { data: job } = await supabase
     .from("bulk_jobs")
     .select("id, status, total, completed, results, created_at")
     .eq("id", jobId)
+    .eq("user_id", userId)
     .single();
 
   if (!job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
