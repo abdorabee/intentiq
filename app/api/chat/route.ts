@@ -130,6 +130,17 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: "Failed to create session" }), { status: 500 });
     }
     sessionId = session.id;
+  } else {
+    // Verify session belongs to user
+    const { data: session } = await supabase
+      .from("chat_sessions")
+      .select("user_id")
+      .eq("id", sessionId)
+      .single();
+
+    if (!session || session.user_id !== userId) {
+      return new Response(JSON.stringify({ error: "Session not found" }), { status: 404 });
+    }
   }
 
   // ── Load conversation history ────────────────────────────────────────────
