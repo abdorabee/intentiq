@@ -31,8 +31,6 @@ const NAV_LINKS = [
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
   { label: "Pricing",    href: "/#pricing"   },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
 ];
 
 const CHANNELS = [
@@ -371,7 +369,7 @@ export default function ContactView() {
                 <input
                   type="text"
                   required
-                  placeholder="Sana Kapoor"
+                  placeholder="Jane Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="field-input"
@@ -385,7 +383,7 @@ export default function ContactView() {
                 <input
                   type="email"
                   required
-                  placeholder="sana@roundwave.io"
+                  placeholder="jane@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="field-input"
@@ -400,7 +398,7 @@ export default function ContactView() {
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 500, color: T.txtTertiary, letterSpacing: "-0.006em", marginBottom: "6px" }}>Company</label>
                 <input
                   type="text"
-                  placeholder="Roundwave"
+                  placeholder="Acme Corp"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   className="field-input"
