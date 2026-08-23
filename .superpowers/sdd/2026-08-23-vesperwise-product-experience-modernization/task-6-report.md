@@ -36,6 +36,13 @@ remaining Clerk identity, blank-domain, and watchlist-error behavior on
   Refresh and a later login therefore resume from server state.
 - Stage two saves the complete existing `business_profile` contract first, then
   persists stage three. The profile endpoint no longer sets onboarding complete.
+- Generic `PATCH /api/user/preferences` writes are limited to theme, sidebar,
+  analytics, and tour fields. Onboarding version, revision, step, and draft are
+  read-only there and can only be mutated through the guarded progress endpoint.
+- Equal-revision conflicts never adopt the other tab's draft as a successful
+  save. The local input remains visible, the UI reports a save error, and its
+  revision baseline advances to the verified server revision so a later edit
+  can safely write above it.
 
 ### Authoritative completion
 
@@ -93,13 +100,17 @@ Production behavior was introduced only after focused RED runs:
   stale durable-state adoption, evidence owner mismatch, bootstrap missing/error
   states, inconsistent completion tuples, and direct skip. A follow-up RED added
   two tuple-routing failures before the shared routing helper existed.
+- Review fix round 2 RED: three failures proved the generic preference contract
+  still accepted onboarding fields and an equal-revision 409 replaced the local
+  draft while displaying Saved. The API equal-revision case was also added as a
+  server regression test.
 
 Focused GREEN:
 
 ```text
 npx vitest run <10 Task 6 focused files>
 Test Files  10 passed (10)
-Tests  59 passed (59)
+Tests  62 passed (62)
 ```
 
 The completion route now contains twelve focused cases, including authentication,
@@ -112,7 +123,7 @@ storage/evidence results and storage errors.
 ```text
 npx vitest run <10 Task 6 focused files>
 Test Files  10 passed (10)
-Tests  59 passed (59)
+Tests  62 passed (62)
 
 env ONBOARDING_DB_TESTS=true \
   ONBOARDING_TEST_DATABASE_URL=postgresql://laflame@127.0.0.1:55439/onboarding_test \
@@ -126,7 +137,7 @@ exit 0
 
 npm test
 Test Files  76 passed | 5 skipped (81)
-Tests  402 passed | 24 skipped (426)
+Tests  405 passed | 24 skipped (429)
 
 npm run build
 compiled successfully; TypeScript passed; 73 routes generated

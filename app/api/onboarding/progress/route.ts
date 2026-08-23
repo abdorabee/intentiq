@@ -73,7 +73,7 @@ export async function PATCH(request: Request) {
     }
     return NextResponse.json(
       {
-        error: "A newer onboarding draft is already saved",
+        error: "This onboarding revision is stale or already saved",
         code: "stale_revision",
         progress: publicOnboardingProgress(authoritative.data),
       },

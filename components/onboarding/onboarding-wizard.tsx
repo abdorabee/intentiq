@@ -41,6 +41,13 @@ interface CompletionEvidence {
   onboarding_completed_version: number;
 }
 
+class ProgressConflictError extends Error {
+  constructor(message: string, readonly serverRevision: number) {
+    super(message);
+    this.name = "ProgressConflictError";
+  }
+}
+
 function FieldError({ message }: { message?: string }) {
   return message ? <p className="mt-2 text-sm text-red-300">{message}</p> : null;
 }
@@ -148,7 +155,12 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
     });
     const payload: unknown = await response.json().catch(() => null);
     const authoritative = parseProgress(payload);
-    if (response.status === 409 && authoritative) return authoritative;
+    if (response.status === 409 && authoritative) {
+      throw new ProgressConflictError(
+        readError(payload, "A newer onboarding draft is already saved."),
+        authoritative.revision,
+      );
+    }
     if (!response.ok) throw new Error(readError(payload, "We could not save your progress."));
     if (!authoritative) throw new Error("The saved onboarding state could not be verified.");
     return authoritative;
@@ -167,6 +179,9 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
         dispatch({ type: "save_succeeded", step: authoritative.step, profile: authoritative.draft });
       }).catch((error: unknown) => {
         if (!active || dirtyRevision.current !== revision) return;
+        if (error instanceof ProgressConflictError) {
+          dirtyRevision.current = Math.max(dirtyRevision.current, error.serverRevision);
+        }
         dispatch({ type: "save_failed", message: error instanceof Error ? error.message : "We could not save your progress." });
       });
     }, 650);
@@ -209,6 +224,9 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
       dirtyRevision.current = Math.max(dirtyRevision.current, authoritative.revision);
       dispatch({ type: "save_succeeded", step: authoritative.step, profile: authoritative.draft });
     } catch (error) {
+      if (error instanceof ProgressConflictError && dirtyRevision.current === revision) {
+        dirtyRevision.current = Math.max(dirtyRevision.current, error.serverRevision);
+      }
       dispatch({ type: "save_failed", message: error instanceof Error ? error.message : "We could not save your business profile." });
     }
   }

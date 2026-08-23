@@ -109,6 +109,39 @@ describe("OnboardingWizard", () => {
     expect(screen.getByText("Saved")).toBeInTheDocument();
   });
 
+  it("preserves local edits and reports a conflict when another tab owns the same revision", async () => {
+    vi.useFakeTimers();
+    harness.fetcher.mockResolvedValue(new Response(JSON.stringify({
+      error: "This onboarding revision is stale or already saved",
+      code: "stale_revision",
+      progress: {
+        step: 0,
+        draft: COMPLETE_PROFILE,
+        onboarding_version: 1,
+        revision: 1,
+        updated_at: "2026-08-23T18:00:00.000Z",
+      },
+    }), { status: 409 }));
+    render(
+      <OnboardingWizard
+        initialProfile={COMPLETE_PROFILE}
+        initialStep={0}
+        initialActivation={false}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("What do you sell?"), {
+      target: { value: "Revenue intelligence" },
+    });
+    await act(async () => vi.advanceTimersByTime(700));
+    await act(async () => Promise.resolve());
+
+    expect(screen.getByLabelText("What do you sell?")).toHaveValue("Revenue intelligence");
+    expect(screen.getByText("Save error")).toBeInTheDocument();
+    expect(screen.queryByText("Saved")).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("stale or already saved");
+  });
+
   it("offers a direct skip on stage three before an activation error", () => {
     render(
       <OnboardingWizard

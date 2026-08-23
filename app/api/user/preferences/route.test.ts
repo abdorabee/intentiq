@@ -123,7 +123,14 @@ describe("GET /api/user/preferences", () => {
     const response = await GET();
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      preferences: { theme: "system", sidebar_collapsed: false },
+      preferences: {
+        theme: "system",
+        sidebar_collapsed: false,
+        onboarding_version: 0,
+        onboarding_revision: 0,
+        onboarding_step: 0,
+        onboarding_draft: {},
+      },
     });
     expect(harness.calls).toEqual([
       { operation: "select", filters: [["user_id", "user_123"]], payload: undefined },
@@ -148,6 +155,23 @@ describe("GET /api/user/preferences", () => {
 });
 
 describe("PATCH /api/user/preferences", () => {
+  it("rejects every onboarding-owned field before touching storage", async () => {
+    for (const patch of [
+      { onboarding_version: 1 },
+      { onboarding_revision: 1 },
+      { onboarding_step: 1 },
+      { onboarding_draft: { product_category: "Bypass" } },
+    ]) {
+      const response = await PATCH(new Request("http://localhost/api/user/preferences", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      }));
+      expect(response.status).toBe(400);
+    }
+    expect(harness.calls).toEqual([]);
+  });
+
   it("rejects unknown fields before touching storage", async () => {
     const response = await PATCH(new Request("http://localhost/api/user/preferences", {
       method: "PATCH",

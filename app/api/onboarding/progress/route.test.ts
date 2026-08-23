@@ -144,6 +144,22 @@ describe("PATCH /api/onboarding/progress", () => {
     expect(harness.calls[1]).toEqual({ kind: "select", filters: [["user_id", "user_owner"]] });
   });
 
+  it("treats an equal revision as a conflict without changing durable state", async () => {
+    harness.rpcRow = null;
+    harness.currentRow = savedRow(4);
+
+    const response = await request(4, { ...PROFILE, product_category: "Losing tab edit" });
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      code: "stale_revision",
+      progress: {
+        revision: 4,
+        draft: { product_category: "Sales intelligence" },
+      },
+    });
+  });
+
   it("does not claim saved on RPC errors, missing state, or owner mismatch", async () => {
     harness.rpcError = "storage unavailable";
     expect((await request()).status).toBe(500);

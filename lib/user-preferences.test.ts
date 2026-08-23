@@ -19,12 +19,15 @@ describe("user preference contracts", () => {
     expect(() => userPreferencesPatchSchema.parse({ theme: "dark", surprise: true })).toThrow();
     expect(() => userPreferencesPatchSchema.parse({ user_id: "user_other" })).toThrow();
     expect(() => userPreferencesPatchSchema.parse({ updated_at: new Date().toISOString() })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ onboarding_version: 1 })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ onboarding_revision: 1 })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ onboarding_step: 1 })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ onboarding_draft: {} })).toThrow();
   });
 
   it("rejects empty patches and invalid bounded state", () => {
     expect(() => userPreferencesPatchSchema.parse({})).toThrow();
     expect(() => userPreferencesPatchSchema.parse({ theme: "midnight" })).toThrow();
-    expect(() => userPreferencesPatchSchema.parse({ onboarding_step: -1 })).toThrow();
     expect(() => userPreferencesPatchSchema.parse({ tour_status: "paused" })).toThrow();
   });
 
