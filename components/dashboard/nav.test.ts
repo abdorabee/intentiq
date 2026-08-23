@@ -49,14 +49,25 @@ describe("dashboard navigation", () => {
     expect(shellSource).toContain("const effectiveCollapsed = isMobile ? false : collapsed");
   });
 
-  it("makes the user row a working menu with Settings, Appearance, and Sign out", () => {
-    expect(navSource).toContain('aria-haspopup="menu"');
+  it("makes the user row a working disclosure with Settings, Appearance, and Sign out", () => {
+    expect(navSource).toContain('aria-haspopup="true"');
+    expect(navSource).toContain("aria-expanded={open}");
+    expect(navSource).toContain("aria-controls={open ? menuId : undefined}");
+    expect(navSource).not.toContain('aria-haspopup="menu"');
+    expect(navSource).not.toContain('role="menu"');
+    expect(navSource).not.toContain('role="menuitem"');
     expect(navSource).toContain('href="/settings"');
     expect(navSource).toContain("Appearance");
     expect(navSource).toContain("onToggleTheme");
     expect(navSource).toContain("SignOutButton");
     expect(navSource).toContain("Sign out");
     expect(navSource).not.toContain("ws-chev");
+  });
+
+  it("restores focus to the account trigger on Escape", () => {
+    expect(navSource).toMatch(/if \(event\.key !== "Escape"\) return;/);
+    expect(navSource).toContain("setOpen(false)");
+    expect(navSource).toContain("triggerRef.current?.focus()");
   });
 
   it("redirects /memory to the selling profile settings page", () => {

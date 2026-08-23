@@ -294,7 +294,10 @@ function UserAccountMenu({
     if (!open) return;
     placeMenu();
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
     }
     function onPointer(event: MouseEvent) {
       const target = event.target as Node;
@@ -326,7 +329,7 @@ function UserAccountMenu({
         ref={triggerRef}
         type="button"
         className="sb-user"
-        aria-haspopup="menu"
+        aria-haspopup="true"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-label="Open account menu"
@@ -351,14 +354,11 @@ function UserAccountMenu({
             <div
               ref={menuRef}
               id={menuId}
-              role="menu"
-              aria-label="Account"
               className="sb-user-menu"
               style={{ top: coords.top, left: coords.left, width: coords.width }}
             >
               <Link
                 href="/settings"
-                role="menuitem"
                 className="sb-user-menu-item"
                 onClick={() => setOpen(false)}
               >
@@ -367,7 +367,6 @@ function UserAccountMenu({
               </Link>
               <button
                 type="button"
-                role="menuitem"
                 className="sb-user-menu-item"
                 onClick={() => {
                   onToggleTheme();
@@ -378,7 +377,7 @@ function UserAccountMenu({
                 <span className="sb-user-menu-meta">{theme === "dark" ? "Dark" : "Light"}</span>
               </button>
               <SignOutButton redirectUrl="/">
-                <button type="button" role="menuitem" className="sb-user-menu-item danger">
+                <button type="button" className="sb-user-menu-item danger">
                   <LogOut className="ic" />
                   Sign out
                 </button>

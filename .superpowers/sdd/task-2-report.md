@@ -77,6 +77,15 @@ Covered:
 3. **User menu is Tab/Escape, not arrow-key roving tabindex.** Controls work; full menubar keyboard pattern is not implemented.
 4. **`/settings` still redirects** to selling until Phase 3 builds the Account hub.
 
-## Out of scope (left alone)
+## Follow-up: account disclosure a11y
 
-Settings Account/Appearance/Experience hubs, onboarding rewrite, tour, chat, design-system overhaul, landing-page mock sidebar.
+Important review finding: `role="menu"` without menubar keys.
+
+**Choice:** disclosure (button + panel), not menubar. Cleaner for three ordinary actions (Settings link, Appearance toggle, Sign out).
+
+- Dropped `role="menu"` / `menuitem`
+- Trigger is `aria-haspopup="true"` + `aria-expanded` + `aria-controls`
+- Reused existing outside-click / Escape close
+- Escape now restores focus to the trigger
+
+`npx vitest run components/dashboard/nav.test.ts` — 10 passed.
