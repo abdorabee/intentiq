@@ -14,95 +14,102 @@ const PROFILE = {
 
 const harness = vi.hoisted(() => ({
   userId: "user_owner" as string | null,
-  row: null as Record<string, unknown> | null,
-  noRow: false,
-  bypassFilters: false,
-  calls: [] as Array<{ payload: Record<string, unknown>; filters: Array<[string, unknown]> }>,
+  rpcRow: null as Record<string, unknown> | null,
+  currentRow: null as Record<string, unknown> | null,
+  rpcError: null as string | null,
+  currentError: null as string | null,
+  bypassOwner: false,
+  calls: [] as Array<{ kind: "rpc" | "select"; payload?: Record<string, unknown>; filters?: Array<[string, unknown]> }>,
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
   auth: vi.fn(async () => ({ userId: harness.userId })),
 }));
 
-class ProgressQuery {
-  private payload: Record<string, unknown> = {};
+class CurrentQuery {
   private filters: Array<[string, unknown]> = [];
-
-  upsert(payload: Record<string, unknown>) {
-    this.payload = payload;
-    return this;
-  }
-
-  select() {
-    return this;
-  }
-
-  eq(column: string, value: unknown) {
-    this.filters.push([column, value]);
-    return this;
-  }
-
-  async single() {
-    harness.calls.push({ payload: this.payload, filters: this.filters });
-    if (harness.noRow) return { data: null, error: null };
-    const row = harness.row ?? {
-      ...this.payload,
-      updated_at: "2026-08-23T18:00:00.000Z",
-    };
-    const filtered = harness.bypassFilters || this.filters.every(([key, value]) => row[key] === value)
-      ? row
-      : null;
-    return { data: filtered, error: null };
+  select() { return this; }
+  eq(column: string, value: unknown) { this.filters.push([column, value]); return this; }
+  async maybeSingle() {
+    harness.calls.push({ kind: "select", filters: this.filters });
+    if (harness.currentError) return { data: null, error: { message: harness.currentError } };
+    const row = harness.currentRow;
+    const matches = !row || harness.bypassOwner || this.filters.every(([key, value]) => row[key] === value);
+    return { data: matches ? row : null, error: null };
   }
 }
 
 vi.mock("@/lib/supabase", () => ({
   createSupabaseAdmin: () => ({
+    rpc: async (name: string, payload: Record<string, unknown>) => {
+      if (name !== "save_onboarding_progress") throw new Error(`Unexpected RPC: ${name}`);
+      harness.calls.push({ kind: "rpc", payload });
+      return {
+        data: harness.rpcRow ? [harness.rpcRow] : [],
+        error: harness.rpcError ? { message: harness.rpcError } : null,
+      };
+    },
     from: (table: string) => {
       if (table !== "user_preferences") throw new Error(`Unexpected table: ${table}`);
-      return new ProgressQuery();
+      return new CurrentQuery();
     },
   }),
 }));
 
 import { PATCH } from "./route";
 
+function savedRow(revision = 4, userId = "user_owner") {
+  return {
+    user_id: userId,
+    onboarding_step: 1,
+    onboarding_draft: PROFILE,
+    onboarding_version: 1,
+    onboarding_revision: revision,
+    updated_at: "2026-08-23T18:00:00.000Z",
+  };
+}
+
+function request(revision = 4, draft = PROFILE) {
+  return PATCH(new Request("http://localhost/api/onboarding/progress", {
+    method: "PATCH",
+    body: JSON.stringify({ step: 1, draft, revision }),
+  }));
+}
+
 beforeEach(() => {
   harness.userId = "user_owner";
-  harness.row = null;
-  harness.noRow = false;
-  harness.bypassFilters = false;
+  harness.rpcRow = savedRow();
+  harness.currentRow = null;
+  harness.rpcError = null;
+  harness.currentError = null;
+  harness.bypassOwner = false;
   harness.calls = [];
 });
 
 describe("PATCH /api/onboarding/progress", () => {
   it("requires Clerk authentication before parsing or writing progress", async () => {
     harness.userId = null;
-
-    const response = await PATCH(new Request("http://localhost/api/onboarding/progress", {
-      method: "PATCH",
-      body: JSON.stringify({ step: 1, draft: PROFILE }),
-    }));
-
-    expect(response.status).toBe(401);
+    expect((await request()).status).toBe(401);
     expect(harness.calls).toEqual([]);
   });
 
-  it("rejects activation-stage progress until the complete profile is valid", async () => {
-    const response = await PATCH(new Request("http://localhost/api/onboarding/progress", {
-      method: "PATCH",
-      body: JSON.stringify({ step: 2, draft: { ...PROFILE, sales_cycle: "" } }),
-    }));
-
-    expect(response.status).toBe(400);
-    expect(harness.calls).toEqual([]);
-  });
-
-  it("persists only the authenticated user and returns the authoritative saved draft", async () => {
-    const response = await PATCH(new Request("http://localhost/api/onboarding/progress", {
+  it("rejects missing revisions and invalid activation-stage progress", async () => {
+    const noRevision = await PATCH(new Request("http://localhost/api/onboarding/progress", {
       method: "PATCH",
       body: JSON.stringify({ step: 1, draft: PROFILE }),
     }));
+    expect(noRevision.status).toBe(400);
+
+    const invalid = await PATCH(new Request("http://localhost/api/onboarding/progress", {
+      method: "PATCH",
+      body: JSON.stringify({ step: 2, draft: { ...PROFILE, sales_cycle: "" }, revision: 1 }),
+    }));
+    expect(invalid.status).toBe(400);
+    expect(harness.calls).toEqual([]);
+  });
+
+  it("persists through the monotonic RPC and returns authoritative revision", async () => {
+    const response = await request();
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
@@ -110,47 +117,43 @@ describe("PATCH /api/onboarding/progress", () => {
         step: 1,
         draft: PROFILE,
         onboarding_version: 1,
+        revision: 4,
         updated_at: "2026-08-23T18:00:00.000Z",
       },
     });
-    expect(harness.calls).toEqual([{
-      payload: {
-        user_id: "user_owner",
-        onboarding_step: 1,
-        onboarding_draft: PROFILE,
-        onboarding_version: 1,
-      },
-      filters: [["user_id", "user_owner"]],
-    }]);
+    expect(harness.calls).toEqual([{ kind: "rpc", payload: {
+      p_user_id: "user_owner",
+      p_step: 1,
+      p_draft: PROFILE,
+      p_version: 1,
+      p_revision: 4,
+    } }]);
   });
 
-  it("does not report saved when Supabase returns zero rows", async () => {
-    harness.noRow = true;
+  it("rejects a stale write and returns the newer authoritative durable state", async () => {
+    harness.rpcRow = null;
+    harness.currentRow = savedRow(5);
 
-    const response = await PATCH(new Request("http://localhost/api/onboarding/progress", {
-      method: "PATCH",
-      body: JSON.stringify({ step: 1, draft: PROFILE }),
-    }));
+    const response = await request(4);
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      code: "stale_revision",
+      progress: { revision: 5, step: 1 },
+    });
+    expect(harness.calls[1]).toEqual({ kind: "select", filters: [["user_id", "user_owner"]] });
   });
 
-  it("fails closed when storage returns a different user's progress", async () => {
-    harness.bypassFilters = true;
-    harness.row = {
-      user_id: "user_other",
-      onboarding_step: 1,
-      onboarding_draft: PROFILE,
-      onboarding_version: 1,
-      updated_at: "2026-08-23T18:00:00.000Z",
-    };
+  it("does not claim saved on RPC errors, missing state, or owner mismatch", async () => {
+    harness.rpcError = "storage unavailable";
+    expect((await request()).status).toBe(500);
 
-    const response = await PATCH(new Request("http://localhost/api/onboarding/progress", {
-      method: "PATCH",
-      body: JSON.stringify({ step: 1, draft: PROFILE }),
-    }));
+    harness.rpcError = null;
+    harness.rpcRow = null;
+    harness.currentRow = null;
+    expect((await request()).status).toBe(500);
 
-    expect(response.status).toBe(500);
-    expect(harness.calls[0]?.filters).toEqual([["user_id", "user_owner"]]);
+    harness.rpcRow = savedRow(4, "user_other");
+    expect((await request()).status).toBe(500);
   });
 });

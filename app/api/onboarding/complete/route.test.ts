@@ -28,6 +28,7 @@ const harness = vi.hoisted(() => ({
   completeAfterZeroRow: false,
   deleteAfterZeroRow: false,
   bypassFilters: false,
+  readErrors: {} as Partial<Record<"users" | "scores" | "watchlist", string>>,
   calls: [] as Call[],
 }));
 
@@ -68,6 +69,9 @@ class CompletionQuery {
       payload: this.payload,
       filters: this.filters,
     });
+
+    const readError = harness.readErrors[this.table as "users" | "scores" | "watchlist"];
+    if (this.operation === "select" && readError) return { data: null, error: { message: readError } };
 
     if (this.operation === "update" && harness.updateNoRow) {
       harness.updateNoRow = false;
@@ -136,6 +140,7 @@ beforeEach(() => {
   harness.completeAfterZeroRow = false;
   harness.deleteAfterZeroRow = false;
   harness.bypassFilters = false;
+  harness.readErrors = {};
   harness.calls = [];
 });
 
@@ -187,6 +192,34 @@ describe("POST /api/onboarding/complete", () => {
         ["onboarding_completed", false],
       ],
     });
+  });
+
+  it("rejects score evidence returned for a different owner", async () => {
+    harness.bypassFilters = true;
+    harness.score = { id: "score_1", user_id: "user_other" };
+
+    const response = await request("activation");
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: "Failed to verify activation" });
+  });
+
+  it("rejects watchlist evidence returned for a different owner", async () => {
+    harness.bypassFilters = true;
+    harness.watchlist = { id: "watch_1", user_id: "user_other", is_active: true };
+
+    const response = await request("activation");
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: "Failed to verify activation" });
+  });
+
+  it("fails closed when score or watchlist evidence storage errors", async () => {
+    harness.readErrors.scores = "score storage unavailable";
+    expect((await request("activation")).status).toBe(500);
+
+    harness.readErrors = { watchlist: "watchlist storage unavailable" };
+    expect((await request("activation")).status).toBe(500);
   });
 
   it("allows explicit skip only after a complete profile is persisted", async () => {

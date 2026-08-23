@@ -13,6 +13,7 @@ const preferenceFields = {
   sidebar_collapsed: z.boolean(),
   analytics_enabled: z.boolean(),
   onboarding_version: z.number().int().nonnegative(),
+  onboarding_revision: z.number().int().nonnegative(),
   onboarding_step: z.number().int().nonnegative(),
   onboarding_draft: z.record(z.string(), z.unknown()),
   tour_version: z.number().int().nonnegative(),

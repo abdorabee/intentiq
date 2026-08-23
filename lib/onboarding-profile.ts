@@ -175,19 +175,6 @@ export function validateOnboardingStep(
   return errors;
 }
 
-export function getOnboardingRedirect(
-  onboardingCompleted: boolean,
-  destination: "dashboard" | "onboarding"
-): "/dashboard" | "/onboarding" | null {
-  if (destination === "dashboard" && !onboardingCompleted) {
-    return "/onboarding";
-  }
-  if (destination === "onboarding" && onboardingCompleted) {
-    return "/dashboard";
-  }
-  return null;
-}
-
 export function onboardingReducer(
   state: OnboardingState,
   action: OnboardingAction

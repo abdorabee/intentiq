@@ -38,10 +38,24 @@ suite("onboarding completion Postgres migration", () => {
         onboarding_completed_at timestamptz,
         created_at timestamptz not null default now()
       );
+      create table public.user_preferences (
+        user_id text primary key,
+        onboarding_step integer not null default 0,
+        onboarding_draft jsonb not null default '{}'::jsonb,
+        onboarding_version integer not null default 0,
+        updated_at timestamptz not null default now()
+      );
       insert into public.users (id, onboarding_completed, created_at)
       values
         ('completed', true, '2026-08-01T00:00:00Z'),
         ('incomplete', false, '2026-08-02T00:00:00Z');
+    `);
+    await pool.query(`
+      do $$ begin
+        if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon; end if;
+        if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated; end if;
+        if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role; end if;
+      end $$;
     `);
     await pool.query(migrationSql);
   }, 30_000);
@@ -78,5 +92,47 @@ suite("onboarding completion Postgres migration", () => {
     await expect(
       pool.query("update public.users set onboarding_completed_version = -1 where id = 'incomplete'"),
     ).rejects.toThrow();
+  });
+
+  it("rejects inconsistent completion tuples", async () => {
+    await expect(pool.query(`
+      update public.users
+      set onboarding_completed_at = now()
+      where id = 'incomplete'
+    `)).rejects.toThrow();
+    await expect(pool.query(`
+      update public.users
+      set onboarding_completed = true, onboarding_completed_at = null, onboarding_completed_version = 1
+      where id = 'incomplete'
+    `)).rejects.toThrow();
+    await expect(pool.query(`
+      update public.users
+      set onboarding_completed = true, onboarding_completed_at = now(), onboarding_completed_version = 0
+      where id = 'incomplete'
+    `)).rejects.toThrow();
+  });
+
+  it("keeps the newer durable progress when requests arrive out of order", async () => {
+    const newer = await pool.query(
+      "select * from public.save_onboarding_progress($1, $2, $3, $4, $5)",
+      ["revision_owner", 2, { product_category: "Newer" }, 1, 2],
+    );
+    const stale = await pool.query(
+      "select * from public.save_onboarding_progress($1, $2, $3, $4, $5)",
+      ["revision_owner", 1, { product_category: "Older" }, 1, 1],
+    );
+    const stored = await pool.query(`
+      select onboarding_step, onboarding_draft, onboarding_revision
+      from public.user_preferences
+      where user_id = 'revision_owner'
+    `);
+
+    expect(newer.rowCount).toBe(1);
+    expect(stale.rowCount).toBe(0);
+    expect(stored.rows).toEqual([{
+      onboarding_step: 2,
+      onboarding_draft: { product_category: "Newer" },
+      onboarding_revision: "2",
+    }]);
   });
 });

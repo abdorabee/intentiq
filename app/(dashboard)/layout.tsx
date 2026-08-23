@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getOnboardingRedirect } from "@/lib/onboarding-profile";
+import { getOnboardingRedirect } from "@/lib/onboarding-completion";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { ensureUserRecord } from "@/lib/user-provisioning";
 import { getOrCreateUserPreferences } from "@/lib/user-preferences-server";
@@ -14,17 +14,30 @@ export default async function DashboardLayout({ children }: { children: React.Re
   await ensureUserRecord(userId);
   const preferences = await getOrCreateUserPreferences(userId);
   const admin = createSupabaseAdmin();
-  const { data: profile } = await admin
+  const { data: profile, error: profileError } = await admin
     .from("users")
-    .select("credits_remaining, onboarding_completed, plan")
+    .select("id, credits_remaining, onboarding_completed, onboarding_completed_at, onboarding_completed_version, plan")
     .eq("id", userId)
     .single();
 
-  const creditsRemaining = profile?.credits_remaining ?? 0;
-  const onboardingCompleted = profile?.onboarding_completed ?? false;
+  if (
+    profileError ||
+    !profile ||
+    profile.id !== userId ||
+    typeof profile.onboarding_completed !== "boolean" ||
+    (profile.onboarding_completed_at !== null && typeof profile.onboarding_completed_at !== "string") ||
+    typeof profile.onboarding_completed_version !== "number"
+  ) {
+    throw new Error("Dashboard profile is unavailable");
+  }
+  const creditsRemaining = profile.credits_remaining ?? 0;
   const plan = (profile?.plan as "free" | "starter" | "growth" | "pro" | "agency" | undefined) ?? "free";
 
-  const onboardingRedirect = getOnboardingRedirect(onboardingCompleted, "dashboard");
+  const onboardingRedirect = getOnboardingRedirect({
+    onboarding_completed: profile.onboarding_completed,
+    onboarding_completed_at: profile.onboarding_completed_at,
+    onboarding_completed_version: profile.onboarding_completed_version,
+  }, "dashboard");
   if (onboardingRedirect) redirect(onboardingRedirect);
 
   const { count: inboxCount } = await admin

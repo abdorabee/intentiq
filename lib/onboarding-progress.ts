@@ -22,6 +22,7 @@ export const onboardingProgressRequestSchema = z
   .strictObject({
     step: z.number().int().min(0).max(2),
     draft: draftSchema,
+    revision: z.number().int().positive(),
   })
   .superRefine((value, context) => {
     const profile = createOnboardingState(value.draft).profile;
@@ -46,6 +47,7 @@ export const onboardingProgressRequestSchema = z
   .transform((value) => ({
     step: value.step,
     draft: createOnboardingState(value.draft).profile,
+    revision: value.revision,
   }));
 
 export const onboardingProgressRowSchema = z.strictObject({
@@ -53,6 +55,7 @@ export const onboardingProgressRowSchema = z.strictObject({
   onboarding_step: z.number().int().min(0).max(2),
   onboarding_draft: draftSchema,
   onboarding_version: z.number().int().nonnegative(),
+  onboarding_revision: z.number().int().nonnegative(),
   updated_at: z.iso.datetime({ offset: true }),
 });
 
@@ -60,6 +63,7 @@ export type OnboardingProgress = {
   step: number;
   draft: z.infer<typeof draftSchema>;
   onboarding_version: number;
+  revision: number;
   updated_at: string;
 };
 
@@ -70,6 +74,7 @@ export function publicOnboardingProgress(
     step: row.onboarding_step,
     draft: row.onboarding_draft,
     onboarding_version: row.onboarding_version,
+    revision: row.onboarding_revision,
     updated_at: row.updated_at,
   };
 }

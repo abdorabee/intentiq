@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { normalizeBusinessProfile } from "@/lib/business-profile";
+import { getOnboardingCompletionState } from "@/lib/onboarding-completion";
 import { ONBOARDING_VERSION } from "@/lib/onboarding-progress";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import type { BusinessProfile } from "@/lib/types";
@@ -44,11 +45,7 @@ function verifiedUser(value: unknown, userId: string): CompletionUser | null {
 }
 
 function completedResponse(user: CompletionUser, source: ActivationSource) {
-  if (
-    !user.onboarding_completed ||
-    !user.onboarding_completed_at ||
-    user.onboarding_completed_version < ONBOARDING_VERSION
-  ) {
+  if (getOnboardingCompletionState(user) !== "complete") {
     return null;
   }
   return NextResponse.json({
@@ -94,7 +91,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (user.onboarding_completed) {
+  const completionState = getOnboardingCompletionState(user);
+  if (completionState === "invalid") {
+    return NextResponse.json({ error: "Failed to verify onboarding" }, { status: 500 });
+  }
+  if (completionState === "complete") {
     return completedResponse(user, "existing")
       ?? NextResponse.json({ error: "Failed to verify onboarding" }, { status: 500 });
   }
@@ -111,13 +112,13 @@ export async function POST(request: Request) {
     const [scoreResult, watchlistResult] = await Promise.all([
       admin
         .from("scores")
-        .select("id")
+        .select("id,user_id")
         .eq("user_id", userId)
         .limit(1)
         .maybeSingle(),
       admin
         .from("watchlist")
-        .select("id")
+        .select("id,user_id")
         .eq("user_id", userId)
         .eq("is_active", true)
         .limit(1)
@@ -127,8 +128,16 @@ export async function POST(request: Request) {
     if (scoreResult.error || watchlistResult.error) {
       return NextResponse.json({ error: "Failed to verify activation" }, { status: 500 });
     }
-    if (scoreResult.data) source = "score";
-    else if (watchlistResult.data) source = "watchlist";
+    const score = scoreResult.data as Record<string, unknown> | null;
+    const watchlist = watchlistResult.data as Record<string, unknown> | null;
+    if (
+      (score && (typeof score.id !== "string" || score.user_id !== userId)) ||
+      (watchlist && (typeof watchlist.id !== "string" || watchlist.user_id !== userId))
+    ) {
+      return NextResponse.json({ error: "Failed to verify activation" }, { status: 500 });
+    }
+    if (score) source = "score";
+    else if (watchlist) source = "watchlist";
     else {
       return NextResponse.json(
         {

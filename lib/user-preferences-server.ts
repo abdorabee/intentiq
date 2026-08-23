@@ -12,6 +12,7 @@ export const PREFERENCE_COLUMNS = [
   "sidebar_collapsed",
   "analytics_enabled",
   "onboarding_version",
+  "onboarding_revision",
   "onboarding_step",
   "onboarding_draft",
   "tour_version",

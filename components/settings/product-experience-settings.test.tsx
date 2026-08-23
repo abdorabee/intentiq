@@ -13,6 +13,7 @@ const PREFERENCES = {
   sidebar_collapsed: false,
   analytics_enabled: false,
   onboarding_version: 0,
+  onboarding_revision: 0,
   onboarding_step: 0,
   onboarding_draft: {},
   tour_version: 3,

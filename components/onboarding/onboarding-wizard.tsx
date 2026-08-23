@@ -82,7 +82,11 @@ function parseProgress(payload: unknown) {
   const progress = (payload as { progress?: unknown }).progress;
   if (!progress || typeof progress !== "object") return null;
   const record = progress as Record<string, unknown>;
-  const parsed = onboardingProgressRequestSchema.safeParse({ step: record.step, draft: record.draft });
+  const parsed = onboardingProgressRequestSchema.safeParse({
+    step: record.step,
+    draft: record.draft,
+    revision: record.revision,
+  });
   if (!parsed.success || record.onboarding_version !== ONBOARDING_VERSION || typeof record.updated_at !== "string" || !record.updated_at) return null;
   return parsed.data;
 }
@@ -103,10 +107,11 @@ function parseScore(payload: unknown): ActivationResult | null {
   return score as unknown as ActivationResult;
 }
 
-export default function OnboardingWizard({ initialProfile, initialStep = 0, initialActivation = false }: {
+export default function OnboardingWizard({ initialProfile, initialStep = 0, initialActivation = false, initialRevision = 0 }: {
   initialProfile: Partial<BusinessProfile> | null;
   initialStep?: number;
   initialActivation?: boolean;
+  initialRevision?: number;
 }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(onboardingReducer, { profile: initialProfile, step: initialStep }, ({ profile, step }) => createOnboardingState(profile, step));
@@ -118,7 +123,8 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
   const [scoring, setScoring] = useState(false);
   const [watchlistStatus, setWatchlistStatus] = useState<"idle" | "adding" | "added">("idle");
   const [watchlistError, setWatchlistError] = useState<string | null>(null);
-  const dirtyRevision = useRef(0);
+  const dirtyRevision = useRef(initialRevision);
+  const initialRevisionRef = useRef(initialRevision);
   const domainRef = useRef<HTMLInputElement>(null);
   const { profile, step, saveStatus, saveError } = state;
 
@@ -134,28 +140,30 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
     setErrors((current) => ({ ...current, target_industries: undefined }));
   }
 
-  async function persistProgress(nextStep: number, draft: BusinessProfile) {
+  async function persistProgress(nextStep: number, draft: BusinessProfile, revision: number) {
     const response = await fetch("/api/onboarding/progress", {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ step: nextStep, draft }),
+      body: JSON.stringify({ step: nextStep, draft, revision }),
     });
     const payload: unknown = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(readError(payload, "We could not save your progress."));
     const authoritative = parseProgress(payload);
+    if (response.status === 409 && authoritative) return authoritative;
+    if (!response.ok) throw new Error(readError(payload, "We could not save your progress."));
     if (!authoritative) throw new Error("The saved onboarding state could not be verified.");
     return authoritative;
   }
 
   useEffect(() => {
-    if (dirtyRevision.current === 0 || saveStatus !== "unsaved") return;
-    if (!onboardingProgressRequestSchema.safeParse({ step, draft: profile }).success) return;
+    if (dirtyRevision.current === initialRevisionRef.current || saveStatus !== "unsaved") return;
+    if (!onboardingProgressRequestSchema.safeParse({ step, draft: profile, revision: dirtyRevision.current }).success) return;
     const revision = dirtyRevision.current;
     let active = true;
     const timer = window.setTimeout(() => {
       dispatch({ type: "save_started" });
-      void persistProgress(step, profile).then((authoritative) => {
+      void persistProgress(step, profile, revision).then((authoritative) => {
         if (!active || dirtyRevision.current !== revision) return;
+        dirtyRevision.current = Math.max(dirtyRevision.current, authoritative.revision);
         dispatch({ type: "save_succeeded", step: authoritative.step, profile: authoritative.draft });
       }).catch((error: unknown) => {
         if (!active || dirtyRevision.current !== revision) return;
@@ -196,8 +204,9 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
       });
       const profilePayload: unknown = await profileResponse.json().catch(() => null);
       if (!profileResponse.ok || !profilePayload || typeof profilePayload !== "object" || (profilePayload as { success?: unknown }).success !== true) throw new Error(readError(profilePayload, "We could not save your business profile."));
-      const authoritative = await persistProgress(2, completeProfile);
+      const authoritative = await persistProgress(2, completeProfile, revision);
       if (dirtyRevision.current !== revision) return;
+      dirtyRevision.current = Math.max(dirtyRevision.current, authoritative.revision);
       dispatch({ type: "save_succeeded", step: authoritative.step, profile: authoritative.draft });
     } catch (error) {
       dispatch({ type: "save_failed", message: error instanceof Error ? error.message : "We could not save your business profile." });
@@ -378,12 +387,12 @@ export default function OnboardingWizard({ initialProfile, initialStep = 0, init
                     <button type="button" onClick={() => void scoreAccount()} disabled={scoring} className="h-12 rounded-xl bg-[#dfff00] px-5 text-sm font-semibold text-[#090a0b]">{scoring ? "Scoring…" : "Score account"}</button>
                   </div>
                 </label>
+                <button type="button" onClick={() => void skipActivation()} disabled={scoring} className="text-sm text-[#9ea5ae] underline underline-offset-4">Skip for now</button>
               </>}
               {(activationError || watchlistError) && <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">{activationError ?? watchlistError}</p>}
               {activationError && !completion && <div className="flex flex-wrap gap-3">
                 <button type="button" onClick={() => void scoreAccount()} disabled={scoring} className="rounded-xl border border-white/15 px-4 py-2 text-sm">Retry</button>
                 <button type="button" onClick={() => { setActivationError(null); setActivationResult(null); setDomain(""); domainRef.current?.focus(); }} className="rounded-xl border border-white/15 px-4 py-2 text-sm">Change domain</button>
-                <button type="button" onClick={() => void skipActivation()} disabled={scoring} className="rounded-xl px-4 py-2 text-sm text-[#9ea5ae] underline underline-offset-4">Skip for now</button>
               </div>}
             </div>}
 

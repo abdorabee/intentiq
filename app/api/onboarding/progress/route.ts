@@ -14,6 +14,7 @@ const PROGRESS_COLUMNS = [
   "onboarding_step",
   "onboarding_draft",
   "onboarding_version",
+  "onboarding_revision",
   "updated_at",
 ].join(",");
 
@@ -43,26 +44,47 @@ export async function PATCH(request: Request) {
   }
 
   const admin = createSupabaseAdmin();
-  const result = await admin
-    .from("user_preferences")
-    .upsert(
-      {
-        user_id: userId,
-        onboarding_step: parsed.data.step,
-        onboarding_draft: parsed.data.draft,
-        onboarding_version: ONBOARDING_VERSION,
-      },
-      { onConflict: "user_id" },
-    )
-    .select(PROGRESS_COLUMNS)
-    .eq("user_id", userId)
-    .single();
+  const result = await admin.rpc("save_onboarding_progress", {
+    p_user_id: userId,
+    p_step: parsed.data.step,
+    p_draft: parsed.data.draft,
+    p_version: ONBOARDING_VERSION,
+    p_revision: parsed.data.revision,
+  });
 
-  if (result.error || !result.data) {
+  if (result.error || !Array.isArray(result.data)) {
     return NextResponse.json({ error: "Failed to save onboarding progress" }, { status: 500 });
   }
 
-  const verified = onboardingProgressRowSchema.safeParse(result.data);
+  if (result.data.length === 0) {
+    const current = await admin
+      .from("user_preferences")
+      .select(PROGRESS_COLUMNS)
+      .eq("user_id", userId)
+      .maybeSingle();
+    const authoritative = onboardingProgressRowSchema.safeParse(current.data);
+    if (
+      current.error ||
+      !authoritative.success ||
+      authoritative.data.user_id !== userId ||
+      authoritative.data.onboarding_revision < parsed.data.revision
+    ) {
+      return NextResponse.json({ error: "Failed to save onboarding progress" }, { status: 500 });
+    }
+    return NextResponse.json(
+      {
+        error: "A newer onboarding draft is already saved",
+        code: "stale_revision",
+        progress: publicOnboardingProgress(authoritative.data),
+      },
+      { status: 409 },
+    );
+  }
+  if (result.data.length !== 1) {
+    return NextResponse.json({ error: "Failed to save onboarding progress" }, { status: 500 });
+  }
+
+  const verified = onboardingProgressRowSchema.safeParse(result.data[0]);
   if (!verified.success || verified.data.user_id !== userId) {
     return NextResponse.json({ error: "Failed to save onboarding progress" }, { status: 500 });
   }

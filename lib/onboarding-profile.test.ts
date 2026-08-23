@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   buildBusinessProfile,
   createOnboardingState,
-  getOnboardingRedirect,
   onboardingReducer,
   validateOnboardingStep,
 } from "./onboarding-profile";
@@ -145,17 +144,5 @@ describe("onboardingReducer", () => {
 
     const returned = onboardingReducer(advanced, { type: "previous_step" });
     expect(returned).toMatchObject({ step: 0, saveStatus: "unsaved" });
-  });
-});
-
-describe("getOnboardingRedirect", () => {
-  it("redirects incomplete users away from dashboard routes", () => {
-    expect(getOnboardingRedirect(false, "dashboard")).toBe("/onboarding");
-    expect(getOnboardingRedirect(true, "dashboard")).toBeNull();
-  });
-
-  it("redirects completed users away from onboarding", () => {
-    expect(getOnboardingRedirect(true, "onboarding")).toBe("/dashboard");
-    expect(getOnboardingRedirect(false, "onboarding")).toBeNull();
   });
 });

@@ -36,6 +36,7 @@ describe("user preference contracts", () => {
       sidebar_collapsed: false,
       analytics_enabled: true,
       onboarding_version: 0,
+      onboarding_revision: 0,
       onboarding_step: 0,
       onboarding_draft: {},
       tour_version: 0,

@@ -51,6 +51,7 @@ describe("OnboardingWizard", () => {
         initialProfile={COMPLETE_PROFILE}
         initialStep={1}
         initialActivation={false}
+        initialRevision={7}
       />,
     );
 
@@ -81,6 +82,7 @@ describe("OnboardingWizard", () => {
           step: body.step,
           draft: body.draft,
           onboarding_version: 1,
+          revision: body.revision,
           updated_at: "2026-08-23T18:00:00.000Z",
         },
       }));
@@ -103,7 +105,21 @@ describe("OnboardingWizard", () => {
     await act(async () => Promise.resolve());
 
     expect(harness.fetcher).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(harness.fetcher.mock.calls[0]?.[1]?.body))).toMatchObject({ revision: 1 });
     expect(screen.getByText("Saved")).toBeInTheDocument();
+  });
+
+  it("offers a direct skip on stage three before an activation error", () => {
+    render(
+      <OnboardingWizard
+        initialProfile={COMPLETE_PROFILE}
+        initialStep={2}
+        initialActivation={false}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Skip for now" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("keeps activation retryable when completion lacks server evidence", async () => {
