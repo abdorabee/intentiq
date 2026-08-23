@@ -70,7 +70,7 @@ export default function DashboardNav({
   sidebarRef,
 }: DashboardNavProps) {
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const { open: openSearch } = useDashboardSearch();
   const { user } = useUser();
   const creditCap = PLAN_CREDITS[plan] ?? PLAN_CREDITS.free;
@@ -210,8 +210,8 @@ export default function DashboardNav({
             </Tooltip>
           )}
           <Tooltip label="Theme" visible={collapsed}>
-            <button type="button" onClick={toggleTheme} className="sb-control" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
-              {theme === "dark" ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+            <button type="button" onClick={toggleTheme} className="sb-control" aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme`}>
+              {resolvedTheme === "dark" ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
             </button>
           </Tooltip>
           <SignOutButton redirectUrl="/">

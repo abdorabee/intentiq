@@ -28,6 +28,26 @@ afterEach(() => {
 });
 
 describe("root boot preferences", () => {
+  it("resolves a persisted System theme from the OS before React renders", () => {
+    localStorage.setItem("intentiq-theme", "system");
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: () => ({ matches: false }),
+    });
+    document.documentElement.classList.add("dark");
+    const markup = renderToStaticMarkup(<RootLayout><main>Content</main></RootLayout>);
+    const parsed = new DOMParser().parseFromString(markup, "text/html");
+    const bootScript = parsed.querySelector("head script")?.textContent;
+
+    Function("localStorage", "document", "matchMedia", bootScript ?? "")(
+      localStorage,
+      document,
+      window.matchMedia,
+    );
+
+    expect(document.documentElement).not.toHaveClass("dark");
+  });
+
   it("marks a persisted collapsed dashboard sidebar before the app shell renders", () => {
     localStorage.setItem("nav-collapsed", "true");
     const markup = renderToStaticMarkup(<RootLayout><main>Content</main></RootLayout>);

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getOnboardingRedirect } from "@/lib/onboarding-profile";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { ensureUserRecord } from "@/lib/user-provisioning";
+import { getOrCreateUserPreferences } from "@/lib/user-preferences-server";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!userId) redirect("/login");
 
   await ensureUserRecord(userId);
+  const preferences = await getOrCreateUserPreferences(userId);
   const admin = createSupabaseAdmin();
   const { data: profile } = await admin
     .from("users")
@@ -45,15 +47,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
       .eq("score_band", "HOT"),
   ]);
 
+  const preferenceBootstrap = preferences
+    ? `(function(){try{var t=${JSON.stringify(preferences.theme)};var c=${String(preferences.sidebar_collapsed)};var d=document.documentElement;localStorage.setItem('intentiq-theme',t);localStorage.setItem('nav-collapsed',String(c));var dark=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark);d.dataset.dashboardSidebar=c?'collapsed':'expanded';}catch(e){}})();`
+    : null;
+
   return (
-    <DashboardShell
-      creditsRemaining={creditsRemaining}
-      plan={plan}
-      inboxCount={inboxCount ?? 0}
-      watchlistCount={watchlistCount ?? 0}
-      pipelineHotCount={pipelineHotCount ?? 0}
-    >
-      {children}
-    </DashboardShell>
+    <>
+      {preferenceBootstrap && (
+        <script dangerouslySetInnerHTML={{ __html: preferenceBootstrap }} />
+      )}
+      <DashboardShell
+        creditsRemaining={creditsRemaining}
+        plan={plan}
+        inboxCount={inboxCount ?? 0}
+        watchlistCount={watchlistCount ?? 0}
+        pipelineHotCount={pipelineHotCount ?? 0}
+        initialSidebarCollapsed={preferences?.sidebar_collapsed}
+        initialTheme={preferences?.theme}
+      >
+        {children}
+      </DashboardShell>
+    </>
   );
 }

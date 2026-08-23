@@ -5,7 +5,13 @@ import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
 import { SearchProvider } from "@/components/dashboard/search-provider";
+import { useTheme } from "@/components/theme-provider";
 import type { DbUser } from "@/lib/types";
+import {
+  patchUserPreferences,
+  SIDEBAR_STORAGE_KEY,
+  type ThemePreference,
+} from "@/lib/user-preferences";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -14,6 +20,8 @@ interface DashboardShellProps {
   inboxCount?: number;
   watchlistCount?: number;
   pipelineHotCount?: number;
+  initialSidebarCollapsed?: boolean;
+  initialTheme?: ThemePreference;
 }
 
 export default function DashboardShell({
@@ -23,22 +31,34 @@ export default function DashboardShell({
   inboxCount,
   watchlistCount,
   pipelineHotCount,
+  initialSidebarCollapsed,
+  initialTheme,
 }: DashboardShellProps) {
   const pathname = usePathname();
   const flushPages = ["/billing", "/inbox"];
   const pageClass = flushPages.includes(pathname) ? "page page-flush" : "page";
-  const [collapsed, setCollapsed] = useState(false);
+  const { reconcileTheme } = useTheme();
+  const [collapsed, setCollapsed] = useState(initialSidebarCollapsed ?? false);
+  const collapsedRef = useRef(initialSidebarCollapsed ?? false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Restore collapsed preference from localStorage after mount.
-  useLayoutEffect(() => {
-    const storedCollapsed = localStorage.getItem("nav-collapsed") === "true";
-    document.documentElement.dataset.dashboardSidebar = storedCollapsed ? "collapsed" : "expanded";
-    if (storedCollapsed) setCollapsed(true);
+  const applySidebarPreference = useCallback((next: boolean) => {
+    collapsedRef.current = next;
+    setCollapsed(next);
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+    document.documentElement.dataset.dashboardSidebar = next ? "collapsed" : "expanded";
   }, []);
+
+  // Reconcile the pre-paint local mirror with the authoritative server row.
+  useLayoutEffect(() => {
+    const collapsedPreference = initialSidebarCollapsed
+      ?? localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+    applySidebarPreference(collapsedPreference);
+    if (initialTheme) reconcileTheme(initialTheme);
+  }, [applySidebarPreference, initialSidebarCollapsed, initialTheme, reconcileTheme]);
 
   // Track viewport — sidebar becomes off-canvas drawer on phones/tablets.
   useEffect(() => {
@@ -119,11 +139,11 @@ export default function DashboardShell({
   }, [isMobile, mobileOpen]);
 
   function toggle() {
-    setCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem("nav-collapsed", String(next));
-      document.documentElement.dataset.dashboardSidebar = next ? "collapsed" : "expanded";
-      return next;
+    const previous = collapsedRef.current;
+    const next = !previous;
+    applySidebarPreference(next);
+    void patchUserPreferences({ sidebar_collapsed: next }).catch(() => {
+      if (collapsedRef.current === next) applySidebarPreference(previous);
     });
   }
 

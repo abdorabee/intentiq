@@ -87,9 +87,40 @@ afterEach(() => {
 beforeEach(() => {
   navigation.pathname = "/dashboard";
   setViewport(false);
+  vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 200 })));
 });
 
 describe("authenticated navigation shell", () => {
+  it("uses the server sidebar preference on the first render", () => {
+    const { container } = render(
+      <DashboardShell creditsRemaining={80} plan="starter" initialSidebarCollapsed>
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    expect(container.querySelector(".dashboard-shell")).toHaveClass("is-collapsed");
+    expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeInTheDocument();
+    expect(localStorage.getItem("nav-collapsed")).toBe("true");
+  });
+
+  it("rolls an optimistic sidebar update back when server persistence fails", async () => {
+    let settle!: (response: Response) => void;
+    vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>((resolve) => { settle = resolve; })));
+    const user = userEvent.setup();
+    const { container } = render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+    expect(container.querySelector(".dashboard-shell")).toHaveClass("is-collapsed");
+    settle(new Response("{}", { status: 500 }));
+    await waitFor(() => expect(container.querySelector(".dashboard-shell")).not.toHaveClass("is-collapsed"));
+    expect(localStorage.getItem("nav-collapsed")).toBe("false");
+    expect(document.documentElement).toHaveAttribute("data-dashboard-sidebar", "expanded");
+  });
+
   it("contains mobile focus, closes on Escape, restores focus, and unlocks scrolling", async () => {
     setViewport(true);
     const user = userEvent.setup();

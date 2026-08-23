@@ -1,17 +1,36 @@
 "use client";
 
-import { createContext, useContext, useCallback, useEffect, useSyncExternalStore } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 
-type Theme = "dark" | "light";
+import {
+  patchUserPreferences,
+  THEME_STORAGE_KEY,
+  themePreferenceSchema,
+  type ThemePreference,
+} from "@/lib/user-preferences";
+
+type ResolvedTheme = "dark" | "light";
 
 interface ThemeContextValue {
-  theme: Theme;
+  theme: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  setTheme: (theme: ThemePreference) => void;
   toggleTheme: () => void;
+  reconcileTheme: (theme: ThemePreference) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "dark",
+  resolvedTheme: "dark",
+  setTheme: () => {},
   toggleTheme: () => {},
+  reconcileTheme: () => {},
 });
 
 export function useTheme() {
@@ -19,40 +38,81 @@ export function useTheme() {
 }
 
 let listeners: Array<() => void> = [];
+
 function emitChange() {
-  for (const l of listeners) l();
+  for (const listener of listeners) listener();
 }
 
 function subscribe(listener: () => void) {
   listeners = [...listeners, listener];
-  return () => { listeners = listeners.filter((l) => l !== listener); };
+  const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  colorScheme.addEventListener("change", listener);
+  return () => {
+    listeners = listeners.filter((candidate) => candidate !== listener);
+    colorScheme.removeEventListener("change", listener);
+  };
 }
 
-function getSnapshot(): Theme {
-  const stored = localStorage.getItem("intentiq-theme");
-  return stored === "light" ? "light" : "dark";
+function storedTheme(): ThemePreference {
+  const parsed = themePreferenceSchema.safeParse(localStorage.getItem(THEME_STORAGE_KEY));
+  return parsed.success ? parsed.data : "dark";
 }
 
-function getServerSnapshot(): Theme {
-  return "dark";
+function resolveTheme(theme: ThemePreference): ResolvedTheme {
+  if (theme !== "system") return theme;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function getSnapshot(): `${ThemePreference}:${ResolvedTheme}` {
+  const theme = storedTheme();
+  return `${theme}:${resolveTheme(theme)}`;
+}
+
+function getServerSnapshot(): `${ThemePreference}:${ResolvedTheme}` {
+  return "dark:dark";
+}
+
+function applyTheme(theme: ThemePreference) {
+  const resolved = resolveTheme(theme);
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  document.documentElement.classList.toggle("dark", resolved === "dark");
+  emitChange();
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [theme, resolvedTheme] = snapshot.split(":") as [ThemePreference, ResolvedTheme];
 
-  // Sync the `.dark` class on <html> whenever the theme changes.
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }, [theme]);
+    document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+  }, [resolvedTheme]);
+
+  const setTheme = useCallback((next: ThemePreference) => {
+    const previous = storedTheme();
+    if (previous === next) return;
+
+    applyTheme(next);
+    void patchUserPreferences({ theme: next }).catch(() => {
+      if (storedTheme() === next) applyTheme(previous);
+    });
+  }, []);
 
   const toggleTheme = useCallback(() => {
-    const next = theme === "dark" ? "light" : "dark";
-    localStorage.setItem("intentiq-theme", next);
-    emitChange();
-  }, [theme]);
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  }, [resolvedTheme, setTheme]);
+
+  const reconcileTheme = useCallback((serverTheme: ThemePreference) => {
+    if (storedTheme() !== serverTheme) applyTheme(serverTheme);
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{
+      theme,
+      resolvedTheme,
+      setTheme,
+      toggleTheme,
+      reconcileTheme,
+    }}>
       {children}
     </ThemeContext.Provider>
   );
