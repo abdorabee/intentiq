@@ -9,18 +9,21 @@ export async function ensureUserRecord(userId: string) {
   try {
     user = await currentUser();
   } catch {
-    user = null;
+    throw new Error("Unable to load Clerk user");
   }
 
-  const admin = createSupabaseAdmin();
-  await admin.from("users").upsert(
+  const email = user?.primaryEmailAddress?.emailAddress?.trim();
+  if (!user || user.id !== userId || !email) {
+    throw new Error("Unable to load Clerk user");
+  }
+
+  const { error } = await createSupabaseAdmin().from("users").upsert(
     {
       id: userId,
-      email: user?.emailAddresses[0]?.emailAddress ?? "",
-      plan: "free",
-      credits_remaining: 20,
-      onboarding_completed: false,
+      email,
     },
-    { onConflict: "id", ignoreDuplicates: true }
+    { onConflict: "id" }
   );
+
+  if (error) throw new Error("Unable to provision user record");
 }

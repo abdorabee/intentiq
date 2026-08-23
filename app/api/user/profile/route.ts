@@ -10,15 +10,17 @@ export async function GET() {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("users")
-    .select("business_profile, onboarding_completed, product_category")
+    .select("id, business_profile, onboarding_completed, product_category")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  if (data.id !== userId) return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
 
   return NextResponse.json({
-    business_profile: data?.business_profile ?? null,
-    onboarding_completed: data?.onboarding_completed ?? false,
+    business_profile: data.business_profile ?? null,
+    onboarding_completed: data.onboarding_completed ?? false,
   });
 }
 
@@ -50,16 +52,20 @@ export async function PUT(req: NextRequest) {
   const profile = parsed.data.business_profile;
 
   const supabase = createSupabaseAdmin();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("users")
     .update({
       business_profile: profile,
       product_category: profile.product_category,
       onboarding_completed: true,
     })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  if (data.id !== userId) return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
 
   return NextResponse.json({ success: true });
 }
