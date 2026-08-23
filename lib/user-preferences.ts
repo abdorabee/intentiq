@@ -80,14 +80,18 @@ export interface PreferenceWriteCoordinator<T> {
   reconcile: (value: T) => void;
 }
 
+export type PreferenceSaveStatus = "idle" | "saving" | "saved" | "error";
+
 export function createPreferenceWriteCoordinator<T>({
   initialValue,
   persist,
   rollback,
+  onStatus,
 }: {
   initialValue: T;
   persist: (value: T) => Promise<void>;
   rollback: (value: T) => void;
+  onStatus?: (status: PreferenceSaveStatus) => void;
 }): PreferenceWriteCoordinator<T> {
   let confirmed = initialValue;
   let desired = initialValue;
@@ -98,12 +102,15 @@ export function createPreferenceWriteCoordinator<T>({
     if (writing || Object.is(desired, confirmed)) return;
 
     writing = true;
+    onStatus?.("saving");
     const attempted = desired;
     const attemptedRevision = revision;
     try {
       await persist(attempted);
       confirmed = attempted;
+      onStatus?.("saved");
     } catch {
+      onStatus?.("error");
       if (revision === attemptedRevision) {
         desired = confirmed;
         rollback(confirmed);

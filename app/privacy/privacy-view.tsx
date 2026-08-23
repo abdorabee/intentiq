@@ -296,7 +296,7 @@ export default function PrivacyView() {
           <Section id="s2" num="02" title="What we collect">
             <H3>Account &amp; identity</H3>
             <UL items={[
-              <span key="a">Name, work email, company name, job role, and password hash (via <Strong>Clerk</Strong>)</span>,
+              <span key="a">Name, email addresses, profile image, and authentication credentials managed by <Strong>Clerk</Strong></span>,
               "Profile photo (optional)",
               "IP address, user-agent string, and MFA factors collected by Clerk during authentication",
             ]} />
@@ -314,7 +314,7 @@ export default function PrivacyView() {
             ]} />
             <H3>Product telemetry</H3>
             <UL items={[
-              "Page views, button clicks, and feature-usage events (via PostHog, self-hosted in EU)",
+              "Signed-in page usage measured by Google Analytics only when you enable product analytics",
               "API request metadata: endpoint, latency, status code — payloads are never logged",
             ]} />
             <H3>Communications</H3>
@@ -338,17 +338,17 @@ export default function PrivacyView() {
 
           {/* ── 04 ── */}
           <Section id="s4" num="04" title="Cookies & analytics">
-            <P>We use a small number of first-party cookies. We do not use Google Analytics, Meta Pixel, or any third-party ad-tracking scripts.</P>
+            <P>Clerk uses cookies required for authentication. Google Analytics loads for signed-in users only when the persisted Product analytics preference is enabled. We do not use Meta Pixel or advertising trackers.</P>
             <DocTable
               headers={["Cookie / storage", "Purpose", "Lifetime"]}
               rows={[
-                [<Code key="c1">__clerk_session</Code>, "Auth session token", "7 days"],
-                [<Code key="c2">__clerk_csrf</Code>, "CSRF protection", "Session"],
-                [<Code key="c3">iq_prefs</Code>, "UI preferences (theme, collapsed panels)", "1 year"],
-                [<Code key="c4">_iq_anon</Code>, "Anonymous usage analytics", "30 days"],
+                [<Code key="c1">Clerk session cookies</Code>, "Authentication and session security", "Set by Clerk"],
+                [<Code key="c2">intentiq-theme</Code>, "Pre-paint theme cache; the server preference remains authoritative", "Until cleared"],
+                [<Code key="c3">nav-collapsed</Code>, "Pre-paint sidebar cache; the server preference remains authoritative", "Until cleared"],
+                [<Code key="c4">_ga / _ga_*</Code>, "Google Analytics measurement after consent", "Set by Google Analytics"],
               ]}
             />
-            <P>Analytics are powered by <Strong>PostHog</Strong>, self-hosted in the EU. Event data never leaves EU infrastructure. You can opt out of product analytics in Settings → Privacy.</P>
+            <P>You can change analytics consent at any time in <Strong>Settings → Data &amp; privacy</Strong>. When the preference is off, the Google Analytics script is not loaded on the authenticated product.</P>
           </Section>
 
           {/* ── 05 ── */}
@@ -359,13 +359,13 @@ export default function PrivacyView() {
 
           {/* ── 06 ── */}
           <Section id="s6" num="06" title="AI processing">
-            <P>When you request a score, the company domain and signal data are sent to <Strong>Anthropic</Strong> to generate a human-readable summary and recommended action. We:</P>
+            <P>When you request AI-generated scoring analysis or use Assistant, relevant company, signal, conversation, and optional screenshot context is sent through <Strong>OpenRouter</Strong> to the configured model. We:</P>
             <OL items={[
-              <span key="a">Use Anthropic&rsquo;s <Strong>zero-data-retention</Strong> API configuration — prompts and completions are not stored or used for training by Anthropic</span>,
-              "Never include API keys, billing information, or user PII in prompts sent to Anthropic",
-              <span key="c">Allow you to disable AI summaries entirely in <Strong>Settings → AI</Strong>; doing so replaces summaries with the raw signal data</span>,
+              "Send only the context needed to produce the requested analysis or response",
+              "Do not intentionally add your VesperWise API keys or payment-card data to model requests",
+              "Use deterministic fallbacks when score reasoning is unavailable; workspace-wide AI disable and bring-your-own-model-key controls are not currently offered",
             ]} />
-            <P>Anthropic&rsquo;s handling of any data that passes through their API is governed by their <A href="https://www.anthropic.com/legal/privacy">Privacy Policy</A> and our DPA addendum with them.</P>
+            <P>OpenRouter&rsquo;s handling of data that passes through its service is governed by its <A href="https://openrouter.ai/privacy">Privacy Policy</A> and the policies of the selected model provider.</P>
           </Section>
 
           {/* ── 07 ── */}
@@ -377,14 +377,14 @@ export default function PrivacyView() {
           {/* ── 08 ── */}
           <Section id="s8" num="08" title="Your rights">
             <GoodCallout>
-              <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>One-click delete.</strong>{" "}Settings → Account → Delete account triggers a full purge of your Customer Data within 30 days. No email required.
+              <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>Verified requests.</strong>{" "}Account deletion is currently handled through a verified request to privacy@vesperwise.com. The in-product deletion control remains unavailable until the identity and product-data deletion cascade is verified.
             </GoodCallout>
             <P>Depending on your location, you may have the right to:</P>
             <UL items={[
               <span key="a"><Strong>Access</Strong> — receive a copy of the personal data we hold about you</span>,
               <span key="b"><Strong>Correct</Strong> — update inaccurate or incomplete data</span>,
               <span key="c"><Strong>Delete</Strong> — request deletion; we&rsquo;ll purge Customer Data within 30 days and retain only what law requires</span>,
-              <span key="d"><Strong>Export</Strong> — download your account data in JSON format from Settings → Account → Export</span>,
+              <span key="d"><Strong>Export</Strong> — request a portable copy of your account data by email</span>,
               <span key="e"><Strong>Object</Strong> — object to processing based on legitimate interest</span>,
               <span key="f"><Strong>Withdraw consent</Strong> — where processing is based on consent (e.g. marketing emails), withdraw at any time</span>,
               <span key="g"><Strong>Lodge a complaint</Strong> — with your local data protection authority if you believe we have mishandled your data</span>,
@@ -409,7 +409,7 @@ export default function PrivacyView() {
               <span key="a"><Strong>In transit</Strong> — TLS 1.3 on all connections</span>,
               <span key="b"><Strong>At rest</Strong> — AES-256 encryption via Supabase</span>,
               <span key="c"><Strong>API keys</Strong> — SHA-256 hashed; we never store plaintext keys</span>,
-              <span key="d"><Strong>Passwords</Strong> — Argon2id hashed by Clerk; we never see your password</span>,
+              <span key="d"><Strong>Passwords</Strong> — authentication credentials are handled by Clerk; VesperWise does not store plaintext passwords</span>,
               <span key="e"><Strong>Access control</Strong> — Row-Level Security in Postgres; employees access data only to resolve support issues</span>,
             ]} />
             <P>See our <A href="/legal/security">Security page</A> for full details including penetration testing, incident response, and bug bounty information.</P>

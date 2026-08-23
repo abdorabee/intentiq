@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Check, Save, Loader2, Building2, Sparkles } from "lucide-react";
 import type { BusinessProfile } from "@/lib/types";
+import { profileUpdateSchema } from "@/lib/business-profile";
 
 interface ProfileField {
   id: keyof BusinessProfile;
@@ -57,6 +58,16 @@ const FIELDS: ProfileField[] = [
     options: ["< 2 weeks", "2-4 weeks", "1-3 months", "3+ months"],
   },
 ];
+
+const EMPTY_PROFILE: BusinessProfile = {
+  product_category: "",
+  target_industries: [],
+  company_size: "",
+  buyer_role: "",
+  sales_motion: "",
+  deal_size: "",
+  sales_cycle: "",
+};
 
 function buildSummary(profile: BusinessProfile): string {
   const parts: string[] = [];
@@ -114,24 +125,65 @@ export default function BusinessProfilePage() {
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [draft, setDraft] = useState<BusinessProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [customValues, setCustomValues] = useState<Partial<Record<keyof BusinessProfile, string>>>({});
 
-  useEffect(() => {
-    fetch("/api/user/profile")
-      .then((r) => r.json())
-      .then((data) => {
-        setProfile(data.business_profile ?? null);
-        setDraft(data.business_profile ?? null);
-      })
-      .finally(() => setLoading(false));
+  const loadProfile = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const response = await fetch("/api/user/profile", { cache: "no-store" });
+      if (!response.ok) throw new Error("Your business profile could not load.");
+      const data = await response.json() as { business_profile?: BusinessProfile | null };
+      const next = data.business_profile ?? EMPTY_PROFILE;
+      setProfile(next);
+      setDraft(next);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Your business profile could not load.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { void loadProfile(); }, [loadProfile]);
 
   const hasChanges = JSON.stringify(profile) !== JSON.stringify(draft);
 
+  useEffect(() => {
+    if (!hasChanges) return;
+    function protectUnsavedChanges(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    function protectClientNavigation(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target : null;
+      const link = target?.closest<HTMLAnchorElement>("a[href]");
+      if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+      const destination = new URL(link.href, window.location.href);
+      if (destination.origin !== window.location.origin) return;
+      if (window.confirm("Discard your unsaved business profile changes?")) return;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    window.addEventListener("beforeunload", protectUnsavedChanges);
+    document.addEventListener("click", protectClientNavigation, true);
+    return () => {
+      window.removeEventListener("beforeunload", protectUnsavedChanges);
+      document.removeEventListener("click", protectClientNavigation, true);
+    };
+  }, [hasChanges]);
+
   async function handleSave() {
     if (!draft || !hasChanges) return;
+    const validated = profileUpdateSchema.safeParse({ business_profile: draft });
+    if (!validated.success) {
+      setSaveError("Complete every profile field and add at least one target industry before saving.");
+      return;
+    }
     setSaving(true);
     setSaved(false);
     setSaveError(null);
@@ -139,7 +191,7 @@ export default function BusinessProfilePage() {
       const response = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business_profile: draft }),
+        body: JSON.stringify({ business_profile: validated.data.business_profile }),
       });
 
       if (!response.ok) {
@@ -147,7 +199,8 @@ export default function BusinessProfilePage() {
         throw new Error(data?.error ?? "Failed to save profile");
       }
 
-      setProfile({ ...draft });
+      setProfile({ ...validated.data.business_profile });
+      setDraft({ ...validated.data.business_profile });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (error) {
@@ -155,6 +208,20 @@ export default function BusinessProfilePage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function addCustomValue(field: ProfileField) {
+    const value = customValues[field.id]?.trim();
+    if (!value || !draft) return;
+    if (field.multiSelect) {
+      const current = draft[field.id] as string[];
+      if (!current.some((candidate) => candidate.toLowerCase() === value.toLowerCase())) {
+        setDraft({ ...draft, [field.id]: [...current, value] });
+      }
+    } else {
+      setDraft({ ...draft, [field.id]: value });
+    }
+    setCustomValues((current) => ({ ...current, [field.id]: "" }));
   }
 
   function updateField(fieldId: keyof BusinessProfile, value: string) {
@@ -186,16 +253,16 @@ export default function BusinessProfilePage() {
     );
   }
 
-  if (!profile) {
+  if (loadError) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">Business profile</h1>
-        <div className="border border-slate-200 dark:border-foreground/[0.08] bg-slate-50 dark:bg-foreground/[0.02] p-8 text-center">
-          <p className="text-sm text-slate-500">No business profile found. Complete onboarding first.</p>
-        </div>
+      <div className="border border-red-500/30 bg-red-500/5 p-6">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">{loadError}</p>
+        <button type="button" onClick={() => void loadProfile()} className="mt-3 border border-red-500/30 px-3 py-2 text-sm">Retry</button>
       </div>
     );
   }
+
+  if (!profile || !draft) return null;
 
   const summary = buildSummary(draft ?? profile);
 
@@ -266,12 +333,17 @@ export default function BusinessProfilePage() {
                 </div>
               </div>
               <div className="px-5 py-3 flex flex-wrap gap-2">
-                {field.options.map((option) => {
+                {[...new Set([
+                  ...field.options,
+                  ...(Array.isArray(draft[field.id]) ? draft[field.id] as string[] : draft[field.id] ? [draft[field.id] as string] : []),
+                ])].map((option) => {
                   const selected = isSelected(field.id, option);
                   return (
                     <button
+                      type="button"
                       key={option}
                       onClick={() => updateField(field.id, option)}
+                      aria-pressed={selected}
                       className={`px-3 py-1.5 text-xs tracking-[0.03em] transition-all duration-150 border cursor-pointer ${
                         selected
                           ? "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/40"
@@ -283,6 +355,25 @@ export default function BusinessProfilePage() {
                     </button>
                   );
                 })}
+                <div className="flex min-w-full gap-2 pt-1 sm:min-w-0 sm:flex-1">
+                  <label htmlFor={`custom-${field.id}`} className="sr-only">Custom {field.label}</label>
+                  <input
+                    id={`custom-${field.id}`}
+                    aria-label={`Custom ${field.label}`}
+                    value={customValues[field.id] ?? ""}
+                    onChange={(event) => setCustomValues((current) => ({ ...current, [field.id]: event.target.value }))}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addCustomValue(field);
+                      }
+                    }}
+                    placeholder="Custom value"
+                    maxLength={100}
+                    className="min-w-0 flex-1 border border-slate-200 bg-transparent px-3 py-1.5 text-xs outline-none focus:border-cyan-500 dark:border-white/10"
+                  />
+                  <button type="button" aria-label={`Add custom ${field.label}`} onClick={() => addCustomValue(field)} className="border border-slate-200 px-3 py-1.5 text-xs hover:border-cyan-500 dark:border-white/10">Add</button>
+                </div>
               </div>
             </div>
           ))}

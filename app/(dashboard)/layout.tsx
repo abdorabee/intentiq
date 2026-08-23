@@ -5,6 +5,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { ensureUserRecord } from "@/lib/user-provisioning";
 import { getOrCreateUserPreferences } from "@/lib/user-preferences-server";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
+import { GoogleAnalytics } from "@/components/google-analytics";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth();
@@ -56,6 +57,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {preferenceBootstrap && (
         <script dangerouslySetInnerHTML={{ __html: preferenceBootstrap }} />
       )}
+      <GoogleAnalytics initialEnabled={preferences?.analytics_enabled ?? false} />
       <DashboardShell
         creditsRemaining={creditsRemaining}
         plan={plan}

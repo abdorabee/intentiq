@@ -76,7 +76,7 @@ const PILLARS = [
     icon: <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18"><path d="M9 2L3 4v5c0 4 6 7 6 7s6-3 6-7V4z"/><path d="M6.5 9l2 2 3-4"/></svg>,
     title: "Product",
     desc: "How your data flows through VesperWise — and what we deliberately don't do with it (e.g. train models on it).",
-    items: ["SHA‑256 hashed API keys", "No model training on Customer Data", "Anthropic zero‑retention enforced", "One‑click account deletion"],
+    items: ["SHA‑256 hashed API keys", "Server-scoped customer data access", "OpenRouter model gateway", "Verified privacy requests"],
   },
   {
     type: "process",
@@ -109,7 +109,7 @@ const ARCH_COLS = [
     label: "Storage · AI",
     nodes: [
       { ic: "SB", grad: "linear-gradient(135deg,#dfff00,#dfff00)", name: "Supabase Postgres",  sub: "us‑east‑1 · AES‑256",                tag: "RLS",        tagClass: "rls" },
-      { ic: "AN", grad: "linear-gradient(135deg,#dfff00,#4ade80)", name: "Anthropic Claude",   sub: "summary · copilot",                  tag: "Zero‑retain",tagClass: "zr" },
+      { ic: "OR", grad: "linear-gradient(135deg,#dfff00,#4ade80)", name: "OpenRouter",         sub: "reasoning · Assistant gateway",       tag: "AI route",   tagClass: "zr" },
       { ic: "SG", grad: "linear-gradient(135deg,#e8ff40,#dfff00)", name: "Signal vendors",     sub: "Explorium · GNews · BuiltWith",       tag: "",           tagClass: "" },
     ],
   },
@@ -127,13 +127,13 @@ const CONTROLS = [
   { name: "Encryption · transit",   ref: "CC6.1 · CC6.7",         body: <span>All traffic to <Code>vesperwise.com</Code> uses <Strong>TLS 1.3</Strong> with strong ciphers; HSTS preloaded on the apex; certificates from Let&rsquo;s Encrypt auto‑rotated every 60 days. Internal service‑to‑service hops use mTLS where the subprocessor supports it.</span> },
   { name: "Encryption · at rest",   ref: "CC6.1",                  body: <span><Strong>AES‑256</Strong> on Supabase Postgres and Vercel Blob; key management by the underlying provider with key rotation per their published schedule. We do not hold our own KMS keys today.</span> },
   { name: "Tenant isolation",       ref: "CC6.6",                  body: <span>Every multi‑tenant table enforces <Strong>Postgres Row‑Level Security</Strong> against the authenticated user&rsquo;s tenant ID. Queries cannot omit the tenant predicate — RLS is enforced at the DB, not the application layer.</span> },
-  { name: "API authentication",     ref: "CC6.1 · CC6.6",          body: <span>API keys are bearer tokens, displayed once on creation, then stored as <Strong>SHA‑256 hashes</Strong>. Per‑user rate limits with Upstash; lockout on 10 failed attempts in 60s. Revocation propagates within 30 seconds.</span> },
+  { name: "API authentication",     ref: "CC6.1 · CC6.6",          body: <span>API keys are bearer tokens, displayed once on creation, then stored as <Strong>SHA‑256 hashes</Strong>. Active status is checked against the owner-scoped database row on authenticated API requests.</span> },
   { name: "Internal access",        ref: "CC6.1 · CC6.2 · CC6.3",  body: <span>Engineers access production via SSO + hardware MFA only. <Strong>No standing access to customer data.</Strong> Just‑in‑time access requires a Slack request, an approver, and is auto‑revoked after 4 hours. All access logged with reason.</span> },
   { name: "Audit logging",          ref: "CC7.1 · CC7.2",          body: <span>Admin actions, auth events, and access to sensitive routes are logged with actor, IP, and result. Logs are retained <Strong>12 months</Strong> and shipped to a separate, write‑only sink to prevent tampering by the application.</span> },
   { name: "Vulnerability management",ref: "CC7.1",                 body: <span>Dependency scanning via GitHub Dependabot on every commit. Critical CVEs patched within 48 hours; high within 7 days. <Strong>Third‑party penetration test every 12 months</Strong>; summary available under NDA.</span> },
   { name: "Backups & resilience",   ref: "A1.2 · A1.3",            body: <span>Daily encrypted database backups with 35‑day retention; point‑in‑time recovery to any second within the last 7 days. <Strong>RPO 24h, RTO 4h.</Strong> DR drills run twice per year; latest drill recovered the full stack in 1h 42m.</span> },
   { name: "Incident response",      ref: "CC7.3 · CC7.5",          body: <span>On‑call rotation with paging. Severity ladder published internally; SEV‑1 invokes a war room within 10 minutes. <Strong>Customer notification within 72 hours</Strong> of confirmed Personal Data Breach per GDPR Art. 33. Postmortem within 5 business days.</span> },
-  { name: "AI processing",          ref: "CC9.1 · Customer policy", body: <span>Anthropic configured with <Strong>zero data retention</Strong>; prompts are not used for training; no PII included in prompts. Customers can disable AI features per workspace. BYO Anthropic key on Pro and Agency plans.</span> },
+  { name: "AI processing",          ref: "CC9.1 · Customer policy", body: <span>AI requests are routed through <Strong>OpenRouter</Strong> to configured models. VesperWise does not currently expose workspace AI-disable or bring-your-own-model-key controls.</span> },
   { name: "Personnel",              ref: "CC1.4",                  body: <span>Background checks on hire (criminal, employment, education). Confidentiality agreements signed before access. <Strong>Security training</Strong> on hire and annually. Offboarding revokes all access within 1 hour of last day.</span> },
   { name: "Physical security",      ref: "CC6.4",                  body: <span>VesperWise operates no data centers. All production hosting is at SOC 2 and ISO 27001 certified subprocessors (Vercel, Supabase, Upstash). Office spaces are subleased; no production data on local devices.</span> },
 ];

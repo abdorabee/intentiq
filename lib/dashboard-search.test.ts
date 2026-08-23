@@ -37,7 +37,11 @@ describe("canonical dashboard navigation", () => {
       "/history",
       "/inbox",
       "/settings",
+      "/settings/account",
       "/settings/business-profile",
+      "/settings/appearance",
+      "/settings/developer",
+      "/settings/data-privacy",
       "/billing",
     ]);
     expect(navigation.filterNavItems("billing").map((item) => item.href)).toEqual([
@@ -54,16 +58,27 @@ describe("canonical dashboard navigation", () => {
       .flatMap((group) => group.items)
       .find((item) => item.id === "settings");
     expect(settings?.children?.map((item) => item.id)).toEqual([
+      "account",
       "business-profile",
+      "appearance",
+      "product-experience",
+      "developer",
+      "data-privacy",
       "billing",
-      "api-keys",
     ]);
 
     const visibleSettings = navigation.getVisibleSettingsDestinations();
-    expect(visibleSettings.map((item) => item.id)).toEqual(["business-profile", "billing"]);
+    expect(visibleSettings.map((item) => item.id)).toEqual([
+      "account",
+      "business-profile",
+      "appearance",
+      "developer",
+      "data-privacy",
+      "billing",
+    ]);
     expect(visibleSettings.every((item) => settings?.children?.includes(item))).toBe(true);
 
-    const businessProfile = settings?.children?.[0];
+    const businessProfile = settings?.children?.find((item) => item.id === "business-profile");
     expect(businessProfile).toBeDefined();
     if (!businessProfile) return;
     const crumb = navigation.getNavigationBreadcrumb(businessProfile.href);

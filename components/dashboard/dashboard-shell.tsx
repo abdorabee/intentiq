@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
@@ -12,6 +12,7 @@ import {
   patchUserPreferences,
   SIDEBAR_STORAGE_KEY,
   type ThemePreference,
+  type PreferenceSaveStatus,
 } from "@/lib/user-preferences";
 
 interface DashboardShellProps {
@@ -23,6 +24,20 @@ interface DashboardShellProps {
   pipelineHotCount?: number;
   initialSidebarCollapsed?: boolean;
   initialTheme?: ThemePreference;
+}
+
+interface DashboardShellContextValue {
+  collapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  preferenceStatus: PreferenceSaveStatus;
+}
+
+const DashboardShellContext = createContext<DashboardShellContextValue | null>(null);
+
+export function useDashboardShell(): DashboardShellContextValue {
+  const context = useContext(DashboardShellContext);
+  if (!context) throw new Error("useDashboardShell must be used inside DashboardShell");
+  return context;
 }
 
 export default function DashboardShell({
@@ -43,6 +58,7 @@ export default function DashboardShell({
   const collapsedRef = useRef(initialSidebarCollapsed ?? false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [preferenceStatus, setPreferenceStatus] = useState<PreferenceSaveStatus>("idle");
   const sidebarRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -57,6 +73,7 @@ export default function DashboardShell({
       initialValue: initialSidebarCollapsed ?? false,
       persist: (value) => patchUserPreferences({ sidebar_collapsed: value }),
       rollback: applySidebarPreference,
+      onStatus: setPreferenceStatus,
     })
   ));
 
@@ -147,11 +164,14 @@ export default function DashboardShell({
     };
   }, [isMobile, mobileOpen]);
 
-  function toggle() {
-    const previous = collapsedRef.current;
-    const next = !previous;
+  const setSidebarCollapsed = useCallback((next: boolean) => {
+    if (collapsedRef.current === next) return;
     applySidebarPreference(next);
     sidebarWriter.request(next);
+  }, [applySidebarPreference, sidebarWriter]);
+
+  function toggle() {
+    setSidebarCollapsed(!collapsedRef.current);
   }
 
   // On mobile the drawer always shows the full nav (ignore the desktop collapse state).
@@ -163,6 +183,7 @@ export default function DashboardShell({
   }, [isMobile, mobileOpen]);
 
   return (
+    <DashboardShellContext.Provider value={{ collapsed, setSidebarCollapsed, preferenceStatus }}>
     <SearchProvider beforeOpen={closeDrawerBeforeSearch}>
       <div
         className={`dashboard-shell${effectiveCollapsed ? " is-collapsed" : ""}${mobileOpen ? " nav-open" : ""}`}
@@ -195,5 +216,6 @@ export default function DashboardShell({
         </div>
       </div>
     </SearchProvider>
+    </DashboardShellContext.Provider>
   );
 }

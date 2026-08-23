@@ -127,8 +127,8 @@ const FAQS = [
     a: "Most teams are live inside two weeks — usually four working days for a 25–50 seat team, plus a week for SSO + HubSpot/Salesforce mapping. The longest part is usually procurement.",
   },
   {
-    q: "Can we BYO Anthropic key for AI reasoning?",
-    a: "On Pro and Agency, yes. Drop your Anthropic key into Settings → AI and we'll route all summary + chat copilot calls through your account. Useful for AUP scope, billing consolidation, and model‑choice control.",
+    q: "How are AI requests processed?",
+    a: "VesperWise routes score reasoning and Assistant requests through OpenRouter to configured models. Bring-your-own-model-key and workspace-wide AI disable controls are not currently offered.",
   },
   {
     q: "Where is customer data stored, and can I pick a region?",

@@ -318,13 +318,13 @@ export default function TermsView() {
 
           {/* ── 06 ── */}
           <Section id="s6" num="06" title="AI features">
-            <P>The Service uses third&#8209;party AI providers (currently Anthropic) to generate score summaries, recommended actions, and chat copilot responses (collectively, <Strong>&ldquo;AI Output&rdquo;</Strong>). AI Output:</P>
+            <P>The Service routes AI requests through OpenRouter to configured third&#8209;party models to generate score summaries, recommended actions, and Assistant responses (collectively, <Strong>&ldquo;AI Output&rdquo;</Strong>). AI Output:</P>
             <OL items={[
               "Is not warranted to be accurate, complete, or fit for any decision with legal or similarly significant effects;",
               "May contain factual errors or hallucinations — review before relying on it;",
-              "Is not sent to the AI provider for training; we enforce zero‑retention modes where available.",
+              "Is processed under OpenRouter's and the selected model provider's applicable data policies.",
             ]} />
-            <P>You can opt your account out of AI features entirely in Settings → AI. Doing so will replace AI summaries with the underlying signal data.</P>
+            <P>VesperWise does not currently offer workspace-wide AI disable or bring-your-own-model-key controls. Deterministic fallback summaries may be used when score reasoning is unavailable.</P>
             <WarnCallout>
               <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>Restricted uses, restated.</strong>{" "}Do not use AI Output (or the underlying scores) for hiring, lending, insurance underwriting, housing decisions, healthcare, or any decision that affects an individual&rsquo;s legal rights. The Service is built for B2B sales prioritization; it is not a regulated decisioning system.
             </WarnCallout>

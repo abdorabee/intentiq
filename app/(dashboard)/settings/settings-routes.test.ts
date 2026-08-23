@@ -31,11 +31,28 @@ describe("settings route compatibility", () => {
 
     expect(html).toContain("Settings");
     expect(html).toContain("Business profile");
+    expect(html).toContain("Account &amp; security");
+    expect(html).toContain("Appearance");
+    expect(html).toContain("Developer");
+    expect(html).toContain("Data &amp; privacy");
     expect(html).toContain("Billing");
     expect(html).not.toContain("Memory");
   });
 
   it("registers the relocated Business profile route", () => {
     expect(existsSync(new URL("./business-profile/page.tsx", import.meta.url))).toBe(true);
+  });
+
+  it.each([
+    "./account/page.tsx",
+    "./appearance/page.tsx",
+    "./developer/page.tsx",
+    "./data-privacy/page.tsx",
+    "./product-experience/page.tsx",
+    "./layout.tsx",
+    "./loading.tsx",
+    "./error.tsx",
+  ])("registers the Settings product seam at %s", (path) => {
+    expect(existsSync(new URL(path, import.meta.url))).toBe(true);
   });
 });

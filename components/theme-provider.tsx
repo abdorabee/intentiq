@@ -15,6 +15,7 @@ import {
   THEME_STORAGE_KEY,
   themePreferenceSchema,
   type ThemePreference,
+  type PreferenceSaveStatus,
 } from "@/lib/user-preferences";
 
 type ResolvedTheme = "dark" | "light";
@@ -25,6 +26,7 @@ interface ThemeContextValue {
   setTheme: (theme: ThemePreference) => void;
   toggleTheme: () => void;
   reconcileTheme: (theme: ThemePreference) => void;
+  preferenceStatus: PreferenceSaveStatus;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
@@ -33,6 +35,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   setTheme: () => {},
   toggleTheme: () => {},
   reconcileTheme: () => {},
+  preferenceStatus: "idle",
 });
 
 export function useTheme() {
@@ -84,11 +87,13 @@ function applyTheme(theme: ThemePreference) {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [theme, resolvedTheme] = snapshot.split(":") as [ThemePreference, ResolvedTheme];
+  const [preferenceStatus, setPreferenceStatus] = useState<PreferenceSaveStatus>("idle");
   const [writer] = useState(() => (
     createPreferenceWriteCoordinator<ThemePreference>({
       initialValue: "system",
       persist: (value) => patchUserPreferences({ theme: value }),
       rollback: applyTheme,
+      onStatus: setPreferenceStatus,
     })
   ));
 
@@ -128,6 +133,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme,
       toggleTheme,
       reconcileTheme,
+      preferenceStatus,
     }}>
       {children}
     </ThemeContext.Provider>
