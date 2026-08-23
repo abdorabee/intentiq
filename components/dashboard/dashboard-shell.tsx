@@ -35,7 +35,9 @@ export default function DashboardShell({
 
   // Restore collapsed preference from localStorage after mount.
   useLayoutEffect(() => {
-    if (localStorage.getItem("nav-collapsed") === "true") setCollapsed(true);
+    const storedCollapsed = localStorage.getItem("nav-collapsed") === "true";
+    document.documentElement.dataset.dashboardSidebar = storedCollapsed ? "collapsed" : "expanded";
+    if (storedCollapsed) setCollapsed(true);
   }, []);
 
   // Track viewport — sidebar becomes off-canvas drawer on phones/tablets.
@@ -118,8 +120,10 @@ export default function DashboardShell({
 
   function toggle() {
     setCollapsed((prev) => {
-      localStorage.setItem("nav-collapsed", String(!prev));
-      return !prev;
+      const next = !prev;
+      localStorage.setItem("nav-collapsed", String(next));
+      document.documentElement.dataset.dashboardSidebar = next ? "collapsed" : "expanded";
+      return next;
     });
   }
 
@@ -129,7 +133,7 @@ export default function DashboardShell({
   return (
     <SearchProvider>
       <div
-        className={`dashboard-shell${collapsed ? " is-collapsed" : ""}${mobileOpen ? " nav-open" : ""}`}
+        className={`dashboard-shell${effectiveCollapsed ? " is-collapsed" : ""}${mobileOpen ? " nav-open" : ""}`}
       >
         <DashboardNav
           creditsRemaining={creditsRemaining}

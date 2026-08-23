@@ -108,7 +108,7 @@ export default function RootLayout({
         <head>
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');}else{d.classList.add('dark');}}catch(e){}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var c=localStorage.getItem('nav-collapsed')==='true';var d=document.documentElement;if(t==='light'){d.classList.remove('dark');}else{d.classList.add('dark');}d.dataset.dashboardSidebar=c?'collapsed':'expanded';}catch(e){}})();`,
             }}
           />
           <GoogleAnalytics />

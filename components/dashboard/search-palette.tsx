@@ -119,6 +119,9 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
   }, [pages, remote, trimmedQuery, scoreAction]);
 
   const flatRows = useMemo(() => sections.flatMap((s) => s.rows), [sections]);
+  const activeOptionId = flatRows[activeIndex]
+    ? `dashboard-search-option-${activeIndex}`
+    : undefined;
 
   const closePalette = useCallback(() => {
     setQuery("");
@@ -205,6 +208,11 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
     };
   }, [trimmedQuery, open]);
 
+  useEffect(() => {
+    if (!open || !activeOptionId) return;
+    document.getElementById(activeOptionId)?.scrollIntoView?.({ block: "nearest" });
+  }, [activeOptionId, open]);
+
   const selectRow = useCallback(
     (row: PaletteRow) => {
       closePalette();
@@ -245,10 +253,6 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
     (trimmedQuery.length >= 2 || pages.length === 0);
 
   let rowIndex = -1;
-  const activeOptionId = flatRows[activeIndex]
-    ? `dashboard-search-option-${activeIndex}`
-    : undefined;
-
   const palette = (
     <div className="cmd-backdrop" onClick={closePalette} role="presentation">
       <div

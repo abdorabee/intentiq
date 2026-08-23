@@ -77,4 +77,23 @@ describe("search palette accessibility", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(navigation.push).toHaveBeenCalledWith("/inbox");
   });
+
+  it("scrolls the active option into view during extended keyboard navigation", async () => {
+    const user = userEvent.setup();
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView,
+    });
+    render(<SearchPalette open onOpenChange={vi.fn()} />);
+
+    const combobox = await screen.findByRole("combobox", { name: "Search companies, people, and pages" });
+    await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}");
+    const activeId = combobox.getAttribute("aria-activedescendant");
+    const activeOption = activeId ? document.getElementById(activeId) : null;
+
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
+    expect(scrollIntoView.mock.instances.at(-1)).toBe(activeOption);
+    expect(scrollIntoView).toHaveBeenLastCalledWith({ block: "nearest" });
+  });
 });

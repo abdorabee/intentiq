@@ -92,6 +92,15 @@ export default function DashboardNav({
     return undefined;
   }
 
+  function handleSearch() {
+    if (isMobile) {
+      onMobileClose?.();
+      window.setTimeout(openSearch, 0);
+      return;
+    }
+    openSearch();
+  }
+
   return (
     <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
     <aside
@@ -121,7 +130,7 @@ export default function DashboardNav({
           )}
         </div>
         <Tooltip label="Search" visible={collapsed}>
-          <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
+          <button type="button" className="sb-search" onClick={handleSearch} aria-label="Search">
             <Search className="ic" aria-hidden />
             {!collapsed && <span>Search</span>}
             {!collapsed && <kbd className="kbd">⌘K</kbd>}
@@ -174,7 +183,7 @@ export default function DashboardNav({
               </div>
               <Link href="/billing" className="topup">Top up</Link>
             </div>
-            <div className="bar" role="progressbar" aria-label="Monthly credits used" aria-valuenow={creditPct} aria-valuemin={0} aria-valuemax={100}>
+            <div className="bar" role="progressbar" aria-label="Monthly credits remaining" aria-valuenow={creditPct} aria-valuemin={0} aria-valuemax={100}>
               <div className="fill" style={{ width: `${creditPct}%` }} />
             </div>
           </div>
@@ -197,16 +206,18 @@ export default function DashboardNav({
         </Tooltip>
 
         <div className="sb-controls">
-          <Tooltip label={collapsed ? "Expand" : "Collapse"} visible={collapsed}>
-            <button
-              type="button"
-              onClick={onToggle}
-              className="sb-control"
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} aria-hidden />
-            </button>
-          </Tooltip>
+          {!isMobile && (
+            <Tooltip label={collapsed ? "Expand" : "Collapse"} visible={collapsed}>
+              <button
+                type="button"
+                onClick={onToggle}
+                className="sb-control"
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} aria-hidden />
+              </button>
+            </Tooltip>
+          )}
           <Tooltip label="Theme" visible={collapsed}>
             <button type="button" onClick={toggleTheme} className="sb-control" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
               {theme === "dark" ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}

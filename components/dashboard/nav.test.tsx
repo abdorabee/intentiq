@@ -39,19 +39,30 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 function setViewport(mobile: boolean) {
+  let matches = mobile;
+  const listeners = new Set<(event: MediaQueryListEvent) => void>();
+  const mediaQuery = {
+    get matches() { return matches; },
+    media: "(max-width: 980px)",
+    onchange: null,
+    addEventListener: vi.fn((_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.add(listener)),
+    removeEventListener: vi.fn((_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.delete(listener)),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  };
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
-    value: vi.fn().mockImplementation(() => ({
-      matches: mobile,
-      media: "(max-width: 980px)",
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+    value: vi.fn().mockImplementation(() => mediaQuery),
   });
+  return {
+    setMatches(next: boolean) {
+      matches = next;
+      const event = { matches: next, media: mediaQuery.media } as MediaQueryListEvent;
+      listeners.forEach((listener) => listener(event));
+    },
+    mediaQuery,
+  };
 }
 
 beforeAll(() => {
@@ -105,6 +116,74 @@ describe("authenticated navigation shell", () => {
     expect(document.body).not.toHaveStyle({ overflow: "hidden" });
   });
 
+  it("does not expose the desktop collapse preference inside the mobile drawer", async () => {
+    setViewport(true);
+    const user = userEvent.setup();
+    render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open navigation menu" }));
+    const dialog = await screen.findByRole("dialog", { name: "Workspace navigation" });
+    expect(within(dialog).queryByRole("button", { name: /sidebar/i })).not.toBeInTheDocument();
+  });
+
+  it("hands modal ownership from the mobile drawer to search and restores the menu trigger", async () => {
+    setViewport(true);
+    const user = userEvent.setup();
+    render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    const menuButton = screen.getByRole("button", { name: "Open navigation menu" });
+    await user.click(menuButton);
+    const drawer = await screen.findByRole("dialog", { name: "Workspace navigation" });
+    await user.click(within(drawer).getByRole("button", { name: "Search" }));
+
+    const searchDialog = await screen.findByRole("dialog", { name: "Search" });
+    expect(screen.getAllByRole("dialog")).toEqual([searchDialog]);
+    expect(screen.queryByRole("dialog", { name: "Workspace navigation" })).not.toBeInTheDocument();
+    const searchInput = screen.getByRole("combobox", { name: "Search companies, people, and pages" });
+    await waitFor(() => expect(searchInput).toHaveFocus());
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(menuButton).toHaveFocus();
+    expect(document.body).not.toHaveStyle({ overflow: "hidden" });
+  });
+
+  it("cleans up the mobile dialog across breakpoint changes while preserving desktop collapse", async () => {
+    const viewport = setViewport(false);
+    const user = userEvent.setup();
+    const { container } = render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+    const shell = container.querySelector(".dashboard-shell");
+
+    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+    expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeInTheDocument();
+    expect(shell).toHaveClass("is-collapsed");
+
+    viewport.setMatches(true);
+    await waitFor(() => expect(screen.queryByRole("button", { name: /sidebar/i })).not.toBeInTheDocument());
+    expect(shell).not.toHaveClass("is-collapsed");
+    await user.click(screen.getByRole("button", { name: "Open navigation menu" }));
+    expect(await screen.findByRole("dialog", { name: "Workspace navigation" })).toBeInTheDocument();
+    expect(document.body).toHaveStyle({ overflow: "hidden" });
+
+    viewport.setMatches(false);
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Workspace navigation" })).not.toBeInTheDocument());
+    expect(document.body).not.toHaveStyle({ overflow: "hidden" });
+    expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeInTheDocument();
+    expect(shell).toHaveClass("is-collapsed");
+  });
+
   it("keeps account, settings, theme, and sign-out available with tooltips when collapsed", async () => {
     localStorage.setItem("nav-collapsed", "true");
     render(
@@ -127,6 +206,16 @@ describe("authenticated navigation shell", () => {
       expect(await screen.findByRole("tooltip", { name: label })).toBeVisible();
       control.blur();
     }
+  });
+
+  it("describes the credit progress value as remaining credits", () => {
+    render(
+      <SearchProvider>
+        <DashboardNav creditsRemaining={80} plan="starter" />
+      </SearchProvider>,
+    );
+
+    expect(screen.getByRole("progressbar", { name: "Monthly credits remaining" })).toBeInTheDocument();
   });
 
   it("uses semantic breadcrumbs and omits empty global score bands", () => {
