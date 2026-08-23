@@ -86,11 +86,7 @@ export default function SiteFooter() {
           ))}
         </div>
         <div className="footer-bottom">
-          <span>© {year} VesperWise Labs, Inc. All rights reserved.</span>
-          <div className="footer-status">
-            <span className="dot"></span>
-            <span>All systems operational</span>
-          </div>
+          <span>© {year} VesperWise. All rights reserved.</span>
           <div className="links">
             {SOCIAL_LINKS.map(({ label, href }) => (
               <a

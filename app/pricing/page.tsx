@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import PricingView from "./pricing-view";
 
 const CANONICAL = "https://www.vesperwise.com/pricing";
@@ -21,9 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function PricingPage() {
-  const { userId } = await auth();
-  if (userId) redirect("/billing");
-
+export default function PricingPage() {
   return <PricingView />;
 }

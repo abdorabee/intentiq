@@ -185,7 +185,7 @@ export default function SubprocessorsView() {
         <main style={{ maxWidth: "720px", fontSize: "15px", lineHeight: 1.65, color: T.txtSecondary, letterSpacing: "-0.006em" }}>
 
           <Section id="s1" num="01" title="Overview" first>
-            <P>VesperWise uses a small number of third-party service providers (&ldquo;subprocessors&rdquo;) to help us operate the Service. Each subprocessor has been selected for security, reliability, and data protection practices that meet or exceed our standards.</P>
+            <P>VesperWise uses a small number of third-party service providers (&ldquo;subprocessors&rdquo;) to help us operate the Service.</P>
             <P>We give each subprocessor only the minimum data required to perform their service. No subprocessor receives access to API keys, billing data (except Polar for payment processing), or raw customer lists.</P>
           </Section>
 
