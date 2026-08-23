@@ -6,11 +6,40 @@ const shellSource = readFileSync(
   new URL("./dashboard-shell.tsx", import.meta.url),
   "utf8"
 );
+const searchSource = readFileSync(
+  new URL("../../lib/dashboard-search.ts", import.meta.url),
+  "utf8"
+);
+const memorySource = readFileSync(
+  new URL("../../app/(dashboard)/memory/page.tsx", import.meta.url),
+  "utf8"
+);
+const settingsSource = readFileSync(
+  new URL("../../app/(dashboard)/settings/page.tsx", import.meta.url),
+  "utf8"
+);
+const sellingPageUrl = new URL(
+  "../../app/(dashboard)/settings/selling/page.tsx",
+  import.meta.url
+);
 
-describe("dashboard profile navigation cleanup", () => {
-  it("omits Profile and Memory from the shared dashboard navigation", () => {
+describe("dashboard navigation", () => {
+  it("omits Memory href and Profile label from the shared sidebar", () => {
     expect(navSource).not.toMatch(/href:\s*["']\/memory["']/);
     expect(navSource).not.toMatch(/label:\s*["']Profile["']/);
+    expect(navSource).not.toMatch(/\[MEMORY\]/);
+  });
+
+  it("includes Settings as a real Account item", () => {
+    expect(navSource).toMatch(/href:\s*["']\/settings["']/);
+    expect(navSource).toMatch(/label:\s*["']Settings["']/);
+  });
+
+  it("renders labeled Workspace, Accounts, Operations, and Account sections", () => {
+    expect(navSource).toContain('label: "Workspace"');
+    expect(navSource).toContain('label: "Accounts"');
+    expect(navSource).toContain('label: "Operations"');
+    expect(navSource).toContain("<span>Account</span>");
   });
 
   it("uses the same navigation for expanded, collapsed, and mobile drawer modes", () => {
@@ -20,14 +49,43 @@ describe("dashboard profile navigation cleanup", () => {
     expect(shellSource).toContain("const effectiveCollapsed = isMobile ? false : collapsed");
   });
 
-  it("keeps direct profile, standalone onboarding, and settings access in place", () => {
-    expect(existsSync(new URL("../../app/(dashboard)/memory/page.tsx", import.meta.url))).toBe(true);
-    expect(existsSync(new URL("../../app/onboarding/page.tsx", import.meta.url))).toBe(true);
+  it("makes the user row a working menu with Settings, Appearance, and Sign out", () => {
+    expect(navSource).toContain('aria-haspopup="menu"');
+    expect(navSource).toContain('href="/settings"');
+    expect(navSource).toContain("Appearance");
+    expect(navSource).toContain("onToggleTheme");
+    expect(navSource).toContain("SignOutButton");
+    expect(navSource).toContain("Sign out");
+    expect(navSource).not.toContain("ws-chev");
+  });
 
-    const settingsSource = readFileSync(
-      new URL("../../app/(dashboard)/settings/page.tsx", import.meta.url),
+  it("redirects /memory to the selling profile settings page", () => {
+    expect(memorySource).toContain('redirect("/settings/selling")');
+    expect(settingsSource).toContain('redirect("/settings/selling")');
+    expect(settingsSource).not.toContain('redirect("/memory")');
+  });
+
+  it("keeps the relocated selling profile editor at /settings/selling", () => {
+    expect(existsSync(sellingPageUrl)).toBe(true);
+    const sellingSource = readFileSync(sellingPageUrl, "utf8");
+    expect(sellingSource).toContain("/api/user/profile");
+    expect(sellingSource).not.toContain("[MEMORY]");
+  });
+
+  it("does not register Memory in the search registry", () => {
+    expect(searchSource).not.toMatch(/href:\s*["']\/memory["']/);
+    expect(searchSource).not.toMatch(/id:\s*["']memory["']/);
+    expect(searchSource).toMatch(/href:\s*["']\/settings["']/);
+  });
+
+  it("maps breadcrumbs away from Memory and includes Inbox and Settings", () => {
+    const topbarSource = readFileSync(
+      new URL("./dashboard-topbar.tsx", import.meta.url),
       "utf8"
     );
-    expect(settingsSource).toContain('redirect("/memory")');
+    expect(topbarSource).not.toMatch(/["']\/memory["']/);
+    expect(topbarSource).toContain('"/inbox"');
+    expect(topbarSource).toContain('current: "Settings"');
+    expect(topbarSource).toContain('current: "Selling profile"');
   });
 });

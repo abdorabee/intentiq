@@ -9,18 +9,19 @@ import { focusWatchlistAdd } from "@/lib/watchlist-events";
 
 const CRUMB: Record<string, { parent: string; current: string }> = {
   "/dashboard": { parent: "Workspace", current: "Dashboard" },
-  "/memory": { parent: "Workspace", current: "Memory" },
   "/pipeline": { parent: "Workspace", current: "Intent Hub" },
-  "/people": { parent: "Workspace", current: "People" },
-  "/history": { parent: "Workspace", current: "History" },
-  "/watchlist": { parent: "Workspace", current: "Watchlist" },
-  "/lists": { parent: "Workspace", current: "Lists" },
-  "/autopilot": { parent: "Workspace", current: "Autopilot" },
-  "/bulk": { parent: "Workspace", current: "Bulk" },
-  "/billing": { parent: "Workspace", current: "Billing" },
-  "/api-keys": { parent: "Workspace", current: "API Keys" },
   "/score": { parent: "Workspace", current: "Score" },
-  "/settings": { parent: "Workspace", current: "Settings" },
+  "/people": { parent: "Accounts", current: "People" },
+  "/history": { parent: "Accounts", current: "History" },
+  "/watchlist": { parent: "Accounts", current: "Watchlist" },
+  "/lists": { parent: "Accounts", current: "Lists" },
+  "/autopilot": { parent: "Operations", current: "Autopilot" },
+  "/bulk": { parent: "Operations", current: "Bulk Score" },
+  "/inbox": { parent: "Operations", current: "Inbox" },
+  "/billing": { parent: "Account", current: "Billing" },
+  "/api-keys": { parent: "Account", current: "API Keys" },
+  "/settings": { parent: "Account", current: "Settings" },
+  "/settings/selling": { parent: "Settings", current: "Selling profile" },
 };
 
 interface DashboardTopbarProps {
