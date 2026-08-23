@@ -1,3 +1,7 @@
+import type { UserPreferences } from "./user-preferences";
+
+export type { UserPreferences };
+
 // ─── Signal Types ─────────────────────────────────────────────────────────────
 
 export type SignalStatus =
@@ -185,6 +189,7 @@ export interface DbUser {
   business_profile: BusinessProfile | null;
   onboarding_completed: boolean;
   role: UserRole;
+  preferences: UserPreferences;
   created_at: string;
 }
 

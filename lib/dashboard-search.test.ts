@@ -14,8 +14,8 @@ describe("dashboard search registry", () => {
     });
   });
 
-  it("finds Settings via profile, ICP, selling, and appearance keywords", () => {
-    for (const query of ["profile", "icp", "selling", "appearance"]) {
+  it("finds Settings via profile, ICP, selling, appearance, and account keywords", () => {
+    for (const query of ["profile", "icp", "selling", "appearance", "account", "experience", "theme"]) {
       const matches = filterNavItems(query);
       expect(matches.some((item) => item.href === "/settings")).toBe(true);
     }

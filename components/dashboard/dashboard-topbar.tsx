@@ -21,7 +21,10 @@ const CRUMB: Record<string, { parent: string; current: string }> = {
   "/billing": { parent: "Account", current: "Billing" },
   "/api-keys": { parent: "Account", current: "API Keys" },
   "/settings": { parent: "Account", current: "Settings" },
+  "/settings/account": { parent: "Settings", current: "Account" },
   "/settings/selling": { parent: "Settings", current: "Selling profile" },
+  "/settings/appearance": { parent: "Settings", current: "Appearance" },
+  "/settings/experience": { parent: "Settings", current: "Experience" },
 };
 
 interface DashboardTopbarProps {

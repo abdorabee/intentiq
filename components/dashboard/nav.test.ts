@@ -18,6 +18,18 @@ const settingsSource = readFileSync(
   new URL("../../app/(dashboard)/settings/page.tsx", import.meta.url),
   "utf8"
 );
+const settingsLayoutUrl = new URL(
+  "../../app/(dashboard)/settings/layout.tsx",
+  import.meta.url
+);
+const appearancePageUrl = new URL(
+  "../../app/(dashboard)/settings/appearance/page.tsx",
+  import.meta.url
+);
+const experiencePageUrl = new URL(
+  "../../app/(dashboard)/settings/experience/page.tsx",
+  import.meta.url
+);
 const sellingPageUrl = new URL(
   "../../app/(dashboard)/settings/selling/page.tsx",
   import.meta.url
@@ -72,15 +84,27 @@ describe("dashboard navigation", () => {
 
   it("redirects /memory to the selling profile settings page", () => {
     expect(memorySource).toContain('redirect("/settings/selling")');
-    expect(settingsSource).toContain('redirect("/settings/selling")');
+    expect(settingsSource).not.toContain('redirect("/settings/selling")');
     expect(settingsSource).not.toContain('redirect("/memory")');
   });
 
-  it("keeps the relocated selling profile editor at /settings/selling", () => {
+  it("lands /settings on Account instead of redirecting to Memory", () => {
+    expect(settingsSource).toMatch(/UserProfile|AccountRoleEditor|role/);
+    expect(settingsSource).not.toContain("redirect(");
+  });
+
+  it("keeps a shared settings layout and the relocated selling editor", () => {
+    expect(existsSync(settingsLayoutUrl)).toBe(true);
     expect(existsSync(sellingPageUrl)).toBe(true);
+    expect(existsSync(appearancePageUrl)).toBe(true);
+    expect(existsSync(experiencePageUrl)).toBe(true);
+    const layoutSource = readFileSync(settingsLayoutUrl, "utf8");
     const sellingSource = readFileSync(sellingPageUrl, "utf8");
+    expect(layoutSource).toContain("SETTINGS_NAV_ITEMS");
+    expect(layoutSource).toContain("<select");
     expect(sellingSource).toContain("/api/user/profile");
     expect(sellingSource).not.toContain("[MEMORY]");
+    expect(sellingSource).not.toContain("cyan-");
   });
 
   it("does not register Memory in the search registry", () => {
@@ -98,5 +122,7 @@ describe("dashboard navigation", () => {
     expect(topbarSource).toContain('"/inbox"');
     expect(topbarSource).toContain('current: "Settings"');
     expect(topbarSource).toContain('current: "Selling profile"');
+    expect(topbarSource).toContain('current: "Appearance"');
+    expect(topbarSource).toContain('current: "Experience"');
   });
 });

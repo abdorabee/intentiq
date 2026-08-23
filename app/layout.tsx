@@ -113,7 +113,7 @@ export default function RootLayout({
         <head>
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');}else{d.classList.add('dark');}}catch(e){}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;var dark=t==='light'?false:t==='system'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;d.classList.toggle('dark',dark);}catch(e){}})();`,
             }}
           />
           <GoogleAnalytics />
