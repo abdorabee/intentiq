@@ -156,6 +156,33 @@ describe("authenticated navigation shell", () => {
     expect(document.body).not.toHaveStyle({ overflow: "hidden" });
   });
 
+  it("hands modal ownership from the mobile drawer to the global search shortcut", async () => {
+    setViewport(true);
+    const user = userEvent.setup();
+    render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    const menuButton = screen.getByRole("button", { name: "Open navigation menu" });
+    await user.click(menuButton);
+    expect(await screen.findByRole("dialog", { name: "Workspace navigation" })).toBeInTheDocument();
+
+    await user.keyboard("{Control>}k{/Control}");
+
+    const searchDialog = await screen.findByRole("dialog", { name: "Search" });
+    expect(screen.getAllByRole("dialog")).toEqual([searchDialog]);
+    expect(screen.queryByRole("dialog", { name: "Workspace navigation" })).not.toBeInTheDocument();
+    const searchInput = screen.getByRole("combobox", { name: "Search companies, people, and pages" });
+    await waitFor(() => expect(searchInput).toHaveFocus());
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(menuButton).toHaveFocus();
+    expect(document.body).not.toHaveStyle({ overflow: "hidden" });
+  });
+
   it("cleans up the mobile dialog across breakpoint changes while preserving desktop collapse", async () => {
     const viewport = setViewport(false);
     const user = userEvent.setup();

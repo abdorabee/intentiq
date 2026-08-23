@@ -17,6 +17,11 @@ interface SearchContextValue {
   close: () => void;
 }
 
+interface SearchProviderProps {
+  children: ReactNode;
+  beforeOpen?: () => boolean;
+}
+
 const SearchContext = createContext<SearchContextValue | null>(null);
 
 export function useDashboardSearch() {
@@ -27,22 +32,29 @@ export function useDashboardSearch() {
   return ctx;
 }
 
-export function SearchProvider({ children }: { children: ReactNode }) {
+export function SearchProvider({ children, beforeOpen }: SearchProviderProps) {
   const [open, setOpen] = useState(false);
 
-  const openPalette = useCallback(() => setOpen(true), []);
+  const openPalette = useCallback(() => {
+    if (beforeOpen?.()) {
+      window.setTimeout(() => setOpen(true), 0);
+      return;
+    }
+    setOpen(true);
+  }, [beforeOpen]);
   const closePalette = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen((v) => !v);
+        if (open) closePalette();
+        else openPalette();
       }
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") closePalette();
     }
     function onOpenEvent() {
-      setOpen(true);
+      openPalette();
     }
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener(SEARCH_OPEN_EVENT, onOpenEvent);
@@ -50,7 +62,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener(SEARCH_OPEN_EVENT, onOpenEvent);
     };
-  }, []);
+  }, [closePalette, open, openPalette]);
 
   const value = useMemo(
     () => ({ open: openPalette, close: closePalette }),

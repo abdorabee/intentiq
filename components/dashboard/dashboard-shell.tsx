@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
@@ -129,9 +129,14 @@ export default function DashboardShell({
 
   // On mobile the drawer always shows the full nav (ignore the desktop collapse state).
   const effectiveCollapsed = isMobile ? false : collapsed;
+  const closeDrawerBeforeSearch = useCallback(() => {
+    if (!isMobile || !mobileOpen) return false;
+    setMobileOpen(false);
+    return true;
+  }, [isMobile, mobileOpen]);
 
   return (
-    <SearchProvider>
+    <SearchProvider beforeOpen={closeDrawerBeforeSearch}>
       <div
         className={`dashboard-shell${effectiveCollapsed ? " is-collapsed" : ""}${mobileOpen ? " nav-open" : ""}`}
       >

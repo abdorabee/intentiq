@@ -92,15 +92,6 @@ export default function DashboardNav({
     return undefined;
   }
 
-  function handleSearch() {
-    if (isMobile) {
-      onMobileClose?.();
-      window.setTimeout(openSearch, 0);
-      return;
-    }
-    openSearch();
-  }
-
   return (
     <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
     <aside
@@ -130,7 +121,7 @@ export default function DashboardNav({
           )}
         </div>
         <Tooltip label="Search" visible={collapsed}>
-          <button type="button" className="sb-search" onClick={handleSearch} aria-label="Search">
+          <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
             <Search className="ic" aria-hidden />
             {!collapsed && <span>Search</span>}
             {!collapsed && <kbd className="kbd">⌘K</kbd>}
