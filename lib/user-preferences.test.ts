@@ -23,6 +23,10 @@ describe("user preference contracts", () => {
     expect(() => userPreferencesPatchSchema.parse({ onboarding_revision: 1 })).toThrow();
     expect(() => userPreferencesPatchSchema.parse({ onboarding_step: 1 })).toThrow();
     expect(() => userPreferencesPatchSchema.parse({ onboarding_draft: {} })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ tour_version: 1 })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ tour_status: "completed" })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ tour_step: 2 })).toThrow();
+    expect(() => userPreferencesPatchSchema.parse({ tour_updated_at: new Date().toISOString() })).toThrow();
   });
 
   it("rejects empty patches and invalid bounded state", () => {

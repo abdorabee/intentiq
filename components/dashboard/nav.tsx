@@ -35,6 +35,7 @@ interface DashboardNavProps {
   pipelineHotCount?: number;
   isMobile?: boolean;
   mobileOpen?: boolean;
+  tourTargeting?: boolean;
   onMobileClose?: () => void;
   sidebarRef?: Ref<HTMLElement>;
 }
@@ -66,6 +67,7 @@ export default function DashboardNav({
   pipelineHotCount,
   isMobile = false,
   mobileOpen = false,
+  tourTargeting = false,
   onMobileClose,
   sidebarRef,
 }: DashboardNavProps) {
@@ -98,9 +100,9 @@ export default function DashboardNav({
       ref={sidebarRef}
       id="workspace-navigation"
       className="sidebar"
-      role={isMobile ? "dialog" : undefined}
-      aria-modal={isMobile ? true : undefined}
-      aria-label={isMobile ? "Workspace navigation" : undefined}
+      role={isMobile && !tourTargeting ? "dialog" : undefined}
+      aria-modal={isMobile && !tourTargeting ? true : undefined}
+      aria-label={isMobile && !tourTargeting ? "Workspace navigation" : undefined}
       aria-hidden={isMobile && !mobileOpen ? true : undefined}
       inert={isMobile && !mobileOpen}
       tabIndex={isMobile ? -1 : undefined}
@@ -114,7 +116,7 @@ export default function DashboardNav({
               <span className="role">Workspace · {plan}</span>
             </div>
           )}
-          {isMobile && (
+          {isMobile && !tourTargeting && (
             <button type="button" className="sb-mobile-close" onClick={onMobileClose} aria-label="Close navigation menu">
               <X aria-hidden />
             </button>
@@ -143,6 +145,7 @@ export default function DashboardNav({
                 <Tooltip key={item.id} label={item.label} visible={collapsed}>
                   <Link
                     href={item.href}
+                    data-tour={item.id === "settings" ? "navigation-settings" : undefined}
                     aria-label={collapsed ? item.label : undefined}
                     aria-current={active ? "page" : undefined}
                     className={cn("sb-item", active && "active")}

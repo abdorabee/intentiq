@@ -63,6 +63,11 @@ afterEach(() => {
 });
 
 describe("ScoreView corrections", () => {
+  it("exposes a stable tour anchor around the domain scoring flow", () => {
+    render(<ScoreView creditsRemaining={10} recentScores={[]} />);
+    expect(screen.getByRole("textbox", { name: "Company domain" }).closest('[data-tour="score-domain"]')).not.toBeNull();
+  });
+
   it("rejects a blank domain visibly without sending a score request", async () => {
     const user = userEvent.setup();
     render(<ScoreView creditsRemaining={10} recentScores={[]} />);

@@ -128,7 +128,7 @@ export default function DashboardHomeView({
   });
 
   return (
-    <div style={{ fontSize: 13, letterSpacing: "-0.006em", color: "var(--text-primary)" }}>
+    <div data-tour="dashboard-overview" style={{ fontSize: 13, letterSpacing: "-0.006em", color: "var(--text-primary)" }}>
       {/* ── Page head ─────────────────────────────────────────────────── */}
       <div className="page-head">
         <div>

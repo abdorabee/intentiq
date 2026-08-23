@@ -79,6 +79,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         pipelineHotCount={pipelineHotCount ?? 0}
         initialSidebarCollapsed={preferences?.sidebar_collapsed}
         initialTheme={preferences?.theme}
+        initialTour={preferences ? {
+          tour_version: preferences.tour_version,
+          tour_status: preferences.tour_status,
+          tour_step: preferences.tour_step,
+          tour_updated_at: preferences.tour_updated_at,
+        } : undefined}
       >
         {children}
       </DashboardShell>

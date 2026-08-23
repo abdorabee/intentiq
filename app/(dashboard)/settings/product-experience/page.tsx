@@ -4,6 +4,7 @@ import { Sparkles } from "lucide-react";
 import { SettingsPageHeader } from "@/components/settings/settings-page-header";
 import { ProductExperienceSettings } from "@/components/settings/product-experience-settings";
 import { getOrCreateUserPreferences } from "@/lib/user-preferences-server";
+import { ACTIVE_PRODUCT_TOUR_VERSION, isProductTourVersionActive } from "@/lib/product-tour";
 
 export default async function ProductExperiencePage() {
   const { userId } = await auth();
@@ -11,7 +12,7 @@ export default async function ProductExperiencePage() {
   const preferences = await getOrCreateUserPreferences(userId);
   if (!preferences) throw new Error("User preferences are unavailable");
 
-  const active = preferences.tour_version > 0;
+  const active = isProductTourVersionActive(preferences.tour_version, ACTIVE_PRODUCT_TOUR_VERSION);
   return (
     <div className="space-y-7">
       <SettingsPageHeader icon={Sparkles} eyebrow="Settings" title="Product experience" description="Review contextual guidance state for this account." />

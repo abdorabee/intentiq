@@ -455,8 +455,20 @@ details.nav-dd[open] .nav-chevron {
 .grid-expand[data-open="true"]  { grid-template-rows: 1fr; }
 .grid-expand[data-open="false"] { grid-template-rows: 0fr; }
 
+[data-tour][data-tour-active="true"] {
+  position: relative;
+  z-index: 60;
+  outline: 3px solid #dfff00;
+  outline-offset: 5px;
+  scroll-margin: 5rem;
+  transition: outline-offset 160ms ease;
+}
+
 /* Reduced motion: disable all custom animations */
 @media (prefers-reduced-motion: reduce) {
+  [data-tour][data-tour-active="true"] {
+    transition: none;
+  }
   .scanline-hover::after,
   .crt-flicker,
   .counter-glow,

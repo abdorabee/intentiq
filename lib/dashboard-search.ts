@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { ACTIVE_PRODUCT_TOUR_VERSION } from "@/lib/product-tour";
 import {
   Bot,
   Building2,
@@ -140,7 +141,7 @@ export const NAVIGATION_MANIFEST: readonly DashboardNavigationGroup[] = [
             href: "/settings/product-experience",
             keywords: "product experience tour onboarding guide restart",
             icon: Sparkles,
-            availability: "later",
+            availability: ACTIVE_PRODUCT_TOUR_VERSION > 0 ? "available" : "later",
             description: "Review and restart the contextual product tour once it becomes active.",
           },
           {

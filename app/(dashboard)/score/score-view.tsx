@@ -172,7 +172,7 @@ interface MiniPromptProps {
 
 function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
   return (
-    <div className="prompt-holder prompt-holder--compact" style={{ marginBottom: 18 }}>
+    <div data-tour="score-domain" className="prompt-holder prompt-holder--compact" style={{ marginBottom: 18 }}>
       <div className="prompt-prefix">
         <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
           <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
@@ -551,7 +551,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
           Web and GitHub are collected as context for the reasoning.
         </p>
 
-        <div className="prompt-holder prompt-holder--compact">
+        <div data-tour="score-domain" className="prompt-holder prompt-holder--compact">
           <div className="prompt-prefix">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
               <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />

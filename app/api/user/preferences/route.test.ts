@@ -172,6 +172,23 @@ describe("PATCH /api/user/preferences", () => {
     expect(harness.calls).toEqual([]);
   });
 
+  it("rejects every tour-owned field before touching storage", async () => {
+    for (const patch of [
+      { tour_version: 1 },
+      { tour_status: "completed" },
+      { tour_step: 2 },
+      { tour_updated_at: "2026-08-24T01:00:00.000Z" },
+    ]) {
+      const response = await PATCH(new Request("http://localhost/api/user/preferences", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      }));
+      expect(response.status).toBe(400);
+    }
+    expect(harness.calls).toEqual([]);
+  });
+
   it("rejects unknown fields before touching storage", async () => {
     const response = await PATCH(new Request("http://localhost/api/user/preferences", {
       method: "PATCH",

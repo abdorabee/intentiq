@@ -4,9 +4,11 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
+import { ProductTourHost } from "@/components/dashboard/product-tour-host";
 import { SearchProvider } from "@/components/dashboard/search-provider";
 import { useTheme } from "@/components/theme-provider";
 import type { DbUser } from "@/lib/types";
+import type { TourProgress } from "@/lib/product-tour";
 import {
   createPreferenceWriteCoordinator,
   patchUserPreferences,
@@ -24,6 +26,8 @@ interface DashboardShellProps {
   pipelineHotCount?: number;
   initialSidebarCollapsed?: boolean;
   initialTheme?: ThemePreference;
+  initialTour?: TourProgress;
+  activeTourVersion?: number;
 }
 
 interface DashboardShellContextValue {
@@ -49,6 +53,8 @@ export default function DashboardShell({
   pipelineHotCount,
   initialSidebarCollapsed,
   initialTheme,
+  initialTour,
+  activeTourVersion,
 }: DashboardShellProps) {
   const pathname = usePathname();
   const flushPages = ["/billing", "/inbox"];
@@ -58,6 +64,7 @@ export default function DashboardShell({
   const collapsedRef = useRef(initialSidebarCollapsed ?? false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [tourTargetingNavigation, setTourTargetingNavigation] = useState(false);
   const [preferenceStatus, setPreferenceStatus] = useState<PreferenceSaveStatus>("idle");
   const sidebarRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -91,7 +98,10 @@ export default function DashboardShell({
     const mq = window.matchMedia("(max-width: 980px)");
     const apply = () => {
       setIsMobile(mq.matches);
-      if (!mq.matches) setMobileOpen(false);
+      if (!mq.matches) {
+        setMobileOpen(false);
+        setTourTargetingNavigation(false);
+      }
     };
     apply();
     mq.addEventListener("change", apply);
@@ -100,7 +110,10 @@ export default function DashboardShell({
 
   // Close the mobile drawer on route change.
   useEffect(() => {
-    if (mobileOpen) setMobileOpen(false);
+    if (mobileOpen) {
+      setMobileOpen(false);
+      setTourTargetingNavigation(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -125,6 +138,11 @@ export default function DashboardShell({
     ].join(",");
 
     document.body.style.overflow = "hidden";
+    if (tourTargetingNavigation) {
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
     const focusables = Array.from(navigationPanel.querySelectorAll<HTMLElement>(focusableSelector));
     focusables[0]?.focus();
 
@@ -162,7 +180,7 @@ export default function DashboardShell({
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
-  }, [isMobile, mobileOpen]);
+  }, [isMobile, mobileOpen, tourTargetingNavigation]);
 
   const setSidebarCollapsed = useCallback((next: boolean) => {
     if (collapsedRef.current === next) return;
@@ -179,8 +197,21 @@ export default function DashboardShell({
   const closeDrawerBeforeSearch = useCallback(() => {
     if (!isMobile || !mobileOpen) return false;
     setMobileOpen(false);
+    setTourTargetingNavigation(false);
     return true;
   }, [isMobile, mobileOpen]);
+  const openMobileNavigation = useCallback(() => {
+    setTourTargetingNavigation(true);
+    setMobileOpen(true);
+  }, []);
+  const closeMobileNavigation = useCallback(() => {
+    setMobileOpen(false);
+    setTourTargetingNavigation(false);
+  }, []);
+  const openRegularMobileNavigation = useCallback(() => {
+    setTourTargetingNavigation(false);
+    setMobileOpen(true);
+  }, []);
 
   return (
     <DashboardShellContext.Provider value={{ collapsed, setSidebarCollapsed, preferenceStatus }}>
@@ -198,22 +229,32 @@ export default function DashboardShell({
           pipelineHotCount={pipelineHotCount}
           isMobile={isMobile}
           mobileOpen={mobileOpen}
-          onMobileClose={() => setMobileOpen(false)}
+          tourTargeting={tourTargetingNavigation}
+          onMobileClose={closeMobileNavigation}
           sidebarRef={sidebarRef}
         />
         <div
           className="dashboard-nav-backdrop"
-          onClick={() => setMobileOpen(false)}
+          onClick={tourTargetingNavigation ? undefined : closeMobileNavigation}
           aria-hidden="true"
         />
         <div className="main">
           <DashboardTopbar
-            onMenuClick={() => setMobileOpen(true)}
+            onMenuClick={openRegularMobileNavigation}
             menuButtonRef={menuButtonRef}
             mobileMenuOpen={mobileOpen}
           />
           <main className={pageClass}>{children}</main>
         </div>
+        {initialTour && (
+          <ProductTourHost
+            initial={initialTour}
+            activeVersion={activeTourVersion}
+            isMobile={isMobile}
+            openMobileNavigation={openMobileNavigation}
+            closeMobileNavigation={closeMobileNavigation}
+          />
+        )}
       </div>
     </SearchProvider>
     </DashboardShellContext.Provider>

@@ -555,7 +555,7 @@ export default function PipelinePage() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+    <div data-tour="intent-hub-prioritization" style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       {/* Hub Tools bar */}
       <div className="hub-tools">
         <div className="hub-tabs">

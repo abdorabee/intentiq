@@ -27,10 +27,6 @@ export const userPreferencesPatchSchema = z
     theme: preferenceFields.theme.optional(),
     sidebar_collapsed: preferenceFields.sidebar_collapsed.optional(),
     analytics_enabled: preferenceFields.analytics_enabled.optional(),
-    tour_version: preferenceFields.tour_version.optional(),
-    tour_status: preferenceFields.tour_status.optional(),
-    tour_step: preferenceFields.tour_step.optional(),
-    tour_updated_at: preferenceFields.tour_updated_at.optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one preference is required",

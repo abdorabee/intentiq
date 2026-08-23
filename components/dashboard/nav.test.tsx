@@ -233,6 +233,43 @@ describe("authenticated navigation shell", () => {
     expect(within(dialog).queryByRole("button", { name: /sidebar/i })).not.toBeInTheDocument();
   });
 
+  it("cedes dialog semantics to the tour while mobile navigation exposes a tour target", () => {
+    render(
+      <SearchProvider>
+        <DashboardNav creditsRemaining={80} plan="starter" isMobile mobileOpen tourTargeting />
+      </SearchProvider>,
+    );
+
+    expect(screen.queryByRole("dialog", { name: "Workspace navigation" })).not.toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Close navigation menu" })).not.toBeInTheDocument();
+  });
+
+  it("keeps tour-owned mobile navigation non-modal when mounted through the real shell", async () => {
+    setViewport(true);
+    render(
+      <DashboardShell
+        creditsRemaining={80}
+        plan="starter"
+        activeTourVersion={1}
+        initialTour={{
+          tour_version: 1,
+          tour_status: "in_progress",
+          tour_step: 4,
+          tour_updated_at: "2026-08-24T01:00:00.000Z",
+        }}
+      >
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    const settings = await screen.findByRole("link", { name: "Settings" });
+    await waitFor(() => expect(settings).toHaveAttribute("data-tour-active", "true"));
+    expect(screen.queryByRole("dialog", { name: "Workspace navigation" })).not.toBeInTheDocument();
+    const tour = screen.getByRole("dialog", { name: "Product tour: Navigate and adjust Settings" });
+    expect(within(tour).getByRole("heading", { name: "Navigate and adjust Settings" })).toHaveFocus();
+  });
+
   it("hands modal ownership from the mobile drawer to search and restores the menu trigger", async () => {
     setViewport(true);
     const user = userEvent.setup();
@@ -346,6 +383,16 @@ describe("authenticated navigation shell", () => {
     );
 
     expect(screen.getByRole("progressbar", { name: "Monthly credits remaining" })).toBeInTheDocument();
+  });
+
+  it("exposes a stable tour anchor on the canonical Settings destination", () => {
+    render(
+      <SearchProvider>
+        <DashboardNav creditsRemaining={80} plan="starter" />
+      </SearchProvider>,
+    );
+
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("data-tour", "navigation-settings");
   });
 
   it("uses semantic breadcrumbs and omits empty global score bands", () => {
