@@ -2,26 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Search, Plus, List, CreditCard, Menu } from "lucide-react";
+import { Search, Plus, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
 import { focusWatchlistAdd } from "@/lib/watchlist-events";
-
-const CRUMB: Record<string, { parent: string; current: string }> = {
-  "/dashboard": { parent: "Workspace", current: "Dashboard" },
-  "/memory": { parent: "Workspace", current: "Memory" },
-  "/pipeline": { parent: "Workspace", current: "Intent Hub" },
-  "/people": { parent: "Workspace", current: "People" },
-  "/history": { parent: "Workspace", current: "History" },
-  "/watchlist": { parent: "Workspace", current: "Watchlist" },
-  "/lists": { parent: "Workspace", current: "Lists" },
-  "/autopilot": { parent: "Workspace", current: "Autopilot" },
-  "/bulk": { parent: "Workspace", current: "Bulk" },
-  "/billing": { parent: "Workspace", current: "Billing" },
-  "/api-keys": { parent: "Workspace", current: "API Keys" },
-  "/score": { parent: "Workspace", current: "Score" },
-  "/settings": { parent: "Workspace", current: "Settings" },
-};
+import { getNavigationBreadcrumb } from "@/lib/dashboard-search";
 
 interface BandCounts {
   hot: number;
@@ -40,26 +25,22 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
   const isBilling = pathname === "/billing";
   const isWatchlist = pathname === "/watchlist";
   const listDetailMatch = pathname.match(/^\/lists\/([^/]+)$/);
-  const [listName, setListName] = useState<string | null>(null);
+  const listDetailId = listDetailMatch?.[1] ?? null;
+  const [listCrumb, setListCrumb] = useState<{ id: string; name: string | null } | null>(null);
   const { open: openSearch } = useDashboardSearch();
 
   useEffect(() => {
-    if (!listDetailMatch) {
-      setListName(null);
-      return;
-    }
-    const id = listDetailMatch[1];
-    fetch(`/api/dashboard/lists/${id}`)
-      .then((r) => r.json())
-      .then((d) => setListName(d.list?.name ?? null))
-      .catch(() => setListName(null));
-  }, [listDetailMatch?.[1]]);
+    if (!listDetailId) return;
 
-  const crumb = CRUMB[pathname] ?? (
-    listDetailMatch
-      ? { parent: "Lists", current: listName ?? "List detail" }
-      : { parent: "Workspace", current: "VesperWise" }
-  );
+    fetch(`/api/dashboard/lists/${listDetailId}`)
+      .then((r) => r.json())
+      .then((d) => setListCrumb({ id: listDetailId, name: d.list?.name ?? null }))
+      .catch(() => setListCrumb({ id: listDetailId, name: null }));
+  }, [listDetailId]);
+
+  const crumb = getNavigationBreadcrumb(pathname);
+  const CrumbIcon = crumb.icon;
+  const listName = listCrumb?.id === listDetailId ? listCrumb.name : null;
 
   const hot = bandCounts?.hot ?? 0;
   const warm = bandCounts?.warm ?? 0;
@@ -80,13 +61,7 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
         <Menu className="ic" aria-hidden />
       </button>
       <div className="crumb">
-        {isLists ? (
-          <List className="ic" aria-hidden />
-        ) : isBilling ? (
-          <CreditCard className="ic" aria-hidden />
-        ) : (
-          <LayoutGrid className="ic" aria-hidden />
-        )}
+        <CrumbIcon className="ic" aria-hidden />
         <span>{crumb.parent}</span>
         <span className="sep">/</span>
         {listDetailMatch ? (

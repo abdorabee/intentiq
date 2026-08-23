@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType } from "react";
+import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
@@ -8,18 +8,6 @@ import { cn } from "@/lib/utils";
 import { PLAN_CREDITS, type DbUser } from "@/lib/types";
 import { getWorkspaceLabel } from "@/lib/workspace-label";
 import {
-  LayoutGrid,
-  Flame,
-  Gauge,
-  History,
-  UserSearch,
-  Eye,
-  ListChecks,
-  Upload,
-  Zap,
-  Inbox,
-  CreditCard,
-  Key,
   LogOut,
   Sun,
   Moon,
@@ -27,37 +15,14 @@ import {
   ChevronDown,
   Search,
 } from "lucide-react";
+import {
+  getVisibleNavigationGroups,
+  isNavigationItemActive,
+  type DashboardNavigationItem,
+} from "@/lib/dashboard-search";
 import { useTheme } from "@/components/theme-provider";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
 import VesperWiseLogo from "@/components/vesperwise-logo";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  indicator?: boolean;
-  hotCount?: boolean;
-  beta?: boolean;
-  comingSoon?: boolean;
-}
-
-const WORKSPACE_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/pipeline", label: "Intent Hub", icon: Flame, hotCount: true },
-  { href: "/score", label: "Score", icon: Gauge },
-  { href: "/history", label: "History", icon: History },
-  { href: "/people", label: "People", icon: UserSearch, beta: true },
-  { href: "/watchlist", label: "Watchlist", icon: Eye },
-  { href: "/lists", label: "Lists", icon: ListChecks },
-  { href: "/bulk", label: "Bulk Score", icon: Upload },
-  { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
-];
-
-const BOTTOM_ITEMS: NavItem[] = [
-  { href: "/billing", label: "Billing", icon: CreditCard },
-  { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
-];
 
 interface DashboardNavProps {
   creditsRemaining?: number;
@@ -92,10 +57,12 @@ export default function DashboardNav({
     email.slice(0, 2).toUpperCase() ||
     "IQ";
 
-  function navCount(item: NavItem): string | undefined {
-    if (item.href === "/inbox" && inboxCount && inboxCount > 0) return String(inboxCount);
-    if (item.href === "/pipeline" && pipelineHotCount && pipelineHotCount > 0) return String(pipelineHotCount);
-    if (item.href === "/watchlist" && watchlistCount && watchlistCount > 0) return String(watchlistCount);
+  const navigationGroups = getVisibleNavigationGroups();
+
+  function navCount(item: DashboardNavigationItem): string | undefined {
+    if (item.count === "inbox" && inboxCount && inboxCount > 0) return String(inboxCount);
+    if (item.count === "pipelineHot" && pipelineHotCount && pipelineHotCount > 0) return String(pipelineHotCount);
+    if (item.count === "watchlist" && watchlistCount && watchlistCount > 0) return String(watchlistCount);
     return undefined;
   }
 
@@ -122,74 +89,43 @@ export default function DashboardNav({
         </button>
       )}
 
-      {/* Workspace nav */}
-      <div className="sb-section">
-        {!collapsed && <span>Workspace</span>}
-      </div>
-      {WORKSPACE_ITEMS.map((item) => {
-        const Icon = item.icon;
-        const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-        const displayCount = navCount(item);
-        return (
-          <Link
-            key={`${item.href}-${item.label}`}
-            href={item.href}
-            title={collapsed ? item.label : undefined}
-            className={cn("sb-item", active && "active")}
-          >
-            <Icon className="ic" />
-            {!collapsed && (
-              <>
-                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {item.label}
-                </span>
-                {item.comingSoon && (
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-quaternary)" }}>
-                    Soon
-                  </span>
+      {navigationGroups.map((group) => (
+        <Fragment key={group.id}>
+          <div className="sb-section">
+            {!collapsed && <span>{group.label}</span>}
+          </div>
+          {group.items.map((item) => {
+            const Icon = item.icon;
+            const active = isNavigationItemActive(item, pathname);
+            const displayCount = navCount(item);
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                title={collapsed ? item.label : undefined}
+                className={cn("sb-item", active && "active")}
+              >
+                <Icon className="ic" />
+                {!collapsed && (
+                  <>
+                    <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {item.label}
+                    </span>
+                    {item.badge && (
+                      <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-2)" }}>
+                        {item.badge}
+                      </span>
+                    )}
+                    {displayCount && (
+                      <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
+                    )}
+                  </>
                 )}
-                {item.beta && !item.comingSoon && (
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-2)" }}>
-                    Beta
-                  </span>
-                )}
-                {displayCount && (
-                  <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
-                )}
-                {item.indicator && <span className="indicator" />}
-              </>
-            )}
-          </Link>
-        );
-      })}
-
-
-      <div className="sb-divider" />
-
-      {BOTTOM_ITEMS.map((item) => {
-        const Icon = item.icon;
-        const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            title={collapsed ? item.label : undefined}
-            className={cn("sb-item", active && "active")}
-          >
-            <Icon className="ic" />
-            {!collapsed && (
-              <>
-                <span style={{ flex: 1 }}>{item.label}</span>
-                {item.comingSoon && (
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--text-quaternary)" }}>
-                    Soon
-                  </span>
-                )}
-              </>
-            )}
-          </Link>
-        );
-      })}
+              </Link>
+            );
+          })}
+        </Fragment>
+      ))}
 
       <div className="sb-spacer" />
 
