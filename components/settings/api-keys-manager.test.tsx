@@ -124,4 +124,46 @@ describe("ApiKeysManager", () => {
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "Revoke API key" })).not.toBeInTheDocument());
     expect(screen.getByRole("heading", { name: "API keys" })).toHaveFocus();
   });
+
+  it("restores safe in-dialog focus and supports cancellation after revoke failure", async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        keys: [{ id: "key_1", label: "Production", last_used: null, is_active: true, created_at: "2026-08-23T12:00:00.000Z" }],
+        limit: 2,
+        plan: "starter",
+      })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Database unavailable" }), { status: 503 }));
+    render(<ApiKeysManager />);
+    await screen.findByText("Production");
+    const revokeButton = screen.getByRole("button", { name: "Revoke Production" });
+    await user.click(revokeButton);
+    await user.click(screen.getByRole("button", { name: "Confirm revoke" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Database unavailable");
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog", { name: "Revoke API key" })).not.toBeInTheDocument();
+    expect(revokeButton).toHaveFocus();
+  });
+
+  it("supports retrying a revoke after focus recovers from failure", async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        keys: [{ id: "key_1", label: "Production", last_used: null, is_active: true, created_at: "2026-08-23T12:00:00.000Z" }],
+        limit: 2,
+        plan: "starter",
+      })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Try again" }), { status: 503 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ record: { id: "key_1", is_active: false } })));
+    render(<ApiKeysManager />);
+    await screen.findByText("Production");
+    await user.click(screen.getByRole("button", { name: "Revoke Production" }));
+    await user.click(screen.getByRole("button", { name: "Confirm revoke" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Try again");
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "Confirm revoke" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Revoke API key" })).not.toBeInTheDocument());
+    expect(screen.getByRole("heading", { name: "API keys" })).toHaveFocus();
+  });
 });

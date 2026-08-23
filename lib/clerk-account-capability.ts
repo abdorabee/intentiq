@@ -12,10 +12,10 @@ const verificationSchema = z.object({
   contract_version: z.string(),
   probe_user_id: z.string(),
   update_event_id: z.string().min(1),
-  update_verified_at: z.string().datetime(),
+  update_verified_at: z.iso.datetime({ offset: true }),
   delete_event_id: z.string().min(1),
-  delete_verified_at: z.string().datetime(),
-  activated_at: z.string().datetime(),
+  delete_verified_at: z.iso.datetime({ offset: true }),
+  activated_at: z.iso.datetime({ offset: true }),
 }).strict();
 
 export type ClerkLifecycleVerification = z.infer<typeof verificationSchema>;

@@ -8,7 +8,7 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
     title: "Product",
     links: [
       { label: "Score", href: "/score" },
-      { label: "Intent Hub", href: "/intent-hub" },
+      { label: "Intent Hub", href: "/pipeline" },
       { label: "Autopilot", href: "/autopilot" },
       { label: "People scoring", href: "/people" },
       { label: "Watchlist", href: "/watchlist" },

@@ -210,3 +210,45 @@ This section supersedes Fix Round 1's configuration-only account gate, client-pr
 
 - No migration was applied to a remote Supabase project, no Clerk endpoint or event subscription was configured, no remote probe user was updated/deleted, and no production account surface was enabled in this round. Account management therefore remains default-closed until each environment completes the documented signed probe procedure and stores matching activation evidence.
 - The supported Business Profile guard covers owned same-origin anchors and browser unload. It intentionally does not manipulate Back/Forward history because the prior nondirectional restoration could navigate to the wrong entry, and Next/browser APIs do not provide a universal interception hook for unrelated programmatic navigation.
+
+## Fix Round 3
+
+This section supersedes the Fix Round 2 readiness-parser, link-integrity, revoke-failure-focus, and focused-count evidence.
+
+### Corrections
+
+- Replaced `z.string().datetime()` lifecycle timestamps with the same offset-aware `z.iso.datetime({ offset: true })` pattern used by `user_preferences`. Real Postgres/PostgREST `timestamptz` values such as `2026-08-23T12:00:00+00:00` now pass. Update verification, delete verification, and activation timestamps are all validated; malformed, missing, incomplete, or foreign-probe evidence remains closed.
+- Removed every remaining `/legal/subprocessors` target because the route does not exist. Privacy now provides current-provider contact guidance and an internal Sharing & subprocessors anchor; DPA and Security link to the existing `/privacy#s5` destination. A scope-review regression also rejected the stale promise to maintain a nonexistent "Subprocessors page"; that assertion failed before the DPA sentence was corrected.
+- Changed the global Intent Hub footer destination from the dead `/intent-hub` path to `/pipeline`, the canonical available destination in the recursive navigation manifest.
+- Added mutation-resistant navigation coverage. The legal/footer source test discovers app pages from `app/**/page.tsx`, normalizes route groups and fragments, and rejects static internal links without an existing page. The rendered footer test resolves Intent Hub from the recursive manifest and requires the footer href to match it.
+- When revoke DELETE fails, the pending status can unmount only after focus returns to the enabled safe Cancel button. The existing Tab trap and Escape behavior remain active. New tests cover failure → cancel/trigger restoration and failure → retry → stable heading restoration.
+
+### RED evidence
+
+The exact focused command below initially produced 4 failing files, 5 failed tests, and 13 passed tests (18 total). The failures were the `+00:00` readiness row, missing `/legal/subprocessors` route, footer `/intent-hub` mismatch, and two revoke-failure focus/recovery cases.
+
+```bash
+npm test -- lib/clerk-account-capability.test.ts app/legal/legal-copy.test.ts components/site-footer.test.tsx components/settings/api-keys-manager.test.tsx
+```
+
+### Exact GREEN evidence
+
+The same focused command was rerun after implementation and test-fixture lint cleanup. Its captured summary was:
+
+```text
+Test Files  4 passed (4)
+Tests       18 passed (18)
+```
+
+The Fix Round 2 report stated 49 focused tests, while the subsequent review reproduced 44 for its selection. The earlier terminal capture in this task showed 49, but the selection/count discrepancy was not independently reconstructable after the fact. That prior aggregate should therefore not be used as auditable evidence; the exact Fix Round 3 command and 18-test output above are the authoritative focused record for this round.
+
+### Final verification
+
+- Full Vitest suite: 66 files passed, 4 skipped; 349 tests passed, 20 skipped.
+- Changed-file ESLint: exited 0 with no errors or warnings.
+- `git diff --check`: exited 0 with no findings.
+- Production build: compiled, TypeScript passed, 71 pages generated, and canonical `/pipeline`, legal, footer, and Settings routes were included.
+
+### Remaining boundary
+
+- This round changed no remote Supabase, Clerk, analytics, or deployment state. The Clerk account surface remains default-closed until each remote environment completes the signed lifecycle probe procedure documented in `README.md`.

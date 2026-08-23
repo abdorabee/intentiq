@@ -115,8 +115,8 @@ export function ApiKeysManager() {
   }
 
   useEffect(() => {
-    if (revokeTarget) cancelRevokeButton.current?.focus();
-  }, [revokeTarget]);
+    if (revokeTarget && !revoking) cancelRevokeButton.current?.focus();
+  }, [revokeTarget, revoking]);
 
   useEffect(() => {
     if (revoking) revokeStatus.current?.focus();

@@ -321,9 +321,9 @@ export default function DpaView() {
 
           {/* ── 05 ── */}
           <Section id="s5" num="05" title="Subprocessors">
-            <P>The Controller grants general authorization for VesperWise to engage subprocessors. The current list is on our <A href="/legal/subprocessors">Subprocessors</A> page. VesperWise will:</P>
+            <P>The Controller grants general authorization for VesperWise to engage subprocessors. Provider categories are summarized in <A href="/privacy#s5">Privacy · Sharing &amp; subprocessors</A>; contact <Code>legal@vesperwise.com</Code> for current provider details. VesperWise will:</P>
             <UL items={[
-              <span key="a">Maintain the current subprocessor list on the Subprocessors page;</span>,
+              <span key="a">Provide current subprocessor details through the contact channel above;</span>,
               "Impose on each subprocessor data‑protection obligations no less protective than those in this DPA;",
               "Remain fully liable for the acts and omissions of its subprocessors.",
             ]} />
@@ -424,7 +424,7 @@ export default function DpaView() {
             <div style={{ display: "flex", gap: "18px" }}>
               <A href="/terms">Terms →</A>
               <A href="/privacy">Privacy →</A>
-              <A href="/legal/subprocessors">Subprocessors →</A>
+              <A href="/privacy#s5">Subprocessor handling →</A>
             </div>
           </div>
         </main>

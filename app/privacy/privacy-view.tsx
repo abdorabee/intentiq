@@ -352,7 +352,7 @@ export default function PrivacyView() {
 
           {/* ── 05 ── */}
           <Section id="s5" num="05" title="Sharing & subprocessors">
-            <P>We share data only with the subprocessors listed on our <A href="/legal/subprocessors">Subprocessors page</A>. These are companies that help us operate the Service (cloud infrastructure, auth, payments, email delivery, analytics). We give each subprocessor only the minimum data they need to perform their service.</P>
+            <P>We use providers that help operate the Service, including cloud infrastructure, authentication, payments, email delivery, analytics, and AI processing. Contact <A href="mailto:privacy@vesperwise.com">privacy@vesperwise.com</A> for current provider details.</P>
             <P>We will notify you at least <Strong>30 days before</Strong> adding a new subprocessor that processes personal data, via the email on your account and a notice in the product. You may object by terminating per Section&nbsp;10 of the Terms.</P>
           </Section>
 
@@ -369,7 +369,7 @@ export default function PrivacyView() {
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="International transfers">
-            <P>Some providers listed on the <A href="/legal/subprocessors">Subprocessors page</A> may process data outside your country. Where applicable, the transfer terms are described in our <A href="/legal/dpa">DPA</A>. This page does not claim a particular infrastructure region or future regional-deployment date.</P>
+            <P>Some providers described in <A href="#s5">Sharing &amp; subprocessors</A> may process data outside your country. Where applicable, the transfer terms are described in our <A href="/legal/dpa">DPA</A>. This page does not claim a particular infrastructure region or future regional-deployment date.</P>
           </Section>
 
           {/* ── 08 ── */}

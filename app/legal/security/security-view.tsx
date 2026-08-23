@@ -19,7 +19,7 @@ export default function SecurityView() {
           <Link href="/" aria-label="VesperWise home"><VesperWiseLogo size={42} variant="wordmark" /></Link>
           <div className="flex-1" />
           <Link href="/privacy" className="text-sm text-slate-400 hover:text-white">Privacy</Link>
-          <Link href="/legal/subprocessors" className="text-sm text-slate-400 hover:text-white">Subprocessors</Link>
+          <Link href="/privacy#s5" className="text-sm text-slate-400 hover:text-white">Privacy &amp; providers</Link>
           <Link href="/contact" className="border border-white/15 px-3 py-2 text-sm">Contact</Link>
         </div>
       </nav>
@@ -50,7 +50,7 @@ export default function SecurityView() {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">Send security questions and good-faith vulnerability reports to <a className="text-white underline underline-offset-4" href="mailto:security@vesperwise.com">security@vesperwise.com</a>. Do not include secrets, credentials, or customer data in the first message.</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/privacy" className="border border-white/15 px-4 py-2 text-sm">Privacy policy</Link>
-              <Link href="/legal/subprocessors" className="border border-white/15 px-4 py-2 text-sm">Subprocessors</Link>
+              <Link href="/privacy#s5" className="border border-white/15 px-4 py-2 text-sm">Privacy &amp; providers</Link>
               <Link href="/terms" className="border border-white/15 px-4 py-2 text-sm">Terms</Link>
             </div>
           </div>
