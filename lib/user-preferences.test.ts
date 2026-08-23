@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { hydrateThemePreference } from "./theme";
 import {
   DEFAULT_USER_PREFERENCES,
   mergeUserPreferences,
   normalizeUserPreferences,
   parsePreferencesPatch,
+  readExplicitThemePreference,
+  toPreferencesResponse,
 } from "./user-preferences";
 
 describe("normalizeUserPreferences", () => {
@@ -30,6 +33,41 @@ describe("normalizeUserPreferences", () => {
       product_tour_completed: true,
       product_tour_version: 2,
     });
+  });
+});
+
+describe("readExplicitThemePreference", () => {
+  it("returns only a theme that was actually stored", () => {
+    expect(readExplicitThemePreference({})).toBeUndefined();
+    expect(readExplicitThemePreference(null)).toBeUndefined();
+    expect(readExplicitThemePreference({ product_tour_completed: true })).toBeUndefined();
+    expect(readExplicitThemePreference({ theme: "neon" })).toBeUndefined();
+    expect(readExplicitThemePreference({ theme: "light" })).toBe("light");
+    expect(readExplicitThemePreference({ theme: "dark" })).toBe("dark");
+    expect(readExplicitThemePreference({ theme: "system" })).toBe("system");
+  });
+});
+
+describe("toPreferencesResponse", () => {
+  it("omits theme from empty DB preferences so GET does not default-fill dark", () => {
+    expect(toPreferencesResponse({}).preferences.theme).toBeUndefined();
+    expect(toPreferencesResponse({}).preferences).toEqual({
+      product_tour_completed: false,
+      product_tour_version: 1,
+    });
+  });
+
+  it("includes an explicit stored theme, including dark", () => {
+    expect(toPreferencesResponse({ theme: "dark" }).preferences.theme).toBe("dark");
+    expect(toPreferencesResponse({ theme: "light" }).preferences.theme).toBe("light");
+  });
+
+  it("does not let a default-filled empty row overwrite a local light or system cache", () => {
+    const emptyGet = toPreferencesResponse({}).preferences;
+    expect(normalizeUserPreferences({}).theme).toBe("dark");
+    expect(emptyGet.theme).toBeUndefined();
+    expect(hydrateThemePreference("light", emptyGet)).toBe("light");
+    expect(hydrateThemePreference("system", emptyGet)).toBe("system");
   });
 });
 

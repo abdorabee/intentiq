@@ -80,3 +80,29 @@ export function mergeUserPreferences(
 export function parsePreferencesPatch(body: unknown) {
   return preferencesPatchSchema.safeParse(body);
 }
+
+export function readExplicitThemePreference(raw: unknown): ThemePreference | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return undefined;
+  }
+
+  const theme = (raw as Record<string, unknown>).theme;
+  return THEME_PREFERENCES.includes(theme as ThemePreference)
+    ? (theme as ThemePreference)
+    : undefined;
+}
+
+export type PreferencesResponse = {
+  preferences: Omit<UserPreferences, "theme"> & { theme?: ThemePreference };
+};
+
+export function toPreferencesResponse(raw: unknown): PreferencesResponse {
+  const preferences = normalizeUserPreferences(raw);
+  const storedTheme = readExplicitThemePreference(raw);
+  if (storedTheme) {
+    return { preferences };
+  }
+
+  const { theme: _theme, ...rest } = preferences;
+  return { preferences: rest };
+}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
+  roleFromProfileLoad,
   selectableRoles,
   USER_ROLE_LABELS,
 } from "@/lib/user-role";
@@ -15,11 +16,18 @@ export function AccountRoleEditor() {
 
   useEffect(() => {
     fetch("/api/user/profile")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data: { role?: UserRole } | null) => {
-        setRole(data?.role ?? "sdr");
+      .then(async (response) => {
+        const data = response.ok ? await response.json() : null;
+        const nextRole = roleFromProfileLoad(response.ok, data);
+        if (!nextRole) {
+          throw new Error("Failed to load role");
+        }
+        setRole(nextRole);
       })
-      .catch(() => setRole("sdr"));
+      .catch(() => {
+        setRole(null);
+        toast.error("Could not load role");
+      });
   }, []);
 
   async function handleChange(next: UserRole) {

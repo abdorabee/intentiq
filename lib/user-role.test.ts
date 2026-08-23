@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   onboardingResetRedirect,
   parseProfilePatch,
+  roleFromProfileLoad,
   selectableRoles,
 } from "./user-role";
 
@@ -47,5 +48,19 @@ describe("onboarding reset", () => {
   it("sends the user back to onboarding only after the flag is cleared", () => {
     expect(onboardingResetRedirect(false)).toBe("/onboarding");
     expect(onboardingResetRedirect(true)).toBeNull();
+  });
+});
+
+describe("roleFromProfileLoad", () => {
+  it("keeps role null when the profile GET fails or has no role", () => {
+    expect(roleFromProfileLoad(false, { role: "sdr" })).toBeNull();
+    expect(roleFromProfileLoad(false, null)).toBeNull();
+    expect(roleFromProfileLoad(true, null)).toBeNull();
+    expect(roleFromProfileLoad(true, {})).toBeNull();
+  });
+
+  it("returns the stored role when the profile GET succeeds", () => {
+    expect(roleFromProfileLoad(true, { role: "ae" })).toBe("ae");
+    expect(roleFromProfileLoad(true, { role: "admin" })).toBe("admin");
   });
 });

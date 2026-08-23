@@ -1,4 +1,5 @@
 import {
+  readExplicitThemePreference,
   THEME_PREFERENCES,
   type ThemePreference,
 } from "./user-preferences";
@@ -27,4 +28,11 @@ export function resolveTheme(
 
 export function nextExplicitTheme(resolved: ResolvedTheme): ThemePreference {
   return resolved === "dark" ? "light" : "dark";
+}
+
+export function hydrateThemePreference(
+  localPreference: ThemePreference,
+  remotePreferences: unknown
+): ThemePreference {
+  return readExplicitThemePreference(remotePreferences) ?? localPreference;
 }

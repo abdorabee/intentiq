@@ -3,8 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 
 import {
   mergeUserPreferences,
-  normalizeUserPreferences,
   parsePreferencesPatch,
+  toPreferencesResponse,
 } from "@/lib/user-preferences";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
@@ -21,9 +21,7 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: "Failed to fetch preferences" }, { status: 500 });
 
-  return NextResponse.json({
-    preferences: normalizeUserPreferences(data?.preferences),
-  });
+  return NextResponse.json(toPreferencesResponse(data?.preferences));
 }
 
 export async function PATCH(req: NextRequest) {

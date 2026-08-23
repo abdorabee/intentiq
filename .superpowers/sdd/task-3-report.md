@@ -103,3 +103,42 @@ Covered:
 4. **Clerk chrome.** `UserProfile` is themed to match dark/light and lime, but Clerk’s own account nav (security, deletion) remains. Hash routing avoids colliding with `/settings/selling`.
 5. **Admin is one-way from this UI.** The API refuses `role: "admin"`. An existing admin can switch to SDR/AE/Manager and cannot restore Admin here.
 6. **Nav Appearance control is still a Light/Dark toggle**, not a link to `/settings/appearance`. System can only be chosen on the Appearance page; the menu then shows the resolved theme.
+
+---
+
+## Review fix (Important findings)
+
+**Status:** FIXED  
+**Commit:** `a15deb8` — Fix theme hydrate and failed account role load  
+**Date:** 2026-08-23
+
+### 1. Theme hydrate no longer treats empty DB prefs as stored dark
+
+`GET /api/user/preferences` used `normalizeUserPreferences`, so `{}` became `{ theme: "dark" }` and `ThemeProvider` overwrote a local light/system cache.
+
+- `readExplicitThemePreference` returns a theme only when the stored object actually has `light` / `dark` / `system`.
+- `toPreferencesResponse` omits `theme` when the DB row is empty or has no valid theme. Explicit dark still returns `theme: "dark"`.
+- `hydrateThemePreference(local, remote)` keeps the local cache unless a stored theme is present.
+- `ThemeProvider` hydrates through that helper, so a default-filled GET cannot clobber localStorage.
+
+### 2. Account role load failure stays disabled
+
+Failed `GET /api/user/profile` previously did `setRole("sdr")`, which enabled the radios.
+
+- `roleFromProfileLoad` returns `null` unless the GET succeeded with a real role.
+- `AccountRoleEditor` keeps `role === null`, leaves the fieldset `disabled`, and toasts `Could not load role`.
+
+### Tests
+
+```
+npx vitest run lib/user-preferences.test.ts lib/theme.test.ts lib/user-role.test.ts
+```
+
+Result: **3 files, 27 tests, all passed**.
+
+Covered:
+
+- Empty `{}` GET payload omits theme and does not overwrite a local light/system cache
+- Default-filled `normalizeUserPreferences({})` (`theme: "dark"`) is not what GET returns for `{}`
+- Explicit stored `dark` / `light` / `system` still hydrates over the local cache
+- Failed or role-less profile GET keeps role `null` (does not default to SDR)

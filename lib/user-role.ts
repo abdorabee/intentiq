@@ -39,3 +39,15 @@ export function selectableRoles(currentRole: UserRole | null | undefined): UserR
 export function onboardingResetRedirect(onboardingCompleted: boolean): "/onboarding" | null {
   return onboardingCompleted ? null : "/onboarding";
 }
+
+const USER_ROLES: readonly UserRole[] = ["sdr", "ae", "manager", "admin"];
+
+export function roleFromProfileLoad(
+  ok: boolean,
+  data: { role?: UserRole } | null | undefined
+): UserRole | null {
+  if (!ok || !data?.role || !USER_ROLES.includes(data.role)) {
+    return null;
+  }
+  return data.role;
+}

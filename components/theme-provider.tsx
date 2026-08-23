@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useSyncExternalStore
 import { useAuth } from "@clerk/nextjs";
 
 import {
+  hydrateThemePreference,
   nextExplicitTheme,
   parseStoredThemePreference,
   resolveTheme,
@@ -109,9 +110,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     fetch("/api/user/preferences")
       .then((response) => (response.ok ? response.json() : null))
       .then((data: { preferences?: { theme?: ThemePreference } } | null) => {
-        if (cancelled || !data?.preferences?.theme) return;
-        if (data.preferences.theme === readPreference()) return;
-        writePreference(data.preferences.theme);
+        if (cancelled || !data) return;
+        const local = readPreference();
+        const next = hydrateThemePreference(local, data.preferences);
+        if (next === local) return;
+        writePreference(next);
       })
       .catch(() => undefined);
     return () => {
