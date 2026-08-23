@@ -44,8 +44,7 @@ const NAV_LINKS = [
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
   { label: "Pricing",    href: "/#pricing"   },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
+  { label: "Company",    href: "/about"      },
 ];
 
 /* ── Primitives ─────────────────────────────────────────────── */
@@ -370,14 +369,13 @@ export default function PrivacyView() {
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="International transfers">
-            <P>VesperWise is operated from Egypt and the United States. Our production infrastructure runs on AWS <Code>us-east-1</Code>. If you are in the EEA or UK, your data is transferred to the US under the <Strong>Standard Contractual Clauses (EU 2021/914)</Strong> incorporated into our <A href="/legal/dpa">DPA</A>.</P>
-            <P>We are targeting an EU-region deployment (Frankfurt, <Code>eu-central-1</Code>) in Q3 2026 to allow EEA customers to keep data on-continent. We will announce this in the product when available.</P>
+            <P>Some providers listed on the <A href="/legal/subprocessors">Subprocessors page</A> may process data outside your country. Where applicable, the transfer terms are described in our <A href="/legal/dpa">DPA</A>. This page does not claim a particular infrastructure region or future regional-deployment date.</P>
           </Section>
 
           {/* ── 08 ── */}
           <Section id="s8" num="08" title="Your rights">
             <GoodCallout>
-              <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>Verified requests.</strong>{" "}Account deletion is currently handled through a verified request to privacy@vesperwise.com. The in-product deletion control remains unavailable until the identity and product-data deletion cascade is verified.
+              <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>Verified requests.</strong>{" "}Account deletion requests are handled through privacy@vesperwise.com. The in-product Clerk account surface remains closed in each remote environment until matching signed update and delete probes are recorded in its database for the exact lifecycle contract version.
             </GoodCallout>
             <P>Depending on your location, you may have the right to:</P>
             <UL items={[
@@ -404,13 +402,11 @@ export default function PrivacyView() {
 
           {/* ── 10 ── */}
           <Section id="s10" num="10" title="Security">
-            <P>We protect your data using industry-standard controls:</P>
+            <P>The current repository and product expose these controls:</P>
             <UL items={[
-              <span key="a"><Strong>In transit</Strong> — TLS 1.3 on all connections</span>,
-              <span key="b"><Strong>At rest</Strong> — AES-256 encryption via Supabase</span>,
-              <span key="c"><Strong>API keys</Strong> — SHA-256 hashed; we never store plaintext keys</span>,
-              <span key="d"><Strong>Passwords</Strong> — authentication credentials are handled by Clerk; VesperWise does not store plaintext passwords</span>,
-              <span key="e"><Strong>Access control</Strong> — authenticated server routes scope service-role database operations to the Clerk user ID and validate returned ownership</span>,
+              <span key="a"><Strong>API keys</Strong> — SHA-256 hashed and shown only in the create response; list responses never contain the secret</span>,
+              <span key="b"><Strong>Passwords</Strong> — authentication credentials are handled by Clerk; VesperWise does not store plaintext passwords</span>,
+              <span key="c"><Strong>Application scoping</Strong> — authenticated server routes scope service-role database operations to the Clerk user ID and validate returned ownership</span>,
             ]} />
             <P>See our <A href="/legal/security">Security page</A> for the current product boundaries and vulnerability-reporting contact.</P>
             <P>In the event of a data breach affecting your personal data, we will notify you and the relevant supervisory authority within <Strong>72 hours</Strong> as required by GDPR Art.&nbsp;33.</P>

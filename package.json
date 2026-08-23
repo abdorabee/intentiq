@@ -50,6 +50,7 @@
     "pg": "^8.20.0",
     "shadcn": "^3.8.5",
     "sharp": "^0.34.5",
+    "standardwebhooks": "^1.0.0",
     "supabase": "^2.101.0",
     "tailwindcss": "^4",
     "to-ico": "^1.1.5",

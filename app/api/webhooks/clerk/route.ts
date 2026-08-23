@@ -2,6 +2,7 @@ import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import type { NextRequest } from "next/server";
 
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { CLERK_LIFECYCLE_CONTRACT } from "@/lib/clerk-account-capability";
 
 type ClerkEmail = { id?: string; email_address?: string };
 
@@ -29,13 +30,19 @@ export async function POST(request: NextRequest) {
     if (!email) return new Response("Updated user has no primary email", { status: 400 });
   }
 
+  const configuredContract = process.env.CLERK_USER_LIFECYCLE_CONTRACT === CLERK_LIFECYCLE_CONTRACT
+    ? CLERK_LIFECYCLE_CONTRACT
+    : null;
+  const configuredProbeUserId = process.env.CLERK_LIFECYCLE_PROBE_USER_ID?.trim() || null;
   const { error } = await createSupabaseAdmin().rpc(
-    "process_clerk_user_lifecycle_event",
+    "process_clerk_user_lifecycle_event_v2",
     {
       p_event_id: eventId,
       p_event_type: event.type,
       p_user_id: userId,
       p_email: email,
+      p_probe_user_id: configuredProbeUserId,
+      p_probe_contract_version: configuredContract,
     },
   );
 

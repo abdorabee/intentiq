@@ -31,8 +31,7 @@ const NAV_LINKS = [
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
   { label: "Pricing",    href: "/#pricing"   },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
+  { label: "Company",    href: "/about"      },
 ];
 
 const CHANNELS = [
@@ -53,7 +52,7 @@ const CHANNELS = [
     type: "support",
     label: "Product support",
     name: "For paying customers",
-    desc: "Bugs, billing, integrations. Reply within four hours, business days.",
+    desc: "Bugs, billing, and product questions.",
     email: "support@vesperwise.com",
     color: { bg: "rgba(223,255,0,0.12)", fg: T.cyan },
     icon: (
@@ -65,8 +64,8 @@ const CHANNELS = [
   {
     type: "security",
     label: "Security · Trust",
-    name: "Vulnerability reports, SOC 2 + DPA",
-    desc: "PGP key on the Security page. Bounties paid in 14 days.",
+    name: "Security questions and vulnerability reports",
+    desc: "Send a concise first report without credentials or customer data.",
     email: "security@vesperwise.com",
     color: { bg: "rgba(74,222,128,0.10)", fg: T.hot },
     icon: (
@@ -271,7 +270,7 @@ export default function ContactView() {
             The fastest way<br />to reach us.
           </h1>
           <p style={{ maxWidth: "560px", color: T.txtSecondary, fontSize: "clamp(16px, 1.25vw, 19px)", lineHeight: 1.55, letterSpacing: "-0.011em" }}>
-            Five channels. The right one is whichever gets a human to your problem fastest. Sales conversations book within the day; everything else gets answered in under four hours during business hours.
+            Five channels for sales, product support, security, press, and partnerships. Choose the one that best matches your question.
           </p>
         </div>
       </section>

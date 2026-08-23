@@ -132,9 +132,7 @@ export default function BusinessProfilePage() {
   const [customValues, setCustomValues] = useState<Partial<Record<keyof BusinessProfile, string>>>({});
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
   const pendingLink = useRef<HTMLAnchorElement | null>(null);
-  const pendingHistory = useRef(false);
   const navigationBypass = useRef(false);
-  const restoringHistory = useRef(false);
   const navigationTrigger = useRef<HTMLElement | null>(null);
   const stayButton = useRef<HTMLButtonElement | null>(null);
   const discardButton = useRef<HTMLButtonElement | null>(null);
@@ -162,9 +160,8 @@ export default function BusinessProfilePage() {
   const hasPendingCustomValue = Object.values(customValues).some((value) => Boolean(value?.trim()));
   const hasUnsavedChanges = hasChanges || hasPendingCustomValue;
 
-  function openDiscardDialog(link: HTMLAnchorElement | null, fromHistory = false) {
+  function openDiscardDialog(link: HTMLAnchorElement | null) {
     pendingLink.current = link;
-    pendingHistory.current = fromHistory;
     navigationTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : link;
     setDiscardDialogOpen(true);
   }
@@ -172,19 +169,14 @@ export default function BusinessProfilePage() {
   function closeDiscardDialog() {
     setDiscardDialogOpen(false);
     pendingLink.current = null;
-    pendingHistory.current = false;
     queueMicrotask(() => navigationTrigger.current?.focus());
   }
 
   function discardAndNavigate() {
     setDiscardDialogOpen(false);
     navigationBypass.current = true;
-    if (pendingHistory.current) {
-      window.history.back();
-    } else {
-      pendingLink.current?.click();
-      queueMicrotask(() => { navigationBypass.current = false; });
-    }
+    pendingLink.current?.click();
+    queueMicrotask(() => { navigationBypass.current = false; });
   }
 
   useEffect(() => {
@@ -206,20 +198,11 @@ export default function BusinessProfilePage() {
       event.stopImmediatePropagation();
       openDiscardDialog(link);
     }
-    function protectHistoryNavigation() {
-      if (navigationBypass.current) { navigationBypass.current = false; return; }
-      if (restoringHistory.current) { restoringHistory.current = false; return; }
-      restoringHistory.current = true;
-      window.history.forward();
-      openDiscardDialog(null, true);
-    }
     window.addEventListener("beforeunload", protectUnsavedChanges);
     document.addEventListener("click", protectClientNavigation, true);
-    window.addEventListener("popstate", protectHistoryNavigation);
     return () => {
       window.removeEventListener("beforeunload", protectUnsavedChanges);
       document.removeEventListener("click", protectClientNavigation, true);
-      window.removeEventListener("popstate", protectHistoryNavigation);
     };
   }, [hasUnsavedChanges]);
 

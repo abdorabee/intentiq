@@ -169,3 +169,44 @@ This section supersedes the original account-deletion, API-key atomicity, Produc
 
 - The migration and webhook are locally implemented and executable-tested but were not pushed to a remote Supabase project or configured in Clerk. Keep the account capability environment flag false until the migration is applied, the production Clerk endpoint subscribes to `user.updated` and `user.deleted`, the signing secret is installed, and a signed production test verifies update and deletion cascades.
 - Browser history APIs do not provide a universal interception hook for arbitrary programmatic navigation. The implementation covers owned Settings/same-origin anchors, `beforeunload`, and best-effort back/forward restoration without claiming to intercept unrelated `router.push` calls.
+
+## Fix Round 2
+
+This section supersedes Fix Round 1's configuration-only account gate, client-preserved tour version, browser-history guard, revoke-focus restoration, legal-copy, deployment-boundary, and verification totals.
+
+### Release-blocker corrections
+
+- Replaced configuration-only Clerk readiness with an additive, database-backed lifecycle-probe contract. `clerk_lifecycle_contract_verifications` records a signed `user.updated` for one configured disposable Clerk user, then activates only after a later signed `user.deleted` for that same user succeeds through the transactional cascade guard. The exact supported version is `vesperwise-clerk-lifecycle-v1`.
+- Added `process_clerk_user_lifecycle_event_v2`. Ordinary events still update/delete their signed event owner but cannot create readiness evidence. Duplicate events, foreign users, mismatched versions, missing prior update evidence, missing probe users, and failed cascade guards cannot activate the contract. Failed transactions roll back event deduplication and proof so delivery can retry. The legacy RPC no longer grants service-role execution.
+- The Account route is now async and queries matching, complete database evidence in addition to the four required configuration values (signing secret, sync flag, exact version, and probe user ID). Environment strings alone always remain closed. The full Clerk `UserProfile`, including Clerk-owned account deletion, is never mounted until this check succeeds.
+- Added a raw-request signature test using `standardwebhooks` to generate a Svix-compatible signature and Clerk's real `verifyWebhook` implementation to accept the exact body and reject a body changed after signing. Existing route tests still cover event projection, owner identity, RPC arguments, malformed events, and database retry responses.
+- Documented a staging/production procedure in `README.md`: apply the additive migration, keep the capability flag off, create and provision a dedicated probe user, deliver signed update and delete events, inspect the persisted proof, and only then enable the account surface. Local executable PostgreSQL proof is explicitly distinguished from remote deployment/probe state.
+- Qualified the catalog guard correctly: it validates this repository's convention of direct `user_id` columns on public tables with `ON DELETE CASCADE` references to `public.users`; it is not universal ownership discovery.
+- Product Experience restart now sends only `tour_status=not_started` and `tour_step=0`. It parses the returned complete `user_preferences` record and reconciles the authoritative tour version/status/step, including a concurrent version increase. Version zero renders no restart control.
+- Removed the incorrect Back/Forward `popstate` manipulation from Business Profile. Unsaved edits and typed-but-not-added custom values remain protected by `beforeunload` and the accessible discard dialog for owned same-origin anchor/Settings navigation. The implementation no longer claims browser-history or arbitrary programmatic-router interception.
+- Revoke confirmation now moves focus to an in-dialog, focusable status while its mutation controls are disabled and keeps Tab trapped there. Success restores focus to the stable API keys heading rather than a detached revoke trigger; cancellation/Escape restore the original trigger. Copy feedback resets for each newly created secret.
+- Removed the DPA in-product JSON-export promise, diagrams/control-mapping claim, remote-cascade implication, unsupported webhook settings/docs, placeholder `/#` and `href="#"` navigation/resources, and unverified status/SLA copy encountered in those surfaces. Legal copy now states application-side service-role scoping, OpenRouter, persisted GA consent, local executable lifecycle proof, the remote probe requirement, and controls that actually exist.
+
+### RED evidence
+
+1. The first focused Fix Round 2 run failed 13 of 22 tests across six files. It proved the missing database readiness loader/account gate, v2 webhook arguments, server-authoritative tour reconciliation, version-zero hiding, supported Business Profile navigation boundary, and pending/success revoke focus behavior.
+   - `npm test -- lib/clerk-account-capability.test.ts 'app/(dashboard)/settings/account/account-page.test.tsx' app/api/webhooks/clerk/route.test.ts app/api/webhooks/clerk/route-signature.test.ts components/settings/product-experience-settings.test.tsx components/settings/api-keys-manager.test.tsx 'app/(dashboard)/settings/business-profile/business-profile-page.test.tsx'`
+2. The isolated PostgreSQL suite failed all eight cases before the additive migration was implemented because `clerk_lifecycle_contract_verifications` did not exist.
+   - Executed against the explicitly confirmed disposable database `vesperwise_settings_test` on a temporary local PostgreSQL cluster.
+3. The source-backed legal/navigation copy test failed both assertions before placeholder resources and unsupported evidence claims were removed.
+   - `npm test -- app/legal/legal-copy.test.ts`
+4. The first production build found one TypeScript mismatch where the revoke close helper's Boolean success argument was passed directly as a click handler. The root cause was the React click event being assigned to that Boolean parameter; wrapping the cancel call removed the mismatch, the revoke behavior test stayed green, and the next complete build passed.
+
+### Verification evidence
+
+- Focused release-blocker suite: 12 files passed, 49 tests passed, including API-key GET owner/filter/RPC coverage, real signature verification, readiness gating, GA transitions, tour reconciliation, Business Profile, revoke/copy interactions, recursive manifest, and legal copy.
+- Full Vitest suite, final: 65 files passed, 4 skipped; 340 tests passed, 20 skipped.
+- Isolated executable PostgreSQL suite, final: 1 file passed, 8 tests passed. This includes concurrent active-key serialization/hash-only storage, active-only limits, lifecycle owner/cascade/idempotency behavior, retry rollback, missing-cascade fail-closed behavior, exact probe activation, non-activation for normal/foreign/mismatched events, and function privileges.
+- Changed-file ESLint: exited 0 with no findings.
+- `git diff --check`: exited 0 with no findings.
+- Production build: compiled, TypeScript passed, 71 pages generated, and the Clerk webhook plus all Settings routes were registered.
+
+### Remaining deployment boundary
+
+- No migration was applied to a remote Supabase project, no Clerk endpoint or event subscription was configured, no remote probe user was updated/deleted, and no production account surface was enabled in this round. Account management therefore remains default-closed until each environment completes the documented signed probe procedure and stores matching activation evidence.
+- The supported Business Profile guard covers owned same-origin anchors and browser unload. It intentionally does not manipulate Back/Forward history because the prior nondirectional restoration could navigate to the wrong entry, and Next/browser APIs do not provide a universal interception hook for unrelated programmatic navigation.

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 const harness = vi.hoisted(() => ({
   event: null as null | { type: string; data: Record<string, unknown> },
   verifyError: null as Error | null,
@@ -30,6 +32,8 @@ beforeEach(() => {
   harness.verifyError = null;
   harness.rpcResult = { data: "processed", error: null };
   harness.rpcCalls = [];
+  vi.stubEnv("CLERK_LIFECYCLE_PROBE_USER_ID", "user_probe");
+  vi.stubEnv("CLERK_USER_LIFECYCLE_CONTRACT", "vesperwise-clerk-lifecycle-v1");
 });
 
 describe("POST /api/webhooks/clerk", () => {
@@ -56,8 +60,15 @@ describe("POST /api/webhooks/clerk", () => {
     const response = await POST(request as never);
     expect(response.status).toBe(200);
     expect(harness.rpcCalls).toEqual([{
-      name: "process_clerk_user_lifecycle_event",
-      args: { p_event_id: "evt_update", p_event_type: "user.updated", p_user_id: "user_owner", p_email: "owner@example.com" },
+      name: "process_clerk_user_lifecycle_event_v2",
+      args: {
+        p_event_id: "evt_update",
+        p_event_type: "user.updated",
+        p_user_id: "user_owner",
+        p_email: "owner@example.com",
+        p_probe_user_id: "user_probe",
+        p_probe_contract_version: "vesperwise-clerk-lifecycle-v1",
+      },
     }]);
   });
 
@@ -66,7 +77,14 @@ describe("POST /api/webhooks/clerk", () => {
     harness.rpcResult = { data: null, error: { message: "db unavailable" } };
     const response = await POST(new Request("http://localhost/api/webhooks/clerk", { method: "POST", headers: { "svix-id": "evt_delete" } }) as never);
     expect(response.status).toBe(500);
-    expect(harness.rpcCalls[0]?.args).toEqual({ p_event_id: "evt_delete", p_event_type: "user.deleted", p_user_id: "user_deleted", p_email: null });
+    expect(harness.rpcCalls[0]?.args).toEqual({
+      p_event_id: "evt_delete",
+      p_event_type: "user.deleted",
+      p_user_id: "user_deleted",
+      p_email: null,
+      p_probe_user_id: "user_probe",
+      p_probe_contract_version: "vesperwise-clerk-lifecycle-v1",
+    });
   });
 
   it("ignores unrelated signed events and rejects malformed lifecycle events", async () => {

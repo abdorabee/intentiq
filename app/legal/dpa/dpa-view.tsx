@@ -46,8 +46,7 @@ const NAV_LINKS = [
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
   { label: "Pricing",    href: "/#pricing"   },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
+  { label: "Company",    href: "/about"      },
 ];
 
 /* ── Shared primitives ───────────────────────────────────────── */
@@ -375,10 +374,10 @@ export default function DpaView() {
 
           {/* ── 11 ── */}
           <Section id="s11" num="11" title="Deletion & return">
-            <P>Upon termination of the Service, VesperWise will, at the Controller&rsquo;s choice:</P>
+            <P>Controllers may request access to a portable copy or deletion by emailing <Code>privacy@vesperwise.com</Code>. VesperWise verifies the requester and handles the request through the procedures available for that environment and applicable legal-retention requirements. There is no in-product JSON export control.</P>
             <UL items={[
-              "Return all Personal Data via a JSON export available in‑product;",
-              <span key="b">Process a verified deletion request using the product-data cascade and other current deletion procedures, subject to legal retention requirements;</span>,
+              "Access and portability requests are fulfilled through the verified privacy-request process in an available format;",
+              <span key="b">Deletion requests use current product-data procedures; automated Clerk deletion remains unavailable until that remote environment records the required signed lifecycle probes.</span>,
             ]} />
             <P>Unless retention of some Personal Data is required by Union or Member State law (e.g. tax records). In that case, VesperWise will continue to ensure the confidentiality of the retained data and will not actively Process it.</P>
           </Section>
@@ -393,7 +392,7 @@ export default function DpaView() {
             <P><Strong>A. List of Parties.</Strong> Controller: the Customer as identified in the account record. Processor: VesperWise Labs, Inc., 340 Brannan St., 4th fl., San Francisco, CA 94107.</P>
             <AnnexGrid cards={[
               { key: "Subject matter",                val: "Provision of B2B intent scoring, workflows, and chat copilot via the VesperWise Service." },
-              { key: "Duration",                      val: "Term of the Service plus the 90‑day deletion window in Section 11." },
+              { key: "Duration",                      val: "Term of the Service plus any period required to complete a verified request or satisfy applicable legal retention." },
               { key: "Nature & purpose",              val: "Account scoring, person scoring, watchlist alerts, AI summary generation, billing." },
               { key: "Categories of Data Subjects",   val: "Customer's employees (seat holders); business contacts (e.g. people the Customer scores)." },
               { key: "Categories of Personal Data",   val: "Name, work email, professional title, employer, LinkedIn URL, IP address, account activity." },
@@ -405,14 +404,14 @@ export default function DpaView() {
 
           {/* ── Annex II ── */}
           <Section id="a2" num="A2" title="Annex II · Technical & organizational measures">
-            <P>VesperWise implements the following measures. The full Security page, including diagrams and control mappings, is at <A href="/legal/security">vesperwise.com/security</A>.</P>
+            <P>VesperWise implements the following measures. The <A href="/legal/security">Security page</A> summarizes current code and product boundaries; it is not a certification or audit report.</P>
             <DocTable
               headers={["Control area", "Measure"]}
               rows={[
                 ["Identity",                    "Clerk manages authentication, profile, password, MFA, and session capabilities."],
                 ["Application data scoping",     "Server routes authenticate the Clerk user, apply owner filters to service-role queries, and validate returned ownership."],
                 ["API authentication",          <span key="api">Bearer secrets are displayed once and stored only as SHA-256 hashes; revocation is owner-scoped.</span>],
-                ["Lifecycle deletion",           "Signed Clerk lifecycle events are processed idempotently; deleting the owned user row invokes verified foreign-key cascades."],
+                ["Lifecycle deletion",           "The repository includes signed, idempotent Clerk lifecycle handling and local executable PostgreSQL proof for this repository's direct public-table user_id cascade convention. Remote account management stays closed until that environment records matching signed update and delete probes for the exact contract version."],
                 ["AI processing",                "Supported requests pass through OpenRouter to configured models; no BYO-key or workspace AI-disable control is offered."],
                 ["Analytics",                    "Google Analytics loads in the authenticated product only after persisted analytics consent is enabled."],
               ]}

@@ -84,7 +84,7 @@ export default function AboutView() {
       <div style={{ position: "sticky", top: 0, zIndex: 50, height: "36px", background: T.bgEl, borderBottom: `1px solid ${T.borderSubtle}`, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", color: T.txtTert }}>
         <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(223,255,0,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v0.1</span>
         <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>Solo founder.</strong> Building VesperWise from a single room — and writing about it as I go.</span>
-        <Link href="#" style={{ color: T.txtTert, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "4px", marginLeft: "6px" }}>Read the build log <span>→</span></Link>
+        <Link href="/contact" style={{ color: T.txtTert, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "4px", marginLeft: "6px" }}>Share feedback <span>→</span></Link>
       </div>
 
       {/* ── Sticky nav ── */}
@@ -94,8 +94,14 @@ export default function AboutView() {
             <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
-            {(["Product","Autopilot","Developers","Pricing","Customers","Company"] as const).map(label => (
-              <a key={label} href={label === "Company" ? "/about" : label === "Developers" ? "/docs" : "#"} style={{ fontSize: "13px", padding: "5px 10px", borderRadius: T.r.md, color: label === "Company" ? T.txt : T.txtTert, background: label === "Company" ? "rgba(255,255,255,0.05)" : "transparent", letterSpacing: "-0.006em", textDecoration: "none" }}>
+            {([
+              { label: "Product", href: "/#product" },
+              { label: "Autopilot", href: "/#autopilot" },
+              { label: "Developers", href: "/docs" },
+              { label: "Pricing", href: "/#pricing" },
+              { label: "Company", href: "/about" },
+            ] as const).map(({ label, href }) => (
+              <a key={label} href={href} style={{ fontSize: "13px", padding: "5px 10px", borderRadius: T.r.md, color: label === "Company" ? T.txt : T.txtTert, background: label === "Company" ? "rgba(255,255,255,0.05)" : "transparent", letterSpacing: "-0.006em", textDecoration: "none" }}>
                 {label}
               </a>
             ))}

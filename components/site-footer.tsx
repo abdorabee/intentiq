@@ -7,20 +7,17 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
     links: [
-      { label: "Score", href: "/#" },
-      { label: "Intent Hub", href: "/#" },
-      { label: "Autopilot", href: "/#" },
-      { label: "People scoring", href: "/#" },
-      { label: "Watchlist", href: "/#" },
-      { label: "Changelog", href: "/#" },
+      { label: "Score", href: "/score" },
+      { label: "Intent Hub", href: "/intent-hub" },
+      { label: "Autopilot", href: "/autopilot" },
+      { label: "People scoring", href: "/people" },
+      { label: "Watchlist", href: "/watchlist" },
     ],
   },
   {
     title: "Developers",
     links: [
       { label: "API reference", href: "/docs" },
-      { label: "Webhooks", href: "/#" },
-      { label: "Integrations", href: "/#" },
     ],
   },
   {
@@ -43,8 +40,6 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
 ];
 
 const SOCIAL_LINKS: { label: string; href: string }[] = [
-  { label: "Twitter", href: "#" },
-  { label: "GitHub", href: "#" },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/vesperwise" },
 ];
 
@@ -92,10 +87,6 @@ export default function SiteFooter() {
         </div>
         <div className="footer-bottom">
           <span>© {year} VesperWise Labs, Inc. All rights reserved.</span>
-          <div className="footer-status">
-            <span className="dot"></span>
-            <span>All systems operational</span>
-          </div>
           <div className="links">
             {SOCIAL_LINKS.map(({ label, href }) => (
               <a

@@ -1408,7 +1408,7 @@ export default function LandingPage() {
           </div>
 
           <p style={{ textAlign: 'center', marginTop: '18px', fontSize: '12px', color: 'var(--text-quaternary)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
-            Need 25k+ scores? <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'underline', textDecorationColor: 'var(--border-strong)' }}>See Agency plan →</a>
+            Need 25k+ scores? <a href="/contact" style={{ color: 'var(--text-secondary)', textDecoration: 'underline', textDecorationColor: 'var(--border-strong)' }}>Talk to sales →</a>
           </p>
         </div>
       </section>
@@ -1425,7 +1425,7 @@ export default function LandingPage() {
               Start scoring free
               <svg className="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
             </a>
-            <a href="#" className="btn btn-secondary btn-lg">Talk to sales</a>
+            <a href="/contact" className="btn btn-secondary btn-lg">Talk to sales</a>
           </div>
           <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--text-quaternary)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
             20 FREE CREDITS · NO CARD · COVERAGE-AWARE SCORES

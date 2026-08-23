@@ -50,7 +50,7 @@ describe("BusinessProfilePage", () => {
     expect(link).toHaveFocus();
 
     fireEvent.popState(window);
-    expect(screen.getByRole("dialog", { name: "Discard unsaved changes?" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Discard unsaved changes?" })).not.toBeInTheDocument();
   });
 
   it("offers a retry when the profile cannot be loaded", async () => {

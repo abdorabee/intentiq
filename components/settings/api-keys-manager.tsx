@@ -29,6 +29,8 @@ export function ApiKeysManager() {
   const revokeTrigger = useRef<HTMLButtonElement | null>(null);
   const cancelRevokeButton = useRef<HTMLButtonElement | null>(null);
   const confirmRevokeButton = useRef<HTMLButtonElement | null>(null);
+  const revokeStatus = useRef<HTMLParagraphElement | null>(null);
+  const keysHeading = useRef<HTMLHeadingElement | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -99,7 +101,7 @@ export function ApiKeysManager() {
         ...current,
         keys: current.keys.map((key) => key.id === result.record.id ? { ...key, is_active: false } : key),
       } : current);
-      closeRevokeDialog();
+      closeRevokeDialog(true);
     } catch (revokeError) {
       setError(revokeError instanceof Error ? revokeError.message : "Failed to revoke API key");
     } finally {
@@ -107,14 +109,18 @@ export function ApiKeysManager() {
     }
   }
 
-  function closeRevokeDialog() {
+  function closeRevokeDialog(succeeded = false) {
     setRevokeTarget(null);
-    queueMicrotask(() => revokeTrigger.current?.focus());
+    queueMicrotask(() => (succeeded ? keysHeading.current : revokeTrigger.current)?.focus());
   }
 
   useEffect(() => {
     if (revokeTarget) cancelRevokeButton.current?.focus();
   }, [revokeTarget]);
+
+  useEffect(() => {
+    if (revoking) revokeStatus.current?.focus();
+  }, [revoking]);
 
   if (loading) {
     return <div role="status" className="flex min-h-48 items-center justify-center gap-2 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin" aria-hidden />Loading API keys…</div>;
@@ -177,7 +183,7 @@ export function ApiKeysManager() {
       </section>
 
       <section aria-labelledby="keys-heading" className="border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.02]">
-        <h2 id="keys-heading" className="border-b border-slate-200 px-5 py-4 text-sm font-semibold dark:border-white/10">API keys</h2>
+        <h2 ref={keysHeading} tabIndex={-1} id="keys-heading" className="border-b border-slate-200 px-5 py-4 text-sm font-semibold outline-none dark:border-white/10">API keys</h2>
         {payload.keys.length === 0 ? (
           <p className="p-5 text-sm text-slate-500">No API keys yet.</p>
         ) : (
@@ -202,14 +208,16 @@ export function ApiKeysManager() {
           <div role="dialog" aria-modal="true" aria-labelledby="revoke-title" className="w-full max-w-md border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-950" onKeyDown={(event) => {
             if (event.key === "Escape" && !revoking) { event.preventDefault(); closeRevokeDialog(); }
             if (event.key === "Tab") {
+              if (revoking) { event.preventDefault(); revokeStatus.current?.focus(); return; }
               if (event.shiftKey && document.activeElement === cancelRevokeButton.current) { event.preventDefault(); confirmRevokeButton.current?.focus(); }
               else if (!event.shiftKey && document.activeElement === confirmRevokeButton.current) { event.preventDefault(); cancelRevokeButton.current?.focus(); }
             }
           }}>
             <h2 id="revoke-title" className="text-base font-semibold">Revoke API key</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Requests using <strong>{revokeTarget.label}</strong> will stop authenticating immediately. This cannot be undone.</p>
+            {revoking && <p ref={revokeStatus} tabIndex={-1} role="status" aria-label="Revocation in progress" className="mt-3 text-sm text-slate-600 outline-none dark:text-slate-300">Revoking API key…</p>}
             <div className="mt-5 flex justify-end gap-2">
-              <button ref={cancelRevokeButton} type="button" disabled={revoking} onClick={closeRevokeDialog} className="border border-slate-300 px-3 py-2 text-sm dark:border-white/20">Cancel</button>
+              <button ref={cancelRevokeButton} type="button" disabled={revoking} onClick={() => closeRevokeDialog()} className="border border-slate-300 px-3 py-2 text-sm dark:border-white/20">Cancel</button>
               <button ref={confirmRevokeButton} type="button" disabled={revoking} onClick={() => void confirmRevoke()} className="inline-flex items-center gap-2 bg-red-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50">
                 {revoking && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
                 Confirm revoke

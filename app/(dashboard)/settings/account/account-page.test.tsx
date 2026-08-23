@@ -6,6 +6,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@clerk/nextjs", () => ({ UserProfile: () => <div data-testid="clerk-user-profile" /> }));
+const readiness = vi.hoisted(() => ({ enabled: false }));
+vi.mock("@/lib/clerk-account-capability", () => ({
+  isClerkAccountManagementReady: vi.fn(async () => readiness.enabled),
+}));
 
 import AccountSettingsPage from "./page";
 
@@ -15,17 +19,16 @@ afterEach(() => {
 });
 
 describe("AccountSettingsPage capability boundary", () => {
-  it("does not mount Clerk account management while lifecycle deletion is unverified", () => {
-    render(<AccountSettingsPage />);
+  it("does not mount Clerk account management while lifecycle deletion is unverified", async () => {
+    readiness.enabled = false;
+    render(await AccountSettingsPage());
     expect(screen.queryByTestId("clerk-user-profile")).not.toBeInTheDocument();
     expect(screen.getByText(/temporarily unavailable/i)).toBeInTheDocument();
   });
 
-  it("mounts full Clerk account management only for the explicit verified contract", () => {
-    vi.stubEnv("CLERK_USER_LIFECYCLE_SYNC_ENABLED", "true");
-    vi.stubEnv("CLERK_WEBHOOK_SIGNING_SECRET", "whsec_test");
-    vi.stubEnv("CLERK_USER_LIFECYCLE_CONTRACT", "vesperwise-clerk-lifecycle-v1");
-    render(<AccountSettingsPage />);
+  it("mounts full Clerk account management only after database-backed readiness succeeds", async () => {
+    readiness.enabled = true;
+    render(await AccountSettingsPage());
     expect(screen.getByTestId("clerk-user-profile")).toBeInTheDocument();
   });
 });

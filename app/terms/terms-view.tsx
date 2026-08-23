@@ -44,8 +44,7 @@ const NAV_LINKS = [
   { label: "Autopilot",  href: "/#autopilot" },
   { label: "Developers", href: "/docs"       },
   { label: "Pricing",    href: "/#pricing"   },
-  { label: "Customers",  href: "/#"          },
-  { label: "Company",    href: "/#"          },
+  { label: "Company",    href: "/about"      },
 ];
 
 /* ── Primitives matching doc.css exactly ───────────────────── */

@@ -41,11 +41,12 @@ SUPABASE_SERVICE_ROLE_KEY=
 # Clerk
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
-# Required together to enable Clerk's full account-management surface. Configure
-# /api/webhooks/clerk for user.updated and user.deleted in the Clerk dashboard.
+# Configure /api/webhooks/clerk for user.updated and user.deleted. The full
+# account surface still stays closed until the database records both probes.
 CLERK_WEBHOOK_SIGNING_SECRET=
 CLERK_USER_LIFECYCLE_SYNC_ENABLED=false
 CLERK_USER_LIFECYCLE_CONTRACT=vesperwise-clerk-lifecycle-v1
+CLERK_LIFECYCLE_PROBE_USER_ID=
 
 # OpenRouter (bounded score reasoning; deterministic fallback if unset)
 OPENROUTER_API_KEY=
@@ -113,6 +114,18 @@ npm run test:scoring-db # destructive only to an explicitly confirmed disposable
 # SETTINGS_SECURITY_TEST_DATABASE_URL runs lifecycle/cascade and API-key concurrency tests.
 npm run test:watch
 ```
+
+### Verify the Clerk lifecycle contract in staging or production
+
+Run this procedure separately in every remote environment. Environment values alone never enable Clerk's full `UserProfile` surface.
+
+1. Apply migrations through `20260823173312_clerk_lifecycle_probe_verification.sql`. Configure Clerk to send signed `user.updated` and `user.deleted` events to `/api/webhooks/clerk`, install that endpoint&apos;s signing secret, set `CLERK_USER_LIFECYCLE_CONTRACT=vesperwise-clerk-lifecycle-v1`, and leave `CLERK_USER_LIFECYCLE_SYNC_ENABLED=false`.
+2. Create a dedicated disposable Clerk test user and allow normal provisioning to create its matching `public.users` row. Set `CLERK_LIFECYCLE_PROBE_USER_ID` to that exact Clerk user ID.
+3. Update that test user in Clerk so a signed `user.updated` delivery reaches the endpoint. Confirm `public.clerk_lifecycle_contract_verifications` contains the exact contract version, probe user ID, update event ID, and update timestamp, while `delete_verified_at` and `activated_at` remain null. Ordinary users and mismatched versions do not create this evidence.
+4. Delete the same dedicated test user in Clerk. The signed `user.deleted` delivery must pass the repository's direct-public-table `user_id` cascade guard and delete the matching `public.users` row transactionally. Confirm the same verification row now has delete evidence and a non-null `activated_at`. A failed guard rolls back the delivery record and proof so Clerk can retry after the dependency is corrected.
+5. Only after both probe events are recorded may that environment set `CLERK_USER_LIFECYCLE_SYNC_ENABLED=true`. The account page still queries the database evidence on every render and remains closed if configuration, probe identity, contract version, or activation evidence does not match.
+
+The cascade guard verifies the ownership convention used in this repository: direct `user_id` columns on public tables must reference `public.users(id) ON DELETE CASCADE`. It is not universal discovery of every possible ownership model. Local executable tests prove the migration against a disposable PostgreSQL database; they do not prove that any remote environment has applied or completed this procedure.
 
 ## Architecture
 

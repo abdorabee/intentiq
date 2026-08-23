@@ -4,7 +4,7 @@ import SiteFooter from "@/components/site-footer";
 import VesperWiseLogo from "@/components/vesperwise-logo";
 
 const facts = [
-  { title: "Identity and account security", body: "Clerk authenticates users and provides profile, email, password, multi-factor authentication, and session management. The embedded account surface is enabled only when VesperWise has an explicitly configured signed Clerk lifecycle webhook and database deletion cascade contract." },
+  { title: "Identity and account security", body: "Clerk authenticates users and provides profile, email, password, multi-factor authentication, and session management. Configuration alone cannot enable the embedded account surface: the database must record a signed update probe and a later successful signed delete probe for the same dedicated test user and exact lifecycle contract version." },
   { title: "Application-scoped customer data", body: "Authenticated server routes derive the Clerk user ID from the session and apply that owner ID to Supabase queries. Server code uses a Supabase service-role credential, which bypasses Row Level Security, so application-side authentication, owner filters, response validation, and narrow database functions are the active tenant boundary." },
   { title: "API credentials", body: "API key secrets are displayed once. VesperWise stores only SHA-256 hashes, verifies created and revoked rows against the authenticated Clerk user, and enforces active-key plan limits in a serialized database transaction." },
   { title: "AI processing", body: "VesperWise routes supported reasoning requests through OpenRouter to configured models. The current product does not offer bring-your-own model keys or a workspace-wide AI disable control." },

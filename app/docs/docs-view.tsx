@@ -77,14 +77,6 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    heading: "Events & webhooks",
-    items: [
-      { id: "webhooks-overview",  method: "DOC", label: "Webhooks overview" },
-      { id: "webhook-events",     method: "EVT", label: "Event types" },
-      { id: "verify-signature",   method: "DOC", label: "Verify signatures" },
-    ],
-  },
-  {
     heading: "Objects",
     items: [
       { id: "score-object",  method: "OBJ", label: "Score" },
@@ -99,16 +91,6 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "changelog", method: "LOG", label: "Changelog" },
     ],
   },
-];
-
-/* ─── Events data ────────────────────────────────────────────── */
-const EVENTS = [
-  { name: "score.computed",       desc: "Fires every time a score is computed — both fresh cold‑cache misses and forced refreshes. The most common event in the system.", freq: "~6/sec p50" },
-  { name: "score.bulk.completed", desc: "Fires when a bulk job finishes. Payload includes the full result array and any unscorable domains separated out.", freq: "on demand" },
-  { name: "account.band_changed", desc: "A watchlist account crossed a band threshold (e.g. WARM → HOT). The flagship \"now is the time\" event for sales workflows.", freq: "~40/day p50" },
-  { name: "signal.spike",         desc: "A single signal (e.g. funding) for a watchlist account jumped >25 points week‑over‑week. Often precedes a band change by 24–48h.", freq: "~12/day p50" },
-  { name: "person.scored",        desc: "A previously unknown person was successfully resolved and scored. Pair with your CRM enrichment flow.", freq: "on demand" },
-  { name: "credits.low",          desc: "Your workspace dropped below 10% of the cycle's credit allocation. Fired once per cycle.", freq: "≤1/month" },
 ];
 
 /* ─── Helper components ──────────────────────────────────────── */
@@ -402,21 +384,6 @@ const scoreResponse = (
   </>
 );
 
-const webhookEventPayload = (
-  <>
-    {"{"}
-    {"\n  "}{cm.key('"id"')}{":       "}{cm.str('"evt_01HZ9X3FK8M2P"')}{","}
-    {"\n  "}{cm.key('"type"')}{":     "}{cm.str('"score.computed"')}{","}
-    {"\n  "}{cm.key('"created"')}{":  "}{cm.str('"2026-05-28T14:02:11Z"')}{","}
-    {"\n  "}{cm.key('"data"')}{": {"}
-    {"\n    "}{cm.key('"score"')}{": { "}{cm.com("/* Score object */")}{" },"}
-    {"\n    "}{cm.key('"trigger"')}{": "}{cm.str('"watchlist_refresh"')}
-    {"\n  },"}
-    {"\n  "}{cm.key('"delivery_attempt"')}{": "}{cm.num("1")}
-    {"\n}"}
-  </>
-);
-
 /* ─── Main component ─────────────────────────────────────────── */
 export default function DocsView() {
   const [activeId, setActiveId] = useState("quickstart");
@@ -474,7 +441,6 @@ export default function DocsView() {
         <span style={{ background: T.accentBg, color: T.accent, border: `1px solid rgba(223,255,0,0.25)`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 600, fontFamily: T.mono }}>v1</span>
         <span><strong style={{ color: T.txtSec, fontWeight: 500 }}>API Reference</strong> · base URL{" "}
           <code style={{ fontFamily: T.mono, fontSize: "12px", color: T.cyan }}>https://www.vesperwise.com/api/v1</code>
-          {" · "}99.97% uptime over 90d
         </span>
       </div>
 
@@ -490,8 +456,14 @@ export default function DocsView() {
             <VesperWiseLogo size={42} variant="wordmark" />
           </Link>
           <div className="mkt-navlinks" style={{ display: "flex", gap: "4px" }}>
-            {["Product", "Autopilot", "Developers", "Pricing", "Customers", "Company"].map(label => (
-              <a key={label} href={label === "Developers" ? "#quickstart" : "#"} style={{ fontSize: "13px", padding: "5px 10px", borderRadius: T.r.md, color: label === "Developers" ? T.txt : T.txtTert, background: label === "Developers" ? "rgba(255,255,255,0.05)" : "transparent", letterSpacing: "-0.006em", textDecoration: "none" }}>
+            {([
+              { label: "Product", href: "/#product" },
+              { label: "Autopilot", href: "/#autopilot" },
+              { label: "Developers", href: "#quickstart" },
+              { label: "Pricing", href: "/#pricing" },
+              { label: "Company", href: "/about" },
+            ] as const).map(({ label, href }) => (
+              <a key={label} href={href} style={{ fontSize: "13px", padding: "5px 10px", borderRadius: T.r.md, color: label === "Developers" ? T.txt : T.txtTert, background: label === "Developers" ? "rgba(255,255,255,0.05)" : "transparent", letterSpacing: "-0.006em", textDecoration: "none" }}>
                 {label}
               </a>
             ))}
@@ -522,7 +494,6 @@ export default function DocsView() {
             {[
               { k: "P50 latency",    v: "412", unit: "ms" },
               { k: "P99 latency",    v: "2.84", unit: "s" },
-              { k: "Uptime · 90d",   v: "99.97", unit: "%" },
               { k: "Cache hit",      v: "71", unit: "%" },
             ].map(({ k, v, unit }) => (
               <div key={k} style={{ background: T.bgEl, padding: "14px 18px" }}>
@@ -590,24 +561,22 @@ export default function DocsView() {
             <h1 style={h1Style}>Quickstart</h1>
             <Summary>Get a real score back in under a minute. You&apos;ll need an API key (Settings → Developers) and a domain you want to score. Everything else is a single <IC>POST</IC>.</Summary>
             <H3>1. Get an API key</H3>
-            <P>Open <A href="#">Settings → Developers</A> and click <Strong>Create key</Strong>. Keys are shown once on creation, then stored as SHA‑256 hashes on our side — copy it into your secret manager. Test‑mode and live keys are separate: test keys are prefixed <IC>iiq_test_</IC> and don&apos;t deduct credits.</P>
+            <P>Open <A href="/settings/developer">Settings → Developer</A> and click <Strong>Create API key</Strong>. The secret is shown only in the create response; VesperWise stores its SHA‑256 hash. Copy it into your secret manager before dismissing it.</P>
             <H3>2. Score your first account</H3>
             <P>Pick a domain. We&apos;ll fetch four intent triggers (funding, hiring, non-funding news, and dated technology changes), collect Web and GitHub context, compute coverage, and write back an AI summary. A personalized six-hour cache makes repeat scores free.</P>
             <ApiNote><Strong>Use the apex domain.</Strong> Send <IC>stripe.com</IC>. Schemes, paths, and a leading <IC>www.</IC> are normalized, but arbitrary subdomains are not guessed back to an apex.</ApiNote>
-            <H3>3. Hook it up</H3>
-            <P>For real‑time pipelines, subscribe to the <IC>score.computed</IC> webhook and let VesperWise push deltas to you. For batch enrichment, queue a <A href="#bulk-score">bulk job</A> and poll its status.</P>
+            <H3>3. Integrate it</H3>
+            <P>Call the score endpoint when your pipeline needs a fresh result. Public outbound webhook settings are not currently available. The bulk route can create a queued job, but its worker is not yet wired.</P>
           </section>
 
           {/* Authentication */}
           <section id="auth" style={secStyle}>
             <h1 style={h1Style}>Authentication</h1>
-            <Summary>All requests are authenticated with a bearer token in the <IC>Authorization</IC> header. Keys are tied to a workspace, not a user — rotate them when seat holders leave.</Summary>
+            <Summary>All requests are authenticated with a bearer token in the <IC>Authorization</IC> header. Keys are owned by the authenticated Clerk user and can be revoked from Settings.</Summary>
             <H3>Header format</H3>
             <P>Pass the key as <IC>Authorization: Bearer {"<key>"}</IC>. Keys never appear in URL parameters; never log them. Workspace ID is inferred from the key.</P>
-            <H3>Test vs live mode</H3>
-            <P>Test keys return synthetic but plausible scores against a fixed set of well‑known domains. They never call upstream vendors, never deduct credits, and never fire webhooks. Test responses include <IC>&quot;mode&quot;: &quot;test&quot;</IC> at the top level.</P>
             <H3>Rotation & revocation</H3>
-            <P>Create the new key, deploy it, then revoke the old one — zero downtime. Revoked keys 401 within ~5 seconds. We also auto‑revoke a key if we detect leakage on GitHub or a public paste.</P>
+            <P>Create the new key, deploy it, then explicitly revoke the old one. The score endpoint checks the stored active state when authenticating each key.</P>
           </section>
 
           {/* Errors */}
@@ -635,8 +604,7 @@ export default function DocsView() {
             <ParamTable>
               <ParamRow name="Scoring · single" type="POST /v1/score">60 req/min on Starter, 300 req/min on Team, 1,200 req/min on Scale. Per‑workspace, sliding window.</ParamRow>
               <ParamRow name="Scoring · bulk" type="POST /v1/score/bulk">10 concurrent jobs per workspace; up to 1,000 domains per job. Jobs over 100 domains are eligible for our overnight cache window (50% credit discount).</ParamRow>
-              <ParamRow name="Reads" type="GET *">600 req/min on all plans. Cache‑backed; cheap.</ParamRow>
-              <ParamRow name="Webhooks · delivery" type="outgoing" isLast>Up to 10,000 events/hour outbound to your endpoint. We retry failed deliveries 8 times over 24 hours with exponential backoff.</ParamRow>
+              <ParamRow name="Reads" type="GET *" isLast>600 req/min on all plans. Cache‑backed; cheap.</ParamRow>
             </ParamTable>
             <P>Every response includes <IC>X-RateLimit-Limit</IC>, <IC>X-RateLimit-Remaining</IC>, and <IC>X-RateLimit-Reset</IC> headers.</P>
           </section>
@@ -713,14 +681,11 @@ export default function DocsView() {
               <EndpointId method="POST" path="/v1/score/bulk" />
               Bulk score job
             </h2>
-            <Summary>Submit up to 1,000 domains per job. Returns a <IC>job_</IC> ID you can poll, or supply a <IC>webhook_url</IC> and we&apos;ll POST <IC>score.bulk.completed</IC> when the run finishes.</Summary>
+            <Summary>Submit up to 1,000 company inputs. The current route stores and returns a queued job ID, but the worker that processes queued jobs is not yet wired.</Summary>
             <ResponseChips codes={[{ code: "202 accepted", type: "ok" }, { code: "400 invalid_request", type: "err" }, { code: "402 insufficient_credits", type: "err" }]} />
             <H3>Body parameters</H3>
             <ParamTable>
-              <ParamRow name="domains" type="array<string>" badge="required">1–1,000 apex domains. Duplicates are collapsed before billing.</ParamRow>
-              <ParamRow name="deferred" type="boolean" badge="optional">If <IC>true</IC>, runs in our overnight cache window for a 50% credit discount. Results return within 8 hours.<Default>false</Default></ParamRow>
-              <ParamRow name="webhook_url" type="string" badge="optional">POST target for the <IC>score.bulk.completed</IC> event. We sign the payload — see <A href="#verify-signature">verify signatures</A>.</ParamRow>
-              <ParamRow name="tag" type="string" badge="optional" isLast>Free‑form label echoed back in webhook payloads — useful for correlating with your queue.</ParamRow>
+              <ParamRow name="companies" type="array<object>" badge="required" isLast>1–1,000 company inputs accepted by the current route.</ParamRow>
             </ParamTable>
           </section>
 
@@ -786,42 +751,6 @@ export default function DocsView() {
               Remove accounts from a watchlist
             </h2>
             <Summary>Removes the domains in <IC>accounts</IC> from the watchlist. Does not delete the underlying score history.</Summary>
-          </section>
-
-          {/* Webhooks overview */}
-          <section id="webhooks-overview" style={secStyle}>
-            <h1 style={h1Style}>Webhooks</h1>
-            <Summary>We POST events to your endpoint as JSON. Deliveries are signed (HMAC‑SHA256), at‑least‑once, and retried on non‑2xx with exponential backoff for 24 hours. Subscribe in <A href="#">Settings → Webhooks</A>.</Summary>
-            <H3>Delivery contract</H3>
-            <P>Respond <IC>2xx</IC> within 5 seconds — do the work asynchronously. We send <IC>User-Agent: VesperWise-Webhook/1.0</IC> and a <IC>X-IIQ-Signature</IC> header you should verify. Events carry a <IC>delivery_attempt</IC> integer so you can dedupe.</P>
-            <ApiNote><Strong>Local development.</Strong> Point a webhook at the VesperWise CLI (<IC>iiq webhooks listen</IC>) — it tunnels deliveries to <IC>http://localhost:3000/webhooks</IC> without ngrok.</ApiNote>
-          </section>
-
-          {/* Webhook events */}
-          <section id="webhook-events" style={secStyle}>
-            <h2 style={h2Style}>Event types</h2>
-            <div style={{ border: `1px solid ${T.border}`, borderRadius: T.r.md, overflow: "hidden", margin: "14px 0", background: T.bgEl }}>
-              {EVENTS.map((ev, i) => (
-                <div key={ev.name} style={{ display: "grid", gridTemplateColumns: "180px 1fr 90px", gap: "18px", padding: "12px 16px", fontSize: "13px", alignItems: "center", borderBottom: i < EVENTS.length - 1 ? `1px solid ${T.borderSubtle}` : "none" }}>
-                  <div style={{ fontFamily: T.mono, fontSize: "12px", color: "#dfff00", letterSpacing: 0 }}>{ev.name}</div>
-                  <div style={{ color: T.txtSec, letterSpacing: "-0.006em" }}>{ev.desc}</div>
-                  <div style={{ fontFamily: T.mono, fontSize: "11px", color: T.txtTert, textAlign: "right" as const }}>{ev.freq}</div>
-                </div>
-              ))}
-            </div>
-            <CodeBlock
-              label="Webhook"
-              panes={[{ lang: "score.computed", content: webhookEventPayload }]}
-              respStatus="POST → your.app/iiq"
-              respLatency="X-IIQ-Signature: t=…,v1=…"
-            />
-          </section>
-
-          {/* Verify signature */}
-          <section id="verify-signature" style={secStyle}>
-            <h2 style={h2Style}>Verify webhook signatures</h2>
-            <Summary>Every delivery includes <IC>X-IIQ-Signature: t={"<timestamp>"},{" "}v1={"<hmac>"}</IC>. Reject any request where the timestamp is older than 5 minutes (replay protection) and the HMAC does not validate against your signing secret.</Summary>
-            <P>The signing secret is shown once when you create the webhook endpoint, then stored hashed on our side — rotate it from the Webhooks settings page. The signed payload is the <strong style={{ color: T.txt, fontWeight: 500 }}>raw request body</strong>, not the parsed JSON.</P>
           </section>
 
           {/* Score object */}
@@ -892,16 +821,15 @@ export default function DocsView() {
             <Summary>We version the API by URL prefix (currently <IC>/v1</IC>). Breaking changes ship under a new version with at least 12 months of overlap. Additive changes ship anytime.</Summary>
             <ParamTable>
               <ParamRow name="2026‑05‑12" type="additive">Added <IC>include=people</IC> expansion on <IC>POST /v1/score</IC>. Added <IC>signal.spike</IC> webhook event.</ParamRow>
-              <ParamRow name="2026‑03‑04" type="additive"><IC>deferred</IC> option on bulk jobs (50% credit discount, 8h SLA). New <IC>credits.low</IC> webhook.</ParamRow>
+              <ParamRow name="2026‑03‑04" type="additive">Documented bulk job compatibility behavior.</ParamRow>
               <ParamRow name="2026‑01‑22" type="behavior">Default cache freshness moved from 14d to 7d across all plans. <IC>X-IIQ-Cache</IC> response header added.</ParamRow>
-              <ParamRow name="2025‑11‑08" type="v1 stable" isLast>API marked stable; SLAs in effect. Frozen surface area for the next 12 months.</ParamRow>
+              <ParamRow name="2025‑11‑08" type="v1 stable" isLast>API v1 route prefix introduced.</ParamRow>
             </ParamTable>
 
             {/* Doc footer */}
             <div style={{ marginTop: "48px", paddingTop: "24px", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: T.txtTert }}>
               <span>Questions? <a href="mailto:developers@vesperwise.com" style={{ color: T.txt, textDecoration: "underline", textDecorationColor: T.borderStrong, textUnderlineOffset: "3px" }}>developers@vesperwise.com</a></span>
               <div style={{ display: "flex", gap: "18px" }}>
-                <a href="#" style={{ color: T.txt, textDecoration: "none" }}>Status →</a>
                 <Link href="/legal/security" style={{ color: T.txt, textDecoration: "none" }}>Security →</Link>
               </div>
             </div>

@@ -2,10 +2,10 @@ import { UserProfile } from "@clerk/nextjs";
 import { UserCog } from "lucide-react";
 
 import { SettingsPageHeader } from "@/components/settings/settings-page-header";
-import { hasClerkLifecycleCapability } from "@/lib/clerk-account-capability";
+import { isClerkAccountManagementReady } from "@/lib/clerk-account-capability";
 
-export default function AccountSettingsPage() {
-  const accountManagementEnabled = hasClerkLifecycleCapability();
+export default async function AccountSettingsPage() {
+  const accountManagementEnabled = await isClerkAccountManagementReady();
   return (
     <div className="space-y-7">
       <SettingsPageHeader icon={UserCog} eyebrow="Settings" title="Account & security" description="Clerk is the identity authority for your profile, email addresses, avatar, password, MFA, and active sessions." />
