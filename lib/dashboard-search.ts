@@ -36,17 +36,14 @@ export interface DashboardNavigationItem extends SearchNavItem {
   badge?: "Beta";
   count?: NavigationCount;
   hotCount?: boolean;
+  description?: string;
+  children?: readonly DashboardNavigationItem[];
 }
 
 export interface DashboardNavigationGroup {
   id: "workspace" | "research" | "automation" | "utilities";
   label: "Workspace" | "Research" | "Automation" | "Utilities";
   items: readonly DashboardNavigationItem[];
-}
-
-export interface SettingsDestination extends SearchNavItem {
-  availability: NavigationAvailability;
-  description: string;
 }
 
 export interface SearchResultItem {
@@ -59,7 +56,7 @@ export interface SearchResultItem {
   band?: "HOT" | "WARM" | "COLD" | null;
 }
 
-export const NAVIGATION_GROUPS: readonly DashboardNavigationGroup[] = [
+export const NAVIGATION_MANIFEST: readonly DashboardNavigationGroup[] = [
   {
     id: "workspace",
     label: "Workspace",
@@ -84,7 +81,7 @@ export const NAVIGATION_GROUPS: readonly DashboardNavigationGroup[] = [
     id: "automation",
     label: "Automation",
     items: [
-      { id: "bulk", kind: "page", label: "Bulk Score", href: "/bulk", keywords: "bulk csv upload score companies", icon: Upload, availability: "available" },
+      { id: "bulk", kind: "page", label: "Bulk Score", href: "/bulk", keywords: "bulk csv upload score companies", icon: Upload, availability: "later" },
       { id: "autopilot", kind: "page", label: "Autopilot", href: "/autopilot", keywords: "autopilot workflows automation", icon: Zap, availability: "later" },
     ],
   },
@@ -93,53 +90,77 @@ export const NAVIGATION_GROUPS: readonly DashboardNavigationGroup[] = [
     label: "Utilities",
     items: [
       { id: "inbox", kind: "page", label: "Inbox", href: "/inbox", keywords: "inbox notifications messages alerts", icon: Inbox, availability: "available", count: "inbox" },
-      { id: "settings", kind: "page", label: "Settings", href: "/settings", keywords: "settings business profile billing credits plan invoice api keys developer token", icon: Settings, availability: "available", activePaths: ["/settings", "/billing", "/api-keys"] },
+      {
+        id: "settings",
+        kind: "page",
+        label: "Settings",
+        href: "/settings",
+        keywords: "settings preferences workspace",
+        icon: Settings,
+        availability: "available",
+        children: [
+          {
+            id: "business-profile",
+            kind: "page",
+            label: "Business profile",
+            href: "/settings/business-profile",
+            keywords: "business profile icp target customer scoring",
+            icon: Building2,
+            availability: "available",
+            description: "Define the customers, buyers, and sales motion used for ICP fit scoring.",
+          },
+          {
+            id: "billing",
+            kind: "page",
+            label: "Billing",
+            href: "/billing",
+            keywords: "billing credits plan invoice top up",
+            icon: CreditCard,
+            availability: "available",
+            description: "Manage your plan, credits, invoices, and one-time top-ups.",
+          },
+          {
+            id: "api-keys",
+            kind: "page",
+            label: "API Keys",
+            href: "/api-keys",
+            keywords: "api keys developer token",
+            icon: Key,
+            availability: "later",
+            description: "Create and revoke keys for programmatic access.",
+          },
+        ],
+      },
     ],
   },
 ];
 
-export const SETTINGS_DESTINATIONS: readonly SettingsDestination[] = [
-  {
-    id: "business-profile",
-    kind: "page",
-    label: "Business profile",
-    href: "/settings/business-profile",
-    keywords: "business profile icp target customer scoring",
-    icon: Building2,
-    availability: "available",
-    description: "Define the customers, buyers, and sales motion used for ICP fit scoring.",
-  },
-  {
-    id: "billing",
-    kind: "page",
-    label: "Billing",
-    href: "/billing",
-    keywords: "billing credits plan invoice top up",
-    icon: CreditCard,
-    availability: "available",
-    description: "Manage your plan, credits, invoices, and one-time top-ups.",
-  },
-  {
-    id: "api-keys",
-    kind: "page",
-    label: "API Keys",
-    href: "/api-keys",
-    keywords: "api keys developer token",
-    icon: Key,
-    availability: "later",
-    description: "Create and revoke keys for programmatic access.",
-  },
-];
-
-export function getVisibleNavigationGroups(): DashboardNavigationGroup[] {
-  return NAVIGATION_GROUPS.map((group) => ({
+export function getVisibleNavigationGroups(
+  manifest: readonly DashboardNavigationGroup[] = NAVIGATION_MANIFEST,
+): DashboardNavigationGroup[] {
+  return manifest.map((group) => ({
     ...group,
     items: group.items.filter((item) => item.availability === "available"),
   })).filter((group) => group.items.length > 0);
 }
 
-export function getVisibleSettingsDestinations(): SettingsDestination[] {
-  return SETTINGS_DESTINATIONS.filter((item) => item.availability === "available");
+function getNavigationItemById(
+  id: string,
+  manifest: readonly DashboardNavigationGroup[] = NAVIGATION_MANIFEST,
+): DashboardNavigationItem | undefined {
+  for (const item of manifest.flatMap((group) => group.items)) {
+    if (item.id === id) return item;
+    const child = item.children?.find((candidate) => candidate.id === id);
+    if (child) return child;
+  }
+  return undefined;
+}
+
+export function getVisibleSettingsDestinations(
+  manifest: readonly DashboardNavigationGroup[] = NAVIGATION_MANIFEST,
+): DashboardNavigationItem[] {
+  return getNavigationItemById("settings", manifest)?.children
+    ?.filter((item) => item.availability === "available") ?? [];
 }
 
 function pathMatches(basePath: string, pathname: string): boolean {
@@ -148,14 +169,18 @@ function pathMatches(basePath: string, pathname: string): boolean {
 }
 
 export function isNavigationItemActive(
-  item: Pick<DashboardNavigationItem, "href" | "activePaths">,
+  item: Pick<DashboardNavigationItem, "href" | "activePaths" | "children">,
   pathname: string,
 ): boolean {
-  return (item.activePaths ?? [item.href]).some((path) => pathMatches(path, pathname));
+  const ownedPaths = [
+    ...(item.activePaths ?? [item.href]),
+    ...(item.children?.map((child) => child.href) ?? []),
+  ];
+  return ownedPaths.some((path) => pathMatches(path, pathname));
 }
 
 export function getNavigationItemForPath(pathname: string): DashboardNavigationItem | undefined {
-  return NAVIGATION_GROUPS
+  return NAVIGATION_MANIFEST
     .flatMap((group) => group.items)
     .find((item) => isNavigationItemActive(item, pathname));
 }
@@ -167,22 +192,38 @@ export interface NavigationBreadcrumb {
 }
 
 export function getNavigationBreadcrumb(pathname: string): NavigationBreadcrumb {
-  const settingsDestination = SETTINGS_DESTINATIONS.find((item) => pathMatches(item.href, pathname));
-  if (settingsDestination) {
-    return { parent: "Settings", current: settingsDestination.label, icon: settingsDestination.icon };
-  }
-
-  for (const group of NAVIGATION_GROUPS) {
-    const item = group.items.find((candidate) => pathMatches(candidate.href, pathname));
-    if (item) return { parent: group.label, current: item.label, icon: item.icon };
+  for (const group of NAVIGATION_MANIFEST) {
+    for (const item of group.items) {
+      const child = item.children?.find((candidate) => pathMatches(candidate.href, pathname));
+      if (child) return { parent: item.label, current: child.label, icon: child.icon };
+      if (pathMatches(item.href, pathname)) {
+        return { parent: group.label, current: item.label, icon: item.icon };
+      }
+    }
   }
 
   return { parent: "Workspace", current: "VesperWise", icon: LayoutGrid };
 }
 
-export const SEARCH_NAV_ITEMS: SearchNavItem[] = getVisibleNavigationGroups()
-  .flatMap((group) => group.items)
-  .map(({ id, kind, label, href, keywords, icon }) => ({ id, kind, label, href, keywords, icon }));
+function toSearchNavItem(item: DashboardNavigationItem): SearchNavItem {
+  const { id, kind, label, href, keywords, icon } = item;
+  return { id, kind, label, href, keywords, icon };
+}
+
+export function getSearchNavigationItems(
+  manifest: readonly DashboardNavigationGroup[] = NAVIGATION_MANIFEST,
+): SearchNavItem[] {
+  return getVisibleNavigationGroups(manifest).flatMap((group) =>
+    group.items.flatMap((item) => [
+      toSearchNavItem(item),
+      ...(item.children ?? [])
+        .filter((child) => child.availability === "available")
+        .map(toSearchNavItem),
+    ]),
+  );
+}
+
+export const SEARCH_NAV_ITEMS: SearchNavItem[] = getSearchNavigationItems();
 
 export function filterNavItems(query: string): SearchNavItem[] {
   const q = query.trim().toLowerCase();
