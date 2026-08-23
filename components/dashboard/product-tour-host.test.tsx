@@ -46,6 +46,8 @@ beforeEach(() => {
     configurable: true,
     value: vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
   });
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
+  Object.defineProperty(window, "innerHeight", { configurable: true, value: 768 });
 });
 
 afterEach(() => {
@@ -138,6 +140,80 @@ describe("ProductTourHost", () => {
     expect(navigation.push).not.toHaveBeenCalled();
   });
 
+  it("keeps the confirmed route step actionable until a deferred Next write succeeds", async () => {
+    let settle!: (response: Response) => void;
+    const fetcher = vi.fn(() => new Promise<Response>((resolve) => { settle = resolve; }));
+    const user = userEvent.setup();
+    render(
+      <>
+        <button data-tour="dashboard-overview">Overview</button>
+        <ProductTourHost initial={ACTIVE} activeVersion={1} fetcher={fetcher as typeof fetch} />
+      </>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Next" }));
+    expect(screen.getByRole("dialog", { name: "Product tour: Workspace overview" })).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Tour progress" })).toHaveTextContent("Saving");
+    expect(screen.getByText("1 of 5")).toBeInTheDocument();
+    expect(navigation.push).not.toHaveBeenCalled();
+
+    settle(new Response(JSON.stringify({ tour: { ...ACTIVE, tour_step: 1 } })));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalledWith("/score"));
+  });
+
+  it("keeps a terminal action visible while pending and retryable after rejection", async () => {
+    navigation.pathname = "/score";
+    const initial = { ...ACTIVE, tour_step: 1 };
+    let settle!: (response: Response) => void;
+    const dismissed = { ...initial, tour_status: "dismissed" as const };
+    const fetcher = vi.fn()
+      .mockImplementationOnce(() => new Promise<Response>((resolve) => { settle = resolve; }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ tour: dismissed })));
+    const user = userEvent.setup();
+    render(
+      <>
+        <button data-tour="score-domain">Domain</button>
+        <ProductTourHost initial={initial} activeVersion={1} fetcher={fetcher as typeof fetch} />
+      </>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Skip tour" }));
+    expect(screen.getByRole("dialog", { name: "Product tour: Score a company domain" })).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Tour progress" })).toHaveTextContent("Saving");
+    settle(new Response(JSON.stringify({ error: "offline" }), { status: 503 }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("could not be saved");
+    expect(screen.getByRole("button", { name: "Skip tour" })).toBeEnabled();
+    expect(navigation.push).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Skip tour" }));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  it("announces an automatic-start failure and allows a real retry without reload", async () => {
+    const notStarted = { ...ACTIVE, tour_status: "not_started" as const, tour_updated_at: null };
+    let settle!: (response: Response) => void;
+    const fetcher = vi.fn()
+      .mockImplementationOnce(() => new Promise<Response>((resolve) => { settle = resolve; }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ tour: ACTIVE })));
+    const user = userEvent.setup();
+    render(
+      <>
+        <div data-tour="dashboard-overview">Overview</div>
+        <ProductTourHost initial={notStarted} activeVersion={1} fetcher={fetcher as typeof fetch} />
+      </>,
+    );
+
+    expect(await screen.findByRole("dialog", { name: "Product tour: Workspace overview" })).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Tour progress" })).toHaveTextContent("Saving");
+    settle(new Response(JSON.stringify({ error: "offline" }), { status: 503 }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("could not be saved");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("button", { name: "Retry starting tour" }));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    expect(await screen.findByRole("dialog", { name: "Product tour: Workspace overview" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   it("hydrates authoritative progress from a conflict instead of retrying stale state", async () => {
     const authoritative = { ...ACTIVE, tour_step: 2, tour_updated_at: "2026-08-24T01:02:00.000Z" };
     const fetcher = vi.fn(async () => new Response(JSON.stringify({ error: "Tour progress changed", tour: authoritative }), { status: 409 }));
@@ -175,7 +251,8 @@ describe("ProductTourHost", () => {
   it("opens mobile navigation before targeting Settings and closes it after Finish", async () => {
     const initial = { ...ACTIVE, tour_step: 4 };
     const completed = { ...initial, tour_status: "completed" as const };
-    const fetcher = vi.fn(async () => new Response(JSON.stringify({ tour: completed })));
+    let settle!: (response: Response) => void;
+    const fetcher = vi.fn(() => new Promise<Response>((resolve) => { settle = resolve; }));
     const user = userEvent.setup();
 
     function MobileTour() {
@@ -202,7 +279,62 @@ describe("ProductTourHost", () => {
     await user.tab({ shift: true });
     expect(screen.getByRole("button", { name: "Finish" })).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Finish" }));
+    expect(screen.getByRole("link", { name: "Settings" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Product tour: Navigate and adjust Settings" })).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Tour progress" })).toHaveTextContent("Saving");
+    settle(new Response(JSON.stringify({ tour: completed })));
     await waitFor(() => expect(screen.queryByRole("link", { name: "Settings" })).not.toBeInTheDocument());
     expect(navigation.push).toHaveBeenCalledWith("/dashboard");
+  });
+
+  it("focuses a stable Dashboard target after terminal navigation", async () => {
+    navigation.pathname = "/score";
+    const initial = { ...ACTIVE, tour_step: 1 };
+    const dismissed = { ...initial, tour_status: "dismissed" as const };
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ tour: dismissed })));
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <>
+        <button data-tour="score-domain">Domain</button>
+        <ProductTourHost initial={initial} activeVersion={1} fetcher={fetcher as typeof fetch} />
+      </>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Skip tour" }));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalledWith("/dashboard"));
+    navigation.pathname = "/dashboard";
+    rerender(
+      <>
+        <div data-tour="dashboard-overview" tabIndex={-1}>Dashboard overview</div>
+        <ProductTourHost initial={initial} activeVersion={1} fetcher={fetcher as typeof fetch} />
+      </>,
+    );
+
+    await waitFor(() => expect(screen.getByText("Dashboard overview")).toHaveFocus());
+  });
+
+  it("renders short-viewport bounds and scrolling even when an error adds content", async () => {
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 390 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 320 });
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ error: "offline" }), { status: 503 }));
+    const user = userEvent.setup();
+    render(
+      <>
+        <button data-tour="dashboard-overview">Overview</button>
+        <ProductTourHost initial={ACTIVE} activeVersion={1} fetcher={fetcher as typeof fetch} />
+      </>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Next" }));
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog", { name: "Product tour: Workspace overview" });
+    await waitFor(() => expect(dialog).toHaveStyle({
+      width: "358px",
+      maxWidth: "358px",
+      maxHeight: "288px",
+      overflowY: "auto",
+    }));
+    expect(Number.parseFloat(dialog.style.left)).toBeGreaterThanOrEqual(16);
+    expect(Number.parseFloat(dialog.style.top)).toBeGreaterThanOrEqual(16);
   });
 });

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { tourProgressSchema } from "@/lib/product-tour";
+import { publishAuthoritativeTourProgress } from "@/lib/product-tour-events";
 import type { TourStatus } from "@/lib/user-preferences";
 
 type TourState = { tour_version: number; tour_status: TourStatus; tour_step: number };
@@ -23,8 +24,6 @@ export function ProductExperienceSettings({
   async function restart() {
     if (saveState === "saving") return;
     const previous = state;
-    const next: TourState = { ...state, tour_status: "not_started", tour_step: 0 };
-    setState(next);
     setSaveState("saving");
     try {
       const response = await fetcher("/api/user/tour", {
@@ -48,6 +47,7 @@ export function ProductExperienceSettings({
           tour_status: conflict.data.tour_status,
           tour_step: conflict.data.tour_step,
         });
+        publishAuthoritativeTourProgress(conflict.data);
         setSaveState("conflict");
         return;
       }
@@ -59,6 +59,7 @@ export function ProductExperienceSettings({
         tour_step: authoritative.tour_step,
       });
       setSaveState("saved");
+      publishAuthoritativeTourProgress(authoritative);
       router.push("/dashboard");
     } catch {
       setState(previous);

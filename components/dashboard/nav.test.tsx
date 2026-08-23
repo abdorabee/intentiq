@@ -9,6 +9,7 @@ import DashboardShell from "./dashboard-shell";
 import { SearchProvider } from "./search-provider";
 import DashboardTopbar from "./dashboard-topbar";
 import DashboardNav from "./nav";
+import { ProductExperienceSettings } from "../settings/product-experience-settings";
 
 const navigation = vi.hoisted(() => ({
   pathname: "/dashboard",
@@ -268,6 +269,89 @@ describe("authenticated navigation shell", () => {
     expect(screen.queryByRole("dialog", { name: "Workspace navigation" })).not.toBeInTheDocument();
     const tour = screen.getByRole("dialog", { name: "Product tour: Navigate and adjust Settings" });
     expect(within(tour).getByRole("heading", { name: "Navigate and adjust Settings" })).toHaveFocus();
+  });
+
+  it("synchronizes a server-confirmed Settings restart into the persistent shell host", async () => {
+    navigation.pathname = "/settings/product-experience";
+    const restarted = {
+      tour_version: 1,
+      tour_status: "in_progress" as const,
+      tour_step: 0,
+      tour_updated_at: "2026-08-24T02:00:00.000Z",
+    };
+    const restartFetcher = vi.fn(async () => new Response(JSON.stringify({ tour: restarted })));
+    const user = userEvent.setup();
+    const shellProps = {
+      creditsRemaining: 80,
+      plan: "starter" as const,
+      activeTourVersion: 1,
+      initialTour: {
+        ...restarted,
+        tour_status: "completed" as const,
+        tour_step: 4,
+      },
+    };
+    const { rerender } = render(
+      <DashboardShell {...shellProps}>
+        <ProductExperienceSettings initial={shellProps.initialTour} fetcher={restartFetcher as typeof fetch} />
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Restart guided tour" }));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalledWith("/dashboard"));
+
+    navigation.pathname = "/dashboard";
+    rerender(
+      <DashboardShell {...shellProps}>
+        <div data-tour="dashboard-overview" tabIndex={-1}>Dashboard overview</div>
+      </DashboardShell>,
+    );
+
+    expect(await screen.findByRole("dialog", { name: "Product tour: Workspace overview" })).toBeInTheDocument();
+    expect(screen.getByText("1 of 5")).toBeInTheDocument();
+  });
+
+  it("synchronizes authoritative restart conflicts into the persistent shell host", async () => {
+    navigation.pathname = "/settings/product-experience";
+    const authoritative = {
+      tour_version: 1,
+      tour_status: "in_progress" as const,
+      tour_step: 2,
+      tour_updated_at: "2026-08-24T02:05:00.000Z",
+    };
+    const restartFetcher = vi.fn(async () => new Response(JSON.stringify({
+      error: "Tour progress changed",
+      tour: authoritative,
+    }), { status: 409 }));
+    const user = userEvent.setup();
+    const shellProps = {
+      creditsRemaining: 80,
+      plan: "starter" as const,
+      activeTourVersion: 1,
+      initialTour: {
+        ...authoritative,
+        tour_status: "completed" as const,
+        tour_step: 4,
+      },
+    };
+    const { rerender } = render(
+      <DashboardShell {...shellProps}>
+        <ProductExperienceSettings initial={shellProps.initialTour} fetcher={restartFetcher as typeof fetch} />
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Restart guided tour" }));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalledWith("/pipeline"));
+
+    navigation.pathname = "/pipeline";
+    rerender(
+      <DashboardShell {...shellProps}>
+        <div data-tour="intent-hub-prioritization">Intent Hub</div>
+      </DashboardShell>,
+    );
+
+    expect(await screen.findByRole("dialog", { name: "Product tour: Prioritize in Intent Hub" })).toBeInTheDocument();
+    expect(screen.getByText("3 of 5")).toBeInTheDocument();
   });
 
   it("hands modal ownership from the mobile drawer to search and restores the menu trigger", async () => {

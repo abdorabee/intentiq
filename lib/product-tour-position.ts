@@ -26,16 +26,18 @@ export function getTourPosition(
   popover: SizeLike,
   viewport: SizeLike,
   preferred: Exclude<TourPlacement, "center">,
-): { placement: TourPlacement; top: number; left: number; maxWidth: number } {
+): { placement: TourPlacement; top: number; left: number; maxWidth: number; maxHeight: number } {
   const maxWidth = Math.max(0, Math.min(popover.width, viewport.width - VIEWPORT_PADDING * 2));
+  const maxHeight = Math.max(0, viewport.height - VIEWPORT_PADDING * 2);
   const width = maxWidth;
-  const height = Math.min(popover.height, viewport.height - VIEWPORT_PADDING * 2);
+  const height = Math.min(popover.height, maxHeight);
 
   const centered = () => ({
     placement: "center" as const,
     top: Math.round(clamp((viewport.height - height) / 2, VIEWPORT_PADDING, viewport.height - height - VIEWPORT_PADDING)),
     left: Math.round(clamp((viewport.width - width) / 2, VIEWPORT_PADDING, viewport.width - width - VIEWPORT_PADDING)),
     maxWidth,
+    maxHeight,
   });
 
   if (!target) {
@@ -79,5 +81,6 @@ export function getTourPosition(
     top: Math.round(clamp(top, VIEWPORT_PADDING, viewport.height - height - VIEWPORT_PADDING)),
     left: Math.round(clamp(left, VIEWPORT_PADDING, viewport.width - width - VIEWPORT_PADDING)),
     maxWidth,
+    maxHeight,
   };
 }

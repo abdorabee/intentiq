@@ -160,6 +160,7 @@ export interface TourClientState {
   confirmed: TourProgress;
   saving: boolean;
   error: string | null;
+  pendingAction: TourAction | null;
 }
 
 export type TourReducerEvent =
@@ -169,16 +170,17 @@ export type TourReducerEvent =
   | { type: "hydrate"; progress: TourProgress };
 
 export function createTourClientState(progress: TourProgress): TourClientState {
-  return { progress, confirmed: progress, saving: false, error: null };
+  return { progress, confirmed: progress, saving: false, error: null, pendingAction: null };
 }
 
 export function tourReducer(state: TourClientState, event: TourReducerEvent): TourClientState {
   if (event.type === "transition") {
+    transitionTour(state.progress, event.action, event.activeVersion);
     return {
       ...state,
-      progress: transitionTour(state.progress, event.action, event.activeVersion),
       saving: true,
       error: null,
+      pendingAction: event.action,
     };
   }
   if (event.type === "persisted" || event.type === "hydrate") {
@@ -187,6 +189,7 @@ export function tourReducer(state: TourClientState, event: TourReducerEvent): To
       confirmed: event.progress,
       saving: false,
       error: null,
+      pendingAction: null,
     };
   }
   return {
@@ -194,5 +197,6 @@ export function tourReducer(state: TourClientState, event: TourReducerEvent): To
     progress: state.confirmed,
     saving: false,
     error: event.message,
+    pendingAction: null,
   };
 }

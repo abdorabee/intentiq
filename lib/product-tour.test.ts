@@ -74,15 +74,17 @@ describe("product tour model", () => {
     expect(transitionTour(progress({ tour_step: 4 }), "finish", 1)).toMatchObject({ tour_status: "completed", tour_step: 4 });
   });
 
-  it("rolls an optimistic transition back to the last server-confirmed state", () => {
+  it("keeps confirmed progress visible while a transition is pending", () => {
     const initial = createTourClientState(progress({ tour_step: 1 }));
-    const optimistic = tourReducer(initial, { type: "transition", action: "next", activeVersion: 1 });
-    expect(optimistic.progress.tour_step).toBe(2);
-    expect(optimistic.saving).toBe(true);
+    const pending = tourReducer(initial, { type: "transition", action: "next", activeVersion: 1 });
+    expect(pending.progress.tour_step).toBe(1);
+    expect(pending.saving).toBe(true);
+    expect(pending.pendingAction).toBe("next");
 
-    const rolledBack = tourReducer(optimistic, { type: "failed", message: "Tour progress could not be saved." });
+    const rolledBack = tourReducer(pending, { type: "failed", message: "Tour progress could not be saved." });
     expect(rolledBack.progress.tour_step).toBe(1);
     expect(rolledBack.error).toBe("Tour progress could not be saved.");
+    expect(rolledBack.pendingAction).toBeNull();
   });
 
   it("reconciles a complete authoritative response after an optimistic transition", () => {
@@ -94,6 +96,7 @@ describe("product tour model", () => {
       confirmed: authoritative,
       saving: false,
       error: null,
+      pendingAction: null,
     });
   });
 });

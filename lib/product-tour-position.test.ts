@@ -12,7 +12,7 @@ describe("tour positioning", () => {
       popover,
       viewport,
       "right",
-    )).toEqual({ placement: "right", top: 130, left: 516, maxWidth: 360 });
+    )).toEqual({ placement: "right", top: 130, left: 516, maxWidth: 360, maxHeight: 768 });
   });
 
   it("falls back to the opposite side and clamps inside the viewport", () => {
@@ -21,7 +21,7 @@ describe("tour positioning", () => {
       popover,
       viewport,
       "right",
-    )).toEqual({ placement: "left", top: 544, left: 704, maxWidth: 360 });
+    )).toEqual({ placement: "left", top: 544, left: 704, maxWidth: 360, maxHeight: 768 });
   });
 
   it("uses a viewport-safe centered fallback when a route target is unavailable", () => {
@@ -30,6 +30,7 @@ describe("tour positioning", () => {
       top: 230,
       left: 16,
       maxWidth: 358,
+      maxHeight: 668,
     });
   });
 
@@ -39,6 +40,16 @@ describe("tour positioning", () => {
       popover,
       viewport,
       "bottom",
-    )).toEqual({ placement: "center", top: 280, left: 420, maxWidth: 360 });
+    )).toEqual({ placement: "center", top: 280, left: 420, maxWidth: 360, maxHeight: 768 });
+  });
+
+  it("reports enforceable width and height bounds for a short landscape viewport", () => {
+    expect(getTourPosition(null, { width: 360, height: 480 }, { width: 568, height: 280 }, "bottom")).toEqual({
+      placement: "center",
+      top: 16,
+      left: 104,
+      maxWidth: 360,
+      maxHeight: 248,
+    });
   });
 });

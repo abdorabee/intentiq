@@ -244,7 +244,7 @@ export default function DashboardShell({
             menuButtonRef={menuButtonRef}
             mobileMenuOpen={mobileOpen}
           />
-          <main className={pageClass}>{children}</main>
+          <main id="dashboard-content" tabIndex={-1} className={pageClass}>{children}</main>
         </div>
         {initialTour && (
           <ProductTourHost

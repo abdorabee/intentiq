@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented and locally verified on top of Task 6 commit `707c93b`. The five-step route-aware engine, server-authoritative persistence seam, accessible host, mobile navigation handoff, Settings restart seam, and stable existing-page anchors are present. The checked-in active tour version remains `0`, so there is no automatic playback, no post-onboarding start, no active Product Experience control, and no Assistant exposure in this task.
+Implemented and locally verified on top of Task 6 commit `707c93b`, including acceptance fix round 1 on top of the original Task 7 commit `13303a4`. The five-step route-aware engine, server-authoritative persistence seam, accessible host, mobile navigation handoff, same-shell Settings restart seam, and stable existing-page anchors are present. The checked-in active tour version remains `0`, so there is no automatic playback, no post-onboarding start, no active Product Experience control, and no Assistant exposure in this task.
 
 No migration was added because Task 3 already supplied `tour_version`, `tour_status`, `tour_step`, and `tour_updated_at`. No local or remote migration was applied, and nothing was deployed.
 
@@ -15,7 +15,7 @@ No migration was added because Task 3 already supplied `tour_version`, `tour_sta
   - Defines exactly five route-aware steps for Dashboard, Score, Intent Hub, Assistant, and navigation/Settings.
   - Implements bounded start, restart, next, back, skip, dismiss, and finish transitions.
   - Reconciles version upgrades without replaying a completed or dismissed current version.
-  - Exposes strict progress and action schemas plus an optimistic reducer that rolls back to the last server-confirmed state.
+  - Exposes strict progress and action schemas plus a confirmed-state reducer that keeps the current step visible while a write is pending and rolls failures back visibly.
 - `lib/product-tour.test.ts`
   - Covers the dormant gate, exact route/anchor sequence, current-version replay prevention, version upgrades, bounded navigation, every terminal action, rollback, and authoritative reconciliation.
 
@@ -38,10 +38,14 @@ No migration was added because Task 3 already supplied `tour_version`, `tour_sta
 - `components/dashboard/product-tour-host.tsx`
   - Resumes persisted in-progress state after refresh, routes to each step, and starts an older version only when the active version is nonzero.
   - Uses a labelled dialog, described content, restrained live step announcements, explicit Skip/Back/Next/Finish/dismiss controls, and retryable persistence errors.
+  - Keeps route and terminal actions visible and disabled with an accessible saving status until persistence confirms; failures restore actionable controls. Automatic-start failures remain visible with an explicit retry and cannot loop without user action.
   - Supports Escape, Left Arrow, Right Arrow, and contained forward/reverse Tab behavior.
   - Moves focus to the current heading and restores prior focus when guidance closes or changes route.
   - Highlights only the current stable target, scrolls it into view, honors reduced motion, updates on resize/scroll/content resize, and falls back to a centered viewport-safe placement when a target is unavailable.
   - Opens the mobile navigation drawer before resolving the Settings target and closes it after a terminal action.
+  - Keeps tour-owned mobile navigation open while a terminal write is pending, then closes it only after authoritative success.
+  - Defers terminal focus restoration across navigation, then focuses the stable Dashboard overview (or shell main fallback) after the Dashboard route mounts.
+  - Applies positioning-helper width and height bounds directly to rendered styles with vertical overflow for short mobile and landscape viewports.
   - Fails closed on malformed initial persisted progress.
 - `lib/product-tour-focus.ts` and tests cover initial focus, restoration, and both Tab boundaries.
 - `lib/product-tour-position.ts` and tests cover preferred placement, opposite-side fallback, clamping, and targetless centered fallback.
@@ -56,13 +60,22 @@ No migration was added because Task 3 already supplied `tour_version`, `tour_sta
   - `data-tour="intent-hub-prioritization"` on Intent Hub.
   - `data-tour="navigation-settings"` on the canonical Settings navigation item.
 - The future Assistant step intentionally targets `data-tour="assistant-workspace"`; Task 10 must add that anchor only after the real Assistant composer/results workspace exists.
-- `components/settings/product-experience-settings.tsx` now restarts through the action endpoint, reconciles the returned server version/status/step, and returns to Dashboard.
+- `components/settings/product-experience-settings.tsx` now restarts through the action endpoint, reconciles the returned server version/status/step, publishes only validated authoritative success or conflict payloads to the persistent shell host, and returns successful restarts to Dashboard. `lib/product-tour-events.ts` is an in-memory synchronization seam only; it neither reads nor writes browser storage and cannot activate version `0`.
 - `app/(dashboard)/settings/product-experience/page.tsx` exposes that action only when the persisted version exactly matches a nonzero active version. Version `0` and stale/future versions remain non-actionable.
 - Product Experience manifest availability is derived from the same active-version gate, so changing the activation constant later reveals the real control without a second feature flag.
 
 ## TDD evidence
 
 ### RED
+
+Acceptance fix round 1:
+
+- Command: `npm test -- lib/product-tour.test.ts lib/product-tour-position.test.ts components/dashboard/product-tour-host.test.tsx components/dashboard/nav.test.tsx`
+- Result: 4 files failed with 13 expected failures and 30 passing tests. Failures demonstrated that pending route/terminal actions unmounted the dialog, automatic-start errors had no retry surface, a confirmed Settings restart did not hydrate the persistent host, terminal navigation left focus on `body`, and rendered styles omitted the helper's height/overflow constraints.
+- Review-follow-up command: `npm test -- components/dashboard/nav.test.tsx`
+- Result: 1 expected failure among 19 tests demonstrated that a validated authoritative `409` restart conflict updated Settings but did not yet synchronize the persistent host.
+
+Original Task 7 RED evidence:
 
 1. Initial model/persistence/host run:
    - Command: `npm test -- lib/product-tour.test.ts lib/product-tour-position.test.ts lib/product-tour-focus.test.ts app/api/user/tour/route.test.ts components/dashboard/product-tour-host.test.tsx lib/user-preferences.test.ts app/api/user/preferences/route.test.ts components/settings/product-experience-settings.test.tsx`
@@ -81,19 +94,26 @@ No migration was added because Task 3 already supplied `tour_version`, `tour_sta
 
 - Focused Task 7 and adjacent regression suite:
   - Command: `npm test -- lib/product-tour.test.ts lib/product-tour-position.test.ts lib/product-tour-focus.test.ts app/api/user/tour/route.test.ts components/dashboard/product-tour-host.test.tsx components/dashboard/nav.test.tsx 'app/(dashboard)/score/score-view.test.tsx' components/settings/product-experience-settings.test.tsx app/api/user/preferences/route.test.ts lib/user-preferences.test.ts lib/dashboard-search.test.ts components/dashboard/search-palette.test.tsx 'app/(dashboard)/settings/settings-routes.test.ts'`
-  - Result: 13 files passed, 87 tests passed.
+  - Result after acceptance fix round 1 and review hardening: 13 files passed, 95 tests passed.
 - Changed TypeScript/TSX ESLint:
   - Command: `npx eslint` over every changed Task 7 TypeScript and TSX file.
   - Result: exit 0 with no findings.
 - Full Vitest suite:
   - Command: `npm test`
-  - Result: 81 files passed, 5 skipped; 439 tests passed, 24 skipped.
+  - Result after acceptance fix round 1 and review hardening: 81 files passed, 5 skipped; 447 tests passed, 24 skipped.
 - Production build:
   - Command: `npm run build`
   - Result: compiled successfully, Next TypeScript passed, 74 static pages generated, and `/api/user/tour` was registered; exit 0.
 - Diff hygiene:
   - Command: `git diff --check`
   - Result: exit 0 with no output.
+
+### Acceptance fix round 1 coverage
+
+- Real `DashboardShell` integrations keep the shell/host mounted while Product Experience restarts, consume validated success and `409` conflict responses through the in-memory bridge, navigate to the authoritative step, and open it without a hard reload.
+- Deferred-request component tests verify that Next, Skip, automatic start, and mobile Finish keep visible pending UI. Rejected route/terminal requests restore the confirmed step and controls, while rejected automatic start exposes a real Retry button and does not silently loop.
+- A route-change integration verifies that terminal navigation suppresses focus restoration to the departing route and focuses the stable Dashboard overview after navigation.
+- A rendered-style test with a `390 × 320` viewport and visible error content verifies `358px` safe width, `288px` maximum height, `overflow-y: auto`, and 16px minimum top/left edges.
 
 ## Review hardening
 
@@ -107,6 +127,8 @@ An independent read-only review found no security, ownership, or rollout leakage
 - Positioning now centers when a large target leaves no usable side instead of clamping an explicitly failed placement.
 
 The final re-review reported no remaining critical or important findings and reconfirmed that the active version is `0`.
+
+Acceptance fix round 1 received an additional independent read-only review. Its one finding—publish validated authoritative `409` restart conflicts to the persistent host—was reproduced with the real shell before correction. The final re-review reported no remaining actionable finding across restart synchronization, pending/error UI, mobile ownership, terminal focus, rendered viewport bounds, or rollout leakage; its focused 6-file suite passed 53 tests.
 
 ## Rollout gate and concerns
 
