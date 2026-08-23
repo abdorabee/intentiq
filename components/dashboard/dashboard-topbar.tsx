@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Plus, Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Ref } from "react";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
 import { focusWatchlistAdd } from "@/lib/watchlist-events";
 import { getNavigationBreadcrumb } from "@/lib/dashboard-search";
@@ -17,9 +17,11 @@ interface BandCounts {
 interface DashboardTopbarProps {
   bandCounts?: BandCounts;
   onMenuClick?: () => void;
+  menuButtonRef?: Ref<HTMLButtonElement>;
+  mobileMenuOpen?: boolean;
 }
 
-export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTopbarProps) {
+export default function DashboardTopbar({ bandCounts, onMenuClick, menuButtonRef, mobileMenuOpen = false }: DashboardTopbarProps) {
   const pathname = usePathname();
   const isLists = pathname === "/lists" || pathname.startsWith("/lists/");
   const isBilling = pathname === "/billing";
@@ -53,42 +55,36 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
   return (
     <header className="topbar">
       <button
+        ref={menuButtonRef}
         type="button"
         className="tb-menu"
         onClick={onMenuClick}
         aria-label="Open navigation menu"
+        aria-controls="workspace-navigation"
+        aria-expanded={mobileMenuOpen}
       >
         <Menu className="ic" aria-hidden />
       </button>
-      <div className="crumb">
+      <nav className="crumb" aria-label="Breadcrumb">
         <CrumbIcon className="ic" aria-hidden />
-        <span>{crumb.parent}</span>
-        <span className="sep">/</span>
-        {listDetailMatch ? (
-          <>
-            <Link href="/lists" style={{ color: "var(--text-tertiary)", textDecoration: "none" }}>Lists</Link>
-            <span className="sep">/</span>
-            <span className="current">{listName ?? "…"}</span>
-          </>
-        ) : (
-          <span className="current">{crumb.current}</span>
-        )}
-      </div>
+        <ol>
+          <li><span>{crumb.parent}</span></li>
+          {listDetailMatch ? (
+            <>
+              <li><Link href="/lists">Lists</Link></li>
+              <li><span className="current" aria-current="page">{listName ?? "…"}</span></li>
+            </>
+          ) : (
+            <li><span className="current" aria-current="page">{crumb.current}</span></li>
+          )}
+        </ol>
+      </nav>
 
       {!isLists && !isBilling && (
         <>
-          <span className="band band-hot">
-            <span className="dot" />
-            HOT {hot}
-          </span>
-          <span className="band band-warm">
-            <span className="dot" />
-            WARM {warm}
-          </span>
-          <span className="band band-cold">
-            <span className="dot" />
-            COLD {cold}
-          </span>
+          {hot > 0 && <span className="band band-hot"><span className="dot" />HOT {hot}</span>}
+          {warm > 0 && <span className="band band-warm"><span className="dot" />WARM {warm}</span>}
+          {cold > 0 && <span className="band band-cold"><span className="dot" />COLD {cold}</span>}
         </>
       )}
 
@@ -103,10 +99,6 @@ export default function DashboardTopbar({ bandCounts, onMenuClick }: DashboardTo
         <button type="button" className="btn-primary" onClick={openNewListModal}>
           <Plus className="ic" style={{ strokeWidth: 2.2 }} />
           New list
-        </button>
-      ) : isBilling ? (
-        <button type="button" className="tb-btn outlined">
-          Export
         </button>
       ) : isWatchlist ? (
         <button type="button" className="btn-primary" onClick={focusWatchlistAdd}>

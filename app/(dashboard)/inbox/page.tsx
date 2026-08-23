@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import type { InboxNotification } from "@/lib/types";
 import type { DbList } from "@/lib/lists-types";
 import { InboxView } from "./inbox-view";
+
+export const metadata: Metadata = {
+  title: "Inbox",
+  description: "Review intent alerts, score changes, and workspace notifications.",
+};
 
 export default async function InboxPage() {
   const { userId } = await auth();

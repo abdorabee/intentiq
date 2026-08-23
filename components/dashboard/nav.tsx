@@ -1,9 +1,10 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, type ReactNode, type Ref } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
+import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 import { PLAN_CREDITS, type DbUser } from "@/lib/types";
 import { getWorkspaceLabel } from "@/lib/workspace-label";
@@ -12,8 +13,8 @@ import {
   Sun,
   Moon,
   PanelLeft,
-  ChevronDown,
   Search,
+  X,
 } from "lucide-react";
 import {
   getVisibleNavigationGroups,
@@ -32,6 +33,27 @@ interface DashboardNavProps {
   inboxCount?: number;
   watchlistCount?: number;
   pipelineHotCount?: number;
+  isMobile?: boolean;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+  sidebarRef?: Ref<HTMLElement>;
+}
+
+function Tooltip({ label, children, visible }: { label: string; children: ReactNode; visible: boolean }) {
+  if (!visible) return children;
+
+  const id = `sidebar-tooltip-${label.toLowerCase().replaceAll(" ", "-")}`;
+  return (
+    <TooltipPrimitive.Root>
+      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+      <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Content id={id} className="sb-tooltip" side="right" sideOffset={8}>
+          {label}
+          <TooltipPrimitive.Arrow className="sb-tooltip-arrow" />
+        </TooltipPrimitive.Content>
+      </TooltipPrimitive.Portal>
+    </TooltipPrimitive.Root>
+  );
 }
 
 export default function DashboardNav({
@@ -42,6 +64,10 @@ export default function DashboardNav({
   inboxCount,
   watchlistCount,
   pipelineHotCount,
+  isMobile = false,
+  mobileOpen = false,
+  onMobileClose,
+  sidebarRef,
 }: DashboardNavProps) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
@@ -67,140 +93,135 @@ export default function DashboardNav({
   }
 
   return (
-    <aside className="sidebar">
-      {/* Head */}
-      <div className="sb-head">
-        <VesperWiseLogo className="ws-logo" size={24} />
-        {!collapsed && (
-          <div className="ws-name">
-            {workspaceLabel}
-            <span className="role">Workspace · {plan}</span>
-          </div>
-        )}
-        {!collapsed && <ChevronDown className="ws-chev" />}
-      </div>
-
-      {/* Search */}
-      {!collapsed && (
-        <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
-          <Search className="ic" />
-          <span>Search</span>
-          <kbd className="kbd">⌘K</kbd>
-        </button>
-      )}
-
-      {navigationGroups.map((group) => (
-        <Fragment key={group.id}>
-          <div className="sb-section">
-            {!collapsed && <span>{group.label}</span>}
-          </div>
-          {group.items.map((item) => {
-            const Icon = item.icon;
-            const active = isNavigationItemActive(item, pathname);
-            const displayCount = navCount(item);
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                title={collapsed ? item.label : undefined}
-                className={cn("sb-item", active && "active")}
-              >
-                <Icon className="ic" />
-                {!collapsed && (
-                  <>
-                    <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {item.label}
-                    </span>
-                    {item.badge && (
-                      <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-2)" }}>
-                        {item.badge}
-                      </span>
-                    )}
-                    {displayCount && (
-                      <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
-                    )}
-                  </>
-                )}
-              </Link>
-            );
-          })}
-        </Fragment>
-      ))}
-
-      <div className="sb-spacer" />
-
-      {/* Credits */}
-      {!collapsed ? (
-        <div className="sb-credits">
-          <div className="label">Credits this month</div>
-          <div className="row">
-            <div>
-              <span className="val">{creditsRemaining.toLocaleString()}</span>
-              <span className="of"> / {creditCap.toLocaleString()}</span>
+    <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
+    <aside
+      ref={sidebarRef}
+      id="workspace-navigation"
+      className="sidebar"
+      role={isMobile ? "dialog" : undefined}
+      aria-modal={isMobile ? true : undefined}
+      aria-label={isMobile ? "Workspace navigation" : undefined}
+      aria-hidden={isMobile && !mobileOpen ? true : undefined}
+      inert={isMobile && !mobileOpen}
+      tabIndex={isMobile ? -1 : undefined}
+    >
+      <header className="sb-fixed-head">
+        <div className="sb-head">
+          <VesperWiseLogo className="ws-logo" size={24} />
+          {!collapsed && (
+            <div className="ws-name">
+              {workspaceLabel}
+              <span className="role">Workspace · {plan}</span>
             </div>
-            <Link href="/billing" className="topup">Top up</Link>
-          </div>
-          <div className="bar">
-            <div className="fill" style={{ width: `${creditPct}%` }} />
-          </div>
+          )}
+          {isMobile && (
+            <button type="button" className="sb-mobile-close" onClick={onMobileClose} aria-label="Close navigation menu">
+              <X aria-hidden />
+            </button>
+          )}
         </div>
-      ) : (
-        <div
-          title={`${creditsRemaining} credits`}
-          style={{ margin: "8px 4px", padding: "8px 4px", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-primary)", border: "1px solid var(--border)", borderRadius: "var(--r-md)" }}
-        >
-          {creditsRemaining}
-        </div>
-      )}
+        <Tooltip label="Search" visible={collapsed}>
+          <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
+            <Search className="ic" aria-hidden />
+            {!collapsed && <span>Search</span>}
+            {!collapsed && <kbd className="kbd">⌘K</kbd>}
+          </button>
+        </Tooltip>
+      </header>
 
-      {/* User */}
-      <div className="sb-user">
-        <span className="av">{initials.slice(0, 2)}</span>
-        {!collapsed && (
-          <div className="info">
-            <div className="name">{displayName}</div>
-            <div className="email">{email}</div>
+      <nav className="sb-nav" aria-label="Primary navigation">
+        {navigationGroups.map((group) => (
+          <Fragment key={group.id}>
+            <div className="sb-section">
+              {!collapsed && <span>{group.label}</span>}
+            </div>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const active = isNavigationItemActive(item, pathname);
+              const displayCount = navCount(item);
+              return (
+                <Tooltip key={item.id} label={item.label} visible={collapsed}>
+                  <Link
+                    href={item.href}
+                    aria-label={collapsed ? item.label : undefined}
+                    aria-current={active ? "page" : undefined}
+                    className={cn("sb-item", active && "active")}
+                  >
+                    <Icon className="ic" aria-hidden />
+                    {!collapsed && (
+                      <>
+                        <span className="sb-item-label">{item.label}</span>
+                        {item.badge && <span className="sb-beta">{item.badge}</span>}
+                        {displayCount && <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>}
+                      </>
+                    )}
+                  </Link>
+                </Tooltip>
+              );
+            })}
+          </Fragment>
+        ))}
+      </nav>
+
+      <footer className="sb-footer">
+        {!collapsed ? (
+          <div className="sb-credits">
+            <div className="label">Credits this month</div>
+            <div className="row">
+              <div>
+                <span className="val">{creditsRemaining.toLocaleString()}</span>
+                <span className="of"> / {creditCap.toLocaleString()}</span>
+              </div>
+              <Link href="/billing" className="topup">Top up</Link>
+            </div>
+            <div className="bar" role="progressbar" aria-label="Monthly credits used" aria-valuenow={creditPct} aria-valuemin={0} aria-valuemax={100}>
+              <div className="fill" style={{ width: `${creditPct}%` }} />
+            </div>
           </div>
+        ) : (
+          <Tooltip label={`${creditsRemaining} credits`} visible>
+            <Link href="/billing" className="sb-credit-compact" aria-label={`${creditsRemaining} credits remaining`}>{creditsRemaining}</Link>
+          </Tooltip>
         )}
-        {!collapsed && <ChevronDown style={{ width: 12, height: 12, flexShrink: 0, color: "var(--text-tertiary)" }} />}
-      </div>
 
-      {/* Controls */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 4px 0" }}>
-        <button
-          type="button"
-          onClick={onToggle}
-          title={collapsed ? "Expand" : "Collapse"}
-          style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-          className="hover:bg-foreground/[0.05] hover:text-[var(--text-primary)]"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
-        </button>
-        {!collapsed && (
-          <>
+        <Tooltip label="Account" visible={collapsed}>
+          <Link href="/settings" className="sb-user" aria-label="Account settings">
+            <span className="av">{initials.slice(0, 2)}</span>
+            {!collapsed && (
+              <div className="info">
+                <div className="name">{displayName}</div>
+                <div className="email">{email}</div>
+              </div>
+            )}
+          </Link>
+        </Tooltip>
+
+        <div className="sb-controls">
+          <Tooltip label={collapsed ? "Expand" : "Collapse"} visible={collapsed}>
             <button
               type="button"
-              onClick={toggleTheme}
-              title="Theme"
-              style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-              className="hover:bg-foreground/[0.05]"
+              onClick={onToggle}
+              className="sb-control"
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} aria-hidden />
             </button>
-            <SignOutButton redirectUrl="/">
-              <button
-                type="button"
-                title="Sign out"
-                style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-                className="hover:bg-red-500/10 hover:text-red-400"
-              >
-                <LogOut className="h-4 w-4" />
+          </Tooltip>
+          <Tooltip label="Theme" visible={collapsed}>
+            <button type="button" onClick={toggleTheme} className="sb-control" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
+              {theme === "dark" ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+            </button>
+          </Tooltip>
+          <SignOutButton redirectUrl="/">
+            <Tooltip label="Sign out" visible={collapsed}>
+              <button type="button" className="sb-control sb-signout" aria-label="Sign out">
+                <LogOut className="h-4 w-4" aria-hidden />
               </button>
-            </SignOutButton>
-          </>
-        )}
-      </div>
+            </Tooltip>
+          </SignOutButton>
+        </div>
+      </footer>
     </aside>
+    </TooltipPrimitive.Provider>
   );
 }

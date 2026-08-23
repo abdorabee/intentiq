@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Gauge, Search } from "lucide-react";
+import { Gauge, Search, X } from "lucide-react";
 import {
   filterNavItems,
   type SearchNavItem,
@@ -52,7 +52,7 @@ const itemActiveClass = "active";
 export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [remote, setRemote] = useState<RemoteResults>(EMPTY);
@@ -120,35 +120,69 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
 
   const flatRows = useMemo(() => sections.flatMap((s) => s.rows), [sections]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setRemote(EMPTY);
-      setActiveIndex(0);
-      return;
-    }
-    const t = window.setTimeout(() => inputRef.current?.focus(), 0);
-    return () => window.clearTimeout(t);
-  }, [open]);
-
-  useEffect(() => {
+  const closePalette = useCallback(() => {
+    setQuery("");
+    setRemote(EMPTY);
+    setLoading(false);
     setActiveIndex(0);
-  }, [query]);
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   useEffect(() => {
     if (!open) return;
-    if (trimmedQuery.length < 2) {
-      setRemote(EMPTY);
-      setLoading(false);
-      return;
+
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousOverflow = document.body.style.overflow;
+    const focusableSelector = [
+      "button:not([disabled]):not([tabindex='-1'])",
+      "input:not([disabled])",
+      "a[href]",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
+    document.body.style.overflow = "hidden";
+
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 0);
+    function onDialogKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePalette();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusables = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ?? [],
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
+    document.addEventListener("keydown", onDialogKeyDown);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("keydown", onDialogKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
+    };
+  }, [closePalette, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (trimmedQuery.length < 2) return;
+
     const controller = new AbortController();
-    setLoading(true);
     const timer = window.setTimeout(() => {
       fetch(`/api/dashboard/search?q=${encodeURIComponent(trimmedQuery)}`, {
         signal: controller.signal,
@@ -173,16 +207,27 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
 
   const selectRow = useCallback(
     (row: PaletteRow) => {
-      onOpenChange(false);
+      closePalette();
       router.push(row.type === "page" ? row.item.href : row.item.href);
     },
-    [onOpenChange, router],
+    [closePalette, router],
   );
+
+  function onQueryChange(value: string) {
+    setQuery(value);
+    setActiveIndex(0);
+    if (value.trim().length < 2) {
+      setRemote(EMPTY);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, flatRows.length - 1));
+      setActiveIndex((i) => Math.min(i + 1, Math.max(flatRows.length - 1, 0)));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIndex((i) => Math.max(i - 1, 0));
@@ -192,7 +237,7 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
     }
   }
 
-  if (!open || !mounted) return null;
+  if (!open || typeof document === "undefined") return null;
 
   const showEmpty =
     !loading &&
@@ -200,10 +245,14 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
     (trimmedQuery.length >= 2 || pages.length === 0);
 
   let rowIndex = -1;
+  const activeOptionId = flatRows[activeIndex]
+    ? `dashboard-search-option-${activeIndex}`
+    : undefined;
 
   const palette = (
-    <div className="cmd-backdrop" onClick={() => onOpenChange(false)} role="presentation">
+    <div className="cmd-backdrop" onClick={closePalette} role="presentation">
       <div
+        ref={dialogRef}
         className="cmd-palette"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -215,20 +264,28 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-label="Search companies, people, and pages"
+            aria-autocomplete="list"
+            aria-expanded="true"
+            aria-controls="dashboard-search-results"
+            aria-activedescendant={activeOptionId}
             className="cmd-input min-w-0 flex-1 border-none bg-transparent text-[15px] text-[var(--text-primary)] outline-none"
             placeholder="Search companies, people, pages…"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => onQueryChange(e.target.value)}
             onKeyDown={onKeyDown}
             autoComplete="off"
             spellCheck={false}
           />
-          <kbd className="kbd">esc</kbd>
+          <button type="button" className="cmd-close" onClick={closePalette} aria-label="Close search">
+            <X aria-hidden />
+          </button>
         </div>
 
-        <div className="cmd-results" role="listbox">
+        <div id="dashboard-search-results" className="cmd-results" role="listbox" aria-label="Search results">
           {showEmpty && (
-            <div className="cmd-empty">
+            <div className="cmd-empty" role="status">
               {trimmedQuery.length >= 2
                 ? "No results — try a domain or page name"
                 : "Type to search or pick a page"}
@@ -236,7 +293,7 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
           )}
 
           {sections.map((section) => (
-            <div key={section.title} className="cmd-group flex flex-col gap-0.5">
+            <div key={section.title} className="cmd-group flex flex-col gap-0.5" role="group" aria-label={section.title}>
               <div className="cmd-group-label">{section.title}</div>
               {section.rows.map((row) => {
                 rowIndex += 1;
@@ -258,8 +315,10 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
                 return (
                   <button
                     key={key}
+                    id={`dashboard-search-option-${idx}`}
                     type="button"
                     role="option"
+                    tabIndex={-1}
                     aria-selected={active}
                     className={`${itemClass}${active ? ` ${itemActiveClass}` : ""}`}
                     onMouseEnter={() => setActiveIndex(idx)}
@@ -289,7 +348,7 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
           ))}
 
           {loading && trimmedQuery.length >= 2 && (
-            <div className="cmd-empty">Searching…</div>
+            <div className="cmd-empty" role="status">Searching…</div>
           )}
         </div>
 

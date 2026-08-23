@@ -21,7 +21,7 @@
 .tb-menu:hover { background: var(--surface-hover); color: var(--text-primary); }
 .tb-menu .ic { width: 18px; height: 18px; }
 
-.nav-backdrop { display: none; }
+.dashboard-nav-backdrop { display: none; }
 
 /* ── prevent horizontal overflow site-wide ──────────────── */
 html, body { max-width: 100vw; overflow-x: hidden; }
@@ -80,11 +80,12 @@ button, a, [role="button"] { touch-action: manipulation; }
 
 /* ============================================================
    DASHBOARD — tablet / phone  (≤ 980px)
-   globals.css already collapses .app to 1fr and hides .sidebar.
+   The authenticated shell collapses to one column and uses its sidebar as a dialog.
    We override those to make a real off-canvas drawer instead.
    ============================================================ */
 @media (max-width: 980px) {
-  .app { grid-template-columns: 1fr !important; }
+  .dashboard-shell,
+  .dashboard-shell.is-collapsed { grid-template-columns: 1fr !important; }
 
   /* Drawer */
   .sidebar {
@@ -98,17 +99,18 @@ button, a, [role="button"] { touch-action: manipulation; }
     box-shadow: var(--shadow-elevated);
     will-change: transform;
   }
-  .app.nav-open .sidebar { transform: translateX(0); }
+  .dashboard-shell.nav-open .sidebar { transform: translateX(0); }
+  .sidebar .sb-mobile-close { display: grid; }
 
   /* Backdrop */
-  .nav-backdrop {
+  .dashboard-nav-backdrop {
     display: block;
     position: fixed; inset: 0; z-index: 55;
     background: rgba(0, 0, 0, 0.5);
     opacity: 0; pointer-events: none;
     transition: opacity 0.2s ease;
   }
-  .app.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+  .dashboard-shell.nav-open .dashboard-nav-backdrop { opacity: 1; pointer-events: auto; }
 
   /* Show hamburger (dashboard topbar) */
   .tb-menu { display: inline-flex; }
@@ -167,6 +169,23 @@ button, a, [role="button"] { touch-action: manipulation; }
 
   /* Pipeline / intent hub */
   .hub-tools { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-height: 680px) and (min-width: 981px) {
+  .dashboard-shell .sb-fixed-head,
+  .dashboard-shell .sb-footer { padding-block: 6px; }
+  .dashboard-shell .sb-credits { padding-block: 7px; }
+  .dashboard-shell .sb-credits .label,
+  .dashboard-shell .sb-credits .bar { display: none; }
+  .dashboard-shell .sb-nav { padding-bottom: 4px; }
+  .dashboard-shell .sb-section { padding-top: 5px; }
+  .dashboard-shell .sb-item { min-height: 32px; padding-block: 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-shell .sidebar,
+  .dashboard-shell .dashboard-nav-backdrop,
+  .dashboard-shell .sb-tooltip { transition: none !important; }
 }
 
 /* ── Small phones (≤ 640px) ──────────────────────────────── */

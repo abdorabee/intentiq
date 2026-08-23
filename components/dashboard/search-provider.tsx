@@ -60,7 +60,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   return (
     <SearchContext.Provider value={value}>
       {children}
-      <SearchPalette open={open} onOpenChange={setOpen} />
+      {open && <SearchPalette open onOpenChange={setOpen} />}
     </SearchContext.Provider>
   );
 }

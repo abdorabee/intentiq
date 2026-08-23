@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
@@ -30,9 +30,11 @@ export default function DashboardShell({
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Restore collapsed preference from localStorage after mount.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (localStorage.getItem("nav-collapsed") === "true") setCollapsed(true);
   }, []);
 
@@ -54,6 +56,66 @@ export default function DashboardShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  useEffect(() => {
+    if (!isMobile || !mobileOpen) return;
+
+    const sidebarElement = sidebarRef.current;
+    if (!sidebarElement) return;
+    const navigationPanel: HTMLElement = sidebarElement;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : menuButtonRef.current;
+    const focusableSelector = [
+      "a[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(",");
+
+    document.body.style.overflow = "hidden";
+    const focusables = Array.from(navigationPanel.querySelectorAll<HTMLElement>(focusableSelector));
+    focusables[0]?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const currentFocusable = Array.from(
+        navigationPanel.querySelectorAll<HTMLElement>(focusableSelector),
+      ).filter((element) => !element.hasAttribute("disabled"));
+      if (currentFocusable.length === 0) {
+        event.preventDefault();
+        navigationPanel.focus();
+        return;
+      }
+
+      const first = currentFocusable[0];
+      const last = currentFocusable[currentFocusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
+    };
+  }, [isMobile, mobileOpen]);
+
   function toggle() {
     setCollapsed((prev) => {
       localStorage.setItem("nav-collapsed", String(!prev));
@@ -67,8 +129,7 @@ export default function DashboardShell({
   return (
     <SearchProvider>
       <div
-        className={`app${mobileOpen ? " nav-open" : ""}`}
-        style={{ gridTemplateColumns: collapsed ? "56px 1fr" : "232px 1fr" }}
+        className={`dashboard-shell${collapsed ? " is-collapsed" : ""}${mobileOpen ? " nav-open" : ""}`}
       >
         <DashboardNav
           creditsRemaining={creditsRemaining}
@@ -78,14 +139,22 @@ export default function DashboardShell({
           inboxCount={inboxCount}
           watchlistCount={watchlistCount}
           pipelineHotCount={pipelineHotCount}
+          isMobile={isMobile}
+          mobileOpen={mobileOpen}
+          onMobileClose={() => setMobileOpen(false)}
+          sidebarRef={sidebarRef}
         />
         <div
-          className="nav-backdrop"
+          className="dashboard-nav-backdrop"
           onClick={() => setMobileOpen(false)}
           aria-hidden="true"
         />
         <div className="main">
-          <DashboardTopbar onMenuClick={() => setMobileOpen(true)} />
+          <DashboardTopbar
+            onMenuClick={() => setMobileOpen(true)}
+            menuButtonRef={menuButtonRef}
+            mobileMenuOpen={mobileOpen}
+          />
           <main className={pageClass}>{children}</main>
         </div>
       </div>
