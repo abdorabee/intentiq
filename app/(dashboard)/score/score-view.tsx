@@ -179,6 +179,7 @@ function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
         </svg>
       </div>
       <input
+        aria-label="Company domain"
         className="prompt-input"
         type="text"
         value={domain}
@@ -186,9 +187,9 @@ function MiniPrompt({ domain, onChange, onScore }: MiniPromptProps) {
         onKeyDown={(e) => e.key === "Enter" && onScore()}
         style={{ fontSize: 14 }}
       />
-      <div className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
+      <button type="button" aria-label="Re-score" className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
         Re-score
-      </div>
+      </button>
     </div>
   );
 }
@@ -557,6 +558,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             </svg>
           </div>
           <input
+            aria-label="Company domain"
             className="prompt-input"
             type="text"
             placeholder="stripe.com"
@@ -565,10 +567,10 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             onKeyDown={(e) => e.key === "Enter" && onScore()}
             autoFocus
           />
-          <div className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
+          <button type="button" aria-label="Score" className="prompt-go" onClick={onScore} style={{ cursor: "pointer" }}>
             Score
             <span className="kbd-inline">↵</span>
-          </div>
+          </button>
         </div>
 
         <div className="prompt-meta">
@@ -684,6 +686,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
 
   const [watchlistAdded, setWatchlistAdded] = useState(false);
   const [watchlistAdding, setWatchlistAdding] = useState(false);
+  const [watchlistError, setWatchlistError] = useState<string | null>(null);
   const [emailCopied, setEmailCopied] = useState(false);
 
   useEffect(() => {
@@ -715,6 +718,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
 
   useEffect(() => {
     setWatchlistAdded(false);
+    setWatchlistError(null);
     setEmailCopied(false);
   }, [result]);
 
@@ -728,7 +732,10 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   }, [loading]);
 
   async function handleScore() {
-    if (!domain.trim()) return;
+    if (!domain.trim()) {
+      setError("Enter a company domain to score.");
+      return;
+    }
     setLoading(true);
     setError(null);
     setResult(null);
@@ -744,6 +751,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   async function handleAddToWatchlist() {
     if (!result) return;
     setWatchlistAdding(true);
+    setWatchlistError(null);
     try {
       const res = await fetch("/api/dashboard/watchlist", {
         method: "POST",
@@ -753,8 +761,8 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Failed to add");
       setWatchlistAdded(true);
-    } catch {
-      // swallow watchlist errors silently
+    } catch (error) {
+      setWatchlistError(error instanceof Error ? error.message : "Failed to add to watchlist");
     } finally {
       setWatchlistAdding(false);
     }
@@ -773,6 +781,11 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
       {error && (
         <p role="alert" style={{ color: "var(--red)", fontSize: 13, margin: "0 0 12px" }}>
           {error}
+        </p>
+      )}
+      {watchlistError && (
+        <p role="alert" style={{ color: "var(--red)", fontSize: 13, margin: "0 0 12px" }}>
+          {watchlistError}
         </p>
       )}
       {!result && !loading ? (

@@ -69,7 +69,7 @@ export type OnboardingFieldErrors = Partial<Record<keyof BusinessProfile, string
 export interface OnboardingState {
   step: number;
   profile: BusinessProfile;
-  saveStatus: "idle" | "saving" | "error";
+  saveStatus: "saved" | "unsaved" | "saving" | "error";
   saveError: string | null;
 }
 
@@ -80,7 +80,10 @@ export type OnboardingAction =
   | { type: "previous_step" }
   | { type: "go_to_step"; step: number }
   | { type: "save_started" }
+  | { type: "save_succeeded"; step: number; profile: BusinessProfile }
   | { type: "save_failed"; message: string };
+
+const LAST_ONBOARDING_STEP = 2;
 
 function cleanIndustries(industries: unknown): string[] {
   if (!Array.isArray(industries)) return [];
@@ -101,10 +104,11 @@ function cleanText(value: unknown): string {
 }
 
 export function createOnboardingState(
-  profile: Partial<BusinessProfile> | null = null
+  profile: Partial<BusinessProfile> | null = null,
+  step = 0,
 ): OnboardingState {
   return {
-    step: 0,
+    step: Math.min(LAST_ONBOARDING_STEP, Math.max(0, step)),
     profile: {
       product_category: cleanText(profile?.product_category),
       target_industries: cleanIndustries(profile?.target_industries),
@@ -114,7 +118,7 @@ export function createOnboardingState(
       deal_size: cleanText(profile?.deal_size),
       sales_cycle: cleanText(profile?.sales_cycle),
     },
-    saveStatus: "idle",
+    saveStatus: "saved",
     saveError: null,
   };
 }
@@ -141,11 +145,10 @@ export function validateOnboardingStep(
 ): OnboardingFieldErrors {
   const errors: OnboardingFieldErrors = {};
 
-  if (step === 0 && !cleanText(profile.product_category)) {
-    errors.product_category = "Choose what your company sells.";
-  }
-
-  if (step === 1) {
+  if (step === 0) {
+    if (!cleanText(profile.product_category)) {
+      errors.product_category = "Choose what your company sells.";
+    }
     if (cleanIndustries(profile.target_industries).length === 0) {
       errors.target_industries = "Choose at least one target industry.";
     }
@@ -154,16 +157,13 @@ export function validateOnboardingStep(
     }
   }
 
-  if (step === 2) {
+  if (step === 1) {
     if (!cleanText(profile.buyer_role)) {
       errors.buyer_role = "Choose the primary buyer role.";
     }
     if (!cleanText(profile.sales_motion)) {
       errors.sales_motion = "Choose your sales motion.";
     }
-  }
-
-  if (step === 3) {
     if (!cleanText(profile.deal_size)) {
       errors.deal_size = "Choose a typical deal size.";
     }
@@ -197,24 +197,47 @@ export function onboardingReducer(
       return {
         ...state,
         profile: { ...state.profile, [action.field]: action.value },
-        saveStatus: "idle",
+        saveStatus: "unsaved",
         saveError: null,
       };
     case "set_industries":
       return {
         ...state,
         profile: { ...state.profile, target_industries: action.industries },
-        saveStatus: "idle",
+        saveStatus: "unsaved",
         saveError: null,
       };
     case "next_step":
-      return { ...state, step: Math.min(3, state.step + 1) };
+      return {
+        ...state,
+        step: Math.min(LAST_ONBOARDING_STEP, state.step + 1),
+        saveStatus: "unsaved",
+        saveError: null,
+      };
     case "previous_step":
-      return { ...state, step: Math.max(0, state.step - 1) };
+      return {
+        ...state,
+        step: Math.max(0, state.step - 1),
+        saveStatus: "unsaved",
+        saveError: null,
+      };
     case "go_to_step":
-      return { ...state, step: Math.min(3, Math.max(0, action.step)) };
+      return {
+        ...state,
+        step: Math.min(LAST_ONBOARDING_STEP, Math.max(0, action.step)),
+        saveStatus: "unsaved",
+        saveError: null,
+      };
     case "save_started":
       return { ...state, saveStatus: "saving", saveError: null };
+    case "save_succeeded":
+      return {
+        ...state,
+        step: Math.min(LAST_ONBOARDING_STEP, Math.max(0, action.step)),
+        profile: action.profile,
+        saveStatus: "saved",
+        saveError: null,
+      };
     case "save_failed":
       return { ...state, saveStatus: "error", saveError: action.message };
   }

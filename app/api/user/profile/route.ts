@@ -57,7 +57,6 @@ export async function PUT(req: NextRequest) {
     .update({
       business_profile: profile,
       product_category: profile.product_category,
-      onboarding_completed: true,
     })
     .eq("id", userId)
     .select("id")

@@ -185,6 +185,7 @@ export interface DbUser {
   business_profile: BusinessProfile | null;
   onboarding_completed: boolean;
   onboarding_completed_at: string | null;
+  onboarding_completed_version: number;
   role: UserRole;
   created_at: string;
 }

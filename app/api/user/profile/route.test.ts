@@ -203,7 +203,7 @@ describe("PUT /api/user/profile", () => {
     expect(harness.calls[0]?.filters).toEqual([["id", "user_owner"]]);
   });
 
-  it("writes the scoring profile, product category, and onboarding state only for the authenticated owner", async () => {
+  it("writes the scoring profile without completing onboarding before activation", async () => {
     const response = await PUT(new Request("http://localhost/api/user/profile", {
       method: "PUT",
       body: JSON.stringify({ business_profile: PROFILE }),
@@ -216,7 +216,6 @@ describe("PUT /api/user/profile", () => {
       payload: {
         business_profile: PROFILE,
         product_category: "Sales intelligence",
-        onboarding_completed: true,
       },
       filters: [["id", "user_owner"]],
     });
