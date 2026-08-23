@@ -5,10 +5,12 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useState,
   useSyncExternalStore,
 } from "react";
 
 import {
+  createPreferenceWriteCoordinator,
   patchUserPreferences,
   THEME_STORAGE_KEY,
   themePreferenceSchema,
@@ -82,28 +84,38 @@ function applyTheme(theme: ThemePreference) {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [theme, resolvedTheme] = snapshot.split(":") as [ThemePreference, ResolvedTheme];
+  const [writer] = useState(() => (
+    createPreferenceWriteCoordinator<ThemePreference>({
+      initialValue: "dark",
+      persist: (value) => patchUserPreferences({ theme: value }),
+      rollback: applyTheme,
+    })
+  ));
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
   }, [resolvedTheme]);
+
+  useEffect(() => {
+    writer.reconcile(storedTheme());
+  }, [writer]);
 
   const setTheme = useCallback((next: ThemePreference) => {
     const previous = storedTheme();
     if (previous === next) return;
 
     applyTheme(next);
-    void patchUserPreferences({ theme: next }).catch(() => {
-      if (storedTheme() === next) applyTheme(previous);
-    });
-  }, []);
+    writer.request(next);
+  }, [writer]);
 
   const toggleTheme = useCallback(() => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
   }, [resolvedTheme, setTheme]);
 
   const reconcileTheme = useCallback((serverTheme: ThemePreference) => {
+    writer.reconcile(serverTheme);
     if (storedTheme() !== serverTheme) applyTheme(serverTheme);
-  }, []);
+  }, [writer]);
 
   return (
     <ThemeContext.Provider value={{

@@ -121,6 +121,78 @@ describe("authenticated navigation shell", () => {
     expect(document.documentElement).toHaveAttribute("data-dashboard-sidebar", "expanded");
   });
 
+  it("serializes overlapping successful sidebar writes so the latest value reaches the server last", async () => {
+    const requests: Array<{ body: Record<string, unknown>; settle: (response: Response) => void }> = [];
+    const fetcher = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => (
+      new Promise<Response>((resolve) => {
+        requests.push({
+          body: JSON.parse(String(init?.body)) as Record<string, unknown>,
+          settle: resolve,
+        });
+      })
+    ));
+    vi.stubGlobal("fetch", fetcher);
+    const user = userEvent.setup();
+    const { container } = render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+    await user.click(screen.getByRole("button", { name: "Expand sidebar" }));
+    expect(container.querySelector(".dashboard-shell")).not.toHaveClass("is-collapsed");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(requests[0].body).toEqual({ sidebar_collapsed: true });
+
+    requests[0].settle(new Response("{}", { status: 200 }));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    expect(requests[1].body).toEqual({ sidebar_collapsed: false });
+    requests[1].settle(new Response("{}", { status: 200 }));
+    await waitFor(() => expect(localStorage.getItem("nav-collapsed")).toBe("false"));
+  });
+
+  it("does not roll an older failed sidebar write over a newer choice", async () => {
+    const requests: Array<{ settle: (response: Response) => void }> = [];
+    const fetcher = vi.fn(() => new Promise<Response>((resolve) => requests.push({ settle: resolve })));
+    vi.stubGlobal("fetch", fetcher);
+    const user = userEvent.setup();
+    const { container } = render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+    await user.click(screen.getByRole("button", { name: "Expand sidebar" }));
+    requests[0].settle(new Response("{}", { status: 500 }));
+
+    await waitFor(() => expect(container.querySelector(".dashboard-shell")).not.toHaveClass("is-collapsed"));
+    expect(localStorage.getItem("nav-collapsed")).toBe("false");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("rolls the latest failed overlapping sidebar write back to the last server-confirmed value", async () => {
+    const requests: Array<{ settle: (response: Response) => void }> = [];
+    const fetcher = vi.fn(() => new Promise<Response>((resolve) => requests.push({ settle: resolve })));
+    vi.stubGlobal("fetch", fetcher);
+    const user = userEvent.setup();
+    const { container } = render(
+      <DashboardShell creditsRemaining={80} plan="starter">
+        <p>Dashboard content</p>
+      </DashboardShell>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+    await user.click(screen.getByRole("button", { name: "Expand sidebar" }));
+    requests[0].settle(new Response("{}", { status: 200 }));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    requests[1].settle(new Response("{}", { status: 500 }));
+
+    await waitFor(() => expect(container.querySelector(".dashboard-shell")).toHaveClass("is-collapsed"));
+    expect(localStorage.getItem("nav-collapsed")).toBe("true");
+  });
+
   it("contains mobile focus, closes on Escape, restores focus, and unlocks scrolling", async () => {
     setViewport(true);
     const user = userEvent.setup();

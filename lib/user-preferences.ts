@@ -74,3 +74,56 @@ export async function patchUserPreferences(
 
   if (!response.ok) throw new Error("Failed to save preferences");
 }
+
+export interface PreferenceWriteCoordinator<T> {
+  request: (value: T) => void;
+  reconcile: (value: T) => void;
+}
+
+export function createPreferenceWriteCoordinator<T>({
+  initialValue,
+  persist,
+  rollback,
+}: {
+  initialValue: T;
+  persist: (value: T) => Promise<void>;
+  rollback: (value: T) => void;
+}): PreferenceWriteCoordinator<T> {
+  let confirmed = initialValue;
+  let desired = initialValue;
+  let revision = 0;
+  let writing = false;
+
+  async function drain() {
+    if (writing || Object.is(desired, confirmed)) return;
+
+    writing = true;
+    const attempted = desired;
+    const attemptedRevision = revision;
+    try {
+      await persist(attempted);
+      confirmed = attempted;
+    } catch {
+      if (revision === attemptedRevision) {
+        desired = confirmed;
+        rollback(confirmed);
+      }
+    } finally {
+      writing = false;
+      if (!Object.is(desired, confirmed)) void drain();
+    }
+  }
+
+  return {
+    request(value) {
+      desired = value;
+      revision += 1;
+      void drain();
+    },
+    reconcile(value) {
+      confirmed = value;
+      desired = value;
+      revision += 1;
+    },
+  };
+}

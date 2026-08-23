@@ -25,9 +25,46 @@ vi.mock("@/components/ui/sonner", () => ({ Toaster: () => null }));
 afterEach(() => {
   localStorage.clear();
   delete document.documentElement.dataset.dashboardSidebar;
+  document.documentElement.classList.remove("dark");
 });
 
 describe("root boot preferences", () => {
+  function executeBoot(theme: string | null, systemDark: boolean) {
+    localStorage.clear();
+    if (theme !== null) localStorage.setItem("intentiq-theme", theme);
+    document.documentElement.classList.remove("dark");
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: () => ({ matches: systemDark }),
+    });
+    const markup = renderToStaticMarkup(<RootLayout><main>Content</main></RootLayout>);
+    const parsed = new DOMParser().parseFromString(markup, "text/html");
+    const bootScript = parsed.querySelector("head script")?.textContent;
+
+    Function("localStorage", "document", "matchMedia", bootScript ?? "")(
+      localStorage,
+      document,
+      window.matchMedia,
+    );
+    return document.documentElement.classList.contains("dark");
+  }
+
+  it.each([
+    { systemDark: false, expected: false },
+    { systemDark: true, expected: true },
+  ])("treats a missing theme mirror as System when OS dark is $systemDark", ({ systemDark, expected }) => {
+    expect(executeBoot(null, systemDark)).toBe(expected);
+  });
+
+  it.each([
+    { theme: "light", systemDark: true, expected: false },
+    { theme: "dark", systemDark: false, expected: true },
+    { theme: "invalid", systemDark: false, expected: false },
+    { theme: "invalid", systemDark: true, expected: true },
+  ])("honors '$theme' against OS dark $systemDark", ({ theme, systemDark, expected }) => {
+    expect(executeBoot(theme, systemDark)).toBe(expected);
+  });
+
   it("resolves a persisted System theme from the OS before React renders", () => {
     localStorage.setItem("intentiq-theme", "system");
     Object.defineProperty(window, "matchMedia", {

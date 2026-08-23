@@ -8,6 +8,7 @@ import { SearchProvider } from "@/components/dashboard/search-provider";
 import { useTheme } from "@/components/theme-provider";
 import type { DbUser } from "@/lib/types";
 import {
+  createPreferenceWriteCoordinator,
   patchUserPreferences,
   SIDEBAR_STORAGE_KEY,
   type ThemePreference,
@@ -51,14 +52,22 @@ export default function DashboardShell({
     localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
     document.documentElement.dataset.dashboardSidebar = next ? "collapsed" : "expanded";
   }, []);
+  const [sidebarWriter] = useState(() => (
+    createPreferenceWriteCoordinator<boolean>({
+      initialValue: initialSidebarCollapsed ?? false,
+      persist: (value) => patchUserPreferences({ sidebar_collapsed: value }),
+      rollback: applySidebarPreference,
+    })
+  ));
 
   // Reconcile the pre-paint local mirror with the authoritative server row.
   useLayoutEffect(() => {
     const collapsedPreference = initialSidebarCollapsed
       ?? localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+    sidebarWriter.reconcile(collapsedPreference);
     applySidebarPreference(collapsedPreference);
     if (initialTheme) reconcileTheme(initialTheme);
-  }, [applySidebarPreference, initialSidebarCollapsed, initialTheme, reconcileTheme]);
+  }, [applySidebarPreference, initialSidebarCollapsed, initialTheme, reconcileTheme, sidebarWriter]);
 
   // Track viewport — sidebar becomes off-canvas drawer on phones/tablets.
   useEffect(() => {
@@ -142,9 +151,7 @@ export default function DashboardShell({
     const previous = collapsedRef.current;
     const next = !previous;
     applySidebarPreference(next);
-    void patchUserPreferences({ sidebar_collapsed: next }).catch(() => {
-      if (collapsedRef.current === next) applySidebarPreference(previous);
-    });
+    sidebarWriter.request(next);
   }
 
   // On mobile the drawer always shows the full nav (ignore the desktop collapse state).

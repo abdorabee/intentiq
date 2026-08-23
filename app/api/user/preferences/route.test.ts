@@ -7,6 +7,10 @@ const harness = vi.hoisted(() => ({
   row: null as Record<string, unknown> | null,
   calls: [] as Array<{ operation: string; payload?: Record<string, unknown>; filters: Array<[string, unknown]> }>,
   mutationReturnsNoRow: false,
+  insertConflict: false,
+  raceRow: null as Record<string, unknown> | null,
+  mutationRow: null as Record<string, unknown> | null,
+  bypassFilters: false,
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
@@ -57,20 +61,30 @@ class PreferencesQuery {
     return this;
   }
 
+  private filtered(row: Record<string, unknown> | null) {
+    if (!row || harness.bypassFilters) return row;
+    return this.filters.every(([column, value]) => row[column] === value) ? row : null;
+  }
+
   async maybeSingle() {
     harness.calls.push({ operation: this.operation, payload: this.payload, filters: this.filters });
-    return { data: harness.row, error: null };
+    return { data: this.filtered(harness.row), error: null };
   }
 
   async single() {
     harness.calls.push({ operation: this.operation, payload: this.payload, filters: this.filters });
     if (harness.mutationReturnsNoRow) return { data: null, error: null };
     if (this.operation === "insert") {
+      if (harness.insertConflict) {
+        harness.row = harness.raceRow;
+        return { data: null, error: { code: "23505" } };
+      }
       harness.row = persistedRow(this.payload);
     } else if (this.operation === "upsert") {
-      harness.row = persistedRow({ ...(harness.row ?? {}), ...this.payload });
+      harness.row = harness.mutationRow
+        ?? persistedRow({ ...(harness.row ?? {}), ...this.payload });
     }
-    return { data: harness.row, error: null };
+    return { data: this.filtered(harness.row), error: null };
   }
 }
 
@@ -90,6 +104,10 @@ beforeEach(() => {
   harness.row = null;
   harness.calls = [];
   harness.mutationReturnsNoRow = false;
+  harness.insertConflict = false;
+  harness.raceRow = null;
+  harness.mutationRow = null;
+  harness.bypassFilters = false;
 });
 
 describe("GET /api/user/preferences", () => {
@@ -109,6 +127,21 @@ describe("GET /api/user/preferences", () => {
     expect(harness.calls).toEqual([
       { operation: "select", filters: [["user_id", "user_123"]], payload: undefined },
       { operation: "insert", filters: [], payload: { user_id: "user_123" } },
+    ]);
+  });
+
+  it("recovers a concurrent missing-row create race by reselecting the Clerk-scoped winner", async () => {
+    harness.insertConflict = true;
+    harness.raceRow = persistedRow({ theme: "light" });
+
+    const response = await GET();
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ preferences: { theme: "light" } });
+    expect(harness.calls).toEqual([
+      { operation: "select", filters: [["user_id", "user_123"]], payload: undefined },
+      { operation: "insert", filters: [], payload: { user_id: "user_123" } },
+      { operation: "select", filters: [["user_id", "user_123"]], payload: undefined },
     ]);
   });
 });
@@ -151,6 +184,30 @@ describe("PATCH /api/user/preferences", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ theme: "dark" }),
     }));
+    expect(response.status).toBe(500);
+  });
+
+  it("enforces the Clerk filter when PostgREST produces a cross-user mutation row", async () => {
+    harness.mutationRow = persistedRow({ user_id: "user_other", theme: "dark" });
+    const response = await PATCH(new Request("http://localhost/api/user/preferences", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ theme: "dark" }),
+    }));
+
+    expect(response.status).toBe(500);
+    expect(harness.calls[0].filters).toEqual([["user_id", "user_123"]]);
+  });
+
+  it("rejects a cross-user row even if the storage boundary violates its filter", async () => {
+    harness.bypassFilters = true;
+    harness.mutationRow = persistedRow({ user_id: "user_other", theme: "dark" });
+    const response = await PATCH(new Request("http://localhost/api/user/preferences", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ theme: "dark" }),
+    }));
+
     expect(response.status).toBe(500);
   });
 });

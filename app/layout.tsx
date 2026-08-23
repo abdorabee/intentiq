@@ -108,7 +108,7 @@ export default function RootLayout({
         <head>
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var c=localStorage.getItem('nav-collapsed')==='true';var d=document.documentElement;var dark=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches)||!['system','light','dark'].includes(t);d.classList.toggle('dark',dark);d.dataset.dashboardSidebar=c?'collapsed':'expanded';}catch(e){}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var c=localStorage.getItem('nav-collapsed')==='true';var d=document.documentElement;var system=t==='system'||!['system','light','dark'].includes(t);var dark=t==='dark'||(system&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark);d.dataset.dashboardSidebar=c?'collapsed':'expanded';}catch(e){}})();`,
             }}
           />
           <GoogleAnalytics />
