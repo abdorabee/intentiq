@@ -57,7 +57,7 @@ function subscribe(listener: () => void) {
 
 function storedTheme(): ThemePreference {
   const parsed = themePreferenceSchema.safeParse(localStorage.getItem(THEME_STORAGE_KEY));
-  return parsed.success ? parsed.data : "dark";
+  return parsed.success ? parsed.data : "system";
 }
 
 function resolveTheme(theme: ThemePreference): ResolvedTheme {
@@ -86,14 +86,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, resolvedTheme] = snapshot.split(":") as [ThemePreference, ResolvedTheme];
   const [writer] = useState(() => (
     createPreferenceWriteCoordinator<ThemePreference>({
-      initialValue: "dark",
+      initialValue: "system",
       persist: (value) => patchUserPreferences({ theme: value }),
       rollback: applyTheme,
     })
   ));
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+    const clientTheme = storedTheme();
+    document.documentElement.classList.toggle(
+      "dark",
+      resolveTheme(clientTheme) === "dark",
+    );
   }, [resolvedTheme]);
 
   useEffect(() => {
