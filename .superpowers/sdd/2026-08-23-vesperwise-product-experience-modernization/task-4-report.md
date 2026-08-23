@@ -112,3 +112,60 @@ Implemented and locally verified on top of Task 3 commit `d2e3689`. No Supabase 
 - Clerk's embedded `UserProfile` is locally type/build verified, but live enabled methods depend on the Clerk dashboard configuration and were not exercised against a real account in this task.
 - Analytics persistence and loading are locally tested; no live Google Analytics network request or remote `user_preferences` row was mutated.
 - Task 5 must land and be verified before exposing account deletion. Task 7 must land before Product Experience becomes discoverable or gains restart controls.
+
+---
+
+## Fix Round 1 — 2026-08-23
+
+This section supersedes the original account-deletion, API-key atomicity, Product Experience, legal-copy, and follow-up statements above.
+
+### Release-blocking corrections
+
+- Added an additive `settings_security_contract` migration with two service-role-only, `security invoker` functions:
+  - `create_api_key_atomic` locks the Clerk-owned `users` row, derives the active-key limit from the stored plan, counts active keys only, inserts the SHA-256 hash, and returns exactly one owner row. Concurrent free-plan attempts produce one row and one `API_KEY_LIMIT_REACHED` failure.
+  - `process_clerk_user_lifecycle_event` transactionally deduplicates signed Clerk events, updates only the event user’s primary email, and deletes only the event user. Before deletion it fails closed if any public table with a `user_id` column lacks an `ON DELETE CASCADE` foreign key to `users`.
+- Added the public `/api/webhooks/clerk` route using Clerk’s `verifyWebhook()` boundary for `user.updated` and `user.deleted`. Database errors return 500 so Clerk can retry; malformed or unsigned lifecycle events fail without mutation.
+- Replaced CSS-only deletion hiding with a server capability boundary. The Clerk `UserProfile` component is not mounted unless all three settings are present: `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_USER_LIFECYCLE_SYNC_ENABLED=true`, and `CLERK_USER_LIFECYCLE_CONTRACT=vesperwise-clerk-lifecycle-v1`. The default is closed. When enabled, Clerk owns the complete account/security surface, including deletion.
+- Documented the webhook subscription and capability contract in `README.md`, and made `/api/webhooks/clerk` public in Clerk middleware.
+- Replaced count-before-insert API-key creation with the atomic RPC. The route still validates strict labels, derives its user from Clerk, returns the raw secret once, verifies the single returned owner row, and never returns or stores plaintext.
+- GA now queues consent even before the Google library exists, sends `denied` on persisted opt-out and `granted` on persisted opt-in, supports opt-out → opt-in without reload, and renders only one loader/config pair.
+- Active Product Experience records (`tour_version > 0`) now expose a real restart action that optimistically persists `tour_status=not_started` and `tour_step=0` while preserving `tour_version`; failures roll back and remain retryable. Version 0 still has no action and remains hidden from manifest discovery.
+- Business Profile now treats typed-but-not-added custom values as unsaved, announces loading, and uses an accessible in-app discard dialog for owned Settings/same-origin links plus best-effort browser history guarding. The dialog focuses the safe action, traps focus, handles Escape, and restores focus.
+- API-key revoke confirmation now focuses the safe action, traps focus, handles Escape, restores its trigger, and preserves explicit confirmation/loading/error behavior. Copy success resets for every newly created secret.
+- Replaced the Security page’s certification, SLA, logging, personnel, penetration-test, backup, and disaster-recovery representations with code-verifiable runtime boundaries. Removed placeholder legal links/actions and corrected Privacy, Terms, and DPA references to application-side service-role scoping, OpenRouter, persisted GA consent, and actually available controls.
+
+### RED evidence
+
+1. Capability gate, signed webhook, and GA transition tests initially failed because the capability module and webhook route did not exist and live opt-in never sent `granted`.
+   - `npm test -- lib/clerk-account-capability.test.ts app/api/webhooks/clerk/route.test.ts components/google-analytics.test.tsx`
+   - Result: 3 files failed; two missing production modules and one consent-transition assertion failed.
+2. Atomic API-key route tests initially failed because POST still used count-before-insert and never invoked the database RPC.
+   - `npm test -- app/api/user/api-keys/route.test.ts`
+   - Result: 2 expected failures: verified RPC creation returned 500 and atomic limit errors were not mapped to 409.
+3. Active tour tests initially failed because no restart component existed.
+   - `npm test -- components/settings/product-experience-settings.test.tsx`
+   - Result: missing production module.
+4. Business Profile tests initially failed because typed custom values were not unsaved and loading had no accessible status.
+   - `npm test -- 'app/(dashboard)/settings/business-profile/business-profile-page.test.tsx'`
+   - Result: 2 expected failures.
+5. Revoke-dialog behavior initially failed because focus stayed on the background revoke trigger.
+   - `npm test -- components/settings/api-keys-manager.test.tsx`
+   - Result: 1 expected focus failure.
+6. The isolated cascade guard test initially failed because a synthetic `user_id` table without a cascade did not block deletion.
+   - Executed with `SETTINGS_SECURITY_DB_TESTS=true` against disposable database `vesperwise_settings_test`.
+   - Result: 1 expected failure before the catalog-backed fail-closed guard was added.
+7. A second GA RED test proved an opt-in occurring before `gtag` existed lost the granted command; it passed after the queue bootstrap was added.
+
+### Verification evidence
+
+- Focused release-blocker suite: 10 files passed, 46 tests passed after the pre-`gtag` opt-in regression was added.
+- Isolated executable PostgreSQL suite: 1 file passed, 6 tests passed, including concurrent active-limit serialization, active-only counting, update/delete idempotency, cross-user isolation, retry rollback, real child-row cascades, the missing-cascade fail-closed guard, and function privileges.
+- Full suite, final: 63 files passed, 4 skipped; 331 tests passed, 18 skipped.
+- Changed-file ESLint: exited 0 with no findings.
+- `git diff --check`: exited 0 with no findings.
+- Production build: compiled, TypeScript passed, 71 pages generated, and `/api/webhooks/clerk` plus all Settings routes were registered.
+
+### Remaining deployment boundary
+
+- The migration and webhook are locally implemented and executable-tested but were not pushed to a remote Supabase project or configured in Clerk. Keep the account capability environment flag false until the migration is applied, the production Clerk endpoint subscribes to `user.updated` and `user.deleted`, the signing secret is installed, and a signed production test verifies update and deletion cascades.
+- Browser history APIs do not provide a universal interception hook for arbitrary programmatic navigation. The implementation covers owned Settings/same-origin anchors, `beforeunload`, and best-effort back/forward restoration without claiming to intercept unrelated `router.push` calls.

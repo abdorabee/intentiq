@@ -81,30 +81,27 @@ export async function POST(req: NextRequest) {
   const plan = await loadPlan(admin, userId);
   if (!plan) return NextResponse.json({ error: "Failed to load plan" }, { status: 500 });
 
-  const active = await admin
-    .from("api_keys")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("is_active", true);
-  if (active.error) return NextResponse.json({ error: "Failed to check key limit" }, { status: 500 });
-
   const limit = API_KEY_LIMITS[plan];
-  if ((active.data?.length ?? 0) >= limit) {
+  // Generate a secure random key: vesperwise_<32 random hex chars>
+  const rawKey = `vesperwise_${randomBytes(24).toString("hex")}`;
+  const keyHash = createHash("sha256").update(rawKey).digest("hex");
+
+  const { data: rows, error } = await admin.rpc("create_api_key_atomic", {
+    p_user_id: userId,
+    p_key_hash: keyHash,
+    p_label: parsedBody.data,
+  });
+
+  if (error?.message?.includes("API_KEY_LIMIT_REACHED")) {
     return NextResponse.json(
       { error: `Your ${plan} plan allows ${limit} active API key${limit === 1 ? "" : "s"}`, limit, plan },
       { status: 409 },
     );
   }
 
-  // Generate a secure random key: vesperwise_<32 random hex chars>
-  const rawKey = `vesperwise_${randomBytes(24).toString("hex")}`;
-  const keyHash = createHash("sha256").update(rawKey).digest("hex");
-
-  const { data: record, error } = await admin
-    .from("api_keys")
-    .insert({ user_id: userId, key_hash: keyHash, label: parsedBody.data })
-    .select(API_KEY_COLUMNS)
-    .single();
+  const record = Array.isArray(rows) && rows.length === 1
+    ? Object.fromEntries(Object.entries(rows[0]).filter(([key]) => key !== "plan_limit"))
+    : null;
 
   const verified = apiKeyRecordSchema.safeParse(record);
   if (error || !verified.success || verified.data.user_id !== userId) {

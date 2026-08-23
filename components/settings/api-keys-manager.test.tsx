@@ -47,9 +47,21 @@ describe("ApiKeysManager", () => {
     render(<ApiKeysManager />);
     await screen.findByText("Production");
 
-    await user.click(screen.getByRole("button", { name: "Revoke Production" }));
+    const revokeButton = screen.getByRole("button", { name: "Revoke Production" });
+    revokeButton.focus();
+    await user.click(revokeButton);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("dialog", { name: "Revoke API key" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Confirm revoke" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "Revoke API key" })).not.toBeInTheDocument();
+    expect(revokeButton).toHaveFocus();
+
+    await user.click(revokeButton);
 
     fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ record: { id: "key_1", is_active: false } })));
     await user.click(screen.getByRole("button", { name: "Confirm revoke" }));

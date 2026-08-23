@@ -6,21 +6,32 @@ import { useEffect, useState } from "react";
 const GA_MEASUREMENT_ID = "G-TQKL17V4G9";
 export const ANALYTICS_CONSENT_EVENT = "vesperwise-analytics-consent-persisted";
 
+type AnalyticsWindow = typeof window & {
+  dataLayer?: unknown[][];
+  gtag?: (...args: unknown[]) => void;
+};
+
+function updateAnalyticsConsent(enabled: boolean) {
+  const analyticsWindow = window as AnalyticsWindow;
+  analyticsWindow.dataLayer ??= [];
+  analyticsWindow.gtag ??= (...args: unknown[]) => { analyticsWindow.dataLayer?.push(args); };
+  analyticsWindow.gtag("consent", "update", { analytics_storage: enabled ? "granted" : "denied" });
+}
+
 export function GoogleAnalytics({ initialEnabled }: { initialEnabled: boolean }) {
   const [enabled, setEnabled] = useState(initialEnabled);
 
   useEffect(() => {
+    if (initialEnabled) updateAnalyticsConsent(true);
     function handleConsent(event: Event) {
       const next = (event as CustomEvent<boolean>).detail;
+      if (typeof next !== "boolean") return;
       setEnabled(next);
-      if (!next) {
-        const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
-        gtag?.("consent", "update", { analytics_storage: "denied" });
-      }
+      updateAnalyticsConsent(next);
     }
     window.addEventListener(ANALYTICS_CONSENT_EVENT, handleConsent);
     return () => window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleConsent);
-  }, []);
+  }, [initialEnabled]);
 
   if (!enabled) return null;
 
@@ -33,7 +44,8 @@ export function GoogleAnalytics({ initialEnabled }: { initialEnabled: boolean })
       <Script id="google-analytics" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
+          window.gtag = window.gtag || function(){dataLayer.push(arguments);};
+          gtag('consent', 'default', { analytics_storage: 'granted' });
           gtag('js', new Date());
           gtag('config', '${GA_MEASUREMENT_ID}');
         `}

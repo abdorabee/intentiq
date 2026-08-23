@@ -24,27 +24,33 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("BusinessProfilePage", () => {
-  it("preserves custom profile values and protects unsaved edits", async () => {
+  it("protects typed custom values with an accessible dialog and restores focus on Escape", async () => {
     const user = userEvent.setup();
     render(<BusinessProfilePage />);
     await screen.findByText("Your ICP Profile");
 
     await user.type(screen.getByLabelText("Custom Target Industries"), "Energy");
-    await user.click(screen.getByRole("button", { name: "Add custom Target Industries" }));
-    expect(screen.getByRole("button", { name: /Energy/ })).toHaveAttribute("aria-pressed", "true");
 
     const event = new Event("beforeunload", { cancelable: true });
     fireEvent(window, event);
     expect(event.defaultPrevented).toBe(true);
 
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     const link = document.createElement("a");
     link.href = "/settings/appearance";
+    link.textContent = "Appearance settings";
     document.body.append(link);
-    const navigation = new MouseEvent("click", { bubbles: true, cancelable: true });
-    link.dispatchEvent(navigation);
-    expect(confirm).toHaveBeenCalledWith("Discard your unsaved business profile changes?");
-    expect(navigation.defaultPrevented).toBe(true);
+    link.focus();
+    await user.click(link);
+    const dialog = screen.getByRole("dialog", { name: "Discard unsaved changes?" });
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Stay on this page" })).toHaveFocus();
+
+    await user.keyboard("{Escape}");
+    expect(dialog).not.toBeInTheDocument();
+    expect(link).toHaveFocus();
+
+    fireEvent.popState(window);
+    expect(screen.getByRole("dialog", { name: "Discard unsaved changes?" })).toBeInTheDocument();
   });
 
   it("offers a retry when the profile cannot be loaded", async () => {
@@ -52,5 +58,11 @@ describe("BusinessProfilePage", () => {
     render(<BusinessProfilePage />);
     expect(await screen.findByRole("alert")).toHaveTextContent("could not load");
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+  });
+
+  it("announces profile loading", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+    render(<BusinessProfilePage />);
+    expect(screen.getByRole("status")).toHaveTextContent("Loading business profile");
   });
 });

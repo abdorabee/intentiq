@@ -196,7 +196,7 @@ export default function PrivacyView() {
         <span style={{ margin: "0 6px", color: T.txtQuaternary }}>·</span>
         last updated May 12, 2026
         <span style={{ margin: "0 6px", color: T.txtQuaternary }}>·</span>
-        <a href="#" style={{ color: T.txtQuaternary, textDecoration: "underline", textDecorationColor: T.borderStrong }}>view diff</a>
+        <span style={{ color: T.txtQuaternary }}>current published version</span>
       </div>
 
       {/* ── Nav — sticky below banner ── */}
@@ -215,7 +215,7 @@ export default function PrivacyView() {
           <div style={{ flex: 1 }} />
           <Link href="/login" style={{ fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", textDecoration: "none" }}>Sign in</Link>
           <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtPrimary, padding: "0 14px", height: "32px", borderRadius: "6px", border: `1px solid ${T.border}`, background: "rgba(255,255,255,0.05)", textDecoration: "none" }}>Start free</Link>
-          <Link href="/#" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+          <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
             Talk to us
             <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
           </Link>
@@ -348,7 +348,7 @@ export default function PrivacyView() {
                 [<Code key="c4">_ga / _ga_*</Code>, "Google Analytics measurement after consent", "Set by Google Analytics"],
               ]}
             />
-            <P>You can change analytics consent at any time in <Strong>Settings → Data &amp; privacy</Strong>. When the preference is off, the Google Analytics script is not loaded on the authenticated product.</P>
+            <P>You can change analytics consent at any time in <Strong>Settings → Data &amp; privacy</Strong>. When the preference is off, VesperWise sends a denied analytics-consent update and does not render the Google Analytics loader or configuration scripts.</P>
           </Section>
 
           {/* ── 05 ── */}
@@ -410,9 +410,9 @@ export default function PrivacyView() {
               <span key="b"><Strong>At rest</Strong> — AES-256 encryption via Supabase</span>,
               <span key="c"><Strong>API keys</Strong> — SHA-256 hashed; we never store plaintext keys</span>,
               <span key="d"><Strong>Passwords</Strong> — authentication credentials are handled by Clerk; VesperWise does not store plaintext passwords</span>,
-              <span key="e"><Strong>Access control</Strong> — Row-Level Security in Postgres; employees access data only to resolve support issues</span>,
+              <span key="e"><Strong>Access control</Strong> — authenticated server routes scope service-role database operations to the Clerk user ID and validate returned ownership</span>,
             ]} />
-            <P>See our <A href="/legal/security">Security page</A> for full details including penetration testing, incident response, and bug bounty information.</P>
+            <P>See our <A href="/legal/security">Security page</A> for the current product boundaries and vulnerability-reporting contact.</P>
             <P>In the event of a data breach affecting your personal data, we will notify you and the relevant supervisory authority within <Strong>72 hours</Strong> as required by GDPR Art.&nbsp;33.</P>
           </Section>
 

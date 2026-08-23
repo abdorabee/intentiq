@@ -111,7 +111,7 @@ export const NAVIGATION_MANIFEST: readonly DashboardNavigationGroup[] = [
             keywords: "account security identity email avatar password mfa sessions clerk",
             icon: UserCog,
             availability: "available",
-            description: "Manage your identity, sign-in methods, MFA, and active sessions through Clerk.",
+            description: "Clerk-owned identity and security management, enabled only with verified lifecycle sync.",
           },
           {
             id: "business-profile",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { Check, Save, Loader2, Building2, Sparkles } from "lucide-react";
 import type { BusinessProfile } from "@/lib/types";
 import { profileUpdateSchema } from "@/lib/business-profile";
@@ -130,6 +130,14 @@ export default function BusinessProfilePage() {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [customValues, setCustomValues] = useState<Partial<Record<keyof BusinessProfile, string>>>({});
+  const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
+  const pendingLink = useRef<HTMLAnchorElement | null>(null);
+  const pendingHistory = useRef(false);
+  const navigationBypass = useRef(false);
+  const restoringHistory = useRef(false);
+  const navigationTrigger = useRef<HTMLElement | null>(null);
+  const stayButton = useRef<HTMLButtonElement | null>(null);
+  const discardButton = useRef<HTMLButtonElement | null>(null);
 
   const loadProfile = useCallback(async () => {
     setLoading(true);
@@ -151,31 +159,73 @@ export default function BusinessProfilePage() {
   useEffect(() => { void loadProfile(); }, [loadProfile]);
 
   const hasChanges = JSON.stringify(profile) !== JSON.stringify(draft);
+  const hasPendingCustomValue = Object.values(customValues).some((value) => Boolean(value?.trim()));
+  const hasUnsavedChanges = hasChanges || hasPendingCustomValue;
+
+  function openDiscardDialog(link: HTMLAnchorElement | null, fromHistory = false) {
+    pendingLink.current = link;
+    pendingHistory.current = fromHistory;
+    navigationTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : link;
+    setDiscardDialogOpen(true);
+  }
+
+  function closeDiscardDialog() {
+    setDiscardDialogOpen(false);
+    pendingLink.current = null;
+    pendingHistory.current = false;
+    queueMicrotask(() => navigationTrigger.current?.focus());
+  }
+
+  function discardAndNavigate() {
+    setDiscardDialogOpen(false);
+    navigationBypass.current = true;
+    if (pendingHistory.current) {
+      window.history.back();
+    } else {
+      pendingLink.current?.click();
+      queueMicrotask(() => { navigationBypass.current = false; });
+    }
+  }
 
   useEffect(() => {
-    if (!hasChanges) return;
+    if (!hasUnsavedChanges) return;
     function protectUnsavedChanges(event: BeforeUnloadEvent) {
       event.preventDefault();
       event.returnValue = "";
     }
     function protectClientNavigation(event: MouseEvent) {
+      if (navigationBypass.current) return;
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target instanceof Element ? event.target : null;
       const link = target?.closest<HTMLAnchorElement>("a[href]");
       if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
       const destination = new URL(link.href, window.location.href);
       if (destination.origin !== window.location.origin) return;
-      if (window.confirm("Discard your unsaved business profile changes?")) return;
       event.preventDefault();
       event.stopPropagation();
+      event.stopImmediatePropagation();
+      openDiscardDialog(link);
+    }
+    function protectHistoryNavigation() {
+      if (navigationBypass.current) { navigationBypass.current = false; return; }
+      if (restoringHistory.current) { restoringHistory.current = false; return; }
+      restoringHistory.current = true;
+      window.history.forward();
+      openDiscardDialog(null, true);
     }
     window.addEventListener("beforeunload", protectUnsavedChanges);
     document.addEventListener("click", protectClientNavigation, true);
+    window.addEventListener("popstate", protectHistoryNavigation);
     return () => {
       window.removeEventListener("beforeunload", protectUnsavedChanges);
       document.removeEventListener("click", protectClientNavigation, true);
+      window.removeEventListener("popstate", protectHistoryNavigation);
     };
-  }, [hasChanges]);
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
+    if (discardDialogOpen) stayButton.current?.focus();
+  }, [discardDialogOpen]);
 
   async function handleSave() {
     if (!draft || !hasChanges) return;
@@ -247,8 +297,9 @@ export default function BusinessProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div role="status" className="flex items-center justify-center gap-2 min-h-[400px] text-sm text-slate-500">
         <Loader2 className="h-5 w-5 animate-spin text-cyan-500" />
+        Loading business profile…
       </div>
     );
   }
@@ -379,6 +430,30 @@ export default function BusinessProfilePage() {
           ))}
         </div>
       </div>
+      {discardDialogOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" role="presentation">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="discard-profile-title"
+            className="w-full max-w-sm border border-slate-200 bg-white p-5 shadow-xl dark:border-white/15 dark:bg-slate-950"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") { event.preventDefault(); closeDiscardDialog(); }
+              if (event.key === "Tab") {
+                if (event.shiftKey && document.activeElement === stayButton.current) { event.preventDefault(); discardButton.current?.focus(); }
+                else if (!event.shiftKey && document.activeElement === discardButton.current) { event.preventDefault(); stayButton.current?.focus(); }
+              }
+            }}
+          >
+            <h2 id="discard-profile-title" className="text-base font-semibold">Discard unsaved changes?</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">Your business profile edits have not been saved.</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button ref={stayButton} type="button" onClick={closeDiscardDialog} className="border border-slate-300 px-3 py-2 text-sm dark:border-white/15">Stay on this page</button>
+              <button ref={discardButton} type="button" onClick={discardAndNavigate} className="border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300">Discard changes</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

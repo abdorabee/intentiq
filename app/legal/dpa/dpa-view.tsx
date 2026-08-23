@@ -129,25 +129,6 @@ function Code({ children }: { children: React.ReactNode }) {
 
 /* ── DPA-specific components ─────────────────────────────────── */
 
-function DpaActions() {
-  return (
-    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "24px" }}>
-      <button style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", fontSize: "12px", background: "rgba(223,255,0,0.12)", border: "1px solid rgba(223,255,0,0.3)", borderRadius: "999px", color: "#dfff00", fontWeight: 500, letterSpacing: "-0.006em", cursor: "pointer", fontFamily: T.fontSans }}>
-        <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
-        Download signed PDF
-      </button>
-      <button style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", fontSize: "12px", background: "rgba(255,255,255,0.04)", border: `1px solid ${T.border}`, borderRadius: "999px", color: T.txtSecondary, fontWeight: 500, letterSpacing: "-0.006em", cursor: "pointer", fontFamily: T.fontSans }}>
-        <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 5h8v6H3zM3 5l4 3 4-3"/></svg>
-        Request a counter‑signed copy
-      </button>
-      <button style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", fontSize: "12px", background: "rgba(255,255,255,0.04)", border: `1px solid ${T.border}`, borderRadius: "999px", color: T.txtSecondary, fontWeight: 500, letterSpacing: "-0.006em", cursor: "pointer", fontFamily: T.fontSans }}>
-        <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="5"/><path d="M5 7l2 2 3-4"/></svg>
-        Already accepted at signup
-      </button>
-    </div>
-  );
-}
-
 function AnnexGrid({ cards }: { cards: { key: string; val: string }[] }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px", margin: "18px 0" }}>
@@ -302,11 +283,9 @@ export default function DpaView() {
           </div>
 
           {/* DPA action buttons */}
-          <DpaActions />
-
           {/* Info callout */}
           <InfoCallout>
-            <strong style={{ color: T.txtPrimary, fontWeight: 500 }}>You don&rsquo;t need to sign anything.</strong>{" "}This DPA is automatically incorporated into the Terms of Service when you create an account. If your procurement team requires a counter‑signed copy, email <Code>legal@vesperwise.com</Code> and you&rsquo;ll have a DocuSign within one business day.
+            This published DPA describes the processing terms presented with the Service. For questions about execution or availability of a counter-signed agreement, email <Code>legal@vesperwise.com</Code>.
           </InfoCallout>
 
           {/* ── 01 ── */}
@@ -338,14 +317,14 @@ export default function DpaView() {
 
           {/* ── 04 ── */}
           <Section id="s4" num="04" title="Confidentiality & personnel">
-            <P>VesperWise ensures that any person authorized to Process Personal Data is bound by an obligation of confidentiality and has received appropriate data‑protection training. Access to Personal Data is granted on a least‑privilege basis and reviewed quarterly.</P>
+            <P>VesperWise limits product-data operations to authenticated server code and support activities needed to operate the Service. Contact <Code>legal@vesperwise.com</Code> for any separately documented personnel or organizational commitments.</P>
           </Section>
 
           {/* ── 05 ── */}
           <Section id="s5" num="05" title="Subprocessors">
             <P>The Controller grants general authorization for VesperWise to engage subprocessors. The current list is on our <A href="/legal/subprocessors">Subprocessors</A> page. VesperWise will:</P>
             <UL items={[
-              <span key="a">Notify the Controller at least <Strong>30 days in advance</Strong> before adding or replacing a subprocessor (by email to the account owner, and by an update to the Subprocessors page);</span>,
+              <span key="a">Maintain the current subprocessor list on the Subprocessors page;</span>,
               "Impose on each subprocessor data‑protection obligations no less protective than those in this DPA;",
               "Remain fully liable for the acts and omissions of its subprocessors.",
             ]} />
@@ -359,7 +338,7 @@ export default function DpaView() {
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="Personal data breach">
-            <P>VesperWise will notify the Controller without undue delay, and in any event <Strong>within 72 hours</Strong> of becoming aware of a Personal Data Breach affecting the Controller&rsquo;s data. The notification will include:</P>
+            <P>VesperWise will notify the Controller of a Personal Data Breach as required by applicable law. Where a notification is required, it will include available information about:</P>
             <OL items={[
               "A description of the nature of the breach, including categories and approximate numbers of Data Subjects and records concerned;",
               "The likely consequences;",
@@ -391,7 +370,7 @@ export default function DpaView() {
 
           {/* ── 10 ── */}
           <Section id="s10" num="10" title="Audits">
-            <P>VesperWise will make available to the Controller all information necessary to demonstrate compliance with this DPA, including a current SOC 2 Type II report and the answers to the CAIQ Lite and SIG Core. The Controller may request an audit once per twelve‑month period, on 30 days notice, conducted during business hours, by a mutually agreed independent auditor bound by confidentiality. The Controller bears the cost unless the audit reveals material non‑compliance.</P>
+            <P>Contact <Code>legal@vesperwise.com</Code> to ask what current technical documentation is available. This page does not represent that VesperWise holds a certification, completed audit report, or pre-filled security questionnaire.</P>
           </Section>
 
           {/* ── 11 ── */}
@@ -399,7 +378,7 @@ export default function DpaView() {
             <P>Upon termination of the Service, VesperWise will, at the Controller&rsquo;s choice:</P>
             <UL items={[
               "Return all Personal Data via a JSON export available in‑product;",
-              <span key="b">Delete all Personal Data within <Strong>90 days</Strong>, including from backups within their normal rotation schedule (≤ 35 additional days), and provide written confirmation;</span>,
+              <span key="b">Process a verified deletion request using the product-data cascade and other current deletion procedures, subject to legal retention requirements;</span>,
             ]} />
             <P>Unless retention of some Personal Data is required by Union or Member State law (e.g. tax records). In that case, VesperWise will continue to ensure the confidentiality of the retained data and will not actively Process it.</P>
           </Section>
@@ -430,18 +409,12 @@ export default function DpaView() {
             <DocTable
               headers={["Control area", "Measure"]}
               rows={[
-                ["Encryption · transit",       "TLS 1.3 on all customer‑facing endpoints; HSTS preloaded."],
-                ["Encryption · at rest",        "AES‑256 for database and object storage (Supabase + Vercel Blob)."],
-                ["Access control",              "SSO + MFA enforced for all internal access. Least‑privilege RBAC; quarterly access review."],
-                ["API authentication",          <span key="api">SHA‑256 hashed bearer tokens; per‑user rate limiting; revocation on suspected compromise.</span>],
-                ["Tenant isolation",            "Postgres Row‑Level Security on every multi‑tenant table; tenant ID required on all queries."],
-                ["Logging & monitoring",        "Audit logs for all admin actions; 12‑month retention; alerts on anomalous read volume."],
-                ["Vulnerability management",    "Dependabot for dependencies; quarterly third‑party pen test; bounties via the Security page."],
-                ["Personnel security",          "Confidentiality agreements; security training on hire and annually."],
-                ["Subprocessor management",     "Public list; 30‑day notice; DPA required from each."],
-                ["Incident response",           "72‑hour Controller notification on breach; runbook tested twice per year."],
-                ["Backups & resilience",        "Daily encrypted backups; 35‑day retention; RPO 24h, RTO 4h."],
-                ["Physical security",           "None operated by VesperWise; all production hosting is with subprocessors with SOC 2 / ISO 27001."],
+                ["Identity",                    "Clerk manages authentication, profile, password, MFA, and session capabilities."],
+                ["Application data scoping",     "Server routes authenticate the Clerk user, apply owner filters to service-role queries, and validate returned ownership."],
+                ["API authentication",          <span key="api">Bearer secrets are displayed once and stored only as SHA-256 hashes; revocation is owner-scoped.</span>],
+                ["Lifecycle deletion",           "Signed Clerk lifecycle events are processed idempotently; deleting the owned user row invokes verified foreign-key cascades."],
+                ["AI processing",                "Supported requests pass through OpenRouter to configured models; no BYO-key or workspace AI-disable control is offered."],
+                ["Analytics",                    "Google Analytics loads in the authenticated product only after persisted analytics consent is enabled."],
               ]}
             />
           </Section>

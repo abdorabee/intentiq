@@ -41,6 +41,11 @@ SUPABASE_SERVICE_ROLE_KEY=
 # Clerk
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
+# Required together to enable Clerk's full account-management surface. Configure
+# /api/webhooks/clerk for user.updated and user.deleted in the Clerk dashboard.
+CLERK_WEBHOOK_SIGNING_SECRET=
+CLERK_USER_LIFECYCLE_SYNC_ENABLED=false
+CLERK_USER_LIFECYCLE_CONTRACT=vesperwise-clerk-lifecycle-v1
 
 # OpenRouter (bounded score reasoning; deterministic fallback if unset)
 OPENROUTER_API_KEY=
@@ -104,6 +109,8 @@ npm run build    # production build
 npm run lint     # ESLint
 npm test         # Vitest, one run
 npm run test:scoring-db # destructive only to an explicitly confirmed disposable Postgres database
+# SETTINGS_SECURITY_DB_TESTS=true plus an explicitly confirmed disposable
+# SETTINGS_SECURITY_TEST_DATABASE_URL runs lifecycle/cascade and API-key concurrency tests.
 npm run test:watch
 ```
 

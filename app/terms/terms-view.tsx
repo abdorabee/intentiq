@@ -171,7 +171,7 @@ export default function TermsView() {
         <span style={{ margin: "0 6px", color: T.txtQuaternary }}>·</span>
         last updated May 12, 2026
         <span style={{ margin: "0 6px", color: T.txtQuaternary }}>·</span>
-        <a href="#" style={{ color: T.txtQuaternary, textDecoration: "underline", textDecorationColor: T.borderStrong }}>view diff</a>
+        <span style={{ color: T.txtQuaternary }}>current published version</span>
       </div>
 
       {/* ── Nav — sticky below banner ── */}
@@ -190,7 +190,7 @@ export default function TermsView() {
           <div style={{ flex: 1 }} />
           <Link href="/login" style={{ fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtSecondary, padding: "6px 10px", borderRadius: "6px", textDecoration: "none" }}>Sign in</Link>
           <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: T.txtPrimary, padding: "0 14px", height: "32px", borderRadius: "6px", border: `1px solid ${T.border}`, background: "rgba(255,255,255,0.05)", textDecoration: "none" }}>Start free</Link>
-          <Link href="/#" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
+          <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 500, letterSpacing: "-0.006em", color: "#000000", padding: "0 14px", height: "32px", borderRadius: "6px", background: T.accent, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3)", textDecoration: "none" }}>
             Talk to us
             <svg style={{ width: "12px", height: "12px" }} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h6M7 4l2 2-2 2"/></svg>
           </Link>
@@ -332,7 +332,7 @@ export default function TermsView() {
 
           {/* ── 07 ── */}
           <Section id="s7" num="07" title="Warranties">
-            <P>VesperWise warrants that the Service will perform materially in accordance with our published documentation and the SLAs in your order form (if any). Your exclusive remedy for a warranty breach is the SLA service credit described therein, or termination per Section&nbsp;10.</P>
+            <P>No service-level commitment or service credit applies unless it is expressly stated in a separately executed order form.</P>
             <P caps>EXCEPT AS EXPRESSLY STATED, THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; WITHOUT WARRANTY OF ANY KIND. VESPERWISE DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON&#8209;INFRINGEMENT.</P>
           </Section>
 
