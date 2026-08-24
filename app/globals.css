@@ -9541,6 +9541,77 @@ button.signal-card.gen-axis.is-selected {
   .onboarding-page .tb-btn { transition: none; }
 }
 
+/* Product tour */
+.product-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+.product-tour-scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--bg) 48%, transparent);
+}
+.product-tour-spotlight {
+  position: absolute;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 0 0 9999px color-mix(in oklab, var(--bg) 55%, transparent);
+  pointer-events: none;
+  transition: top 160ms ease, left 160ms ease, width 160ms ease, height 160ms ease;
+}
+.product-tour-card {
+  position: absolute;
+  z-index: 1;
+  width: min(320px, calc(100vw - 24px));
+  padding: 14px 14px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-elevated);
+  color: var(--text-primary);
+  outline: none;
+  transition: top 160ms ease, left 160ms ease;
+}
+.product-tour-progress {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+.product-tour-card h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+}
+.product-tour-card p#product-tour-body {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.product-tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+.product-tour-actions-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-tour-spotlight,
+  .product-tour-card {
+    transition: none;
+  }
+}
+
 @layer utilities {
   .apple-surface {
     background: var(--surface-raised);

@@ -160,7 +160,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
       <div className="prompt-bg">
         <div className="grid" />
       </div>
-      <div className="prompt-inner">
+      <div className="prompt-inner" data-tour="score-workspace">
         <div className="prompt-eyebrow">
           <span className="badge">Score</span>
           Drop in a domain — we&apos;ll verify coverage and you can ask follow-ups
@@ -175,7 +175,7 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
           then keep chatting about the account.
         </p>
 
-        <div className="prompt-holder prompt-holder--compact">
+        <div className="prompt-holder prompt-holder--compact" data-tour="score-composer">
           <div className="prompt-prefix">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
               <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
@@ -533,7 +533,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
         />
       ) : (
         <>
-          <div className="score-chat-thread" ref={threadRef}>
+          <div className="score-chat-thread" ref={threadRef} data-tour="score-workspace">
             <div className="score-chat-col">
               {messages.map((message) => {
                 if (message.role === "user") {
@@ -566,7 +566,11 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                 }
                 if (message.kind === "ui") {
                   return (
-                    <div key={message.id} className="chat-row assistant">
+                    <div
+                      key={message.id}
+                      className="chat-row assistant"
+                      data-tour={message.id === lastUi?.id ? "score-result" : undefined}
+                    >
                       {message.billing && (
                         <LiveProgressBar
                           loading={false}
@@ -596,7 +600,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
               })}
             </div>
           </div>
-          <div className="score-chat-composer">
+          <div className="score-chat-composer" data-tour="score-composer">
             <SuggestionChips suggestions={chips} onPrompt={(prompt) => void submitMessage(prompt)} disabled={busy} />
             <div className="prompt-holder prompt-holder--compact">
               <div className="prompt-prefix">

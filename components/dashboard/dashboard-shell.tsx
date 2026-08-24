@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import DashboardNav from "@/components/dashboard/nav";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
 import { SearchProvider } from "@/components/dashboard/search-provider";
+import { ProductTour } from "@/components/product-tour/product-tour";
 import type { DbUser } from "@/lib/types";
 
 interface DashboardShellProps {
@@ -88,6 +89,7 @@ export default function DashboardShell({
           <DashboardTopbar onMenuClick={() => setMobileOpen(true)} />
           <main className={pageClass}>{children}</main>
         </div>
+        <ProductTour />
       </div>
     </SearchProvider>
   );

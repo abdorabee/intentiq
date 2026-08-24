@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import {
@@ -12,10 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  PRODUCT_TOUR_RESTART_EVENT,
+  productTourRestartHref,
+  productTourRestartPatch,
+} from "@/lib/product-tour";
 import { onboardingResetRedirect } from "@/lib/user-role";
 
 export default function ExperienceSettingsPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -26,10 +32,16 @@ export default function ExperienceSettingsPage() {
       const response = await fetch("/api/user/preferences", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_tour_completed: false }),
+        body: JSON.stringify(productTourRestartPatch()),
       });
       if (!response.ok) throw new Error("Failed to restart tour");
-      toast.success("Product tour will start on your next visit");
+      window.dispatchEvent(new Event(PRODUCT_TOUR_RESTART_EVENT));
+      const destination = productTourRestartHref(pathname);
+      if (destination) {
+        router.push(destination);
+        return;
+      }
+      toast.success("Product tour started");
     } catch {
       toast.error("Could not restart the product tour");
     } finally {
@@ -71,7 +83,7 @@ export default function ExperienceSettingsPage() {
 
       <section className="settings-section" aria-labelledby="settings-tour">
         <h2 id="settings-tour">Product tour</h2>
-        <p>Marks the tour as incomplete so it can run again when that guide ships.</p>
+        <p>Replay the walkthrough of Score, Intent Hub, and Settings.</p>
         <button
           type="button"
           className="tb-btn outlined"

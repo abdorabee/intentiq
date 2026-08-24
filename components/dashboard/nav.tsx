@@ -136,6 +136,9 @@ export default function DashboardNav({
         href={item.href}
         title={collapsed ? item.label : undefined}
         className={cn("sb-item", active && "active")}
+        data-tour={
+          item.href === "/pipeline" ? "nav-intent-hub" : item.href === "/settings" ? "nav-settings" : undefined
+        }
       >
         <Icon className="ic" />
         {!collapsed && (

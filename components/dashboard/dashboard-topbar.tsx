@@ -67,6 +67,7 @@ export default function DashboardTopbar({ onMenuClick }: DashboardTopbarProps) {
       <button
         type="button"
         className="tb-menu"
+        data-tour="nav-menu"
         onClick={onMenuClick}
         aria-label="Open navigation menu"
       >
