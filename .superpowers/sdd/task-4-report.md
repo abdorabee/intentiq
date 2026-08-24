@@ -1,7 +1,8 @@
 # Phase 4 Report — Onboarding as activation
 
 **Status:** DONE_WITH_CONCERNS  
-**Branch:** `cursor/saas-product-polish-6049`
+**Branch:** `cursor/saas-product-polish-6049`  
+**Commit:** `f0ecd7b` — Rebuild onboarding as a 5-step Score activation flow
 
 ## What shipped
 
