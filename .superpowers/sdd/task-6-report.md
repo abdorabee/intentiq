@@ -2,7 +2,7 @@
 
 **Status:** DONE_WITH_CONCERNS  
 **Branch:** `cursor/saas-product-polish-6049`  
-**Commit:** `9d7789c` — Add generative UI registry and Score chat workspace controls
+**Commit:** `7f32944` — Add generative UI registry and Score chat workspace controls
 
 ## What shipped
 
