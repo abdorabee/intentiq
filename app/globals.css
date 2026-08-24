@@ -2992,6 +2992,9 @@ footer.site-footer {
 .prompt-holder--compact {
   grid-template-columns: 22px 1fr auto;
 }
+.prompt-holder--with-attach {
+  grid-template-columns: 22px 1fr auto auto;
+}
 .prompt-holder:focus-within {
   border-color: rgba(223,255,0,0.5);
   box-shadow:
@@ -3216,6 +3219,42 @@ footer.site-footer {
   color: var(--red);
   font-size: 13px;
 }
+.chat-fallback {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+.chat-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+}
+.prompt-attach {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--text-tertiary);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.prompt-attach:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+.prompt-attach:disabled { opacity: 0.4; cursor: not-allowed; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .chat-thinking {
   display: inline-flex;
   align-items: center;
@@ -3378,6 +3417,51 @@ button.signal-card.gen-axis.is-selected {
   color: var(--text-tertiary);
   font-size: 12px;
 }
+.gen-list,
+.gen-pipeline,
+.gen-person,
+.gen-confirm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gen-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+button.gen-list-row:hover { color: var(--text-primary); }
+div.gen-list-row { cursor: default; }
+.gen-list-row strong { font-weight: 500; }
+.gen-list-score {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.gen-pipeline-head {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.gen-confirm p { margin: 0; font-size: 13px; color: var(--text-secondary); }
+.gen-confirm.is-done { color: var(--text-tertiary); font-size: 13px; }
+.gen-confirm-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .score-chat-composer .prompt-holder { max-width: 1040px; margin: 0 auto; width: 100%; }
 .score-chat-composer .prompt-meta {

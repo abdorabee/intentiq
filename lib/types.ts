@@ -283,6 +283,7 @@ export interface DbChatMessage {
   content: string;
   tool_calls: unknown | null;
   tool_result: unknown | null;
+  ui_blocks: unknown | null;
   tokens_used: number;
   created_at: string;
 }

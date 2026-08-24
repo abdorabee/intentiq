@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({})) as {
     title?: string;
     session_id?: string;
-    seed?: { user?: string; assistant?: string };
+    seed?: { user?: string; assistant?: string; ui_blocks?: unknown };
   };
 
   const supabase = createSupabaseAdmin();
@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
       session_id: session.id,
       role: "assistant",
       content: seed.assistant,
+      ui_blocks: seed.ui_blocks ?? null,
     });
   }
 

@@ -1,13 +1,39 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { UiBlock, UiSuggestion, SignalAxis } from "@/lib/gen-ui";
+import { Component, useMemo, useState, type ReactNode } from "react";
+import type { ConfirmationBlock, UiBlock, UiBlockType, UiSuggestion, SignalAxis } from "@/lib/gen-ui";
+import { UI_BLOCK_REGISTRY } from "@/lib/gen-ui";
 import { avColor, bandClass, ScoreRing } from "@/components/score/score-result-card";
 
 export interface GenUiHandlers {
   onWatchlist?: (company: string, domain: string) => void;
   watchlistByDomain?: Record<string, "adding" | "added">;
   onPrompt?: (prompt: string) => void;
+  onConfirm?: (block: ConfirmationBlock) => void;
+  onCancel?: (block: ConfirmationBlock) => void;
+  confirmationByKey?: Record<string, "pending" | "confirming" | "confirmed" | "cancelled" | "error">;
+}
+
+class BlockGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    if (this.state.failed) {
+      return <p className="chat-fallback">This view could not be rendered.</p>;
+    }
+    return this.props.children;
+  }
+}
+
+function BlockLoading() {
+  return (
+    <div className="chat-thinking">
+      <span className="pulse" />
+      Working…
+    </div>
+  );
 }
 
 const AXIS_COLOR: Record<string, string> = {
@@ -241,6 +267,146 @@ function ActionRail({
   );
 }
 
+function ResultList({
+  block,
+  onPrompt,
+}: {
+  block: Extract<UiBlock, { type: "result_list" }>;
+  onPrompt?: (prompt: string) => void;
+}) {
+  if (block.items.length === 0) {
+    return <p className="chat-md">{block.empty_message ?? "No matching accounts."}</p>;
+  }
+  return (
+    <div className="gen-list">
+      <div className="section-label">
+        <strong>Accounts</strong>
+        {block.query && <span style={{ color: "var(--text-tertiary)" }}>· {block.query}</span>}
+        <span className="line" />
+      </div>
+      {block.items.map((item) => (
+        <button
+          key={item.domain}
+          type="button"
+          className="gen-list-row"
+          onClick={() => onPrompt?.(item.domain)}
+        >
+          <span className={`band ${bandClass(item.score_band ?? "COLD")}`}>
+            <span className="dot" />{item.score_band ?? "—"}
+          </span>
+          <strong>{item.company}</strong>
+          <span>{item.domain}</span>
+          <span className="gen-list-score">{item.intent_score ?? "—"}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PipelineSummary({ block }: { block: Extract<UiBlock, { type: "pipeline_summary" }> }) {
+  if (block.total === 0) {
+    return <p className="chat-md">{block.empty_message ?? "No companies in pipeline."}</p>;
+  }
+  return (
+    <div className="gen-pipeline">
+      <div className="section-label">
+        <strong>Pipeline</strong>
+        <span style={{ color: "var(--text-tertiary)" }}>{block.total} accounts</span>
+        <span className="line" />
+      </div>
+      {block.stages.map((stage) => (
+        <div key={stage.stage} className="gen-pipeline-stage">
+          <div className="gen-pipeline-head">{stage.stage} · {stage.count}</div>
+          {stage.companies.map((company) => (
+            <div key={company.domain} className="gen-list-row">
+              <strong>{company.company}</strong>
+              <span>{company.domain}</span>
+              <span className="gen-list-score">{company.score ?? "—"}</span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PersonCard({ block }: { block: Extract<UiBlock, { type: "person_card" }> }) {
+  return (
+    <div className="gen-person">
+      <div className="result-title-row">
+        <span className={`band ${bandClass(block.score_band)}`}>
+          <span className="dot" />{block.score_band}
+        </span>
+        <span className="result-title">{block.name}</span>
+        <span className="gen-list-score">{block.intent_score}</span>
+      </div>
+      <div className="result-meta">
+        {block.title && <span>{block.title}</span>}
+        {block.company && (
+          <>
+            {block.title && <span className="dot" />}
+            <span>{block.company}</span>
+          </>
+        )}
+        {block.urgency && (
+          <>
+            <span className="dot" />
+            <span>Urgency: {block.urgency}</span>
+          </>
+        )}
+      </div>
+      {block.summary && <p className="chat-md">{block.summary}</p>}
+      {block.recommended_action && <p className="chat-md">{block.recommended_action}</p>}
+      {block.approach_angle && <p className="chat-md">{block.approach_angle}</p>}
+    </div>
+  );
+}
+
+function confirmationKey(block: ConfirmationBlock): string {
+  return `${block.action}:${block.domain}:${block.stage ?? ""}`;
+}
+
+function Confirmation({
+  block,
+  handlers,
+}: {
+  block: ConfirmationBlock;
+  handlers: GenUiHandlers;
+}) {
+  const status = handlers.confirmationByKey?.[confirmationKey(block)] ?? block.status ?? "pending";
+  if (status === "confirmed") {
+    return <p className="gen-confirm is-done">Confirmed — {block.title}</p>;
+  }
+  if (status === "cancelled") {
+    return <p className="gen-confirm is-done">Cancelled</p>;
+  }
+  return (
+    <div className="gen-confirm">
+      <strong>{block.title}</strong>
+      <p>{block.description}</p>
+      {status === "error" && <p className="chat-error" role="alert">Could not complete this change.</p>}
+      <div className="gen-confirm-actions">
+        <button
+          type="button"
+          className="tb-btn outlined"
+          disabled={status === "confirming"}
+          onClick={() => handlers.onConfirm?.(block)}
+        >
+          {status === "confirming" ? "Working…" : (block.confirm_label ?? "Confirm")}
+        </button>
+        <button
+          type="button"
+          className="tb-btn outlined"
+          disabled={status === "confirming"}
+          onClick={() => handlers.onCancel?.(block)}
+        >
+          {block.cancel_label ?? "Cancel"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Comparison({ block }: { block: Extract<UiBlock, { type: "comparison" }> }) {
   const keys = useMemo(() => {
     const set = new Set<string>();
@@ -310,29 +476,47 @@ export function SuggestionChips({
   );
 }
 
+type RenderEntry<T extends UiBlock = UiBlock> = {
+  type: T["type"];
+  schema: (typeof UI_BLOCK_REGISTRY)[T["type"]]["schema"];
+  render: (props: { block: T; handlers: GenUiHandlers }) => ReactNode;
+  loading?: () => ReactNode;
+};
+
+export const UI_RENDER_REGISTRY: { [K in UiBlockType]: RenderEntry<Extract<UiBlock, { type: K }>> } = {
+  intent_hero: { ...UI_BLOCK_REGISTRY.intent_hero, render: ({ block }) => <IntentHero block={block} />, loading: BlockLoading },
+  signal_explorer: { ...UI_BLOCK_REGISTRY.signal_explorer, render: ({ block }) => <SignalExplorer block={block} />, loading: BlockLoading },
+  thesis: { ...UI_BLOCK_REGISTRY.thesis, render: ({ block }) => <Thesis block={block} />, loading: BlockLoading },
+  outreach_studio: { ...UI_BLOCK_REGISTRY.outreach_studio, render: ({ block, handlers }) => <OutreachStudio block={block} onPrompt={handlers.onPrompt} />, loading: BlockLoading },
+  action_rail: { ...UI_BLOCK_REGISTRY.action_rail, render: ({ block, handlers }) => <ActionRail block={block} handlers={handlers} />, loading: BlockLoading },
+  comparison: { ...UI_BLOCK_REGISTRY.comparison, render: ({ block }) => <Comparison block={block} />, loading: BlockLoading },
+  markdown: { ...UI_BLOCK_REGISTRY.markdown, render: ({ block }) => <div className="chat-md">{block.text}</div>, loading: BlockLoading },
+  result_list: { ...UI_BLOCK_REGISTRY.result_list, render: ({ block, handlers }) => <ResultList block={block} onPrompt={handlers.onPrompt} />, loading: BlockLoading },
+  pipeline_summary: { ...UI_BLOCK_REGISTRY.pipeline_summary, render: ({ block }) => <PipelineSummary block={block} />, loading: BlockLoading },
+  person_card: { ...UI_BLOCK_REGISTRY.person_card, render: ({ block }) => <PersonCard block={block} />, loading: BlockLoading },
+  confirmation: { ...UI_BLOCK_REGISTRY.confirmation, render: ({ block, handlers }) => <Confirmation block={block} handlers={handlers} />, loading: BlockLoading },
+};
+
+function renderBlock(block: UiBlock, handlers: GenUiHandlers): ReactNode {
+  const entry = UI_RENDER_REGISTRY[block.type] as RenderEntry | undefined;
+  if (!entry?.render) {
+    return <p className="chat-fallback">This view could not be rendered.</p>;
+  }
+  return entry.render({ block, handlers });
+}
+
+export function confirmationKeyFor(block: ConfirmationBlock): string {
+  return confirmationKey(block);
+}
+
 export function GenUiWorkspace({ blocks, handlers }: { blocks: UiBlock[]; handlers: GenUiHandlers }) {
   return (
     <div className="gen-workspace">
-      {blocks.map((block, i) => {
-        switch (block.type) {
-          case "intent_hero":
-            return <IntentHero key={`${block.type}-${i}`} block={block} />;
-          case "signal_explorer":
-            return <SignalExplorer key={`${block.type}-${i}`} block={block} />;
-          case "thesis":
-            return <Thesis key={`${block.type}-${i}`} block={block} />;
-          case "outreach_studio":
-            return <OutreachStudio key={`${block.type}-${i}`} block={block} onPrompt={handlers.onPrompt} />;
-          case "action_rail":
-            return <ActionRail key={`${block.type}-${i}`} block={block} handlers={handlers} />;
-          case "comparison":
-            return <Comparison key={`${block.type}-${i}`} block={block} />;
-          case "markdown":
-            return <div key={`${block.type}-${i}`} className="chat-md">{block.text}</div>;
-          default:
-            return null;
-        }
-      })}
+      {blocks.map((block, i) => (
+        <BlockGuard key={`${block.type}-${i}`}>
+          {renderBlock(block, handlers)}
+        </BlockGuard>
+      ))}
     </div>
   );
 }
