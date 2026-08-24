@@ -48,6 +48,27 @@ describe("profileUpdateSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("accepts a profile with blank skippable motion and commercial fields", () => {
+    const result = profileUpdateSchema.safeParse({
+      business_profile: {
+        ...VALID_PROFILE,
+        buyer_role: "",
+        sales_motion: "  ",
+        deal_size: "",
+        sales_cycle: "",
+      },
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.business_profile).toMatchObject({
+        product_category: "Sales Intelligence",
+        buyer_role: "",
+        sales_motion: "",
+      });
+    }
+  });
+
   it("accepts and trims a complete profile PUT payload", () => {
     const result = profileUpdateSchema.safeParse({
       business_profile: {

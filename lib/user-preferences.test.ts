@@ -32,6 +32,8 @@ describe("normalizeUserPreferences", () => {
       theme: "system",
       product_tour_completed: true,
       product_tour_version: 2,
+      onboarding_step: 0,
+      onboarding_draft: null,
     });
   });
 });
@@ -88,6 +90,27 @@ describe("parsePreferencesPatch", () => {
     }
   });
 
+  it("accepts an onboarding persist payload", () => {
+    const result = parsePreferencesPatch({
+      onboarding_step: 2,
+      onboarding_draft: {
+        product_category: "SaaS / Software",
+        target_industries: ["Technology"],
+        company_size: "SMB (51-200)",
+        buyer_role: "",
+        sales_motion: "",
+        deal_size: "",
+        sales_cycle: "",
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an onboarding step outside the wizard", () => {
+    expect(parsePreferencesPatch({ onboarding_step: 5 }).success).toBe(false);
+    expect(parsePreferencesPatch({ onboarding_step: -1 }).success).toBe(false);
+  });
+
   it("rejects empty, unknown, or invalid fields", () => {
     expect(parsePreferencesPatch({}).success).toBe(false);
     expect(parsePreferencesPatch({ theme: "sepia" }).success).toBe(false);
@@ -111,6 +134,8 @@ describe("mergeUserPreferences", () => {
       theme: "system",
       product_tour_completed: false,
       product_tour_version: 1,
+      onboarding_step: 0,
+      onboarding_draft: null,
     });
   });
 

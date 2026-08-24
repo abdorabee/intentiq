@@ -46,6 +46,11 @@ export default function ExperienceSettingsPage() {
         body: JSON.stringify({ onboarding_completed: false }),
       });
       if (!response.ok) throw new Error("Failed to reset onboarding");
+      await fetch("/api/user/preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ onboarding_step: 0 }),
+      }).catch(() => undefined);
       setConfirmOpen(false);
       const destination = onboardingResetRedirect(false);
       if (destination) router.push(destination);
