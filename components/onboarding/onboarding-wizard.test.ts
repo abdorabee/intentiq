@@ -18,6 +18,7 @@ describe("onboarding wizard contracts", () => {
     expect(wizardSource).toMatch(/\/api\/user\/preferences/);
     expect(wizardSource).toMatch(/\/api\/v1\/score/);
     expect(wizardSource).toMatch(/getOnboardingCompleteDestination/);
+    expect(wizardSource).toMatch(/runFirstScoreAttempt/);
     expect(wizardSource).not.toMatch(/replace\(["']\/dashboard["']\)/);
     expect(wizardSource).toMatch(/Skip for now/);
   });

@@ -93,3 +93,34 @@ Covered:
 3. **Failed score after a successful profile PUT leaves onboarding complete.** Refresh then bounces to `/dashboard` instead of staying on the first-score step. The in-page error offers “Continue to Score”.
 4. **Preferences migration is still file-only.** Mid-flow persist 500s until `users.preferences` exists remotely. Finish via `PUT /api/user/profile` still works.
 5. **Product tour is still Phase 5.** Finish only sets `product_tour_completed: false`.
+
+---
+
+## Follow-up — first-score failure no longer completes onboarding
+
+**Status:** FIXED  
+**Finding:** `scoreFirstAccount` PUT `/api/user/profile` (always `onboarding_completed: true`) before `POST /api/v1/score`. Score failure left users completed; refresh bounced them to `/dashboard`.
+
+### What changed
+
+- `PUT /api/user/profile` accepts `onboarding_completed`. Omitted still defaults to `true` so Settings → Selling stays complete.
+- First score persists the draft with `onboarding_completed: false`, scores, then marks complete only on success.
+- Skip on First score and “Continue to Score” still complete via `buildOnboardingProfilePut(..., true)`.
+- Failed score stays on First score with `onboardingCompleted: false`.
+
+### Files
+
+- `lib/onboarding-profile.ts` — `buildOnboardingProfilePut`, `runFirstScoreAttempt`
+- `lib/onboarding-profile.test.ts` — failed score does not complete; success completes after draft persist
+- `lib/business-profile.ts` — optional `onboarding_completed` on PUT (default `true`)
+- `lib/business-profile.test.ts` — omitted vs explicit `false`
+- `app/api/user/profile/route.ts` — writes the flag instead of always `true`
+- `components/onboarding/onboarding-wizard.tsx` — first score uses the extracted flow
+
+### Tests
+
+```
+npx vitest run lib/onboarding-profile.test.ts lib/business-profile.test.ts
+```
+
+Result: **2 files, 28 tests, all passed**.

@@ -20,6 +20,7 @@ export const businessProfileSchema = z.object({
 
 export const profileUpdateSchema = z.object({
   business_profile: businessProfileSchema,
+  onboarding_completed: z.boolean().optional().default(true),
 }).passthrough();
 
 /**

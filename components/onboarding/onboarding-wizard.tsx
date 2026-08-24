@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import VesperWiseLogo from "@/components/vesperwise-logo";
 import { extractDomain } from "@/lib/chat-client";
 import {
-  buildBusinessProfile,
   buildOnboardingPreferencesPatch,
+  buildOnboardingProfilePut,
   BUYER_ROLE_OPTIONS,
   canSkipOnboardingStep,
   COMPANY_SIZE_OPTIONS,
@@ -17,11 +17,13 @@ import {
   ONBOARDING_STEP_COUNT,
   onboardingReducer,
   PRODUCT_CATEGORY_OPTIONS,
+  runFirstScoreAttempt,
   SALES_CYCLE_OPTIONS,
   SALES_MOTION_OPTIONS,
   createOnboardingState,
   validateOnboardingStep,
   type OnboardingFieldErrors,
+  type OnboardingProfilePutPayload,
 } from "@/lib/onboarding-profile";
 import type { BusinessProfile } from "@/lib/types";
 
@@ -161,8 +163,31 @@ export default function OnboardingWizard({
     }
   }
 
+  async function putOnboardingProfile(
+    payload: OnboardingProfilePutPayload
+  ): Promise<{ ok: boolean; error?: string }> {
+    const response = await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = await response.json().catch(() => null) as { error?: string } | null;
+    return { ok: response.ok, error: body?.error };
+  }
+
+  async function finishOnboardingPreferences(savedProfile: BusinessProfile) {
+    await fetch("/api/user/preferences", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...buildOnboardingPreferencesPatch(0, savedProfile),
+        product_tour_completed: false,
+      }),
+    }).catch(() => undefined);
+  }
+
   async function completeOnboarding(scoredDomain?: string | null): Promise<boolean> {
-    const payload = buildBusinessProfile(profile);
+    const payload = buildOnboardingProfilePut(profile, true);
     if (!payload) {
       dispatch({
         type: "save_failed",
@@ -173,24 +198,12 @@ export default function OnboardingWizard({
 
     dispatch({ type: "save_started" });
     try {
-      const response = await fetch("/api/user/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business_profile: payload }),
-      });
-      if (!response.ok) {
-        const body = await response.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ?? "We could not save your profile.");
+      const saved = await putOnboardingProfile(payload);
+      if (!saved.ok) {
+        throw new Error(saved.error ?? "We could not save your profile.");
       }
 
-      await fetch("/api/user/preferences", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...buildOnboardingPreferencesPatch(0, payload),
-          product_tour_completed: false,
-        }),
-      }).catch(() => undefined);
+      await finishOnboardingPreferences(payload.business_profile);
 
       dispatch({ type: "save_succeeded" });
       router.replace(getOnboardingCompleteDestination(scoredDomain));
@@ -239,58 +252,34 @@ export default function OnboardingWizard({
     }
     clearError("domain");
 
-    const payload = buildBusinessProfile(profile);
-    if (!payload) {
-      dispatch({
-        type: "save_failed",
-        message: "Add what you sell and the accounts you target before scoring.",
-      });
+    dispatch({ type: "save_started" });
+    const result = await runFirstScoreAttempt(resolved, profile, {
+      putProfile: putOnboardingProfile,
+      postScore: async (scoredDomain) => {
+        const response = await fetch("/api/v1/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain: scoredDomain }),
+        });
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        return { ok: response.ok, error: body?.error };
+      },
+      finishPreferences: finishOnboardingPreferences,
+    });
+
+    if (result.status === "completed") {
+      dispatch({ type: "save_succeeded" });
+      router.replace(result.destination);
+      router.refresh();
       return;
     }
 
-    dispatch({ type: "save_started" });
-    try {
-      const profileResponse = await fetch("/api/user/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business_profile: payload }),
-      });
-      if (!profileResponse.ok) {
-        const body = await profileResponse.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ?? "We could not save your profile.");
-      }
-
-      const scoreResponse = await fetch("/api/v1/score", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: resolved }),
-      });
-      const scoreBody = await scoreResponse.json().catch(() => null) as { error?: string } | null;
-      if (!scoreResponse.ok) {
-        throw new Error(scoreBody?.error ?? "We could not score that domain.");
-      }
-
-      await fetch("/api/user/preferences", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...buildOnboardingPreferencesPatch(0, payload),
-          product_tour_completed: false,
-        }),
-      }).catch(() => undefined);
-
-      dispatch({ type: "save_succeeded" });
-      router.replace(getOnboardingCompleteDestination(resolved));
-      router.refresh();
-    } catch (error) {
-      dispatch({
-        type: "save_failed",
-        message:
-          error instanceof Error
-            ? error.message
-            : "We could not score that account. Try again or skip for now.",
-      });
-    }
+    dispatch({
+      type: "save_failed",
+      message:
+        result.error ??
+        "We could not score that account. Try again or skip for now.",
+    });
   }
 
   const customIndustries = profile.target_industries.filter(

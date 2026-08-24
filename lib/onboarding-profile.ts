@@ -193,6 +193,96 @@ export function buildBusinessProfile(
   return parsed.success ? parsed.data as BusinessProfile : null;
 }
 
+export type OnboardingProfilePutPayload = {
+  business_profile: BusinessProfile;
+  onboarding_completed: boolean;
+};
+
+export function buildOnboardingProfilePut(
+  profile: BusinessProfile,
+  completeOnboarding: boolean
+): OnboardingProfilePutPayload | null {
+  const payload = buildBusinessProfile(profile);
+  if (!payload) return null;
+  return {
+    business_profile: payload,
+    onboarding_completed: completeOnboarding,
+  };
+}
+
+export type FirstScoreDependencies = {
+  putProfile: (
+    payload: OnboardingProfilePutPayload
+  ) => Promise<{ ok: boolean; error?: string }>;
+  postScore: (domain: string) => Promise<{ ok: boolean; error?: string }>;
+  finishPreferences?: (profile: BusinessProfile) => Promise<void>;
+};
+
+export type FirstScoreResult =
+  | { status: "invalid_profile"; error: string }
+  | { status: "failed"; error: string; onboardingCompleted: false }
+  | {
+      status: "completed";
+      domain: string;
+      destination: ReturnType<typeof getOnboardingCompleteDestination>;
+    };
+
+export async function runFirstScoreAttempt(
+  domain: string,
+  profile: BusinessProfile,
+  deps: FirstScoreDependencies
+): Promise<FirstScoreResult> {
+  const draft = buildOnboardingProfilePut(profile, false);
+  if (!draft) {
+    return {
+      status: "invalid_profile",
+      error: "Add what you sell and the accounts you target before scoring.",
+    };
+  }
+
+  const persist = await deps.putProfile(draft);
+  if (!persist.ok) {
+    return {
+      status: "failed",
+      error: persist.error ?? "We could not save your profile.",
+      onboardingCompleted: false,
+    };
+  }
+
+  const score = await deps.postScore(domain);
+  if (!score.ok) {
+    return {
+      status: "failed",
+      error: score.error ?? "We could not score that domain.",
+      onboardingCompleted: false,
+    };
+  }
+
+  const complete = buildOnboardingProfilePut(profile, true);
+  if (!complete) {
+    return {
+      status: "invalid_profile",
+      error: "Add what you sell and the accounts you target before scoring.",
+    };
+  }
+
+  const finish = await deps.putProfile(complete);
+  if (!finish.ok) {
+    return {
+      status: "failed",
+      error: finish.error ?? "We could not save your profile.",
+      onboardingCompleted: false,
+    };
+  }
+
+  await deps.finishPreferences?.(draft.business_profile);
+  return {
+    status: "completed",
+    domain,
+    destination: getOnboardingCompleteDestination(domain),
+  };
+}
+
 export function validateOnboardingStep(
   step: number,
   profile: BusinessProfile

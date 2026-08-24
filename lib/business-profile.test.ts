@@ -86,4 +86,27 @@ describe("profileUpdateSchema", () => {
       });
     }
   });
+
+  it("defaults omitted onboarding_completed to true so selling-profile PUTs stay complete", () => {
+    const result = profileUpdateSchema.safeParse({
+      business_profile: VALID_PROFILE,
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.onboarding_completed).toBe(true);
+    }
+  });
+
+  it("accepts an explicit draft persist that does not complete onboarding", () => {
+    const result = profileUpdateSchema.safeParse({
+      business_profile: VALID_PROFILE,
+      onboarding_completed: false,
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.onboarding_completed).toBe(false);
+    }
+  });
 });

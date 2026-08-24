@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildBusinessProfile,
   buildOnboardingPreferencesPatch,
+  buildOnboardingProfilePut,
   canSkipOnboardingStep,
   clampOnboardingStep,
   createOnboardingState,
@@ -10,6 +11,7 @@ import {
   getOnboardingRedirect,
   onboardingReducer,
   resolveOnboardingResume,
+  runFirstScoreAttempt,
   validateOnboardingStep,
 } from "./onboarding-profile";
 import { parsePreferencesPatch } from "./user-preferences";
@@ -226,6 +228,62 @@ describe("getOnboardingRedirect", () => {
   it("redirects completed users away from onboarding", () => {
     expect(getOnboardingRedirect(true, "onboarding")).toBe("/dashboard");
     expect(getOnboardingRedirect(false, "onboarding")).toBeNull();
+  });
+});
+
+describe("first-score onboarding completion", () => {
+  it("persists a draft profile without completing, then stays incomplete when score fails", async () => {
+    const puts: Array<{ onboarding_completed: boolean }> = [];
+    let scored = false;
+
+    const result = await runFirstScoreAttempt("stripe.com", COMPLETE_DRAFT, {
+      putProfile: async (payload) => {
+        puts.push({ onboarding_completed: payload.onboarding_completed });
+        return { ok: true };
+      },
+      postScore: async () => {
+        scored = true;
+        return { ok: false, error: "We could not score that domain." };
+      },
+    });
+
+    expect(scored).toBe(true);
+    expect(puts).toEqual([{ onboarding_completed: false }]);
+    expect(result).toEqual({
+      status: "failed",
+      error: "We could not score that domain.",
+      onboardingCompleted: false,
+    });
+    expect(buildOnboardingProfilePut(COMPLETE_DRAFT, false)).toEqual({
+      business_profile: COMPLETE_DRAFT,
+      onboarding_completed: false,
+    });
+  });
+
+  it("marks onboarding complete only after a successful first score", async () => {
+    const puts: boolean[] = [];
+
+    const result = await runFirstScoreAttempt("stripe.com", COMPLETE_DRAFT, {
+      putProfile: async (payload) => {
+        puts.push(payload.onboarding_completed);
+        return { ok: true };
+      },
+      postScore: async () => ({ ok: true }),
+    });
+
+    expect(puts).toEqual([false, true]);
+    expect(result).toEqual({
+      status: "completed",
+      domain: "stripe.com",
+      destination: "/score?domain=stripe.com",
+    });
+  });
+
+  it("builds a completing profile PUT for skip and continue-without-score", () => {
+    expect(buildOnboardingProfilePut(COMPLETE_DRAFT, true)).toEqual({
+      business_profile: COMPLETE_DRAFT,
+      onboarding_completed: true,
+    });
   });
 });
 

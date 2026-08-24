@@ -51,6 +51,7 @@ export async function PUT(req: NextRequest) {
     );
   }
   const profile = parsed.data.business_profile;
+  const onboardingCompleted = parsed.data.onboarding_completed;
 
   const supabase = createSupabaseAdmin();
   const { error } = await supabase
@@ -58,7 +59,7 @@ export async function PUT(req: NextRequest) {
     .update({
       business_profile: profile,
       product_category: profile.product_category,
-      onboarding_completed: true,
+      onboarding_completed: onboardingCompleted,
     })
     .eq("id", userId);
 
