@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 
@@ -52,17 +52,27 @@ function readViewport(): TourViewport {
   return { width: window.innerWidth, height: window.innerHeight };
 }
 
+function subscribeNever() {
+  return () => undefined;
+}
+
 export function ProductTour() {
   const pathname = usePathname();
   const cardRef = useRef<HTMLDivElement>(null);
   const persistedRef = useRef(false);
-  const pendingRestartRef = useRef(false);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const [pendingRestart, setPendingRestart] = useState(false);
   const [targets, setTargets] = useState<Partial<Record<ProductTourTargetId, TourRect | null>>>({});
   const [viewport, setViewport] = useState<TourViewport>({ width: 0, height: 0 });
   const [cardSize, setCardSize] = useState({ width: 320, height: 168 });
+  const isClient = useSyncExternalStore(subscribeNever, () => true, () => false);
+
+  if (pendingRestart && isScoreWorkspacePath(pathname) && !open) {
+    setPendingRestart(false);
+    setIndex(0);
+    setOpen(true);
+  }
 
   const visible = visibleTourSteps(PRODUCT_TOUR_STEPS, targets, viewport);
   const currentIndex = clampTourIndex(index, visible.length);
@@ -104,31 +114,21 @@ export function ProductTour() {
 
   const startTour = useCallback(() => {
     persistedRef.current = false;
+    setPendingRestart(false);
     setIndex(0);
     setOpen(true);
   }, []);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
     function onRestart() {
-      pendingRestartRef.current = true;
       if (isScoreWorkspacePath(pathname)) {
-        pendingRestartRef.current = false;
         startTour();
+        return;
       }
+      setPendingRestart(true);
     }
     window.addEventListener(PRODUCT_TOUR_RESTART_EVENT, onRestart);
     return () => window.removeEventListener(PRODUCT_TOUR_RESTART_EVENT, onRestart);
-  }, [pathname, startTour]);
-
-  useEffect(() => {
-    if (pendingRestartRef.current && isScoreWorkspacePath(pathname)) {
-      pendingRestartRef.current = false;
-      startTour();
-    }
   }, [pathname, startTour]);
 
   useEffect(() => {
@@ -148,23 +148,18 @@ export function ProductTour() {
 
   useEffect(() => {
     if (!open) return;
-    refreshMetrics();
+    const frame = window.requestAnimationFrame(() => refreshMetrics());
     const onReposition = () => refreshMetrics();
     window.addEventListener("resize", onReposition);
     window.addEventListener("scroll", onReposition, true);
     const interval = window.setInterval(refreshMetrics, 250);
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", onReposition);
       window.removeEventListener("scroll", onReposition, true);
       window.clearInterval(interval);
     };
   }, [open, pathname, currentIndex, refreshMetrics]);
-
-  useEffect(() => {
-    if (!isScoreWorkspacePath(pathname) && open && !pendingRestartRef.current) {
-      setOpen(false);
-    }
-  }, [pathname, open]);
 
   useEffect(() => {
     if (!open || !current) return;
@@ -201,7 +196,8 @@ export function ProductTour() {
     return () => document.removeEventListener("keydown", onKey, true);
   }, [open, closeAndPersist]);
 
-  if (!mounted || !open || !current || !resolved) return null;
+  const tourOpen = open && isScoreWorkspacePath(pathname);
+  if (!isClient || !tourOpen || !current || !resolved) return null;
 
   const spotlight = padTourRect(resolved.rect);
   const cardPos = placeTourCard(spotlight, cardSize, viewport);
