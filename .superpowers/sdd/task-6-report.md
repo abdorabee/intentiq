@@ -51,3 +51,23 @@ Also ran `chat-ui-blocks-migration.test.ts` + product-tour tests (5 files / 36 p
 2. **`ui_blocks` migration is file-only.** Reload restore 500s until `chat_messages.ui_blocks` exists remotely.
 3. **Mutating tools no longer write in `executeTool`.** Confirmation is real only if the user clicks Confirm (dashboard APIs). A model that claims “added” after the pending payload is wrong until confirm.
 4. **Token streaming not enabled.** Tool-phase events are honest; text arrives per OpenRouter turn, not per token.
+
+## Review follow-up (Important #1–3)
+
+Fixed the three Important Phase 6 findings. No CopilotKit. No Chat nav. No Phase 8 polish.
+
+1. **New conversation sticks.** `resolveChatRestore` only loads an explicit `LAST_CHAT_SESSION_KEY`. It never falls back to `listChatSessions()[0]`. `handleNewChat` still clears the last-session id and sets `NEW_CHAT_FLAG_KEY`; the flag is no longer consumed on mount (cleared only when a new turn calls `rememberSession`). Later remounts stay empty until the user starts a turn.
+
+2. **Confirmation status is persisted.** Confirm/cancel (and error) write `status` onto the matching `confirmation` block via `applyConfirmationStatus`, then `PATCH /api/chat/sessions/:id` updates `chat_messages.ui_blocks`. Reload restores Confirmed/Cancelled instead of showing Confirm again. (`ui_blocks` column remains file-only until the existing migration is applied.)
+
+3. **Retry after a restored seed re-scores.** New seeds persist a bare domain (`stripe.com`). `extractRetryDomain` / `resolveRetryAction` also accept leftover `Score stripe.com` lines and can reconstruct the domain from persisted `intent_hero` / `action_rail` blocks. Follow-up questions still go through chat.
+
+### Tests
+
+```
+npx vitest run lib/gen-ui.test.ts lib/chat-client.test.ts
+```
+
+Result: **2 files, 30 tests, all passed**.
+
+Added: restore/new-chat decision (`resolveChatRestore`), retry domain extraction (`extractRetryDomain` / `resolveRetryAction`), confirmation status write-back, and score-domain-from-blocks.

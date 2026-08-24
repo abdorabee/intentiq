@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  applyConfirmationStatus,
   blocksFromToolResult,
   presentUiAllowedTypes,
   sanitizeUiBlocks,
+  scoreDomainFromBlocks,
   UI_BLOCK_REGISTRY,
   UI_BLOCK_TYPES,
   workspaceFromScore,
 } from "./gen-ui";
+import type { ConfirmationBlock } from "./gen-ui";
 import type { SignalResult, SignalSet } from "./types";
 
 function signal(score: number, max = 25): SignalResult {
@@ -245,6 +248,43 @@ describe("registry", () => {
       expect(UI_BLOCK_REGISTRY[type].type).toBe(type);
       expect(UI_BLOCK_REGISTRY[type].schema).toBeTruthy();
     }
+  });
+});
+
+describe("applyConfirmationStatus", () => {
+  it("writes confirmed or cancelled onto the matching confirmation block", () => {
+    const pending = sanitizeUiBlocks([{
+      type: "confirmation",
+      action: "add_to_watchlist",
+      title: "Add to watchlist",
+      description: "Add Acme?",
+      domain: "acme.com",
+      company: "Acme",
+      status: "pending",
+    }]);
+    const block = pending[0] as ConfirmationBlock;
+    expect(applyConfirmationStatus(pending, block, "confirmed")[0]).toMatchObject({
+      type: "confirmation",
+      status: "confirmed",
+    });
+    expect(applyConfirmationStatus(pending, block, "cancelled")[0]).toMatchObject({
+      type: "confirmation",
+      status: "cancelled",
+    });
+    expect(applyConfirmationStatus(pending, { ...block, domain: "other.com" }, "confirmed")[0])
+      .toMatchObject({ status: "pending" });
+  });
+});
+
+describe("scoreDomainFromBlocks", () => {
+  it("reads the scored domain from intent_hero", () => {
+    const blocks = workspaceFromScore({
+      company: "Acme",
+      domain: "acme.com",
+      intent_score: 12,
+      score_band: "COLD",
+    });
+    expect(scoreDomainFromBlocks(blocks)).toBe("acme.com");
   });
 });
 

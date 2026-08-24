@@ -2,8 +2,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   extractDomain,
+  extractRetryDomain,
   isAbortError,
   parseSseBlock,
+  resolveChatRestore,
+  resolveRetryAction,
   streamChat,
 } from "./chat-client";
 
@@ -35,6 +38,54 @@ describe("extractDomain", () => {
     expect(extractDomain("why is this cold?")).toBeNull();
     expect(extractDomain("")).toBeNull();
     expect(extractDomain("localhost")).toBeNull();
+  });
+
+  it("rejects a seeded Score line because of whitespace", () => {
+    expect(extractDomain("Score stripe.com")).toBeNull();
+  });
+});
+
+describe("resolveChatRestore", () => {
+  it("restores only an explicit last-session id", () => {
+    expect(resolveChatRestore({ lastSessionId: "sess-1", newChatRequested: false }))
+      .toEqual({ type: "restore", sessionId: "sess-1" });
+  });
+
+  it("stays empty after New conversation even on later mounts", () => {
+    expect(resolveChatRestore({ lastSessionId: null, newChatRequested: true }))
+      .toEqual({ type: "empty" });
+    expect(resolveChatRestore({ lastSessionId: "", newChatRequested: false }))
+      .toEqual({ type: "empty" });
+    expect(resolveChatRestore({ lastSessionId: "sess-1", newChatRequested: true }))
+      .toEqual({ type: "empty" });
+    expect(resolveChatRestore({ lastSessionId: null, newChatRequested: false }))
+      .toEqual({ type: "empty" });
+  });
+});
+
+describe("extractRetryDomain", () => {
+  it("treats a seeded Score line as a bare domain for re-score", () => {
+    expect(extractRetryDomain("Score stripe.com")).toBe("stripe.com");
+    expect(extractRetryDomain("score https://www.Linear.app/careers")).toBe("linear.app");
+    expect(extractRetryDomain("stripe.com")).toBe("stripe.com");
+  });
+
+  it("does not treat follow-up questions as a domain", () => {
+    expect(extractRetryDomain("why is this cold?")).toBeNull();
+    expect(extractRetryDomain("Score stripe.com now")).toBeNull();
+  });
+});
+
+describe("resolveRetryAction", () => {
+  it("re-scores a restored seed and keeps follow-ups as chat", () => {
+    expect(resolveRetryAction({ text: "Score stripe.com" }))
+      .toEqual({ kind: "score", domain: "stripe.com" });
+    expect(resolveRetryAction({ text: "Score acme.com", scoreDomain: "stripe.com" }))
+      .toEqual({ kind: "score", domain: "acme.com" });
+    expect(resolveRetryAction({ text: "Score this account", scoreDomain: "stripe.com" }))
+      .toEqual({ kind: "score", domain: "stripe.com" });
+    expect(resolveRetryAction({ text: "why is this cold?", scoreDomain: "stripe.com" }))
+      .toEqual({ kind: "chat", text: "why is this cold?" });
   });
 });
 

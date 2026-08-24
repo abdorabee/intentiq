@@ -5,12 +5,14 @@ import { useSearchParams } from "next/navigation";
 import type { IntentScore, ScoreBand } from "@/lib/types";
 import { CHAT_CREDIT_COST } from "@/lib/types";
 import {
-  extractDomain,
+  extractRetryDomain,
   isAbortError,
   LAST_CHAT_SESSION_KEY,
-  listChatSessions,
   loadChatSession,
   NEW_CHAT_FLAG_KEY,
+  persistChatUiBlocks,
+  resolveChatRestore,
+  resolveRetryAction,
   seedChatSession,
   streamChat,
   type PersistedChatMessage,
@@ -18,8 +20,10 @@ import {
 import { avColor } from "@/components/score/score-result-card";
 import { confirmationKeyFor, GenUiWorkspace, SuggestionChips } from "@/components/score/gen-ui/workspace";
 import {
+  applyConfirmationStatus,
   blocksFromToolResult,
   sanitizeUiBlocks,
+  scoreDomainFromBlocks,
   suggestionsFromBlocks,
   workspaceFromScore,
 } from "@/lib/gen-ui";
@@ -95,7 +99,10 @@ function billingLabel(result: ScorableIntentScore & { charged?: boolean; cached?
 const STEPS = ["Domain resolved", "Funding signal", "Hiring + news", "Technology trigger", "Web + GitHub context", "AI thesis"];
 
 function rememberSession(id: string) {
-  try { localStorage.setItem(LAST_CHAT_SESSION_KEY, id); } catch { /* private mode */ }
+  try {
+    localStorage.setItem(LAST_CHAT_SESSION_KEY, id);
+    sessionStorage.removeItem(NEW_CHAT_FLAG_KEY);
+  } catch { /* private mode */ }
 }
 
 function toolsFromPersisted(toolCalls: unknown, toolResult: unknown): ToolChip[] {
@@ -389,21 +396,14 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     restoredRef.current = true;
     let cancelled = false;
     async function restore() {
+      let newChatRequested = false;
+      let lastSessionId: string | null = null;
+      try { newChatRequested = sessionStorage.getItem(NEW_CHAT_FLAG_KEY) === "1"; } catch { /* private mode */ }
+      try { lastSessionId = localStorage.getItem(LAST_CHAT_SESSION_KEY); } catch { /* private mode */ }
+      const decision = resolveChatRestore({ lastSessionId, newChatRequested });
+      if (decision.type === "empty") return;
       try {
-        if (sessionStorage.getItem(NEW_CHAT_FLAG_KEY) === "1") {
-          sessionStorage.removeItem(NEW_CHAT_FLAG_KEY);
-          return;
-        }
-      } catch { /* private mode */ }
-      let id: string | null = null;
-      try { id = localStorage.getItem(LAST_CHAT_SESSION_KEY); } catch { /* private mode */ }
-      try {
-        if (!id) {
-          const sessions = await listChatSessions();
-          id = sessions[0]?.id ?? null;
-        }
-        if (!id || cancelled) return;
-        const loaded = await loadChatSession(id);
+        const loaded = await loadChatSession(decision.sessionId);
         if (cancelled) return;
         const thread = threadFromPersisted(loaded.messages);
         if (thread.length === 0) return;
@@ -472,7 +472,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
         const id = await seedChatSession({
           sessionId: sessionId ?? undefined,
           title: payload.domain,
-          user: `Score ${payload.domain}`,
+          user: payload.domain,
           assistant: payload.ai_summary || `${payload.company} scored ${payload.intent_score}/100 (${payload.score_band}).`,
           ui_blocks: blocks,
         });
@@ -639,7 +639,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
       await runFollowUp(raw, file);
       return;
     }
-    const domain = extractDomain(raw);
+    const domain = extractRetryDomain(raw);
     if (domain) {
       await runScore(raw, domain);
       return;
@@ -651,11 +651,19 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     const last = lastTurnRef.current;
     const lastUser = [...messages].reverse().find((m) => m.role === "user");
     if (busy || (!last && !lastUser)) return;
+    const text = last?.text ?? lastUser?.content ?? "";
+    const lastUi = [...messages].reverse().find((m) => m.role === "assistant" && m.kind === "ui");
+    const scoreDomain = lastUi && lastUi.kind === "ui" ? scoreDomainFromBlocks(lastUi.blocks) : null;
+    const action = resolveRetryAction({ text, scoreDomain });
     setMessages((prev) => {
       const idx = [...prev].map((m) => m.role).lastIndexOf("user");
       return idx === -1 ? prev : prev.slice(0, idx);
     });
-    await submitMessage(last?.text ?? lastUser?.content ?? "", last?.image ?? null);
+    if (action.kind === "score") {
+      await submitMessage(action.domain, last?.image ?? null);
+      return;
+    }
+    await submitMessage(action.text, last?.image ?? null);
   }
 
   async function handleAddToWatchlist(company: string, domain: string) {
@@ -682,16 +690,26 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     const key = confirmationKeyFor(block);
     setConfirmationByKey((prev) => ({ ...prev, [key]: status }));
     if (status === "confirming") return;
-    const persisted = status;
-    setMessages((prev) => prev.map((m) => {
-      if (m.role !== "assistant" || m.kind !== "ui") return m;
-      return {
-        ...m,
-        blocks: m.blocks.map((b) => (
-          b.type === "confirmation" && confirmationKeyFor(b) === key ? { ...b, status: persisted } : b
-        )),
-      };
-    }));
+    const persisted = status === "error" ? "error" : status;
+    setMessages((prev) => {
+      const next = prev.map((m) => {
+        if (m.role !== "assistant" || m.kind !== "ui") return m;
+        return { ...m, blocks: applyConfirmationStatus(m.blocks, block, persisted) };
+      });
+      const host = next.find((m) => (
+        m.role === "assistant"
+        && m.kind === "ui"
+        && m.blocks.some((b) => b.type === "confirmation" && confirmationKeyFor(b) === key)
+      ));
+      if (sessionId && host && host.role === "assistant" && host.kind === "ui") {
+        void persistChatUiBlocks({
+          sessionId,
+          messageId: host.id,
+          ui_blocks: host.blocks,
+        }).catch(() => undefined);
+      }
+      return next;
+    });
   }
 
   async function handleConfirm(block: ConfirmationBlock) {
@@ -730,6 +748,8 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     setImage(null);
     autoScoredRef.current = null;
     lastTurnRef.current = null;
+    setConfirmationByKey({});
+    setWatchlistByDomain({});
     try {
       sessionStorage.setItem(NEW_CHAT_FLAG_KEY, "1");
       localStorage.removeItem(LAST_CHAT_SESSION_KEY);

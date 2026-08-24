@@ -364,6 +364,29 @@ export function suggestionsFromBlocks(blocks: UiBlock[]): UiSuggestion[] {
   return rail?.type === "action_rail" ? rail.suggestions ?? [] : [];
 }
 
+export function scoreDomainFromBlocks(blocks: UiBlock[]): string | null {
+  for (const block of [...blocks].reverse()) {
+    if (block.type === "intent_hero" || block.type === "action_rail") {
+      return block.domain;
+    }
+  }
+  return null;
+}
+
+export function applyConfirmationStatus(
+  blocks: UiBlock[],
+  match: ConfirmationBlock,
+  status: NonNullable<ConfirmationBlock["status"]>,
+): UiBlock[] {
+  return blocks.map((block) => {
+    if (block.type !== "confirmation") return block;
+    if (block.action !== match.action) return block;
+    if (block.domain !== match.domain) return block;
+    if ((block.stage ?? "") !== (match.stage ?? "")) return block;
+    return { ...block, status };
+  });
+}
+
 export function workspaceScoreFromUnknown(result: unknown): WorkspaceScore | null {
   if (!result || typeof result !== "object") return null;
   const row = result as Record<string, unknown>;

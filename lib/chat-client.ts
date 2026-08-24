@@ -9,6 +9,14 @@ export type ChatSseEvent =
 export const LAST_CHAT_SESSION_KEY = "vesperwise:last-chat-session";
 export const NEW_CHAT_FLAG_KEY = "vesperwise:new-chat";
 
+export type ChatRestoreDecision =
+  | { type: "restore"; sessionId: string }
+  | { type: "empty" };
+
+export type RetryAction =
+  | { kind: "score"; domain: string }
+  | { kind: "chat"; text: string };
+
 export function extractDomain(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed || /\s/.test(trimmed)) return null;
@@ -21,6 +29,39 @@ export function extractDomain(input: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Restore only an explicit last-session id. Never fall back to the latest thread. */
+export function resolveChatRestore(input: {
+  lastSessionId: string | null | undefined;
+  newChatRequested: boolean;
+}): ChatRestoreDecision {
+  if (input.newChatRequested) return { type: "empty" };
+  const sessionId = input.lastSessionId?.trim();
+  if (sessionId) return { type: "restore", sessionId };
+  return { type: "empty" };
+}
+
+/** Accept a bare host or a seeded "Score stripe.com" line used by persisted score turns. */
+export function extractRetryDomain(input: string): string | null {
+  const direct = extractDomain(input);
+  if (direct) return direct;
+  const seeded = /^score\s+(\S+)$/i.exec(input.trim());
+  return seeded?.[1] ? extractDomain(seeded[1]) : null;
+}
+
+export function resolveRetryAction(input: {
+  text: string;
+  scoreDomain?: string | null;
+}): RetryAction {
+  const fromText = extractRetryDomain(input.text);
+  if (fromText) return { kind: "score", domain: fromText };
+  const fallback = input.scoreDomain?.trim();
+  if (fallback && /^score\s+/i.test(input.text.trim())) {
+    const domain = extractDomain(fallback);
+    if (domain) return { kind: "score", domain };
+  }
+  return { kind: "chat", text: input.text };
 }
 
 export function isAbortError(error: unknown): boolean {
@@ -161,4 +202,23 @@ export async function loadChatSession(id: string): Promise<{
     throw new Error(payload.error ?? "Failed to load session");
   }
   return { session: payload.session, messages: payload.messages ?? [] };
+}
+
+export async function persistChatUiBlocks(opts: {
+  sessionId: string;
+  messageId?: string;
+  ui_blocks: unknown;
+}): Promise<void> {
+  const response = await fetch(`/api/chat/sessions/${opts.sessionId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message_id: opts.messageId,
+      ui_blocks: opts.ui_blocks,
+    }),
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({})) as { error?: string };
+    throw new Error(payload.error ?? "Failed to persist UI");
+  }
 }
