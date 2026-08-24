@@ -13,6 +13,9 @@ export default function SignupPage() {
   return (
     <div style={{ width: "100%", maxWidth: "380px" }}>
       <SignUp
+        routing="path"
+        path="/signup"
+        signInUrl="/login"
         fallbackRedirectUrl="/dashboard"
         appearance={{
           baseTheme: dark,

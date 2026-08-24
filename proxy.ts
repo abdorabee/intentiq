@@ -1,6 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 
+import {
+  clerkUnauthenticatedLoginUrl,
+  LOCAL_CLERK_SIGN_IN_PATH,
+  LOCAL_CLERK_SIGN_UP_PATH,
+} from "@/lib/clerk-preview";
+
 const isPublicRoute = createRouteMatcher([
   "/",
   "/login(.*)",
@@ -17,11 +23,19 @@ const isPublicRoute = createRouteMatcher([
   "/api/contact",
 ]);
 
-const clerk = clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect();
-  }
-});
+const clerk = clerkMiddleware(
+  async (auth, req) => {
+    if (!isPublicRoute(req)) {
+      await auth.protect({
+        unauthenticatedUrl: clerkUnauthenticatedLoginUrl(req.nextUrl.origin),
+      });
+    }
+  },
+  {
+    signInUrl: LOCAL_CLERK_SIGN_IN_PATH,
+    signUpUrl: LOCAL_CLERK_SIGN_UP_PATH,
+  },
+);
 
 export async function proxy(req: NextRequest, ev: NextFetchEvent) {
   return clerk(req, ev);

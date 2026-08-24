@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GoogleAnalytics } from "@/components/google-analytics";
+import { clerkAllowedRedirectOrigins } from "@/lib/clerk-preview";
 import "./globals.css";
 import "./theme-overrides.css";
 import "./responsive.css";
@@ -108,6 +109,7 @@ export default function RootLayout({
       signUpUrl="/signup"
       signInFallbackRedirectUrl="/dashboard"
       signUpFallbackRedirectUrl="/dashboard"
+      allowedRedirectOrigins={clerkAllowedRedirectOrigins()}
     >
       <html lang="en" className="dark" suppressHydrationWarning>
         <head>
