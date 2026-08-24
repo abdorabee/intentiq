@@ -46,7 +46,7 @@ const AXIS_COLOR: Record<string, string> = {
 };
 
 const AXIS_GRAD: Record<string, string> = {
-  funding: "linear-gradient(90deg,#dfff00,#38a3b3)",
+  funding: "linear-gradient(90deg,#dfff00,#e8ff40)",
   hiring: "linear-gradient(90deg,#4ade80,#22c55e)",
   news: "linear-gradient(90deg,#f5b544,#d49530)",
   technology: "linear-gradient(90deg,#e8ff40,#dfff00)",

@@ -142,12 +142,9 @@ export function InboxDetail({
   if (!n) {
     return (
       <div className="msg-detail" style={{ display: "grid", placeItems: "center" }}>
-        <div className="inbox-empty">
-          <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
-          <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>Select a notification</div>
-          <div style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 4 }}>
-            Choose an item from the list to view details
-          </div>
+        <div className="empty-state">
+          <div className="empty-state-title">Select a notification</div>
+          <p className="empty-state-copy">Choose an item from the list to view details.</p>
         </div>
       </div>
     );

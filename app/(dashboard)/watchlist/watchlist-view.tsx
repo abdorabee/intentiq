@@ -13,6 +13,7 @@ import {
   type WatchlistQuickAddHandle,
 } from "@/components/watchlist/watchlist-quick-add";
 
+import { EmptyState } from "@/components/empty-state";
 import { WATCHLIST_FOCUS_ADD_EVENT } from "@/lib/watchlist-events";
 
 interface WatchlistViewProps {
@@ -171,16 +172,24 @@ export function WatchlistView({ initial }: WatchlistViewProps) {
 
       <WatchlistListTabs tabs={lists} activeId={activeListId} onChange={setActiveListId} />
 
-      <WatchlistTable
-        rows={filtered}
-        range={range}
-        selected={selected}
-        onToggleSelect={toggleSelect}
-        onRemove={handleRemove}
-        removing={removing}
-        showAll={showAll}
-        onShowAll={() => setShowAll(true)}
-      />
+      {filtered.length === 0 ? (
+        <EmptyState
+          surface="watchlist"
+          kind={entries.length === 0 && !query ? "zero" : "filtered"}
+          onAction={entries.length === 0 && !query ? () => quickAddRef.current?.focus() : undefined}
+        />
+      ) : (
+        <WatchlistTable
+          rows={filtered}
+          range={range}
+          selected={selected}
+          onToggleSelect={toggleSelect}
+          onRemove={handleRemove}
+          removing={removing}
+          showAll={showAll}
+          onShowAll={() => setShowAll(true)}
+        />
+      )}
 
       <WatchlistQuickAdd ref={quickAddRef} onAdd={handleAdd} adding={adding} error={addError} />
     </div>

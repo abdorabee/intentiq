@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { EmptyState } from "@/components/empty-state";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -110,6 +111,20 @@ export default function DashboardHomeView({
 
   const totalTracked = hotCount + warmCount + coldCount;
   const creditPct = creditCap > 0 ? Math.round((creditsRemaining / creditCap) * 100) : 0;
+
+  if (totalTracked === 0) {
+    return (
+      <div style={{ fontSize: 13, letterSpacing: "-0.006em", color: "var(--text-primary)" }}>
+        <div className="page-head">
+          <div>
+            <div className="page-title">Dashboard</div>
+            <div className="page-sub">0 accounts tracked</div>
+          </div>
+        </div>
+        <EmptyState surface="dashboard" />
+      </div>
+    );
+  }
 
   const movers =
     moversTab === "Up"

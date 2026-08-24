@@ -46,7 +46,7 @@ function includesOption(options: readonly string[], value: string) {
 }
 
 function avColor(name: string) {
-  const colors = ["#dfff00", "#4ade80", "#60a5fa", "#f5b544", "#c084fc"];
+  const colors = ["#dfff00", "#4ade80", "#e8ff40", "#f5b544", "#8a8f98"];
   let hash = 0;
   for (const char of name) hash = (hash + char.charCodeAt(0)) % colors.length;
   return colors[hash];

@@ -289,29 +289,11 @@ html:not(.dark) .prompt-eyebrow .badge {
   color: #0a0e1a;
   border-color: var(--accent-border);
 }
-html:not(.dark) .prompt-h1 .grad {
-  background: linear-gradient(110deg, #0a0e1a 0%, #2f3500 45%, #9ab000 70%, #dfff00 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
 html:not(.dark) .prompt-go {
   background: var(--primary);
 }
 html:not(.dark) .prompt-go:hover {
   background: var(--accent-2);
-}
-html:not(.dark) .prompt-bg::before {
-  background:
-    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(223, 255, 0, 0.12), transparent 60%),
-    radial-gradient(ellipse 40% 70% at 20% 30%, rgba(138, 143, 152, 0.08), transparent 70%),
-    radial-gradient(ellipse 35% 55% at 80% 70%, rgba(180, 83, 9, 0.05), transparent 70%);
-}
-html:not(.dark) .prompt-bg .grid {
-  background-image:
-    linear-gradient(rgba(10, 14, 26, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10, 14, 26, 0.04) 1px, transparent 1px);
 }
 html:not(.dark) .prompt-holder {
   background: var(--card);
