@@ -44,6 +44,7 @@ layout: split
   <tr><td class="k">radius</td><td class="v">rounded-full — always</td></tr>
   <tr><td class="k">weight</td><td class="v">font-semibold, text-sm</td></tr>
   <tr><td class="k">focus</td><td class="v">ring-[3px] ring-ring/30 + border-ring</td></tr>
+  <tr><td class="k">link colour</td><td class="v">text-brand-ink! — the <code>!</code> is required</td></tr>
   <tr><td class="k">disabled</td><td class="v">opacity-45, pointer-events-none</td></tr>
 </table>
 
@@ -58,15 +59,21 @@ layout: split
   alone will not update it.
 </div>
 
-<div class="ds-warn">
-  <strong>Brand-as-text fails contrast in light mode.</strong> The <code>link</code> variant uses
-  <code>#dfff00</code> as a foreground colour: <strong>1.14:1</strong> on white and 1.07:1 on the
-  light <code>--background</code>, against a 4.5:1 AA floor for body text. Reproduced faithfully
-  rather than corrected — it is a real bug in the app. Note that no point on the current ramp
-  fixes it: <code>--brand-active</code> <code>#c8e600</code> still only reaches 1.42:1. Light mode
-  needs either a dark olive token (around <code>#6b7a00</code>, which measures 4.76:1) or the
-  treatment the primary button already uses — brand as a <em>background</em> with black text,
-  which measures 18.4:1.
+<div class="ds-note">
+  <strong>The <code>link</code> variant uses <code>--brand-ink</code>, not <code>--brand</code>.</strong>
+  <code>#dfff00</code> as a foreground colour measures 1.14:1 on white. <code>--brand-ink</code>
+  stays <code>#dfff00</code> in dark mode and drops to a dark olive
+  (<code data-token="--brand-ink">--brand-ink</code>) in light, where its worst case across every
+  light surface is 5.05:1. Rule of thumb: <code>--brand</code> fills, borders and glows;
+  <code>--brand-ink</code> text and icons.
+</div>
+
+<div class="ds-note">
+  The <code>!</code> on <code>text-brand-ink!</code> is load-bearing.
+  <code>globals.css:568-569</code> declares <code>a</code> and <code>button { color: inherit }</code>
+  outside any <code>@layer</code>, and unlayered CSS beats layered CSS whatever the specificity —
+  so a plain colour utility never reaches an anchor or a button in this app. Verified by
+  measurement, not assumed.
 </div>
 
 <style>
@@ -87,7 +94,7 @@ layout: split
 .theme-dark .b-outline { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); }
 .b-ghost { background: transparent; color: var(--text-primary); }
 .b-destructive { background: var(--destructive); color: #ffffff; }
-.b-link { background: transparent; color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+.b-link { background: transparent; color: var(--brand-ink); text-decoration: underline; text-underline-offset: 4px; }
 .s-xs { height: 28px; padding: 0 10px; font-size: 11.5px; gap: 4px; }
 .s-sm { height: 36px; padding: 0 14px; gap: 6px; }
 .s-lg { height: 44px; padding: 0 24px; }

@@ -62,6 +62,42 @@ the brand moved to yellow.
 
 The build additionally reads `--radius` and the `@theme inline` ramp from `globals.css`.
 
+## Fixed here
+
+**Brand-as-text contrast (light mode).** `#dfff00` was used as a *foreground* colour in ~50 places
+— the `link` variants of Button and Badge, the KPI credits/velocity icon tints, the sidebar "Top
+up" link, and many ported dashboard classes. On white that measures **1.14:1** against a 4.5:1 AA
+floor.
+
+The fix is a role split. `--brand` keeps `#dfff00` and is for fills, borders and glows.
+`--brand-ink` is for text and icons: it tracks `--brand` in dark mode (18.4:1 on near-black) and
+drops to `#5f6d00` in light. That olive was chosen by measuring against every light surface the
+app actually paints on — `#ffffff`, `#f7f8fa`, `#eef1f6`, and the `--brand-soft` wash — for a
+worst case of **5.05:1**. (`#6b7a00` was the first candidate and fails at 4.21:1 on `#eef1f6`;
+`--brand-active` `#c8e600` is only 1.42:1.)
+
+Two surfaces deliberately keep raw `#dfff00` as text because they are hardcoded dark in both
+themes and never turn light: `.code-surface` syntax highlighting, and the onboarding wizard.
+
+`--color-brand-ink` is registered in `@theme inline`, so `text-brand-ink` works as a Tailwind
+utility.
+
+**One wrinkle worth knowing.** `globals.css:568-569` declares `a { color: inherit }` and
+`button { color: inherit }` *outside any `@layer`*. Unlayered CSS beats layered CSS regardless of
+specificity, and Tailwind v4 emits utilities into `@layer utilities` — so **no colour utility
+applies to an `<a>` or a `<button>` in this app**. Measured, not assumed:
+`text-brand-ink` on a `<span>` resolves to the token; on a `<button>` or `<a>` it resolves to the
+inherited colour.
+
+That is why Button's and Badge's `link` variants use the important modifier
+(`text-brand-ink!`). It also means the previous `text-primary` on those variants was inert on
+`<button>` and on `asChild` anchors — the link variant was never actually brand-coloured there,
+only on Badge's default `<span>`.
+
+The real fix is to move those two resets into `@layer base`, where Tailwind's own preflight lives,
+so utilities win normally. That is left alone deliberately: it changes precedence for every
+`<a>` and `<button>` in the app at once, which is not something to bundle into a contrast fix.
+
 ## Known debt, documented rather than fixed
 
 These are real and are called out on the cards that touch them. None is fixed here — a design
@@ -73,16 +109,13 @@ system sync is the wrong change to bundle them into.
    intended.
 2. **Contradictory `--primary-foreground`.** `globals.css` `.dark` sets `#ffffff`, which fails
    contrast on yellow. `theme-overrides.css` corrects it to `#000000` and wins.
-3. **Brand-as-text fails contrast in light mode.** `#dfff00` is used as a *foreground* colour in
-   the `link` variants of Button and Badge, the KPI credits/velocity icon tints, and the sidebar
-   credits "Top up" link. That measures **1.14:1** on white against a 4.5:1 AA floor. The cards
-   reproduce it rather than quietly correcting it. No point on the current ramp fixes this —
-   `--brand-active` `#c8e600` is still only 1.42:1. It needs either a new dark-olive token (around
-   `#6b7a00`, 4.76:1) or the treatment the primary button already uses: brand as a *background*
-   with black text, 18.4:1.
-4. **Brand yellow hardcoded past `var(--brand)`** in `components/ui/button.tsx:12` (glow shadow),
+3. **Brand yellow hardcoded past `var(--brand)`** in `components/ui/button.tsx:12` (glow shadow),
    `.text-gradient`, `::selection`, and the `.app` radial gradients. Changing the brand token
    alone will not move them.
+4. **Unlayered `a` / `button` resets defeat every colour utility.** `globals.css:568-569` sit
+   outside any `@layer`, so `text-*` utilities never apply to anchors or buttons. Worked around
+   with the important modifier where it mattered; the real fix is to move them into
+   `@layer base`.
 5. **Two card components and two primary buttons.** `components/ui/card.tsx` (18px, translucent,
    blurred) and the ported `.card` (solid, `--r-lg`); `Button` (`rounded-full`) and `.btn-primary`
    (`--r-md`). Match whichever surface surrounds your work.

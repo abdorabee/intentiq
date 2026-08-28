@@ -71,8 +71,14 @@ no visible effect. **Use CSS variables**, not hardcoded hex, in new code.
 - `--border`, `--border-strong`, `--border-subtle` — white at 8% / 13% / 4% opacity
 
 ### Brand
-- `--brand` `#dfff00` — the single accent. Primary actions (`btn-primary`, `Button` default),
-  focus rings, the active nav indicator, `--chart-1`, credit meters.
+- `--brand` `#dfff00` — the single accent, for **fills, borders and glows**: primary actions
+  (`btn-primary`, `Button` default), focus rings, the active nav indicator, `--chart-1`,
+  credit meters.
+- `--brand-ink` — the same accent for **text and icons**. `#dfff00` in dark mode, `#5f6d00` in
+  light, where the raw brand would be 1.14:1 on white. Also available as the Tailwind utility
+  `text-brand-ink`. Never set `color:` to `--brand`, `--accent`, `--accent-2` or `--cyan`; the
+  only exceptions are surfaces hardcoded dark in both themes (`.code-surface`, the onboarding
+  wizard).
 - `--brand-hover` `#e8ff40`, `--brand-active` `#c8e600` — the interaction ramp.
 - `--brand-soft` / `--brand-border` / `--brand-glow` — alpha tints for washes, hairlines, glow.
 - `--primary-foreground` is **black**. White on yellow lands near 1.1:1 and is unreadable.

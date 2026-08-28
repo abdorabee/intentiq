@@ -55,15 +55,13 @@ layout: split
   on white.
 </div>
 
-<div class="ds-warn">
-  <strong>Brand-as-text fails contrast in light mode.</strong> The credits <em>Top up</em> link uses
-  <code>#dfff00</code> as a foreground colour: <strong>1.14:1</strong> on white and 1.07:1 on the
-  light <code>--background</code>, against a 4.5:1 AA floor for body text. Reproduced faithfully
-  rather than corrected — it is a real bug in the app. Note that no point on the current ramp
-  fixes it: <code>--brand-active</code> <code>#c8e600</code> still only reaches 1.42:1. Light mode
-  needs either a dark olive token (around <code>#6b7a00</code>, which measures 4.76:1) or the
-  treatment the primary button already uses — brand as a <em>background</em> with black text,
-  which measures 18.4:1.
+<div class="ds-note">
+  <strong>The credits <em>Top up</em> link uses <code>--brand-ink</code>, not <code>--brand</code>.</strong>
+  <code>#dfff00</code> as a foreground colour measures 1.14:1 on white. <code>--brand-ink</code>
+  stays <code>#dfff00</code> in dark mode and drops to a dark olive
+  (<code data-token="--brand-ink">--brand-ink</code>) in light, where its worst case across every
+  light surface is 5.05:1. Rule of thumb: <code>--brand</code> fills, borders and glows;
+  <code>--brand-ink</code> text and icons.
 </div>
 
 <style>
@@ -133,7 +131,7 @@ layout: split
   font-size: 16px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em;
 }
 .sb-credits .of { font-size: 11px; font-weight: 400; color: var(--text-tertiary); margin-left: 2px; }
-.sb-credits .topup { font-size: 11px; font-weight: 500; color: var(--accent-2); }
+.sb-credits .topup { font-size: 11px; font-weight: 500; color: var(--brand-ink); }
 .sb-credits .bar { margin-top: 6px; height: 3px; border-radius: 999px; overflow: hidden; background: var(--secondary); }
 .sb-credits .fill { display: block; height: 100%; background: linear-gradient(90deg, var(--brand) 0%, var(--brand-hover) 100%); }
 .sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin: 4px 4px 0; border-radius: var(--r-sm); cursor: pointer; }

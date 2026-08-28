@@ -124,7 +124,7 @@
 .dark .bulk-drop-icon,
 .dark .bulk-file-icon,
 .dark .bulk-processing-icon {
-  color: var(--accent);
+  color: var(--brand-ink);
 }
 
 .bulk-drop-icon {
@@ -383,7 +383,7 @@
 
 .dark .bulk-checklist svg,
 .dark .bulk-checklist code {
-  color: var(--brand);
+  color: var(--brand-ink);
 }
 
 .bulk-guide-note {

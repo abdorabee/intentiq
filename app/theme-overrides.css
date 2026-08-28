@@ -15,6 +15,12 @@
   --brand-soft: rgba(223, 255, 0, 0.14);
   --brand-border: rgba(223, 255, 0, 0.32);
   --brand-glow: rgba(223, 255, 0, 0.28);
+  /* Brand as a FOREGROUND colour. #dfff00 is 1.14:1 on white — unusable as
+     text — so light mode uses a dark olive from the same family. Worst case
+     5.05:1, measured against #ffffff, #f7f8fa, #eef1f6 and the --brand-soft
+     wash. Use this for text/icons; use --brand for fills, borders and glows. */
+  --brand-ink: #5f6d00;
+  --brand-ink-hover: #4a5400;
 
   /* shadcn semantic tokens (light) */
   --background: #f7f8fa;
@@ -108,6 +114,9 @@
   --brand-soft: rgba(223, 255, 0, 0.12);
   --brand-border: rgba(223, 255, 0, 0.28);
   --brand-glow: rgba(223, 255, 0, 0.38);
+  /* On near-black the brand reads at ~18:1, so the ink is the brand itself. */
+  --brand-ink: var(--brand);
+  --brand-ink-hover: var(--brand-hover);
 
   /* shadcn semantic tokens (dark) */
   --background: #000000;

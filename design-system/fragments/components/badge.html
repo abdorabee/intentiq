@@ -29,6 +29,7 @@ layout: split
   <tr><td class="k">size</td><td class="v">fixed — min-h-[22px], px-2.5 py-0.5</td></tr>
   <tr><td class="k">type</td><td class="v">text-xs font-semibold</td></tr>
   <tr><td class="k">element</td><td class="v">span, or asChild for an anchor</td></tr>
+  <tr><td class="k">link colour</td><td class="v">text-brand-ink! — the <code>!</code> is required</td></tr>
 </table>
 
 <div class="ds-note">
@@ -37,15 +38,21 @@ layout: split
   the link and ghost variants.
 </div>
 
-<div class="ds-warn">
-  <strong>Brand-as-text fails contrast in light mode.</strong> The <code>link</code> variant uses
-  <code>#dfff00</code> as a foreground colour: <strong>1.14:1</strong> on white and 1.07:1 on the
-  light <code>--background</code>, against a 4.5:1 AA floor for body text. Reproduced faithfully
-  rather than corrected — it is a real bug in the app. Note that no point on the current ramp
-  fixes it: <code>--brand-active</code> <code>#c8e600</code> still only reaches 1.42:1. Light mode
-  needs either a dark olive token (around <code>#6b7a00</code>, which measures 4.76:1) or the
-  treatment the primary button already uses — brand as a <em>background</em> with black text,
-  which measures 18.4:1.
+<div class="ds-note">
+  <strong>The <code>link</code> variant uses <code>--brand-ink</code>, not <code>--brand</code>.</strong>
+  <code>#dfff00</code> as a foreground colour measures 1.14:1 on white. <code>--brand-ink</code>
+  stays <code>#dfff00</code> in dark mode and drops to a dark olive
+  (<code data-token="--brand-ink">--brand-ink</code>) in light, where its worst case across every
+  light surface is 5.05:1. Rule of thumb: <code>--brand</code> fills, borders and glows;
+  <code>--brand-ink</code> text and icons.
+</div>
+
+<div class="ds-note">
+  The <code>!</code> on <code>text-brand-ink!</code> is load-bearing.
+  <code>globals.css:568-569</code> declares <code>a</code> and <code>button { color: inherit }</code>
+  outside any <code>@layer</code>, and unlayered CSS beats layered CSS whatever the specificity —
+  so a plain colour utility never reaches an anchor or a button in this app. Verified by
+  measurement, not assumed.
 </div>
 
 <style>
@@ -61,7 +68,7 @@ layout: split
 .bg-ghost { color: var(--text-secondary); }
 .bg-destructive { background: var(--destructive); color: #ffffff; }
 .theme-dark .bg-destructive { background: color-mix(in srgb, var(--destructive) 60%, transparent); }
-.bg-link { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+.bg-link { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 4px; }
 .ctx {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 12px; border-radius: var(--r-sm);
