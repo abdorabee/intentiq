@@ -33,6 +33,11 @@ interface Rig {
   disposables: Array<{ dispose: () => void }>;
 }
 
+/** Anime.js cannot tween number primitives, so per-index values are boxed. */
+interface Boxed {
+  v: number;
+}
+
 interface TweenTargets {
   coreScale: number;
   coreY: number;
@@ -42,15 +47,17 @@ interface TweenTargets {
   sizeRingScale: number;
   sizeAngle: number;
   sizeMarkerScale: number;
-  moduleScales: number[];
-  pathwayGrow: number[];
-  pathwayEmissive: number[];
-  dialAngles: number[];
-  dialEmissive: number[];
+  moduleScales: Boxed[];
+  pathwayGrow: Boxed[];
+  pathwayEmissive: Boxed[];
+  dialAngles: Boxed[];
+  dialEmissive: Boxed[];
   energyProgress: number;
   rootTilt: number;
   idlePhase: number;
 }
+
+const box = (v: number): Boxed => ({ v });
 
 function createInitialTargets(): TweenTargets {
   return {
@@ -62,11 +69,11 @@ function createInitialTargets(): TweenTargets {
     sizeRingScale: 0.001,
     sizeAngle: 0,
     sizeMarkerScale: 0.001,
-    moduleScales: Array.from({ length: INDUSTRY_SLOTS }, () => 0.001),
-    pathwayGrow: [0.001, 0.001],
-    pathwayEmissive: [0, 0],
-    dialAngles: [0, 0],
-    dialEmissive: [0, 0],
+    moduleScales: Array.from({ length: INDUSTRY_SLOTS }, () => box(0.001)),
+    pathwayGrow: [box(0.001), box(0.001)],
+    pathwayEmissive: [box(0), box(0)],
+    dialAngles: [box(0), box(0)],
+    dialEmissive: [box(0), box(0)],
     energyProgress: 0.04,
     rootTilt: 0.42,
     idlePhase: 0,
@@ -269,15 +276,15 @@ function applyTargets(rig: Rig, t: TweenTargets) {
   rig.sizePivot.rotation.y = -t.sizeAngle;
   rig.sizeMarker.scale.setScalar(Math.max(t.sizeMarkerScale, 0.001));
   rig.industryModules.forEach((module, i) => {
-    module.scale.setScalar(Math.max(t.moduleScales[i], 0.001));
+    module.scale.setScalar(Math.max(t.moduleScales[i].v, 0.001));
   });
   rig.pathways.forEach((pathway, i) => {
-    pathway.scale.setScalar(Math.max(t.pathwayGrow[i], 0.001));
-    pathway.material.emissiveIntensity = t.pathwayEmissive[i];
+    pathway.scale.setScalar(Math.max(t.pathwayGrow[i].v, 0.001));
+    pathway.material.emissiveIntensity = t.pathwayEmissive[i].v;
   });
   rig.dials.forEach((dial, i) => {
-    dial.rotation.y = t.dialAngles[i];
-    rig.dialFaces[i].material.emissiveIntensity = t.dialEmissive[i];
+    dial.rotation.y = t.dialAngles[i].v;
+    rig.dialFaces[i].material.emissiveIntensity = t.dialEmissive[i].v;
   });
   rig.energyArc.geometry.setDrawRange(
     0,
@@ -444,9 +451,9 @@ export default function CalibrationScene({
     if (visibleModules !== prevModules) {
       for (let i = 0; i < INDUSTRY_SLOTS; i++) {
         const target = i < visibleModules ? 1 : 0.001;
-        if (targets.moduleScales[i] === target) continue;
-        run(targets.moduleScales, {
-          [i]: target,
+        if (targets.moduleScales[i].v === target) continue;
+        run(targets.moduleScales[i], {
+          v: target,
           duration: 450,
           delay: instant ? 0 : Math.max(0, i - prevModules) * 70,
           ease: softSpring,
@@ -474,13 +481,13 @@ export default function CalibrationScene({
     ];
     pathwayStates.forEach((connected, i) => {
       if (connected === prevPathwayStates[i]) return;
-      run(targets.pathwayGrow, {
-        [i]: connected ? 1 : 0.001,
+      run(targets.pathwayGrow[i], {
+        v: connected ? 1 : 0.001,
         duration: 550,
         ease: "outCubic",
       });
-      run(targets.pathwayEmissive, {
-        [i]: connected ? 0.85 : 0,
+      run(targets.pathwayEmissive[i], {
+        v: connected ? 0.85 : 0,
         duration: 550,
         ease: "outQuad",
       });
@@ -491,13 +498,13 @@ export default function CalibrationScene({
     const prevDialIndices = [prev?.dealIndex ?? -1, prev?.cycleIndex ?? -1];
     dialIndices.forEach((index, i) => {
       if (index === prevDialIndices[i]) return;
-      run(targets.dialAngles, {
-        [i]: index >= 0 ? (index / 4) * Math.PI * 1.5 + Math.PI / 8 : 0,
+      run(targets.dialAngles[i], {
+        v: index >= 0 ? (index / 4) * Math.PI * 1.5 + Math.PI / 8 : 0,
         duration: 850,
         ease: lockSpring,
       });
-      run(targets.dialEmissive, {
-        [i]: index >= 0 ? 0.7 : 0,
+      run(targets.dialEmissive[i], {
+        v: index >= 0 ? 0.7 : 0,
         duration: 400,
         ease: "outQuad",
       });
