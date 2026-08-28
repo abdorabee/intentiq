@@ -82,6 +82,95 @@ const markdownSchema = z.object({
   text: z.string().min(1).max(4000),
 });
 
+const resultListItemSchema = z.object({
+  company: z.string().min(1).max(120),
+  domain: z.string().min(1).max(200),
+  intent_score: z.number().nullable().optional(),
+  score_band: scoreBandSchema.nullable().optional(),
+});
+
+const resultListSchema = z.object({
+  type: z.literal("result_list"),
+  query: z.string().max(200).optional(),
+  items: z.array(resultListItemSchema).max(20),
+  empty_message: z.string().max(200).optional(),
+});
+
+const pipelineCompanySchema = z.object({
+  company: z.string().min(1).max(120),
+  domain: z.string().min(1).max(200),
+  score: z.number().nullable().optional(),
+});
+
+const pipelineStageSchema = z.object({
+  stage: z.string().min(1).max(40),
+  count: z.number(),
+  companies: z.array(pipelineCompanySchema).max(10),
+});
+
+const pipelineSummarySchema = z.object({
+  type: z.literal("pipeline_summary"),
+  total: z.number(),
+  stages: z.array(pipelineStageSchema).max(8),
+  empty_message: z.string().max(200).optional(),
+});
+
+const personCardSchema = z.object({
+  type: z.literal("person_card"),
+  name: z.string().min(1).max(120),
+  title: z.string().max(160).nullable().optional(),
+  company: z.string().max(120).nullable().optional(),
+  intent_score: z.number(),
+  score_band: scoreBandSchema,
+  summary: z.string().max(4000).optional(),
+  recommended_action: z.string().max(500).optional(),
+  approach_angle: z.string().max(500).optional(),
+  buying_stage: z.string().max(40).optional(),
+  urgency: z.string().max(40).optional(),
+});
+
+const confirmationActionSchema = z.enum(["add_to_watchlist", "update_pipeline_stage"]);
+
+const confirmationSchema = z.object({
+  type: z.literal("confirmation"),
+  action: confirmationActionSchema,
+  title: z.string().min(1).max(120),
+  description: z.string().max(400),
+  confirm_label: z.string().max(40).optional(),
+  cancel_label: z.string().max(40).optional(),
+  domain: z.string().min(1).max(200),
+  company: z.string().max(120).optional(),
+  stage: z.string().max(40).optional(),
+  status: z.enum(["pending", "confirmed", "cancelled", "error"]).optional(),
+});
+
+export const UI_BLOCK_SCHEMA_BY_TYPE = {
+  intent_hero: intentHeroSchema,
+  signal_explorer: signalExplorerSchema,
+  thesis: thesisSchema,
+  outreach_studio: outreachStudioSchema,
+  action_rail: actionRailSchema,
+  comparison: comparisonSchema,
+  markdown: markdownSchema,
+  result_list: resultListSchema,
+  pipeline_summary: pipelineSummarySchema,
+  person_card: personCardSchema,
+  confirmation: confirmationSchema,
+} as const;
+
+export type UiBlockType = keyof typeof UI_BLOCK_SCHEMA_BY_TYPE;
+
+export const UI_BLOCK_TYPES = Object.keys(UI_BLOCK_SCHEMA_BY_TYPE) as UiBlockType[];
+
+export type UiBlockDef<T extends UiBlockType = UiBlockType> = {
+  type: T;
+  schema: (typeof UI_BLOCK_SCHEMA_BY_TYPE)[T];
+};
+
+export const UI_BLOCK_REGISTRY = Object.fromEntries(
+  UI_BLOCK_TYPES.map((type) => [type, { type, schema: UI_BLOCK_SCHEMA_BY_TYPE[type] }]),
+) as { [K in UiBlockType]: UiBlockDef<K> };
+
 export const uiBlockSchema = z.discriminatedUnion("type", [
   intentHeroSchema,
   signalExplorerSchema,
@@ -90,6 +179,10 @@ export const uiBlockSchema = z.discriminatedUnion("type", [
   actionRailSchema,
   comparisonSchema,
   markdownSchema,
+  resultListSchema,
+  pipelineSummarySchema,
+  personCardSchema,
+  confirmationSchema,
 ]);
 
 export const uiBlockListSchema = z.array(uiBlockSchema).max(12);
@@ -97,6 +190,11 @@ export const uiBlockListSchema = z.array(uiBlockSchema).max(12);
 export type UiBlock = z.infer<typeof uiBlockSchema>;
 export type SignalAxis = z.infer<typeof signalAxisSchema>;
 export type UiSuggestion = z.infer<typeof suggestionSchema>;
+export type ConfirmationBlock = Extract<UiBlock, { type: "confirmation" }>;
+
+export function presentUiAllowedTypes(): UiBlockType[] {
+  return UI_BLOCK_TYPES.slice();
+}
 
 const AXIS_META: Record<string, { label: string; context?: boolean }> = {
   funding: { label: "Funding" },
@@ -254,13 +352,6 @@ export function sanitizeUiBlocks(input: unknown, allowedDomains?: string[]): UiB
       }
     }
 
-    if (block.type === "action_rail" && block.suggestions?.length) {
-      block = {
-        ...block,
-        suggestions: block.suggestions.map((s) => ({ label: s.label, prompt: s.label })),
-      };
-    }
-
     out.push(block);
     if (out.length >= 12) break;
   }
@@ -271,4 +362,227 @@ export function sanitizeUiBlocks(input: unknown, allowedDomains?: string[]): UiB
 export function suggestionsFromBlocks(blocks: UiBlock[]): UiSuggestion[] {
   const rail = [...blocks].reverse().find((b) => b.type === "action_rail");
   return rail?.type === "action_rail" ? rail.suggestions ?? [] : [];
+}
+
+export function scoreDomainFromBlocks(blocks: UiBlock[]): string | null {
+  for (const block of [...blocks].reverse()) {
+    if (block.type === "intent_hero" || block.type === "action_rail") {
+      return block.domain;
+    }
+  }
+  return null;
+}
+
+export function applyConfirmationStatus(
+  blocks: UiBlock[],
+  match: ConfirmationBlock,
+  status: NonNullable<ConfirmationBlock["status"]>,
+): UiBlock[] {
+  return blocks.map((block) => {
+    if (block.type !== "confirmation") return block;
+    if (block.action !== match.action) return block;
+    if (block.domain !== match.domain) return block;
+    if ((block.stage ?? "") !== (match.stage ?? "")) return block;
+    return { ...block, status };
+  });
+}
+
+export function workspaceScoreFromUnknown(result: unknown): WorkspaceScore | null {
+  if (!result || typeof result !== "object") return null;
+  const row = result as Record<string, unknown>;
+  if (typeof row.error === "string") return null;
+  const intent =
+    typeof row.intent_score === "number" ? row.intent_score
+    : typeof row.score === "number" ? row.score
+    : null;
+  const band = row.score_band;
+  const company = typeof row.company === "string" ? row.company : null;
+  const domain = typeof row.domain === "string" ? row.domain : null;
+  if (intent == null || (band !== "HOT" && band !== "WARM" && band !== "COLD") || !company || !domain) {
+    return null;
+  }
+  return {
+    company,
+    domain,
+    intent_score: intent,
+    score_band: band,
+    ai_summary: typeof row.ai_summary === "string" ? row.ai_summary : undefined,
+    recommended_action: typeof row.recommended_action === "string" ? row.recommended_action : undefined,
+    buying_stage: typeof row.buying_stage === "string" ? row.buying_stage : undefined,
+    urgency: typeof row.urgency === "string" ? row.urgency : undefined,
+    why_now: typeof row.why_now === "string" ? row.why_now : undefined,
+    email_subject: typeof row.email_subject === "string" ? row.email_subject : undefined,
+    talk_track: typeof row.talk_track === "string" ? row.talk_track : undefined,
+    signals: row.signals && typeof row.signals === "object" ? row.signals as SignalSet : undefined,
+  };
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
+}
+
+function mapSearchResults(result: Record<string, unknown>): unknown {
+  const rows = Array.isArray(result.results) ? result.results : [];
+  const items = rows.flatMap((row) => {
+    const item = asRecord(row);
+    if (!item) return [];
+    const company = typeof item.company_name === "string" ? item.company_name
+      : typeof item.company === "string" ? item.company
+      : null;
+    const domain = typeof item.domain === "string" ? item.domain : null;
+    if (!company || !domain) return [];
+    return [{
+      company,
+      domain,
+      intent_score: typeof item.score === "number" ? item.score
+        : typeof item.intent_score === "number" ? item.intent_score
+        : null,
+      score_band: item.score_band === "HOT" || item.score_band === "WARM" || item.score_band === "COLD"
+        ? item.score_band
+        : null,
+    }];
+  });
+  return {
+    type: "result_list",
+    query: typeof result.query === "string" ? result.query : undefined,
+    items,
+    empty_message: items.length === 0
+      ? (typeof result.message === "string" ? result.message : "No matching accounts.")
+      : undefined,
+  };
+}
+
+const PIPELINE_STAGE_ORDER = ["hot", "warming", "engaged", "converted", "cold"];
+
+function mapPipelineSummary(result: Record<string, unknown>): unknown {
+  const top = asRecord(result.top_per_stage) ?? asRecord(result.stages) ?? {};
+  const counts = asRecord(result.counts) ?? {};
+  const stageNames = [...new Set([
+    ...PIPELINE_STAGE_ORDER,
+    ...Object.keys(top),
+    ...Object.keys(counts),
+  ])];
+  const stages = stageNames.flatMap((stage) => {
+    const raw = top[stage];
+    const companies = Array.isArray(raw) ? raw.flatMap((row) => {
+      const item = asRecord(row);
+      if (!item) return [];
+      const company = typeof item.company_name === "string" ? item.company_name
+        : typeof item.company === "string" ? item.company
+        : null;
+      const domain = typeof item.domain === "string" ? item.domain : null;
+      if (!company || !domain) return [];
+      return [{
+        company,
+        domain,
+        score: typeof item.score === "number" ? item.score : null,
+      }];
+    }).slice(0, 10) : [];
+    const count = typeof counts[stage] === "number" ? counts[stage] : companies.length;
+    if (count === 0 && companies.length === 0) return [];
+    return [{ stage, count, companies }];
+  });
+  const total = typeof result.total === "number" ? result.total : stages.reduce((sum, s) => sum + s.count, 0);
+  return {
+    type: "pipeline_summary",
+    total,
+    stages,
+    empty_message: total === 0
+      ? (typeof result.message === "string" ? result.message : "No companies in pipeline.")
+      : undefined,
+  };
+}
+
+function mapPersonCard(result: Record<string, unknown>): unknown {
+  const name = typeof result.person_name === "string" ? result.person_name : null;
+  const intent = typeof result.intent_score === "number" ? result.intent_score : null;
+  const band = result.score_band;
+  if (!name || intent == null || (band !== "HOT" && band !== "WARM" && band !== "COLD")) return null;
+  return {
+    type: "person_card",
+    name,
+    title: typeof result.person_title === "string" ? result.person_title : null,
+    company: typeof result.person_company === "string" ? result.person_company : null,
+    intent_score: intent,
+    score_band: band,
+    summary: typeof result.ai_summary === "string" ? result.ai_summary : undefined,
+    recommended_action: typeof result.recommended_action === "string" ? result.recommended_action : undefined,
+    approach_angle: typeof result.approach_angle === "string" ? result.approach_angle : undefined,
+    buying_stage: typeof result.buying_stage === "string" ? result.buying_stage : undefined,
+    urgency: typeof result.urgency === "string" ? result.urgency : undefined,
+  };
+}
+
+function mapConfirmation(name: string, result: Record<string, unknown>): unknown {
+  const action = result.action === "add_to_watchlist" || result.action === "update_pipeline_stage"
+    ? result.action
+    : name === "add_to_watchlist" || name === "update_pipeline_stage"
+      ? name
+      : null;
+  const domain = typeof result.domain === "string" ? result.domain : null;
+  if (!action || !domain) return null;
+  const company = typeof result.company_name === "string" ? result.company_name
+    : typeof result.company === "string" ? result.company
+    : undefined;
+  const stage = typeof result.stage === "string" ? result.stage : undefined;
+  if (action === "add_to_watchlist") {
+    return {
+      type: "confirmation",
+      action,
+      title: "Add to watchlist",
+      description: typeof result.message === "string"
+        ? result.message
+        : `Add ${company ?? domain} to your watchlist?`,
+      confirm_label: "Add",
+      cancel_label: "Cancel",
+      domain,
+      company,
+      status: result.needs_confirmation === false && result.success === true ? "confirmed" : "pending",
+    };
+  }
+  return {
+    type: "confirmation",
+    action,
+    title: "Update pipeline stage",
+    description: typeof result.message === "string"
+      ? result.message
+      : `Move ${domain} to ${stage ?? "the next stage"}?`,
+    confirm_label: "Update",
+    cancel_label: "Cancel",
+    domain,
+    company,
+    stage,
+    status: result.needs_confirmation === false && result.success === true ? "confirmed" : "pending",
+  };
+}
+
+export function blocksFromToolResult(name: string, result: unknown): UiBlock[] {
+  if (!result || typeof result !== "object") return [];
+  const row = result as Record<string, unknown>;
+  if (typeof row.error === "string") return [];
+
+  switch (name) {
+    case "present_ui":
+      return sanitizeUiBlocks(row.blocks ?? result);
+    case "score_company":
+    case "get_company_details": {
+      const score = workspaceScoreFromUnknown(result);
+      return score ? workspaceFromScore(score) : [];
+    }
+    case "search_scored_companies":
+      return sanitizeUiBlocks([mapSearchResults(row)]);
+    case "get_pipeline_summary":
+      return sanitizeUiBlocks([mapPipelineSummary(row)]);
+    case "score_person": {
+      const card = mapPersonCard(row);
+      return card ? sanitizeUiBlocks([card]) : [];
+    }
+    case "add_to_watchlist":
+    case "update_pipeline_stage": {
+      const block = mapConfirmation(name, row);
+      return block ? sanitizeUiBlocks([block]) : [];
+    }
+    default:
+      return [];
+  }
 }

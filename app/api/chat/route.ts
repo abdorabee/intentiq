@@ -4,7 +4,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { COPILOT_TOOLS, executeTool, buildCopilotContext, buildCopilotSystemPrompt } from "@/lib/copilot";
 import { CHAT_CREDIT_COST } from "@/lib/types";
 import type { DbUser } from "@/lib/types";
-import { sanitizeUiBlocks } from "@/lib/gen-ui";
+import { blocksFromToolResult, sanitizeUiBlocks, type UiBlock } from "@/lib/gen-ui";
 
 const COPILOT_MODEL = process.env.COPILOT_MODEL ?? "anthropic/claude-sonnet-4";
 const COPILOT_MAX_TOKENS = Number(process.env.COPILOT_MAX_TOKENS) || 1024;
@@ -199,34 +199,36 @@ export async function POST(req: NextRequest) {
 
         let continueLoop = true;
         let fullAssistantText = "";
+        const persistedBlocks: UiBlock[] = [];
+        const persistedToolCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+        const persistedToolResults: Array<{ name: string; result: unknown }> = [];
 
         while (continueLoop) {
           const choice = await callOpenRouter(messages, systemPrompt);
           const assistantMsg = choice.message;
 
-          // Collect text content
+          // Full-turn text after each OpenRouter call. Token streaming is not
+          // wired through the tool loop — tool-phase events stay honest.
           if (assistantMsg.content) {
             fullAssistantText += assistantMsg.content;
             send({ type: "text", content: assistantMsg.content });
           }
 
           if (choice.finish_reason === "tool_calls" && assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
-            // Send tool calls to client
             for (const tc of assistantMsg.tool_calls) {
-              const args = JSON.parse(tc.function.arguments);
+              const args = JSON.parse(tc.function.arguments) as Record<string, unknown>;
+              persistedToolCalls.push({ name: tc.function.name, args });
               send({ type: "tool_call", name: tc.function.name, args });
             }
 
-            // Add assistant message with tool_calls to conversation
             messages.push({
               role: "assistant",
               content: assistantMsg.content,
               tool_calls: assistantMsg.tool_calls,
             });
 
-            // Execute tools and add results
             for (const tc of assistantMsg.tool_calls) {
-              const args = JSON.parse(tc.function.arguments);
+              const args = JSON.parse(tc.function.arguments) as Record<string, unknown>;
               const result = await executeTool(
                 tc.function.name,
                 args,
@@ -234,14 +236,21 @@ export async function POST(req: NextRequest) {
                 user.product_category ?? "B2B SaaS",
                 user.business_profile ?? null
               );
-              if (tc.function.name === "present_ui") {
-                const blocks = sanitizeUiBlocks(
-                  result && typeof result === "object" && "blocks" in result
-                    ? (result as { blocks: unknown }).blocks
-                    : result
-                );
+              const mapped = blocksFromToolResult(tc.function.name, result);
+              const blocks = mapped.length > 0
+                ? mapped
+                : tc.function.name === "present_ui"
+                  ? sanitizeUiBlocks(
+                    result && typeof result === "object" && "blocks" in result
+                      ? (result as { blocks: unknown }).blocks
+                      : result
+                  )
+                  : [];
+              if (blocks.length > 0) {
+                persistedBlocks.push(...blocks);
                 send({ type: "ui", blocks });
               }
+              persistedToolResults.push({ name: tc.function.name, result });
               send({ type: "tool_result", name: tc.function.name, result });
 
               messages.push({
@@ -250,18 +259,20 @@ export async function POST(req: NextRequest) {
                 tool_call_id: tc.id,
               });
             }
-            // Continue loop to get the model's response after tool results
           } else {
             continueLoop = false;
           }
         }
 
-        // ── Persist assistant message ──────────────────────────────────────
-        if (fullAssistantText) {
+        const uiBlocks = persistedBlocks.slice(0, 12);
+        if (fullAssistantText || uiBlocks.length > 0 || persistedToolCalls.length > 0) {
           await supabase.from("chat_messages").insert({
             session_id: sessionId,
             role: "assistant",
             content: fullAssistantText,
+            ui_blocks: uiBlocks.length > 0 ? uiBlocks : null,
+            tool_calls: persistedToolCalls.length > 0 ? persistedToolCalls : null,
+            tool_result: persistedToolResults.length > 0 ? persistedToolResults : null,
           });
         }
 

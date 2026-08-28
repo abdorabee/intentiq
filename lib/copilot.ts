@@ -2,7 +2,9 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { scoreCompany } from "@/lib/score-service";
 import { scorePerson } from "@/lib/person-score-service";
 import type { BusinessProfile, DbUser, PipelineStage, ConversationAnalysis } from "@/lib/types";
-import { sanitizeUiBlocks } from "@/lib/gen-ui";
+import { presentUiAllowedTypes, sanitizeUiBlocks } from "@/lib/gen-ui";
+
+const PRESENT_UI_TYPES = presentUiAllowedTypes();
 
 // ─── OpenRouter Tool Definitions (OpenAI-compatible format) ──────────────────
 
@@ -35,7 +37,7 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
     type: "function",
     function: {
       name: "add_to_watchlist",
-      description: "Add a company to the user's watchlist for ongoing monitoring.",
+      description: "Propose adding a company to the user's watchlist. The user must confirm in the UI before the change is saved.",
       parameters: {
         type: "object",
         properties: {
@@ -135,7 +137,7 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
     type: "function",
     function: {
       name: "update_pipeline_stage",
-      description: "Manually move a company to a different pipeline stage (e.g. mark as 'engaged' after outreach or 'converted' after closing).",
+      description: "Propose moving a company to a different pipeline stage. The user must confirm in the UI before the change is saved.",
       parameters: {
         type: "object",
         properties: {
@@ -233,13 +235,13 @@ export const COPILOT_TOOLS: OpenRouterTool[] = [
         properties: {
           blocks: {
             type: "array",
-            description: "Ordered UI blocks. Allowed types: intent_hero, signal_explorer, thesis, outreach_studio, action_rail, comparison, markdown.",
+            description: `Ordered UI blocks. Allowed types: ${PRESENT_UI_TYPES.join(", ")}.`,
             items: {
               type: "object",
               properties: {
                 type: {
                   type: "string",
-                  enum: ["intent_hero", "signal_explorer", "thesis", "outreach_studio", "action_rail", "comparison", "markdown"],
+                  enum: PRESENT_UI_TYPES,
                 },
                 company: { type: "string" },
                 domain: { type: "string" },
@@ -336,19 +338,16 @@ export async function executeTool(
     }
 
     case "add_to_watchlist": {
-      const { error } = await supabase.from("watchlist").upsert(
-        {
-          user_id: userId,
-          domain: (args.domain as string).toLowerCase().trim(),
-          company_name: args.company_name as string,
-          is_active: true,
-          pipeline_stage: "cold",
-          stage_changed_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,domain" }
-      );
-      if (error) return { success: false, error: error.message };
-      return { success: true, domain: args.domain, message: `Added ${args.company_name} to watchlist` };
+      const domain = String(args.domain ?? "").toLowerCase().trim();
+      const company_name = String(args.company_name ?? domain);
+      if (!domain) return { error: "domain required" };
+      return {
+        needs_confirmation: true,
+        action: "add_to_watchlist",
+        domain,
+        company_name,
+        message: `Add ${company_name} (${domain}) to your watchlist?`,
+      };
     }
 
     case "remove_from_watchlist": {
@@ -473,17 +472,16 @@ export async function executeTool(
     }
 
     case "update_pipeline_stage": {
-      const domain = (args.domain as string).toLowerCase().trim();
+      const domain = String(args.domain ?? "").toLowerCase().trim();
       const stage = args.stage as PipelineStage;
-      const { error } = await supabase
-        .from("watchlist")
-        .update({ pipeline_stage: stage, stage_changed_at: new Date().toISOString() })
-        .eq("user_id", userId)
-        .eq("domain", domain)
-        .eq("is_active", true);
-
-      if (error) return { success: false, error: error.message };
-      return { success: true, domain, stage, message: `Moved ${domain} to "${stage}" stage` };
+      if (!domain || !stage) return { error: "domain and stage required" };
+      return {
+        needs_confirmation: true,
+        action: "update_pipeline_stage",
+        domain,
+        stage,
+        message: `Move ${domain} to "${stage}"?`,
+      };
     }
 
     case "list_autopilot_workflows": {
@@ -669,11 +667,12 @@ When the user shares a screenshot or pastes raw chat/email/Slack content, ALWAYS
 After the tool returns, lead your response with the intent verdict ("This looks like a [HOT/WARM/COLD] prospect") and highlight the 2-3 strongest signals with direct quotes. Always offer to run a full domain score if you identified the company ("Want me to run a full intent score on [Company]?").
 
 GENERATIVE UI:
-You are composing an interactive workspace, not a markdown essay. After you have score or pipeline data, call present_ui with a compact block list tailored to the user's goal:
+You are composing an interactive workspace, not a markdown essay. Search, pipeline, person-score, and watchlist/pipeline-change tools render their own UI automatically — you do not need to call present_ui for those. After you have company score data, call present_ui with a compact block list:
 - Score / why this band → intent_hero + signal_explorer + thesis + action_rail
 - Draft email → outreach_studio + action_rail (include subject and talk_track)
 - Compare accounts → comparison (2-4 scored domains only)
 Keep spoken text to 1-3 sentences. Put evidence in signal_explorer axes (key, label, score, max, detail). Always include suggested next prompts on action_rail. Never invent scores or domains that are not in tool results.
+add_to_watchlist and update_pipeline_stage only request confirmation. Do not say the change is saved until the user confirms.
 
 GUIDELINES:
 - Always cite specific data from scores and signals. Never fabricate company data.

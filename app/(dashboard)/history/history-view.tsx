@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { toCSV, downloadCSV as triggerDownload, csvFilename, formatSignal } from "@/lib/csv";
+import { EmptyState } from "@/components/empty-state";
 import type { DbScore, IntentSignalKey, ScoreBand, SignalSet } from "@/lib/types";
 import type { HistoryStats, ActivityBucket } from "./page";
 
@@ -558,9 +559,7 @@ export function HistoryView({ stats }: HistoryViewProps) {
       {loading ? (
         <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-tertiary)", fontSize: 13 }}>Loading…</div>
       ) : rows.length === 0 ? (
-        <div style={{ padding: "60px 0", textAlign: "center", color: "var(--text-tertiary)", fontSize: 13 }}>
-          {query ? "No results match your search." : "No scores yet. Use Score to score your first company."}
-        </div>
+        <EmptyState surface="history" kind={query || bandFilter ? "filtered" : "zero"} />
       ) : (
         <div style={{ overflowX: "auto" }}>
           <div style={S.histTable}>

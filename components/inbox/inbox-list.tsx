@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
 import type { InboxNotification } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import { RefreshCw, Filter } from "lucide-react";
@@ -73,15 +74,7 @@ export function InboxList({
 
       <div className="msg-list">
         {notifications.length === 0 ? (
-          <div className="inbox-empty">
-            <div style={{ fontSize: 32, marginBottom: 8 }}>✓</div>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>
-              All caught up
-            </div>
-            <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>
-              {activeView === "inbox" ? "No new notifications" : "Nothing here yet"}
-            </div>
-          </div>
+          <EmptyState surface="inbox" kind={activeView === "inbox" ? "zero" : "filtered"} />
         ) : (
           notifications.map((n) => {
             const hotTag = n.tags.includes("HOT");

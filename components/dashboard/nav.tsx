@@ -1,6 +1,7 @@
 "use client";
 
-import type { ComponentType } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type ComponentType } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
@@ -24,8 +25,9 @@ import {
   Sun,
   Moon,
   PanelLeft,
-  ChevronDown,
   Search,
+  Settings,
+  ChevronDown,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useDashboardSearch } from "@/components/dashboard/search-provider";
@@ -41,20 +43,41 @@ interface NavItem {
   comingSoon?: boolean;
 }
 
-const WORKSPACE_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/pipeline", label: "Intent Hub", icon: Flame, hotCount: true },
-  { href: "/score", label: "Score", icon: Gauge },
-  { href: "/history", label: "History", icon: History },
-  { href: "/people", label: "People", icon: UserSearch, beta: true },
-  { href: "/watchlist", label: "Watchlist", icon: Eye },
-  { href: "/lists", label: "Lists", icon: ListChecks },
-  { href: "/bulk", label: "Bulk Score", icon: Upload },
-  { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
+interface NavSection {
+  label: string;
+  items: NavItem[];
+}
+
+const WORKSPACE_SECTIONS: NavSection[] = [
+  {
+    label: "Workspace",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+      { href: "/score", label: "Score", icon: Gauge },
+      { href: "/pipeline", label: "Intent Hub", icon: Flame, hotCount: true },
+    ],
+  },
+  {
+    label: "Accounts",
+    items: [
+      { href: "/watchlist", label: "Watchlist", icon: Eye },
+      { href: "/lists", label: "Lists", icon: ListChecks },
+      { href: "/people", label: "People", icon: UserSearch, beta: true },
+      { href: "/history", label: "History", icon: History },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/bulk", label: "Bulk Score", icon: Upload },
+      { href: "/inbox", label: "Inbox", icon: Inbox },
+      { href: "/autopilot", label: "Autopilot", icon: Zap, comingSoon: true },
+    ],
+  },
 ];
 
-const BOTTOM_ITEMS: NavItem[] = [
+const ACCOUNT_ITEMS: NavItem[] = [
+  { href: "/settings", label: "Settings", icon: Settings },
   { href: "/billing", label: "Billing", icon: CreditCard },
   { href: "/api-keys", label: "API Keys", icon: Key, comingSoon: true },
 ];
@@ -67,6 +90,10 @@ interface DashboardNavProps {
   inboxCount?: number;
   watchlistCount?: number;
   pipelineHotCount?: number;
+}
+
+function isActivePath(pathname: string, href: string) {
+  return pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`));
 }
 
 export default function DashboardNav({
@@ -99,9 +126,48 @@ export default function DashboardNav({
     return undefined;
   }
 
+  function renderItem(item: NavItem) {
+    const Icon = item.icon;
+    const active = isActivePath(pathname, item.href);
+    const displayCount = navCount(item);
+    return (
+      <Link
+        key={`${item.href}-${item.label}`}
+        href={item.href}
+        title={collapsed ? item.label : undefined}
+        className={cn("sb-item", active && "active")}
+        data-tour={
+          item.href === "/pipeline" ? "nav-intent-hub" : item.href === "/settings" ? "nav-settings" : undefined
+        }
+      >
+        <Icon className="ic" />
+        {!collapsed && (
+          <>
+            <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {item.label}
+            </span>
+            {item.comingSoon && (
+              <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-quaternary)" }}>
+                Soon
+              </span>
+            )}
+            {item.beta && !item.comingSoon && (
+              <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-2)" }}>
+                Beta
+              </span>
+            )}
+            {displayCount && (
+              <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
+            )}
+            {item.indicator && <span className="indicator" />}
+          </>
+        )}
+      </Link>
+    );
+  }
+
   return (
     <aside className="sidebar">
-      {/* Head */}
       <div className="sb-head">
         <VesperWiseLogo className="ws-logo" size={24} />
         {!collapsed && (
@@ -110,10 +176,8 @@ export default function DashboardNav({
             <span className="role">Workspace · {plan}</span>
           </div>
         )}
-        {!collapsed && <ChevronDown className="ws-chev" />}
       </div>
 
-      {/* Search */}
       {!collapsed && (
         <button type="button" className="sb-search" onClick={openSearch} aria-label="Search">
           <Search className="ic" />
@@ -122,78 +186,28 @@ export default function DashboardNav({
         </button>
       )}
 
-      {/* Workspace nav */}
-      <div className="sb-section">
-        {!collapsed && <span>Workspace</span>}
-      </div>
-      {WORKSPACE_ITEMS.map((item) => {
-        const Icon = item.icon;
-        const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-        const displayCount = navCount(item);
-        return (
-          <Link
-            key={`${item.href}-${item.label}`}
-            href={item.href}
-            title={collapsed ? item.label : undefined}
-            className={cn("sb-item", active && "active")}
-          >
-            <Icon className="ic" />
-            {!collapsed && (
-              <>
-                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {item.label}
-                </span>
-                {item.comingSoon && (
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-quaternary)" }}>
-                    Soon
-                  </span>
-                )}
-                {item.beta && !item.comingSoon && (
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-2)" }}>
-                    Beta
-                  </span>
-                )}
-                {displayCount && (
-                  <span className={cn("count", item.hotCount && "hot")}>{displayCount}</span>
-                )}
-                {item.indicator && <span className="indicator" />}
-              </>
-            )}
-          </Link>
-        );
-      })}
-
+      {WORKSPACE_SECTIONS.map((section) => (
+        <Fragment key={section.label}>
+          {!collapsed && (
+            <div className="sb-section">
+              <span>{section.label}</span>
+            </div>
+          )}
+          {section.items.map(renderItem)}
+        </Fragment>
+      ))}
 
       <div className="sb-divider" />
 
-      {BOTTOM_ITEMS.map((item) => {
-        const Icon = item.icon;
-        const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            title={collapsed ? item.label : undefined}
-            className={cn("sb-item", active && "active")}
-          >
-            <Icon className="ic" />
-            {!collapsed && (
-              <>
-                <span style={{ flex: 1 }}>{item.label}</span>
-                {item.comingSoon && (
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--text-quaternary)" }}>
-                    Soon
-                  </span>
-                )}
-              </>
-            )}
-          </Link>
-        );
-      })}
+      {!collapsed && (
+        <div className="sb-section">
+          <span>Account</span>
+        </div>
+      )}
+      {ACCOUNT_ITEMS.map(renderItem)}
 
       <div className="sb-spacer" />
 
-      {/* Credits */}
       {!collapsed ? (
         <div className="sb-credits">
           <div className="label">Credits this month</div>
@@ -217,19 +231,15 @@ export default function DashboardNav({
         </div>
       )}
 
-      {/* User */}
-      <div className="sb-user">
-        <span className="av">{initials.slice(0, 2)}</span>
-        {!collapsed && (
-          <div className="info">
-            <div className="name">{displayName}</div>
-            <div className="email">{email}</div>
-          </div>
-        )}
-        {!collapsed && <ChevronDown style={{ width: 12, height: 12, flexShrink: 0, color: "var(--text-tertiary)" }} />}
-      </div>
+      <UserAccountMenu
+        collapsed={collapsed}
+        displayName={displayName}
+        email={email}
+        initials={initials.slice(0, 2)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
-      {/* Controls */}
       <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 4px 0" }}>
         <button
           type="button"
@@ -241,30 +251,144 @@ export default function DashboardNav({
         >
           <PanelLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
         </button>
-        {!collapsed && (
-          <>
-            <button
-              type="button"
-              onClick={toggleTheme}
-              title="Theme"
-              style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-              className="hover:bg-foreground/[0.05]"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <SignOutButton redirectUrl="/">
-              <button
-                type="button"
-                title="Sign out"
-                style={{ display: "grid", placeItems: "center", width: 28, height: 28, borderRadius: "var(--r-sm)", color: "var(--text-tertiary)", cursor: "pointer" }}
-                className="hover:bg-red-500/10 hover:text-red-400"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            </SignOutButton>
-          </>
-        )}
       </div>
     </aside>
+  );
+}
+
+function UserAccountMenu({
+  collapsed,
+  displayName,
+  email,
+  initials,
+  theme,
+  onToggleTheme,
+}: {
+  collapsed: boolean;
+  displayName: string;
+  email: string;
+  initials: string;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
+}) {
+  const pathname = usePathname();
+  const menuId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  function placeMenu() {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    const width = collapsed ? 208 : Math.max(rect.width, 200);
+    const estimatedHeight = 148;
+    if (collapsed) {
+      const top = Math.min(rect.top, window.innerHeight - estimatedHeight - 8);
+      setCoords({ top, left: rect.right + 8, width });
+      return;
+    }
+    const top = Math.max(8, rect.top - estimatedHeight - 6);
+    setCoords({ top, left: rect.left, width });
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    placeMenu();
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+    function onPointer(event: MouseEvent) {
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+    function onReposition() {
+      placeMenu();
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPointer);
+    window.addEventListener("resize", onReposition);
+    window.addEventListener("scroll", onReposition, true);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPointer);
+      window.removeEventListener("resize", onReposition);
+      window.removeEventListener("scroll", onReposition, true);
+    };
+  }, [open, collapsed]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  return (
+    <div className="sb-user-wrap">
+      <button
+        ref={triggerRef}
+        type="button"
+        className="sb-user"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
+        aria-label="Open account menu"
+        onClick={() => {
+          setOpen((current) => {
+            if (!current) placeMenu();
+            return !current;
+          });
+        }}
+      >
+        <span className="av">{initials}</span>
+        {!collapsed && (
+          <div className="info">
+            <div className="name">{displayName}</div>
+            <div className="email">{email}</div>
+          </div>
+        )}
+        {!collapsed && <ChevronDown className="sb-user-chev" aria-hidden />}
+      </button>
+      {open && coords && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              ref={menuRef}
+              id={menuId}
+              className="sb-user-menu"
+              style={{ top: coords.top, left: coords.left, width: coords.width }}
+            >
+              <Link
+                href="/settings"
+                className="sb-user-menu-item"
+                onClick={() => setOpen(false)}
+              >
+                <Settings className="ic" />
+                Settings
+              </Link>
+              <button
+                type="button"
+                className="sb-user-menu-item"
+                onClick={() => {
+                  onToggleTheme();
+                }}
+              >
+                {theme === "dark" ? <Sun className="ic" /> : <Moon className="ic" />}
+                <span style={{ flex: 1 }}>Appearance</span>
+                <span className="sb-user-menu-meta">{theme === "dark" ? "Dark" : "Light"}</span>
+              </button>
+              <SignOutButton redirectUrl="/">
+                <button type="button" className="sb-user-menu-item danger">
+                  <LogOut className="ic" />
+                  Sign out
+                </button>
+              </SignOutButton>
+            </div>,
+            document.body,
+          )
+        : null}
+    </div>
   );
 }

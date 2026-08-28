@@ -5,17 +5,17 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold tracking-normal transition-all duration-200 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-45 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--r-md)] text-sm font-medium tracking-normal transition-[background,border-color,color,box-shadow] duration-150 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-45 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "border border-white/20 bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_10px_28px_-18px_rgba(223,255,0,0.7)] hover:bg-primary/90 hover:-translate-y-px",
+        default: "border border-white/20 bg-primary text-primary-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12),0_1px_2px_rgba(0,0,0,0.3)] hover:bg-primary/90",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/70 dark:focus-visible:ring-destructive/40",
         outline:
-          "border border-border bg-background/70 shadow-xs hover:-translate-y-px hover:bg-accent hover:text-accent-foreground dark:border-white/10 dark:bg-white/[0.045] dark:hover:bg-white/[0.08]",
+          "border border-border bg-background/70 shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-white/10 dark:bg-white/[0.045] dark:hover:bg-white/[0.08]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:-translate-y-px hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-white/[0.06]",
         link: "text-primary underline-offset-4 hover:underline",

@@ -4,12 +4,30 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import type { IntentScore, ScoreBand } from "@/lib/types";
 import { CHAT_CREDIT_COST } from "@/lib/types";
-import { extractDomain, seedChatSession, streamChat } from "@/lib/chat-client";
-import { avColor, scoreFromToolResult } from "@/components/score/score-result-card";
-import type { ScoreCardData } from "@/components/score/score-result-card";
-import { GenUiWorkspace, SuggestionChips } from "@/components/score/gen-ui/workspace";
-import { sanitizeUiBlocks, suggestionsFromBlocks, workspaceFromScore } from "@/lib/gen-ui";
-import type { UiBlock } from "@/lib/gen-ui";
+import {
+  extractRetryDomain,
+  isAbortError,
+  LAST_CHAT_SESSION_KEY,
+  loadChatSession,
+  NEW_CHAT_FLAG_KEY,
+  persistChatUiBlocks,
+  resolveChatRestore,
+  resolveRetryAction,
+  seedChatSession,
+  streamChat,
+  type PersistedChatMessage,
+} from "@/lib/chat-client";
+import { avColor } from "@/components/score/score-result-card";
+import { confirmationKeyFor, GenUiWorkspace, SuggestionChips } from "@/components/score/gen-ui/workspace";
+import {
+  applyConfirmationStatus,
+  blocksFromToolResult,
+  sanitizeUiBlocks,
+  scoreDomainFromBlocks,
+  suggestionsFromBlocks,
+  workspaceFromScore,
+} from "@/lib/gen-ui";
+import type { ConfirmationBlock, UiBlock } from "@/lib/gen-ui";
 
 type ScorableIntentScore = IntentScore & {
   intent_score: number;
@@ -23,11 +41,12 @@ function requireScorableResult(value: IntentScore): ScorableIntentScore {
   return value as ScorableIntentScore;
 }
 
-async function requestScore(domain: string): Promise<ScorableIntentScore> {
+async function requestScore(domain: string, signal?: AbortSignal): Promise<ScorableIntentScore> {
   const response = await fetch("/api/v1/score", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ domain }),
+    signal,
   });
   const payload = await response.json() as IntentScore & { error?: string };
   if (!response.ok) throw new Error(payload.error ?? "Scoring failed");
@@ -47,14 +66,6 @@ interface ScoreViewProps {
   recentScores: RecentScore[];
 }
 
-const HOT_PICKS = [
-  { domain: "stripe.com",     name: "Stripe",      signal: "funding" },
-  { domain: "anthropic.com",  name: "Anthropic",   signal: "news" },
-  { domain: "linear.app",     name: "Linear",      signal: "hiring" },
-  { domain: "notion.so",      name: "Notion",      signal: "news" },
-  { domain: "databricks.com", name: "Databricks",  signal: "tech" },
-];
-
 type ToolChip = {
   name: string;
   status: "running" | "done";
@@ -66,9 +77,12 @@ type ThreadMessage =
   | { id: string; role: "assistant"; kind: "ui"; blocks: UiBlock[]; content: string; tools: ToolChip[]; billing?: string }
   | { id: string; role: "assistant"; kind: "text"; content: string; tools: ToolChip[] }
   | { id: string; role: "assistant"; kind: "thinking"; mode: "score" | "chat" }
-  | { id: string; role: "error"; content: string };
+  | { id: string; role: "error"; content: string; tools: ToolChip[] };
+
+type ConfirmationStatus = "pending" | "confirming" | "confirmed" | "cancelled" | "error";
 
 function messageTools(message: ThreadMessage): ToolChip[] {
+  if (message.role === "error") return message.tools;
   return message.role === "assistant" && (message.kind === "text" || message.kind === "ui") ? message.tools : [];
 }
 
@@ -76,13 +90,68 @@ function nextId(): string {
   return crypto.randomUUID();
 }
 
-function billingLabel(result: ScoreCardData & { charged?: boolean; cached?: boolean }): string {
+function billingLabel(result: ScorableIntentScore & { charged?: boolean; cached?: boolean }): string {
   if ("charged" in result && result.charged) return "1 credit";
   if ("cached" in result && result.cached) return "cache hit · free";
   return "no credit charged";
 }
 
 const STEPS = ["Domain resolved", "Funding signal", "Hiring + news", "Technology trigger", "Web + GitHub context", "AI thesis"];
+
+function rememberSession(id: string) {
+  try {
+    localStorage.setItem(LAST_CHAT_SESSION_KEY, id);
+    sessionStorage.removeItem(NEW_CHAT_FLAG_KEY);
+  } catch { /* private mode */ }
+}
+
+function toolsFromPersisted(toolCalls: unknown, toolResult: unknown): ToolChip[] {
+  const calls = Array.isArray(toolCalls) ? toolCalls : [];
+  const results = Array.isArray(toolResult) ? toolResult : [];
+  return calls.flatMap((call, index) => {
+    const row = call && typeof call === "object" ? call as Record<string, unknown> : null;
+    const name = typeof row?.name === "string" ? row.name : null;
+    if (!name) return [];
+    const match = results.find((item) => item && typeof item === "object" && (item as { name?: string }).name === name)
+      ?? results[index];
+    const result = match && typeof match === "object" && "result" in match
+      ? (match as { result: unknown }).result
+      : undefined;
+    return [{ name, status: "done" as const, result }];
+  });
+}
+
+function threadFromPersisted(messages: PersistedChatMessage[]): ThreadMessage[] {
+  const out: ThreadMessage[] = [];
+  for (const message of messages) {
+    if (message.role === "user") {
+      out.push({ id: message.id, role: "user", content: message.content });
+      continue;
+    }
+    if (message.role !== "assistant") continue;
+    const tools = toolsFromPersisted(message.tool_calls, message.tool_result);
+    const blocks = sanitizeUiBlocks(message.ui_blocks);
+    if (blocks.length > 0) {
+      out.push({
+        id: message.id,
+        role: "assistant",
+        kind: "ui",
+        blocks,
+        content: message.content ?? "",
+        tools,
+      });
+      continue;
+    }
+    out.push({
+      id: message.id,
+      role: "assistant",
+      kind: "text",
+      content: message.content ?? "",
+      tools,
+    });
+  }
+  return out;
+}
 
 function LiveProgressBar({
   loading,
@@ -145,37 +214,73 @@ function AssistantText({ content }: { content: string }) {
   return <div className="chat-md">{content}</div>;
 }
 
+function AttachControl({
+  file,
+  onFile,
+  disabled,
+}: {
+  file: File | null;
+  onFile: (file: File | null) => void;
+  disabled?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        className="sr-only"
+        disabled={disabled}
+        onChange={(e) => {
+          const next = e.target.files?.[0] ?? null;
+          onFile(next && next.size > 0 ? next : null);
+          e.target.value = "";
+        }}
+      />
+      <button
+        type="button"
+        className="prompt-attach"
+        disabled={disabled}
+        aria-label={file ? `Attached ${file.name}` : "Attach image"}
+        title={file ? file.name : "Attach image"}
+        onClick={() => inputRef.current?.click()}
+      >
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14" aria-hidden>
+          <path d="M4.5 6.5l3.2-3.2a2.2 2.2 0 013.1 3.1L6 11a1.6 1.6 0 01-2.3-2.3l4.2-4.2" />
+        </svg>
+      </button>
+    </>
+  );
+}
+
 interface ScorePromptStageProps {
   domain: string;
   setDomain: (v: string) => void;
   onScore: () => void;
+  onStop: () => void;
   creditsRemaining: number;
   recentScores: RecentScore[];
   busy: boolean;
+  image: File | null;
+  onImage: (file: File | null) => void;
 }
 
-function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recentScores, busy }: ScorePromptStageProps) {
+function ScorePromptStage({
+  domain,
+  setDomain,
+  onScore,
+  onStop,
+  creditsRemaining,
+  recentScores,
+  busy,
+  image,
+  onImage,
+}: ScorePromptStageProps) {
   return (
     <div className="prompt-stage">
-      <div className="prompt-bg">
-        <div className="grid" />
-      </div>
-      <div className="prompt-inner">
-        <div className="prompt-eyebrow">
-          <span className="badge">Score</span>
-          Drop in a domain — we&apos;ll verify coverage and you can ask follow-ups
-        </div>
-
-        <h1 className="prompt-h1">
-          What account do you want to{" "}
-          <span className="grad">score</span>?
-        </h1>
-        <p className="prompt-sub">
-          Paste any company domain. Four dated purchase triggers drive the score;
-          then keep chatting about the account.
-        </p>
-
-        <div className="prompt-holder prompt-holder--compact">
+      <div className="prompt-inner" data-tour="score-workspace">
+        <div className="prompt-holder prompt-holder--compact prompt-holder--with-attach" data-tour="score-composer">
           <div className="prompt-prefix">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
               <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
@@ -190,37 +295,30 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             onKeyDown={(e) => e.key === "Enter" && !busy && onScore()}
             autoFocus
             disabled={busy}
+            aria-label="Company domain"
           />
-          <button type="button" className="prompt-go" onClick={onScore} disabled={busy}>
-            Score
-            <span className="kbd-inline">↵</span>
-          </button>
+          <AttachControl file={image} onFile={onImage} disabled={busy} />
+          {busy ? (
+            <button type="button" className="tb-btn outlined" onClick={onStop}>Stop</button>
+          ) : (
+            <button type="button" className="prompt-go" onClick={onScore} disabled={!domain.trim() && !image}>
+              Score
+              <span className="kbd-inline">↵</span>
+            </button>
+          )}
         </div>
 
         <div className="prompt-meta">
-          <div className="left">
-            <span><strong>1</strong> credit on a fresh scorable result · follow-ups {CHAT_CREDIT_COST} credits</span>
-            <span>Cached for <strong>6h</strong></span>
+          <span>
+            1 credit to score · follow-ups {CHAT_CREDIT_COST} · {creditsRemaining} left
+          </span>
+        </div>
+        {image && (
+          <div className="chat-file">
+            <span>{image.name}</span>
+            <button type="button" className="chat-new" onClick={() => onImage(null)}>Remove</button>
           </div>
-          <div className="right">
-            <span>Provider calls are bounded</span>
-            <span><strong>{creditsRemaining}</strong> credits left</span>
-          </div>
-        </div>
-
-        <div className="prompt-section-label">
-          <span>Try a hot pick</span>
-          <span className="line" />
-        </div>
-        <div className="suggestion-row">
-          {HOT_PICKS.map((pick) => (
-            <button key={pick.domain} type="button" className="sugg" onClick={() => setDomain(pick.domain)}>
-              <div className="av" style={{ background: avColor(pick.name) }}>{pick.name[0]}</div>
-              {pick.domain}
-              <span className="mono-sm">▲ {pick.signal}</span>
-            </button>
-          ))}
-        </div>
+        )}
 
         {recentScores.length > 0 && (
           <>
@@ -257,41 +355,6 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
             </div>
           </>
         )}
-
-        <div className="prompt-feature-row">
-          <div className="feat">
-            <span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "var(--cyan)" }}>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
-                <path d="M2 8l3-3 2 2 3-4" />
-              </svg>
-            </span>
-            4 trigger axes
-          </div>
-          <div className="feat">
-            <span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "#dfff00" }}>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
-                <circle cx="6" cy="6" r="4" /><path d="M6 4v3l2 1" />
-              </svg>
-            </span>
-            Interactive chat
-          </div>
-          <div className="feat">
-            <span className="ic" style={{ background: "rgba(74,222,128,0.12)", color: "var(--hot)" }}>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
-                <path d="M2 9V5m3 4V3m3 6V6" />
-              </svg>
-            </span>
-            Signal breakdown · 4 triggers + context
-          </div>
-          <div className="feat">
-            <span className="ic" style={{ background: "rgba(245,181,68,0.12)", color: "var(--warm)" }}>
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10">
-                <path d="M3 6l3 3 5-7" />
-              </svg>
-            </span>
-            Recommended next action
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -300,13 +363,18 @@ function ScorePromptStage({ domain, setDomain, onScore, creditsRemaining, recent
 export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
   const searchParams = useSearchParams();
   const autoScoredRef = useRef<string | null>(null);
+  const restoredRef = useRef(false);
   const threadRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const lastTurnRef = useRef<{ text: string; image: File | null } | null>(null);
   const [input, setInput] = useState("");
+  const [image, setImage] = useState<File | null>(null);
   const [messages, setMessages] = useState<ThreadMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [watchlistByDomain, setWatchlistByDomain] = useState<Record<string, "adding" | "added">>({});
+  const [confirmationByKey, setConfirmationByKey] = useState<Record<string, ConfirmationStatus>>({});
   const scoring = busy && messages.some((m) => m.role === "assistant" && m.kind === "thinking" && m.mode === "score");
 
   useEffect(() => {
@@ -317,6 +385,37 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     autoScoredRef.current = d;
     void submitMessage(d);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (searchParams.get("domain")?.trim()) {
+      restoredRef.current = true;
+      return;
+    }
+    restoredRef.current = true;
+    let cancelled = false;
+    async function restore() {
+      let newChatRequested = false;
+      let lastSessionId: string | null = null;
+      try { newChatRequested = sessionStorage.getItem(NEW_CHAT_FLAG_KEY) === "1"; } catch { /* private mode */ }
+      try { lastSessionId = localStorage.getItem(LAST_CHAT_SESSION_KEY); } catch { /* private mode */ }
+      const decision = resolveChatRestore({ lastSessionId, newChatRequested });
+      if (decision.type === "empty") return;
+      try {
+        const loaded = await loadChatSession(decision.sessionId);
+        if (cancelled) return;
+        const thread = threadFromPersisted(loaded.messages);
+        if (thread.length === 0) return;
+        setSessionId(loaded.session.id);
+        setMessages(thread);
+        rememberSession(loaded.session.id);
+      } catch {
+        // Stay on the empty state if the last session cannot be loaded.
+      }
+    }
+    void restore();
+    return () => { cancelled = true; };
   }, [searchParams]);
 
   useEffect(() => {
@@ -332,8 +431,21 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  function beginRequest(): AbortController {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    return controller;
+  }
+
+  function stopGeneration() {
+    abortRef.current?.abort();
+  }
+
   async function runScore(raw: string, domain: string) {
     const thinkingId = nextId();
+    const controller = beginRequest();
+    lastTurnRef.current = { text: raw, image: null };
     setMessages((prev) => [
       ...prev,
       { id: nextId(), role: "user", content: raw },
@@ -341,14 +453,15 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     ]);
     setBusy(true);
     try {
-      const payload = await requestScore(domain);
+      const payload = await requestScore(domain, controller.signal);
+      const blocks = workspaceFromScore(payload);
       setMessages((prev) => prev.map((m) => (
         m.id === thinkingId
           ? {
               id: thinkingId,
               role: "assistant",
               kind: "ui",
-              blocks: workspaceFromScore(payload),
+              blocks,
               content: "",
               tools: [],
               billing: billingLabel(payload),
@@ -359,39 +472,63 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
         const id = await seedChatSession({
           sessionId: sessionId ?? undefined,
           title: payload.domain,
-          user: `Score ${payload.domain}`,
+          user: payload.domain,
           assistant: payload.ai_summary || `${payload.company} scored ${payload.intent_score}/100 (${payload.score_band}).`,
+          ui_blocks: blocks,
         });
         setSessionId(id);
+        rememberSession(id);
       } catch {
         // Follow-ups can still create a session on first chat turn.
       }
     } catch (e) {
+      if (isAbortError(e)) {
+        setMessages((prev) => prev.map((m) => (
+          m.id === thinkingId
+            ? { id: thinkingId, role: "error", content: "Stopped", tools: [] }
+            : m
+        )));
+        return;
+      }
       setMessages((prev) => prev.map((m) => (
         m.id === thinkingId
-          ? { id: thinkingId, role: "error", content: (e as Error).message }
+          ? { id: thinkingId, role: "error", content: (e as Error).message, tools: [] }
           : m
       )));
     } finally {
+      if (abortRef.current === controller) abortRef.current = null;
       setBusy(false);
     }
   }
 
-  async function runFollowUp(text: string) {
+  async function runFollowUp(text: string, attachment: File | null) {
     const thinkingId = nextId();
+    const controller = beginRequest();
+    lastTurnRef.current = { text, image: attachment };
     setMessages((prev) => [
       ...prev,
-      { id: nextId(), role: "user", content: text },
+      { id: nextId(), role: "user", content: attachment ? `${text || "Analyze this screenshot"} · ${attachment.name}` : text },
       { id: thinkingId, role: "assistant", kind: "thinking", mode: "chat" },
     ]);
     setBusy(true);
     try {
       const nextSession = await streamChat(
-        { message: text, session_id: sessionId ?? undefined },
+        {
+          message: text || (attachment ? "Analyze this conversation screenshot for buying intent signals." : ""),
+          session_id: sessionId ?? undefined,
+          image: attachment ?? undefined,
+        },
         (event) => {
           setMessages((prev) => {
             const current = prev.find((m) => m.id === thinkingId);
             if (!current) return prev;
+            if (event.type === "error") {
+              return prev.map((m) => (
+                m.id === thinkingId
+                  ? { id: thinkingId, role: "error", content: event.message, tools: messageTools(current) }
+                  : m
+              ));
+            }
             if (event.type === "text") {
               if (current.role === "assistant" && current.kind === "ui") {
                 return prev.map((m) => (m.id === thinkingId ? { ...current, content: current.content + event.content } : m));
@@ -429,16 +566,17 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
               const tools: ToolChip[] = messageTools(current).map((t) => (
                 t.name === event.name && t.status === "running" ? { ...t, status: "done", result: event.result } : t
               ));
-              const card = scoreFromToolResult(event.name, event.result);
+              const mapped = blocksFromToolResult(event.name, event.result);
               if (current.role === "assistant" && current.kind === "ui") {
-                return prev.map((m) => (m.id === thinkingId ? { ...current, tools } : m));
+                const blocks = current.blocks.length > 0 ? current.blocks : mapped;
+                return prev.map((m) => (m.id === thinkingId ? { ...current, tools, blocks } : m));
               }
-              if (card) {
+              if (mapped.length > 0) {
                 const next: ThreadMessage = {
                   id: thinkingId,
                   role: "assistant",
                   kind: "ui",
-                  blocks: workspaceFromScore(card),
+                  blocks: mapped,
                   content: current.role === "assistant" && "content" in current ? current.content : "",
                   tools,
                 };
@@ -452,8 +590,12 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
             return prev;
           });
         },
+        { signal: controller.signal },
       );
-      if (nextSession) setSessionId(nextSession);
+      if (nextSession) {
+        setSessionId(nextSession);
+        rememberSession(nextSession);
+      }
       setMessages((prev) => {
         const current = prev.find((m) => m.id === thinkingId);
         if (current && current.role === "assistant" && current.kind === "thinking") {
@@ -466,26 +608,62 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
         return prev;
       });
     } catch (e) {
-      setMessages((prev) => prev.map((m) => (
-        m.id === thinkingId
-          ? { id: thinkingId, role: "error", content: (e as Error).message }
-          : m
-      )));
+      const stopped = isAbortError(e);
+      setMessages((prev) => prev.map((m) => {
+        if (m.id !== thinkingId) return m;
+        if (m.role === "error") return m;
+        if (stopped && m.role === "assistant" && (m.kind === "text" || m.kind === "ui")) {
+          const hasBody = m.kind === "ui" ? m.blocks.length > 0 || Boolean(m.content) : Boolean(m.content);
+          if (hasBody) return m;
+        }
+        return {
+          id: thinkingId,
+          role: "error",
+          content: stopped ? "Stopped" : (e as Error).message,
+          tools: messageTools(m),
+        };
+      }));
     } finally {
+      if (abortRef.current === controller) abortRef.current = null;
       setBusy(false);
     }
   }
 
-  async function submitMessage(rawInput?: string) {
+  async function submitMessage(rawInput?: string, attachment?: File | null) {
     const raw = (rawInput ?? input).trim();
-    if (!raw || busy) return;
+    const file = attachment === undefined ? image : attachment;
+    if ((!raw && !file) || busy) return;
     setInput("");
-    const domain = extractDomain(raw);
+    setImage(null);
+    if (file) {
+      await runFollowUp(raw, file);
+      return;
+    }
+    const domain = extractRetryDomain(raw);
     if (domain) {
       await runScore(raw, domain);
       return;
     }
-    await runFollowUp(raw);
+    await runFollowUp(raw, null);
+  }
+
+  async function retryLastTurn() {
+    const last = lastTurnRef.current;
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (busy || (!last && !lastUser)) return;
+    const text = last?.text ?? lastUser?.content ?? "";
+    const lastUi = [...messages].reverse().find((m) => m.role === "assistant" && m.kind === "ui");
+    const scoreDomain = lastUi && lastUi.kind === "ui" ? scoreDomainFromBlocks(lastUi.blocks) : null;
+    const action = resolveRetryAction({ text, scoreDomain });
+    setMessages((prev) => {
+      const idx = [...prev].map((m) => m.role).lastIndexOf("user");
+      return idx === -1 ? prev : prev.slice(0, idx);
+    });
+    if (action.kind === "score") {
+      await submitMessage(action.domain, last?.image ?? null);
+      return;
+    }
+    await submitMessage(action.text, last?.image ?? null);
   }
 
   async function handleAddToWatchlist(company: string, domain: string) {
@@ -508,17 +686,80 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
     }
   }
 
+  function setConfirmation(block: ConfirmationBlock, status: ConfirmationStatus) {
+    const key = confirmationKeyFor(block);
+    setConfirmationByKey((prev) => ({ ...prev, [key]: status }));
+    if (status === "confirming") return;
+    const persisted = status === "error" ? "error" : status;
+    setMessages((prev) => {
+      const next = prev.map((m) => {
+        if (m.role !== "assistant" || m.kind !== "ui") return m;
+        return { ...m, blocks: applyConfirmationStatus(m.blocks, block, persisted) };
+      });
+      const host = next.find((m) => (
+        m.role === "assistant"
+        && m.kind === "ui"
+        && m.blocks.some((b) => b.type === "confirmation" && confirmationKeyFor(b) === key)
+      ));
+      if (sessionId && host && host.role === "assistant" && host.kind === "ui") {
+        void persistChatUiBlocks({
+          sessionId,
+          messageId: host.id,
+          ui_blocks: host.blocks,
+        }).catch(() => undefined);
+      }
+      return next;
+    });
+  }
+
+  async function handleConfirm(block: ConfirmationBlock) {
+    setConfirmation(block, "confirming");
+    try {
+      if (block.action === "add_to_watchlist") {
+        const res = await fetch("/api/dashboard/watchlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain: block.domain, company_name: block.company ?? block.domain }),
+        });
+        const data = await res.json() as { error?: string };
+        if (!res.ok) throw new Error(data.error ?? "Failed to add");
+        setWatchlistByDomain((prev) => ({ ...prev, [block.domain]: "added" }));
+      } else {
+        const res = await fetch("/api/dashboard/pipeline/stages", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain: block.domain, stage: block.stage }),
+        });
+        const data = await res.json() as { error?: string };
+        if (!res.ok) throw new Error(data.error ?? "Failed to update stage");
+      }
+      setConfirmation(block, "confirmed");
+    } catch {
+      setConfirmation(block, "error");
+    }
+  }
+
   function handleNewChat() {
     if (busy) return;
+    abortRef.current?.abort();
     setMessages([]);
     setSessionId(null);
     setInput("");
+    setImage(null);
     autoScoredRef.current = null;
+    lastTurnRef.current = null;
+    setConfirmationByKey({});
+    setWatchlistByDomain({});
+    try {
+      sessionStorage.setItem(NEW_CHAT_FLAG_KEY, "1");
+      localStorage.removeItem(LAST_CHAT_SESSION_KEY);
+    } catch { /* private mode */ }
   }
 
   const active = messages.length > 0;
   const lastUi = [...messages].reverse().find((m) => m.role === "assistant" && m.kind === "ui");
   const chips = lastUi && lastUi.kind === "ui" ? suggestionsFromBlocks(lastUi.blocks) : [];
+  const canRetry = !busy && Boolean(lastTurnRef.current || messages.some((m) => m.role === "user"));
 
   return (
     <div className="score-chat">
@@ -527,13 +768,16 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
           domain={input}
           setDomain={setInput}
           onScore={() => void submitMessage()}
+          onStop={stopGeneration}
           creditsRemaining={creditsRemaining}
           recentScores={recentScores}
           busy={busy}
+          image={image}
+          onImage={setImage}
         />
       ) : (
         <>
-          <div className="score-chat-thread" ref={threadRef}>
+          <div className="score-chat-thread" ref={threadRef} data-tour="score-workspace">
             <div className="score-chat-col">
               {messages.map((message) => {
                 if (message.role === "user") {
@@ -546,7 +790,16 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                 if (message.role === "error") {
                   return (
                     <div key={message.id} className="chat-row assistant">
+                      <ToolChips tools={message.tools} />
                       <p className="chat-error" role="alert">{message.content}</p>
+                      <button
+                        type="button"
+                        className="tb-btn outlined"
+                        onClick={() => void retryLastTurn()}
+                        disabled={busy}
+                      >
+                        Retry
+                      </button>
                     </div>
                   );
                 }
@@ -558,7 +811,7 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                       ) : (
                         <div className="chat-thinking">
                           <span className="pulse" />
-                          Designing view…
+                          Working…
                         </div>
                       )}
                     </div>
@@ -566,7 +819,11 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                 }
                 if (message.kind === "ui") {
                   return (
-                    <div key={message.id} className="chat-row assistant">
+                    <div
+                      key={message.id}
+                      className="chat-row assistant"
+                      data-tour={message.id === lastUi?.id ? "score-result" : undefined}
+                    >
                       {message.billing && (
                         <LiveProgressBar
                           loading={false}
@@ -582,6 +839,9 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                           onWatchlist: (company, d) => void handleAddToWatchlist(company, d),
                           watchlistByDomain,
                           onPrompt: (prompt) => void submitMessage(prompt),
+                          onConfirm: (block) => void handleConfirm(block),
+                          onCancel: (block) => setConfirmation(block, "cancelled"),
+                          confirmationByKey,
                         }}
                       />
                     </div>
@@ -596,9 +856,9 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
               })}
             </div>
           </div>
-          <div className="score-chat-composer">
+          <div className="score-chat-composer" data-tour="score-composer">
             <SuggestionChips suggestions={chips} onPrompt={(prompt) => void submitMessage(prompt)} disabled={busy} />
-            <div className="prompt-holder prompt-holder--compact">
+            <div className="prompt-holder prompt-holder--compact prompt-holder--with-attach">
               <div className="prompt-prefix">
                 <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
                   <circle cx="7" cy="7" r="5" /><path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
@@ -610,21 +870,38 @@ export function ScoreView({ creditsRemaining, recentScores }: ScoreViewProps) {
                 placeholder="Ask a follow-up or score another domain"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !busy && void submitMessage()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !busy) void submitMessage();
+                  if (e.key === "Escape" && busy) stopGeneration();
+                }}
                 disabled={busy}
                 aria-label="Chat message"
               />
-              <button type="button" className="prompt-go" onClick={() => void submitMessage()} disabled={busy || !input.trim()}>
-                Send
-              </button>
+              <AttachControl file={image} onFile={setImage} disabled={busy} />
+              {busy ? (
+                <button type="button" className="tb-btn outlined" onClick={stopGeneration}>Stop</button>
+              ) : (
+                <button type="button" className="prompt-go" onClick={() => void submitMessage()} disabled={!input.trim() && !image}>
+                  Send
+                </button>
+              )}
             </div>
+            {image && (
+              <div className="chat-file">
+                <span>{image.name}</span>
+                <button type="button" className="chat-new" onClick={() => setImage(null)}>Remove</button>
+              </div>
+            )}
             <div className="prompt-meta">
               <div className="left">
                 <span>Follow-ups <strong>{CHAT_CREDIT_COST}</strong> credits · new domain <strong>1</strong> credit</span>
               </div>
               <div className="right">
+                <button type="button" className="chat-new" onClick={() => void retryLastTurn()} disabled={!canRetry}>
+                  Retry
+                </button>
                 <button type="button" className="chat-new" onClick={handleNewChat} disabled={busy}>
-                  New chat
+                  New conversation
                 </button>
                 <span><strong>{creditsRemaining}</strong> credits left</span>
               </div>

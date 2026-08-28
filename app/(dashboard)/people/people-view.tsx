@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { EmptyState } from "@/components/empty-state";
 import type { PersonIntentScore, DbPersonScore } from "@/lib/types";
 
 interface PeopleViewProps {
@@ -21,7 +22,7 @@ const AV_COLORS = [
   "linear-gradient(135deg,#dfff00,#4ade80)",
   "linear-gradient(135deg,#dfff00,#dfff00)",
   "linear-gradient(135deg,#8a8f98,#f87171)",
-  "linear-gradient(135deg,#a78bfa,#e8ff40)",
+  "linear-gradient(135deg,#e8ff40,#8a8f98)",
   "linear-gradient(135deg,#f5b544,#4ade80)",
 ];
 
@@ -150,11 +151,11 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
               </div>
             </div>
             <div className="page-actions">
-              <button className="tb-btn outlined">
+              <button type="button" className="tb-btn outlined" disabled title="Coming soon">
                 <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 6h8M5 3l-3 3 3 3"/></svg>
                 Import CSV
               </button>
-              <button className="tb-btn outlined">
+              <button type="button" className="tb-btn outlined" disabled title="Coming soon">
                 <svg className="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="8" height="6"/><path d="M2 5h8"/></svg>
                 Export
               </button>
@@ -203,9 +204,11 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
           </div>
 
           {paged.length === 0 ? (
-            <div style={{ padding: "60px 0", textAlign: "center", color: "var(--text-tertiary)", fontSize: 13 }}>
-              {totalCount === 0 ? 'No people scored yet. Use "Score person" to get started.' : "No results match your search."}
-            </div>
+            <EmptyState
+              surface="people"
+              kind={totalCount === 0 ? "zero" : "filtered"}
+              onAction={totalCount === 0 ? () => setPageState("score") : undefined}
+            />
           ) : (
             <div className="people-list">
               <div className="pl-head">
@@ -289,13 +292,12 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
       {/* ── SCORE STATE ── */}
       {pageState === "score" && (
         <div className="prompt-stage">
-          <div className="prompt-bg"><div className="grid"/></div>
           <div className="prompt-inner">
             <div className="prompt-eyebrow">
-              <span className="badge" style={{ background: "rgba(223,255,0,0.15)", color: "#9ee0e8", border: "1px solid rgba(223,255,0,0.25)" }}>People</span>
+              <span className="badge">People</span>
               Drop in an email or LinkedIn URL — we score the human in &lt; 3 seconds
             </div>
-            <h1 className="prompt-h1">Who do you want to <span className="grad">score</span>?</h1>
+            <h1 className="prompt-h1">Who do you want to score?</h1>
             <p className="prompt-sub">
               Paste a work email or LinkedIn URL. VesperWise resolves the person, pulls role, tenure, engagement, and influence — then returns a 0–100 buying-intent score with AI reasoning.
             </p>
@@ -382,13 +384,6 @@ export function PeopleView({ totalCount, hotCount, initialScores }: PeopleViewPr
                 </div>
               </>
             )}
-
-            <div className="prompt-feature-row">
-              <div className="feat"><span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "var(--cyan)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><circle cx="6" cy="4.5" r="2"/><path d="M2 10c0-2 2-3 4-3s4 1 4 3"/></svg></span>5 person-axes</div>
-              <div className="feat"><span className="ic" style={{ background: "rgba(223,255,0,0.12)", color: "#dfff00" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><circle cx="6" cy="6" r="4"/><path d="M6 4v3l2 1"/></svg></span>AI thesis from Claude</div>
-              <div className="feat"><span className="ic" style={{ background: "rgba(74,222,128,0.12)", color: "var(--hot)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><path d="M3 6l3 3 5-7"/></svg></span>Verified contact</div>
-              <div className="feat"><span className="ic" style={{ background: "rgba(245,181,68,0.12)", color: "var(--warm)" }}><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" width="10" height="10"><path d="M3 3h6M3 6h6M3 9h4"/></svg></span>Recommended outreach</div>
-            </div>
 
             <div style={{ marginTop: 16 }}>
               <span style={{ cursor: "pointer", fontSize: 12, color: "var(--text-tertiary)" }} onClick={() => setPageState("list")}>← Back to list</span>

@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GoogleAnalytics } from "@/components/google-analytics";
+import { clerkAllowedRedirectOrigins } from "@/lib/clerk-preview";
 import "./globals.css";
 import "./theme-overrides.css";
 import "./responsive.css";
@@ -108,12 +109,13 @@ export default function RootLayout({
       signUpUrl="/signup"
       signInFallbackRedirectUrl="/dashboard"
       signUpFallbackRedirectUrl="/dashboard"
+      allowedRedirectOrigins={clerkAllowedRedirectOrigins()}
     >
       <html lang="en" className="dark" suppressHydrationWarning>
         <head>
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;if(t==='light'){d.classList.remove('dark');}else{d.classList.add('dark');}}catch(e){}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('intentiq-theme');var d=document.documentElement;var dark=t==='light'?false:t==='system'?window.matchMedia('(prefers-color-scheme: dark)').matches:true;d.classList.toggle('dark',dark);}catch(e){}})();`,
             }}
           />
           <GoogleAnalytics />

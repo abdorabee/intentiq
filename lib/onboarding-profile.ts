@@ -1,5 +1,12 @@
 import { businessProfileSchema } from "./business-profile";
 import type { BusinessProfile } from "./types";
+import {
+  ONBOARDING_LAST_STEP,
+  type OnboardingDraftPreference,
+} from "./user-preferences";
+
+export const ONBOARDING_STEP_COUNT = ONBOARDING_LAST_STEP + 1;
+export const FIRST_SKIPPABLE_ONBOARDING_STEP = 2;
 
 export const PRODUCT_CATEGORY_OPTIONS = [
   "SaaS / Software",
@@ -64,7 +71,7 @@ export const EMPTY_BUSINESS_PROFILE: BusinessProfile = {
 
 type TextProfileField = Exclude<keyof BusinessProfile, "target_industries">;
 
-export type OnboardingFieldErrors = Partial<Record<keyof BusinessProfile, string>>;
+export type OnboardingFieldErrors = Partial<Record<keyof BusinessProfile | "domain", string>>;
 
 export interface OnboardingState {
   step: number;
@@ -78,8 +85,10 @@ export type OnboardingAction =
   | { type: "set_industries"; industries: string[] }
   | { type: "next_step" }
   | { type: "previous_step" }
+  | { type: "skip_step" }
   | { type: "go_to_step"; step: number }
   | { type: "save_started" }
+  | { type: "save_succeeded" }
   | { type: "save_failed"; message: string };
 
 function cleanIndustries(industries: unknown): string[] {
@@ -100,39 +109,178 @@ function cleanText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+export function clampOnboardingStep(step: unknown): number {
+  if (typeof step !== "number" || !Number.isInteger(step)) return 0;
+  return Math.min(ONBOARDING_LAST_STEP, Math.max(0, step));
+}
+
+export function canSkipOnboardingStep(step: number): boolean {
+  return step >= FIRST_SKIPPABLE_ONBOARDING_STEP && step <= ONBOARDING_LAST_STEP;
+}
+
+export function cleanBusinessProfile(
+  profile: Partial<BusinessProfile> | null | undefined
+): BusinessProfile {
+  return {
+    product_category: cleanText(profile?.product_category),
+    target_industries: cleanIndustries(profile?.target_industries),
+    company_size: cleanText(profile?.company_size),
+    buyer_role: cleanText(profile?.buyer_role),
+    sales_motion: cleanText(profile?.sales_motion),
+    deal_size: cleanText(profile?.deal_size),
+    sales_cycle: cleanText(profile?.sales_cycle),
+  };
+}
+
 export function createOnboardingState(
-  profile: Partial<BusinessProfile> | null = null
+  profile: Partial<BusinessProfile> | null = null,
+  step = 0
 ): OnboardingState {
   return {
-    step: 0,
-    profile: {
-      product_category: cleanText(profile?.product_category),
-      target_industries: cleanIndustries(profile?.target_industries),
-      company_size: cleanText(profile?.company_size),
-      buyer_role: cleanText(profile?.buyer_role),
-      sales_motion: cleanText(profile?.sales_motion),
-      deal_size: cleanText(profile?.deal_size),
-      sales_cycle: cleanText(profile?.sales_cycle),
-    },
+    step: clampOnboardingStep(step),
+    profile: cleanBusinessProfile(profile),
     saveStatus: "idle",
     saveError: null,
+  };
+}
+
+export function mergeOnboardingDraft(
+  draft: Partial<BusinessProfile> | null | undefined,
+  stored: Partial<BusinessProfile> | null | undefined
+): BusinessProfile {
+  const fromStored = cleanBusinessProfile(stored);
+  const fromDraft = cleanBusinessProfile(draft);
+
+  return {
+    product_category: fromDraft.product_category || fromStored.product_category,
+    target_industries:
+      fromDraft.target_industries.length > 0
+        ? fromDraft.target_industries
+        : fromStored.target_industries,
+    company_size: fromDraft.company_size || fromStored.company_size,
+    buyer_role: fromDraft.buyer_role || fromStored.buyer_role,
+    sales_motion: fromDraft.sales_motion || fromStored.sales_motion,
+    deal_size: fromDraft.deal_size || fromStored.deal_size,
+    sales_cycle: fromDraft.sales_cycle || fromStored.sales_cycle,
+  };
+}
+
+export function resolveOnboardingResume(input: {
+  step?: unknown;
+  draft?: Partial<BusinessProfile> | OnboardingDraftPreference | null;
+  profile?: Partial<BusinessProfile> | null;
+}): { step: number; profile: BusinessProfile } {
+  return {
+    step: clampOnboardingStep(input.step),
+    profile: mergeOnboardingDraft(input.draft ?? null, input.profile ?? null),
+  };
+}
+
+export function buildOnboardingPreferencesPatch(
+  step: number,
+  profile: BusinessProfile
+): { onboarding_step: number; onboarding_draft: BusinessProfile } {
+  return {
+    onboarding_step: clampOnboardingStep(step),
+    onboarding_draft: cleanBusinessProfile(profile),
   };
 }
 
 export function buildBusinessProfile(
   profile: BusinessProfile
 ): BusinessProfile | null {
-  const parsed = businessProfileSchema.safeParse({
-    product_category: cleanText(profile.product_category),
-    target_industries: cleanIndustries(profile.target_industries),
-    company_size: cleanText(profile.company_size),
-    buyer_role: cleanText(profile.buyer_role),
-    sales_motion: cleanText(profile.sales_motion),
-    deal_size: cleanText(profile.deal_size),
-    sales_cycle: cleanText(profile.sales_cycle),
-  });
-
+  const parsed = businessProfileSchema.safeParse(cleanBusinessProfile(profile));
   return parsed.success ? parsed.data as BusinessProfile : null;
+}
+
+export type OnboardingProfilePutPayload = {
+  business_profile: BusinessProfile;
+  onboarding_completed: boolean;
+};
+
+export function buildOnboardingProfilePut(
+  profile: BusinessProfile,
+  completeOnboarding: boolean
+): OnboardingProfilePutPayload | null {
+  const payload = buildBusinessProfile(profile);
+  if (!payload) return null;
+  return {
+    business_profile: payload,
+    onboarding_completed: completeOnboarding,
+  };
+}
+
+export type FirstScoreDependencies = {
+  putProfile: (
+    payload: OnboardingProfilePutPayload
+  ) => Promise<{ ok: boolean; error?: string }>;
+  postScore: (domain: string) => Promise<{ ok: boolean; error?: string }>;
+  finishPreferences?: (profile: BusinessProfile) => Promise<void>;
+};
+
+export type FirstScoreResult =
+  | { status: "invalid_profile"; error: string }
+  | { status: "failed"; error: string; onboardingCompleted: false }
+  | {
+      status: "completed";
+      domain: string;
+      destination: ReturnType<typeof getOnboardingCompleteDestination>;
+    };
+
+export async function runFirstScoreAttempt(
+  domain: string,
+  profile: BusinessProfile,
+  deps: FirstScoreDependencies
+): Promise<FirstScoreResult> {
+  const draft = buildOnboardingProfilePut(profile, false);
+  if (!draft) {
+    return {
+      status: "invalid_profile",
+      error: "Add what you sell and the accounts you target before scoring.",
+    };
+  }
+
+  const persist = await deps.putProfile(draft);
+  if (!persist.ok) {
+    return {
+      status: "failed",
+      error: persist.error ?? "We could not save your profile.",
+      onboardingCompleted: false,
+    };
+  }
+
+  const score = await deps.postScore(domain);
+  if (!score.ok) {
+    return {
+      status: "failed",
+      error: score.error ?? "We could not score that domain.",
+      onboardingCompleted: false,
+    };
+  }
+
+  const complete = buildOnboardingProfilePut(profile, true);
+  if (!complete) {
+    return {
+      status: "invalid_profile",
+      error: "Add what you sell and the accounts you target before scoring.",
+    };
+  }
+
+  const finish = await deps.putProfile(complete);
+  if (!finish.ok) {
+    return {
+      status: "failed",
+      error: finish.error ?? "We could not save your profile.",
+      onboardingCompleted: false,
+    };
+  }
+
+  await deps.finishPreferences?.(draft.business_profile);
+  return {
+    status: "completed",
+    domain,
+    destination: getOnboardingCompleteDestination(domain),
+  };
 }
 
 export function validateOnboardingStep(
@@ -188,6 +336,14 @@ export function getOnboardingRedirect(
   return null;
 }
 
+export function getOnboardingCompleteDestination(
+  domain?: string | null
+): "/score" | `/score?domain=${string}` {
+  const cleaned = typeof domain === "string" ? domain.trim() : "";
+  if (!cleaned) return "/score";
+  return `/score?domain=${encodeURIComponent(cleaned)}`;
+}
+
 export function onboardingReducer(
   state: OnboardingState,
   action: OnboardingAction
@@ -208,13 +364,21 @@ export function onboardingReducer(
         saveError: null,
       };
     case "next_step":
-      return { ...state, step: Math.min(3, state.step + 1) };
+      return { ...state, step: Math.min(ONBOARDING_LAST_STEP, state.step + 1) };
+    case "skip_step":
+      if (!canSkipOnboardingStep(state.step)) return state;
+      return { ...state, step: Math.min(ONBOARDING_LAST_STEP, state.step + 1) };
     case "previous_step":
       return { ...state, step: Math.max(0, state.step - 1) };
     case "go_to_step":
-      return { ...state, step: Math.min(3, Math.max(0, action.step)) };
+      return {
+        ...state,
+        step: Math.min(ONBOARDING_LAST_STEP, Math.max(0, action.step)),
+      };
     case "save_started":
       return { ...state, saveStatus: "saving", saveError: null };
+    case "save_succeeded":
+      return { ...state, saveStatus: "idle", saveError: null };
     case "save_failed":
       return { ...state, saveStatus: "error", saveError: action.message };
   }

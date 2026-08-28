@@ -4,98 +4,75 @@ import { useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import VesperWiseLogo from "@/components/vesperwise-logo";
+import { extractDomain } from "@/lib/chat-client";
 import {
-  buildBusinessProfile,
+  buildOnboardingPreferencesPatch,
+  buildOnboardingProfilePut,
   BUYER_ROLE_OPTIONS,
+  canSkipOnboardingStep,
   COMPANY_SIZE_OPTIONS,
   DEAL_SIZE_OPTIONS,
+  getOnboardingCompleteDestination,
   INDUSTRY_OPTIONS,
+  ONBOARDING_STEP_COUNT,
   onboardingReducer,
   PRODUCT_CATEGORY_OPTIONS,
+  runFirstScoreAttempt,
   SALES_CYCLE_OPTIONS,
   SALES_MOTION_OPTIONS,
   createOnboardingState,
   validateOnboardingStep,
   type OnboardingFieldErrors,
+  type OnboardingProfilePutPayload,
 } from "@/lib/onboarding-profile";
 import type { BusinessProfile } from "@/lib/types";
 
 const STEPS = [
-  { title: "Your offer", description: "Tell us what you sell." },
-  { title: "Ideal accounts", description: "Define the companies you want to reach." },
-  { title: "Buying motion", description: "Show us who buys and how you sell." },
-  { title: "Deal profile", description: "Set your commercial context and review." },
+  { title: "Offer", description: "What you sell." },
+  { title: "Accounts", description: "Industries and company size." },
+  { title: "Motion", description: "Buyer and how you sell." },
+  { title: "Commercial", description: "Deal size and cycle." },
+  { title: "First score", description: "Score one account." },
+] as const;
+
+const HOT_PICKS = [
+  { domain: "stripe.com", name: "Stripe", signal: "funding" },
+  { domain: "anthropic.com", name: "Anthropic", signal: "news" },
+  { domain: "linear.app", name: "Linear", signal: "hiring" },
 ] as const;
 
 function includesOption(options: readonly string[], value: string) {
   return options.includes(value);
 }
 
-function ChoiceButton({
-  selected,
-  children,
-  onClick,
-}: {
-  selected: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onClick}
-      className={`min-h-12 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0c0d] ${
-        selected
-          ? "border-[#dfff00]/70 bg-[#dfff00]/10 text-[#f7f8f8]"
-          : "border-white/10 bg-white/[0.025] text-[#b8bec8] hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
-      }`}
-    >
-      <span className="flex items-center justify-between gap-3">
-        <span>{children}</span>
-        <span
-          aria-hidden="true"
-          className={`h-2.5 w-2.5 shrink-0 rounded-full border ${
-            selected
-              ? "border-[#dfff00] bg-[#dfff00] shadow-[0_0_14px_rgba(223,255,0,0.45)]"
-              : "border-white/20"
-          }`}
-        />
-      </span>
-    </button>
-  );
+function avColor(name: string) {
+  const colors = ["#dfff00", "#4ade80", "#e8ff40", "#f5b544", "#8a8f98"];
+  let hash = 0;
+  for (const char of name) hash = (hash + char.charCodeAt(0)) % colors.length;
+  return colors[hash];
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} className="mt-2 text-sm text-red-300">
+    <p id={id} className="settings-error" role="alert">
       {message}
     </p>
   );
 }
 
-function ReviewRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid gap-1 border-b border-white/[0.07] py-3 last:border-0 sm:grid-cols-[150px_1fr] sm:gap-6">
-      <dt className="text-xs font-medium uppercase tracking-[0.12em] text-[#6f747c]">
-        {label}
-      </dt>
-      <dd className="text-sm text-[#e8eaed]">{value}</dd>
-    </div>
-  );
-}
-
 export default function OnboardingWizard({
   initialProfile,
+  initialStep = 0,
 }: {
   initialProfile: Partial<BusinessProfile> | null;
+  initialStep?: number;
 }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(
     onboardingReducer,
-    initialProfile,
-    (profile) => createOnboardingState(profile)
+    { initialProfile, initialStep },
+    ({ initialProfile: profile, initialStep: step }) => createOnboardingState(profile, step)
   );
   const [errors, setErrors] = useState<OnboardingFieldErrors>({});
   const [customProduct, setCustomProduct] = useState(
@@ -105,11 +82,13 @@ export default function OnboardingWizard({
     )
   );
   const [customIndustry, setCustomIndustry] = useState("");
+  const [domain, setDomain] = useState("");
 
   const { profile, step, saveStatus, saveError } = state;
   const currentStep = STEPS[step];
+  const busy = saveStatus === "saving";
 
-  function clearError(field: keyof BusinessProfile) {
+  function clearError(field: keyof OnboardingFieldErrors) {
     setErrors((current) => {
       if (!current[field]) return current;
       const next = { ...current };
@@ -158,52 +137,149 @@ export default function OnboardingWizard({
     clearError("target_industries");
   }
 
-  function continueToNextStep() {
-    const stepErrors = validateOnboardingStep(step, profile);
-    setErrors(stepErrors);
-    if (Object.keys(stepErrors).length === 0) {
-      dispatch({ type: "next_step" });
-    }
-  }
-
-  async function saveProfile() {
-    const stepErrors = validateOnboardingStep(3, profile);
-    setErrors(stepErrors);
-    if (Object.keys(stepErrors).length > 0) return;
-
-    const payload = buildBusinessProfile(profile);
-    if (!payload) {
-      dispatch({
-        type: "save_failed",
-        message: "Some profile details are incomplete. Review each step and try again.",
-      });
-      return;
-    }
-
+  async function persistProgress(nextStep: number): Promise<boolean> {
     dispatch({ type: "save_started" });
     try {
-      const response = await fetch("/api/user/profile", {
-        method: "PUT",
+      const response = await fetch("/api/user/preferences", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business_profile: payload }),
+        body: JSON.stringify(buildOnboardingPreferencesPatch(nextStep, profile)),
       });
-
       if (!response.ok) {
         const body = await response.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ?? "We could not save your profile.");
+        throw new Error(body?.error ?? "We could not save your progress.");
       }
-
-      router.replace("/dashboard");
-      router.refresh();
+      dispatch({ type: "save_succeeded" });
+      return true;
     } catch (error) {
       dispatch({
         type: "save_failed",
         message:
           error instanceof Error
             ? error.message
-            : "We could not save your profile. Check your connection and try again.",
+            : "We could not save your progress. Check your connection and try again.",
       });
+      return false;
     }
+  }
+
+  async function putOnboardingProfile(
+    payload: OnboardingProfilePutPayload
+  ): Promise<{ ok: boolean; error?: string }> {
+    const response = await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = await response.json().catch(() => null) as { error?: string } | null;
+    return { ok: response.ok, error: body?.error };
+  }
+
+  async function finishOnboardingPreferences(savedProfile: BusinessProfile) {
+    await fetch("/api/user/preferences", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...buildOnboardingPreferencesPatch(0, savedProfile),
+        product_tour_completed: false,
+      }),
+    }).catch(() => undefined);
+  }
+
+  async function completeOnboarding(scoredDomain?: string | null): Promise<boolean> {
+    const payload = buildOnboardingProfilePut(profile, true);
+    if (!payload) {
+      dispatch({
+        type: "save_failed",
+        message: "Add what you sell and the accounts you target before finishing.",
+      });
+      return false;
+    }
+
+    dispatch({ type: "save_started" });
+    try {
+      const saved = await putOnboardingProfile(payload);
+      if (!saved.ok) {
+        throw new Error(saved.error ?? "We could not save your profile.");
+      }
+
+      await finishOnboardingPreferences(payload.business_profile);
+
+      dispatch({ type: "save_succeeded" });
+      router.replace(getOnboardingCompleteDestination(scoredDomain));
+      router.refresh();
+      return true;
+    } catch (error) {
+      dispatch({
+        type: "save_failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "We could not finish setup. Check your connection and try again.",
+      });
+      return false;
+    }
+  }
+
+  async function continueToNextStep() {
+    const stepErrors = validateOnboardingStep(step, profile);
+    setErrors(stepErrors);
+    if (Object.keys(stepErrors).length > 0) return;
+
+    const nextStep = Math.min(STEPS.length - 1, step + 1);
+    const saved = await persistProgress(nextStep);
+    if (saved) dispatch({ type: "next_step" });
+  }
+
+  async function skipCurrentStep() {
+    if (!canSkipOnboardingStep(step)) return;
+    setErrors({});
+    if (step === STEPS.length - 1) {
+      await completeOnboarding();
+      return;
+    }
+
+    const nextStep = step + 1;
+    const saved = await persistProgress(nextStep);
+    if (saved) dispatch({ type: "skip_step" });
+  }
+
+  async function scoreFirstAccount() {
+    const resolved = extractDomain(domain);
+    if (!resolved) {
+      setErrors({ domain: "Enter a company domain such as stripe.com." });
+      return;
+    }
+    clearError("domain");
+
+    dispatch({ type: "save_started" });
+    const result = await runFirstScoreAttempt(resolved, profile, {
+      putProfile: putOnboardingProfile,
+      postScore: async (scoredDomain) => {
+        const response = await fetch("/api/v1/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain: scoredDomain }),
+        });
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        return { ok: response.ok, error: body?.error };
+      },
+      finishPreferences: finishOnboardingPreferences,
+    });
+
+    if (result.status === "completed") {
+      dispatch({ type: "save_succeeded" });
+      router.replace(result.destination);
+      router.refresh();
+      return;
+    }
+
+    dispatch({
+      type: "save_failed",
+      message:
+        result.error ??
+        "We could not score that account. Try again or skip for now.",
+    });
   }
 
   const customIndustries = profile.target_industries.filter(
@@ -211,363 +287,383 @@ export default function OnboardingWizard({
   );
 
   return (
-    <main className="min-h-[100dvh] bg-[#08090a] text-[#f7f8f8]">
-      <div className="mx-auto grid min-h-[100dvh] max-w-[1440px] lg:grid-cols-[340px_1fr]">
-        <aside className="relative overflow-hidden border-b border-white/[0.08] bg-[#0b0c0d] px-6 py-7 lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-36 -top-40 h-80 w-80 rounded-full bg-[#dfff00]/10 blur-[120px]"
-          />
-          <div className="relative flex h-full flex-col">
-            <VesperWiseLogo size={42} variant="wordmark" />
+    <main className="onboarding-page">
+      <div className="onboarding-shell">
+        <header className="onboarding-top">
+          <VesperWiseLogo size={28} />
+          <p className="settings-eyebrow">
+            {step + 1} of {ONBOARDING_STEP_COUNT}
+          </p>
+        </header>
 
-            <div className="mt-10 hidden lg:block">
-              <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#dfff00]">
-                Profile setup
-              </p>
-              <h1 className="mt-4 max-w-[250px] text-3xl font-semibold leading-tight tracking-[-0.03em]">
-                Make every intent score relevant to your sales motion.
-              </h1>
-              <p className="mt-4 max-w-[260px] text-sm leading-6 text-[#9298a1]">
-                Your answers help VesperWise frame evidence and next actions around the accounts you actually sell to.
-              </p>
-            </div>
-
-            <ol className="mt-7 grid grid-cols-4 gap-2 lg:mt-12 lg:grid-cols-1 lg:gap-1" aria-label="Onboarding progress">
-              {STEPS.map((item, index) => (
-                <li key={item.title}>
-                  <button
-                    type="button"
-                    disabled={index > step}
-                    onClick={() => dispatch({ type: "go_to_step", step: index })}
-                    aria-current={index === step ? "step" : undefined}
-                    className={`group flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors lg:px-3 lg:py-3 ${
-                      index === step
-                        ? "bg-white/[0.055] text-white"
-                        : index < step
-                          ? "text-[#aeb4bd] hover:bg-white/[0.035]"
-                          : "cursor-default text-[#50545a]"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border font-mono text-[10px] ${
-                        index <= step
-                          ? "border-[#dfff00]/45 bg-[#dfff00]/[0.08] text-[#dfff00]"
-                          : "border-white/[0.08] text-[#50545a]"
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
-                    <span className="hidden min-w-0 lg:block">
-                      <span className="block text-sm font-medium">{item.title}</span>
-                      <span className="mt-0.5 block truncate text-xs text-[#62676f]">
-                        {item.description}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-
-            <p className="mt-auto hidden pt-8 font-mono text-[10px] uppercase tracking-[0.13em] text-[#555a61] lg:block">
-              Seven answers · about two minutes
-            </p>
-          </div>
-        </aside>
-
-        <section className="flex min-w-0 items-center justify-center px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
-          <form
-            className="w-full max-w-[760px]"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void saveProfile();
-            }}
-          >
-            <header className="mb-8 border-b border-white/[0.08] pb-7">
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#8a9098]">
-                  {step + 1} of {STEPS.length}
-                </p>
-                <p className="text-xs text-[#646970]">Saved when you finish</p>
-              </div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                {currentStep.title}
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9298a1] sm:text-base">
-                {currentStep.description}
-              </p>
-            </header>
-
-            {step === 0 && (
-              <fieldset aria-describedby={errors.product_category ? "product-error" : undefined}>
-                <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                  What does your company sell?
-                </legend>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {PRODUCT_CATEGORY_OPTIONS.map((option) => (
-                    <ChoiceButton
-                      key={option}
-                      selected={!customProduct && profile.product_category === option}
-                      onClick={() => {
-                        setCustomProduct(false);
-                        updateField("product_category", option);
-                      }}
-                    >
-                      {option}
-                    </ChoiceButton>
-                  ))}
-                  <ChoiceButton
-                    selected={customProduct}
-                    onClick={() => {
-                      if (!customProduct) updateField("product_category", "");
-                      setCustomProduct(true);
-                    }}
-                  >
-                    Something else
-                  </ChoiceButton>
-                </div>
-                {customProduct && (
-                  <div className="mt-4">
-                    <label htmlFor="custom-product" className="mb-2 block text-sm text-[#b8bec8]">
-                      Describe your product or service
-                    </label>
-                    <input
-                      id="custom-product"
-                      autoFocus
-                      value={profile.product_category}
-                      onChange={(event) => updateField("product_category", event.target.value)}
-                      placeholder="For example, revenue operations consulting"
-                      className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.035] px-4 text-sm text-white placeholder:text-[#555b63] focus:border-[#dfff00]/60 focus:outline-none focus:ring-2 focus:ring-[#dfff00]/20"
-                    />
-                  </div>
-                )}
-                <FieldError id="product-error" message={errors.product_category} />
-              </fieldset>
-            )}
-
-            {step === 1 && (
-              <div className="space-y-8">
-                <fieldset aria-describedby={errors.target_industries ? "industries-error" : undefined}>
-                  <legend className="mb-2 text-sm font-medium text-[#d7dbe0]">
-                    Which industries do you sell into?
-                  </legend>
-                  <p className="mb-4 text-xs text-[#6f747c]">Select every industry that fits.</p>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {INDUSTRY_OPTIONS.map((option) => (
-                      <ChoiceButton
-                        key={option}
-                        selected={profile.target_industries.includes(option)}
-                        onClick={() => toggleIndustry(option)}
-                      >
-                        {option}
-                      </ChoiceButton>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                    <label htmlFor="custom-industry" className="sr-only">
-                      Add another target industry
-                    </label>
-                    <input
-                      id="custom-industry"
-                      value={customIndustry}
-                      onChange={(event) => setCustomIndustry(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          addCustomIndustry();
-                        }
-                      }}
-                      placeholder="Add another industry"
-                      className="h-11 flex-1 rounded-xl border border-white/10 bg-white/[0.035] px-4 text-sm text-white placeholder:text-[#555b63] focus:border-[#dfff00]/60 focus:outline-none focus:ring-2 focus:ring-[#dfff00]/20"
-                    />
-                    <button
-                      type="button"
-                      onClick={addCustomIndustry}
-                      className="h-11 rounded-xl border border-white/10 px-4 text-sm font-medium text-[#cbd0d6] hover:border-white/20 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
-                    >
-                      Add industry
-                    </button>
-                  </div>
-                  {customIndustries.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2" aria-label="Custom target industries">
-                      {customIndustries.map((industry) => (
-                        <button
-                          key={industry}
-                          type="button"
-                          onClick={() => toggleIndustry(industry)}
-                          className="rounded-lg border border-[#dfff00]/25 bg-[#dfff00]/[0.06] px-3 py-2 text-xs text-[#dfe6a8] hover:border-red-300/40 hover:text-red-200"
-                          aria-label={`Remove ${industry}`}
-                        >
-                          {industry} <span aria-hidden="true">×</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  <FieldError id="industries-error" message={errors.target_industries} />
-                </fieldset>
-
-                <fieldset aria-describedby={errors.company_size ? "company-size-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                    What is your ideal customer size?
-                  </legend>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {COMPANY_SIZE_OPTIONS.map((option) => (
-                      <ChoiceButton
-                        key={option}
-                        selected={profile.company_size === option}
-                        onClick={() => updateField("company_size", option)}
-                      >
-                        {option}
-                      </ChoiceButton>
-                    ))}
-                  </div>
-                  <FieldError id="company-size-error" message={errors.company_size} />
-                </fieldset>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-8">
-                <fieldset aria-describedby={errors.buyer_role ? "buyer-role-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                    Who is your primary buyer?
-                  </legend>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {BUYER_ROLE_OPTIONS.map((option) => (
-                      <ChoiceButton
-                        key={option}
-                        selected={profile.buyer_role === option}
-                        onClick={() => updateField("buyer_role", option)}
-                      >
-                        {option}
-                      </ChoiceButton>
-                    ))}
-                  </div>
-                  <FieldError id="buyer-role-error" message={errors.buyer_role} />
-                </fieldset>
-
-                <fieldset aria-describedby={errors.sales_motion ? "sales-motion-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                    How does your team sell?
-                  </legend>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {SALES_MOTION_OPTIONS.map((option) => (
-                      <ChoiceButton
-                        key={option}
-                        selected={profile.sales_motion === option}
-                        onClick={() => updateField("sales_motion", option)}
-                      >
-                        {option}
-                      </ChoiceButton>
-                    ))}
-                  </div>
-                  <FieldError id="sales-motion-error" message={errors.sales_motion} />
-                </fieldset>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-8">
-                <div className="grid gap-8 md:grid-cols-2">
-                  <fieldset aria-describedby={errors.deal_size ? "deal-size-error" : undefined}>
-                    <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                      Typical deal size
-                    </legend>
-                    <div className="grid gap-3">
-                      {DEAL_SIZE_OPTIONS.map((option) => (
-                        <ChoiceButton
-                          key={option}
-                          selected={profile.deal_size === option}
-                          onClick={() => updateField("deal_size", option)}
-                        >
-                          {option}
-                        </ChoiceButton>
-                      ))}
-                    </div>
-                    <FieldError id="deal-size-error" message={errors.deal_size} />
-                  </fieldset>
-
-                  <fieldset aria-describedby={errors.sales_cycle ? "sales-cycle-error" : undefined}>
-                    <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                      Typical sales cycle
-                    </legend>
-                    <div className="grid gap-3">
-                      {SALES_CYCLE_OPTIONS.map((option) => (
-                        <ChoiceButton
-                          key={option}
-                          selected={profile.sales_cycle === option}
-                          onClick={() => updateField("sales_cycle", option)}
-                        >
-                          {option}
-                        </ChoiceButton>
-                      ))}
-                    </div>
-                    <FieldError id="sales-cycle-error" message={errors.sales_cycle} />
-                  </fieldset>
-                </div>
-
-                <section aria-labelledby="profile-review" className="rounded-2xl border border-white/[0.09] bg-white/[0.025] px-5 py-3 sm:px-6">
-                  <h3 id="profile-review" className="py-3 text-base font-semibold">
-                    Review your profile
-                  </h3>
-                  <dl>
-                    <ReviewRow label="Offer" value={profile.product_category || "Not selected"} />
-                    <ReviewRow label="Industries" value={profile.target_industries.join(", ") || "Not selected"} />
-                    <ReviewRow label="Company size" value={profile.company_size || "Not selected"} />
-                    <ReviewRow label="Buyer" value={profile.buyer_role || "Not selected"} />
-                    <ReviewRow label="Sales motion" value={profile.sales_motion || "Not selected"} />
-                  </dl>
-                </section>
-
-                {saveError && (
-                  <div
-                    role="alert"
-                    aria-live="assertive"
-                    className="flex flex-col gap-3 rounded-xl border border-red-300/20 bg-red-400/[0.07] p-4 text-sm text-red-100 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <p>{saveError}</p>
-                    <button
-                      type="button"
-                      onClick={() => void saveProfile()}
-                      className="shrink-0 rounded-lg border border-red-200/25 px-3 py-2 font-medium hover:bg-red-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
-                    >
-                      Try again
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <footer className="mt-9 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-6">
+        <ol className="onboarding-steps" aria-label="Onboarding progress">
+          {STEPS.map((item, index) => (
+            <li key={item.title}>
               <button
                 type="button"
-                onClick={() => dispatch({ type: "previous_step" })}
-                disabled={step === 0 || saveStatus === "saving"}
-                className="min-h-11 rounded-xl border border-white/10 px-5 text-sm font-medium text-[#b8bec8] hover:border-white/20 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+                disabled={index > step || busy}
+                onClick={() => dispatch({ type: "go_to_step", step: index })}
+                aria-current={index === step ? "step" : undefined}
+                className={`onboarding-step${index === step ? " active" : ""}${index < step ? " done" : ""}`}
               >
-                Back
+                <span className="onboarding-step-index">{index + 1}</span>
+                <span className="onboarding-step-label">{item.title}</span>
               </button>
+            </li>
+          ))}
+        </ol>
 
-              {step < 3 ? (
+        <form
+          className="onboarding-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (step === STEPS.length - 1) {
+              void scoreFirstAccount();
+              return;
+            }
+            void continueToNextStep();
+          }}
+        >
+          <header className="page-head">
+            <div>
+              <h1 className="page-title">{currentStep.title}</h1>
+              <p className="page-sub">{currentStep.description}</p>
+            </div>
+          </header>
+
+          {step === 0 && (
+            <fieldset
+              className="settings-field"
+              aria-describedby={errors.product_category ? "product-error" : undefined}
+            >
+              <legend className="settings-eyebrow">What does your company sell?</legend>
+              <div className="settings-choice-list">
+                {PRODUCT_CATEGORY_OPTIONS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={!customProduct && profile.product_category === option}
+                    onClick={() => {
+                      setCustomProduct(false);
+                      updateField("product_category", option);
+                    }}
+                    className={`settings-choice${!customProduct && profile.product_category === option ? " active" : ""}`}
+                  >
+                    {option}
+                  </button>
+                ))}
                 <button
                   type="button"
-                  onClick={continueToNextStep}
-                  className="min-h-11 rounded-xl bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  aria-pressed={customProduct}
+                  onClick={() => {
+                    if (!customProduct) updateField("product_category", "");
+                    setCustomProduct(true);
+                  }}
+                  className={`settings-choice${customProduct ? " active" : ""}`}
                 >
-                  Continue
+                  Something else
                 </button>
-              ) : (
+              </div>
+              {customProduct && (
+                <div className="onboarding-custom">
+                  <label htmlFor="custom-product" className="settings-eyebrow">
+                    Describe your product or service
+                  </label>
+                  <input
+                    id="custom-product"
+                    autoFocus
+                    value={profile.product_category}
+                    onChange={(event) => updateField("product_category", event.target.value)}
+                    placeholder="For example, revenue operations consulting"
+                    className="onboarding-input"
+                  />
+                </div>
+              )}
+              <FieldError id="product-error" message={errors.product_category} />
+            </fieldset>
+          )}
+
+          {step === 1 && (
+            <div className="onboarding-stack">
+              <fieldset
+                className="settings-field"
+                aria-describedby={errors.target_industries ? "industries-error" : undefined}
+              >
+                <legend className="settings-eyebrow">Which industries do you sell into?</legend>
+                <p>Select every industry that fits.</p>
+                <div className="settings-choice-list">
+                  {INDUSTRY_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.target_industries.includes(option)}
+                      onClick={() => toggleIndustry(option)}
+                      className={`settings-choice${profile.target_industries.includes(option) ? " active" : ""}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <div className="onboarding-add-row">
+                  <label htmlFor="custom-industry" className="sr-only">
+                    Add another target industry
+                  </label>
+                  <input
+                    id="custom-industry"
+                    value={customIndustry}
+                    onChange={(event) => setCustomIndustry(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addCustomIndustry();
+                      }
+                    }}
+                    placeholder="Add another industry"
+                    className="onboarding-input"
+                  />
+                  <button type="button" onClick={addCustomIndustry} className="tb-btn outlined">
+                    Add industry
+                  </button>
+                </div>
+                {customIndustries.length > 0 && (
+                  <div className="settings-choice-list" aria-label="Custom target industries">
+                    {customIndustries.map((industry) => (
+                      <button
+                        key={industry}
+                        type="button"
+                        onClick={() => toggleIndustry(industry)}
+                        className="settings-choice active"
+                        aria-label={`Remove ${industry}`}
+                      >
+                        {industry} ×
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <FieldError id="industries-error" message={errors.target_industries} />
+              </fieldset>
+
+              <fieldset
+                className="settings-field"
+                aria-describedby={errors.company_size ? "company-size-error" : undefined}
+              >
+                <legend className="settings-eyebrow">What is your ideal customer size?</legend>
+                <div className="settings-choice-list">
+                  {COMPANY_SIZE_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.company_size === option}
+                      onClick={() => updateField("company_size", option)}
+                      className={`settings-choice${profile.company_size === option ? " active" : ""}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <FieldError id="company-size-error" message={errors.company_size} />
+              </fieldset>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="onboarding-stack">
+              <fieldset
+                className="settings-field"
+                aria-describedby={errors.buyer_role ? "buyer-role-error" : undefined}
+              >
+                <legend className="settings-eyebrow">Who is your primary buyer?</legend>
+                <div className="settings-choice-list">
+                  {BUYER_ROLE_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.buyer_role === option}
+                      onClick={() => updateField("buyer_role", option)}
+                      className={`settings-choice${profile.buyer_role === option ? " active" : ""}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <FieldError id="buyer-role-error" message={errors.buyer_role} />
+              </fieldset>
+
+              <fieldset
+                className="settings-field"
+                aria-describedby={errors.sales_motion ? "sales-motion-error" : undefined}
+              >
+                <legend className="settings-eyebrow">How does your team sell?</legend>
+                <div className="settings-choice-list">
+                  {SALES_MOTION_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.sales_motion === option}
+                      onClick={() => updateField("sales_motion", option)}
+                      className={`settings-choice${profile.sales_motion === option ? " active" : ""}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <FieldError id="sales-motion-error" message={errors.sales_motion} />
+              </fieldset>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="onboarding-stack">
+              <fieldset
+                className="settings-field"
+                aria-describedby={errors.deal_size ? "deal-size-error" : undefined}
+              >
+                <legend className="settings-eyebrow">Typical deal size</legend>
+                <div className="settings-choice-list">
+                  {DEAL_SIZE_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.deal_size === option}
+                      onClick={() => updateField("deal_size", option)}
+                      className={`settings-choice${profile.deal_size === option ? " active" : ""}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <FieldError id="deal-size-error" message={errors.deal_size} />
+              </fieldset>
+
+              <fieldset
+                className="settings-field"
+                aria-describedby={errors.sales_cycle ? "sales-cycle-error" : undefined}
+              >
+                <legend className="settings-eyebrow">Typical sales cycle</legend>
+                <div className="settings-choice-list">
+                  {SALES_CYCLE_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.sales_cycle === option}
+                      onClick={() => updateField("sales_cycle", option)}
+                      className={`settings-choice${profile.sales_cycle === option ? " active" : ""}`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <FieldError id="sales-cycle-error" message={errors.sales_cycle} />
+              </fieldset>
+            </div>
+          )}
+
+          {step === 4 && (
+            <section className="onboarding-score" aria-labelledby="first-score-heading">
+              <p id="first-score-heading" className="sr-only">
+                Score a company domain
+              </p>
+              <div className="prompt-holder prompt-holder--compact">
+                <div className="prompt-prefix" aria-hidden="true">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" width="14" height="14">
+                    <circle cx="7" cy="7" r="5" />
+                    <path d="M2 7h10M7 2c2 2 2 8 0 10M7 2c-2 2-2 8 0 10" />
+                  </svg>
+                </div>
+                <label htmlFor="first-score-domain" className="sr-only">
+                  Company domain
+                </label>
+                <input
+                  id="first-score-domain"
+                  className="prompt-input"
+                  type="text"
+                  placeholder="stripe.com"
+                  value={domain}
+                  onChange={(event) => {
+                    setDomain(event.target.value);
+                    clearError("domain");
+                  }}
+                  autoFocus
+                  disabled={busy}
+                  aria-describedby={errors.domain ? "domain-error" : undefined}
+                />
+                <button type="submit" className="prompt-go" disabled={busy}>
+                  {busy ? "Scoring…" : "Score"}
+                  <span className="kbd-inline">↵</span>
+                </button>
+              </div>
+              <FieldError id="domain-error" message={errors.domain} />
+              <p className="onboarding-score-meta">
+                1 credit on a fresh scorable result. You can skip and score later.
+              </p>
+              <div className="prompt-section-label">
+                <span>Try a hot pick</span>
+                <span className="line" />
+              </div>
+              <div className="suggestion-row">
+                {HOT_PICKS.map((pick) => (
+                  <button
+                    key={pick.domain}
+                    type="button"
+                    className="sugg"
+                    onClick={() => {
+                      setDomain(pick.domain);
+                      clearError("domain");
+                    }}
+                  >
+                    <div className="av" style={{ background: avColor(pick.name) }}>{pick.name[0]}</div>
+                    {pick.domain}
+                    <span className="mono-sm">▲ {pick.signal}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {saveError && (
+            <div role="alert" aria-live="assertive" className="onboarding-alert">
+              <p>{saveError}</p>
+              {step === STEPS.length - 1 && (
                 <button
-                  type="submit"
-                  disabled={saveStatus === "saving"}
-                  className="min-h-11 rounded-xl bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  type="button"
+                  className="tb-btn outlined"
+                  onClick={() => void completeOnboarding()}
+                  disabled={busy}
                 >
-                  {saveStatus === "saving" ? "Saving profile..." : "Finish setup"}
+                  Continue to Score
                 </button>
               )}
-            </footer>
-          </form>
-        </section>
+            </div>
+          )}
+
+          <footer className="onboarding-footer">
+            <button
+              type="button"
+              onClick={() => dispatch({ type: "previous_step" })}
+              disabled={step === 0 || busy}
+              className="tb-btn outlined"
+            >
+              Back
+            </button>
+            <div className="onboarding-footer-actions">
+              {canSkipOnboardingStep(step) && (
+                <button
+                  type="button"
+                  onClick={() => void skipCurrentStep()}
+                  disabled={busy}
+                  className="tb-btn"
+                >
+                  {step === STEPS.length - 1 ? "Skip for now" : "Skip"}
+                </button>
+              )}
+              {step < STEPS.length - 1 && (
+                <button type="submit" disabled={busy} className="btn-primary">
+                  {busy ? "Saving…" : "Continue"}
+                </button>
+              )}
+            </div>
+          </footer>
+        </form>
       </div>
     </main>
   );

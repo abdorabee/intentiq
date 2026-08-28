@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ListCardSummary, ListsHeroStats } from "@/lib/lists-types";
+import { EmptyState } from "@/components/empty-state";
 import { ListCard } from "./list-card";
 import { useListsTopbar } from "@/components/dashboard/lists-topbar-context";
 
@@ -117,19 +118,11 @@ export function ListOverview({ summaries, hero }: ListOverviewProps) {
       </div>
 
       {isFilteredEmpty ? (
-        <div className="lists-empty">
-          <div className="lists-empty-title">{hasFilters ? "No lists match" : "No lists yet"}</div>
-          <div className="lists-empty-sub">
-            {hasFilters
-              ? "Try a different search or filter."
-              : "Group accounts by signal, segment, or by hand."}
-          </div>
-          {!hasFilters && (
-            <button type="button" className="btn-primary" onClick={() => openCreateModal?.()}>
-              New list
-            </button>
-          )}
-        </div>
+        <EmptyState
+          surface="lists"
+          kind={hasFilters ? "filtered" : "zero"}
+          onAction={hasFilters ? undefined : () => openCreateModal?.()}
+        />
       ) : (
         <div className="list-grid">
           {filtered.map((s) => (
