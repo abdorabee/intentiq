@@ -16,14 +16,19 @@ describe("clerkUnauthenticatedLoginUrl", () => {
       "https://intentiq-git-cursor-saas-product-pol-b7b279-abdorabees-projects.vercel.app/login",
     );
     expect(LOCAL_CLERK_SIGN_IN_PATH).toBe("/login");
+    expect(clerkUnauthenticatedLoginUrl("http://localhost:3000")).toBe(
+      "http://localhost:3000/login",
+    );
   });
 });
 
 describe("clerkAllowedRedirectOrigins", () => {
-  it("always includes production and the Vercel project wildcard", () => {
+  it("always includes production, the Vercel project wildcard, and local dev origins", () => {
     const origins = clerkAllowedRedirectOrigins({});
     expect(origins).toContain("https://www.vesperwise.com");
     expect(origins).toContain("https://*.abdorabees-projects.vercel.app");
+    expect(origins).toContain("http://localhost:3000");
+    expect(origins).toContain("http://127.0.0.1:3000");
   });
 
   it("adds the current Vercel preview and branch hosts when set", () => {
