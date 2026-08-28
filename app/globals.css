@@ -9175,3 +9175,63 @@ button.signal-card.gen-axis.is-selected {
     border: 1px solid var(--hairline);
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Onboarding: Intent Calibration Engine                               */
+/* ------------------------------------------------------------------ */
+
+/* Fallback schematic parts brighten as the instrument is configured.  */
+.vw-cal-part {
+  opacity: 0.35;
+  transition: opacity 400ms ease;
+}
+
+.vw-cal-part[data-on] {
+  opacity: 1;
+}
+
+.vw-cal-energy {
+  transition: stroke-dashoffset 600ms ease;
+}
+
+/* Signal connectors between diagnostic readouts and the instrument.   */
+.vw-signal-path {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.vw-signal-path[data-on] {
+  opacity: 1;
+}
+
+/* Schematic corner marks on the calibration review frame.             */
+.vw-schematic-frame::before,
+.vw-schematic-frame::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(223, 255, 0, 0.55);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.vw-schematic-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+
+.vw-schematic-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vw-cal-part,
+  .vw-cal-energy,
+  .vw-signal-path {
+    transition: none;
+  }
+}
