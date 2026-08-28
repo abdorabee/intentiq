@@ -1,0 +1,108 @@
+<!--@meta
+group: App patterns
+title: KPI tile
+subtitle: The four-across strip at the top of the dashboard. A tinted icon, a 30px sans number, a mono delta and an optional sparkline. Collapses to two columns under 1100px.
+source: app/globals.css (.kpis, .kpi, .kpi-*)
+layout: stack
+-->
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="kpi-head"><span class="ic hot">▲</span>Hot accounts<span class="more">···</span></div>
+    <div class="kpi-row"><span class="num">42</span><span class="delta up">↑ 12%</span></div>
+    <div class="meta">vs. 37 last week</div>
+    <div class="spark"><i class="b"></i><i class="b"></i><i class="b hot"></i><i class="b"></i><i class="b hot"></i><i class="b"></i><i class="b hot"></i><i class="b hot"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-head"><span class="ic credits">◆</span>Credits left<span class="more">···</span></div>
+    <div class="kpi-row"><span class="num">1,284</span><span class="delta flat">—</span></div>
+    <div class="meta">of 2,000 · Growth</div>
+    <div class="spark"><i class="b hl"></i><i class="b hl"></i><i class="b hl"></i><i class="b hl"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-head"><span class="ic fires">✦</span>New signals<span class="more">···</span></div>
+    <div class="kpi-row"><span class="num">318</span><span class="delta down">↓ 4%</span></div>
+    <div class="meta">funding, hiring, news</div>
+    <div class="spark"><i class="b warm"></i><i class="b"></i><i class="b warm"></i><i class="b warm"></i><i class="b"></i><i class="b warm"></i><i class="b"></i><i class="b"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-head"><span class="ic velocity">≫</span>Avg. score<span class="more">···</span></div>
+    <div class="kpi-row"><span class="num">54.8</span><span class="delta up">↑ 2.1</span></div>
+    <div class="meta">across 764 scored</div>
+    <div class="spark"><i class="b"></i><i class="b"></i><i class="b hl"></i><i class="b"></i><i class="b hl"></i><i class="b hl"></i><i class="b"></i><i class="b hl"></i></div>
+  </div>
+</div>
+
+<table class="ds-spec" style="margin-top:20px">
+  <tr><td class="k">.kpis</td><td class="v">grid, repeat(4, 1fr), gap 12px → 2 cols under 1100px</td></tr>
+  <tr><td class="k">.kpi</td><td class="v">bg --bg-elevated, 1px --border, --r-lg, padding 16px 18px</td></tr>
+  <tr><td class="k">.kpi-head</td><td class="v">12px --text-tertiary, 14px tinted icon, 14px bottom gap</td></tr>
+  <tr><td class="k">.kpi-num</td><td class="v">30px/500 sans, -0.035em, tabular-nums</td></tr>
+  <tr><td class="k">.kpi-delta</td><td class="v">12px mono — up --hot, down red, flat --text-tertiary</td></tr>
+  <tr><td class="k">.kpi-meta</td><td class="v">11px --text-quaternary</td></tr>
+  <tr><td class="k">.kpi-spark</td><td class="v">22px tall, 2px gaps, bars max 6px wide</td></tr>
+</table>
+
+<div class="ds-note">
+  The number is the exception to "numbers are mono" — <code>.kpi-num</code> is deliberately sans at
+  30px, where Inter's tighter tracking reads better at a glance; the delta beside it stays mono so
+  the two are distinguishable. Icon tints are semantic:
+  <code>--hot-bg</code> for hot, brand for credits, <code>--warm-bg</code> for signals.
+</div>
+
+<div class="ds-warn">
+  <strong>Brand-as-text fails contrast in light mode.</strong> The credits and velocity icon tints uses
+  <code>#dfff00</code> as a foreground colour: <strong>1.14:1</strong> on white and 1.07:1 on the
+  light <code>--background</code>, against a 4.5:1 AA floor for body text. Reproduced faithfully
+  rather than corrected — it is a real bug in the app. Note that no point on the current ramp
+  fixes it: <code>--brand-active</code> <code>#c8e600</code> still only reaches 1.42:1. Light mode
+  needs either a dark olive token (around <code>#6b7a00</code>, which measures 4.76:1) or the
+  treatment the primary button already uses — brand as a <em>background</em> with black text,
+  which measures 18.4:1.
+</div>
+
+<style>
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 1100px) { .kpis { grid-template-columns: 1fr 1fr; } }
+.kpi {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 16px 18px; overflow: hidden;
+}
+.kpi-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-size: 12px; color: var(--text-tertiary); letter-spacing: -0.006em;
+}
+.kpi-head .ic {
+  width: 16px; height: 16px; display: grid; place-items: center;
+  border-radius: 4px; font-size: 8px; flex-shrink: 0;
+}
+.ic.hot { background: var(--hot-bg); color: var(--hot); }
+.ic.credits { background: var(--brand-soft); color: var(--brand); }
+.ic.fires { background: var(--warm-bg); color: var(--warm); }
+.ic.velocity { background: var(--cyan-soft); color: var(--cyan); }
+.kpi-head .more { margin-left: auto; color: var(--text-quaternary); font-size: 11px; }
+.kpi-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.kpi .num {
+  font-size: 30px; font-weight: 500; line-height: 1;
+  letter-spacing: -0.035em; color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.kpi .delta {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 12px; display: inline-flex; align-items: center; gap: 3px;
+}
+.delta.up { color: var(--hot); }
+.delta.down { color: var(--danger); }
+.delta.flat { color: var(--text-tertiary); }
+.kpi .meta { font-size: 11px; color: var(--text-quaternary); letter-spacing: -0.006em; }
+.spark { display: flex; align-items: flex-end; gap: 2px; height: 22px; margin-top: 8px; }
+.spark .b {
+  flex: 1; max-width: 6px; border-radius: 1px; height: 45%;
+  background: var(--border-strong);
+}
+.spark .b:nth-child(odd) { height: 72%; }
+.spark .b:nth-child(3n) { height: 100%; }
+.spark .b.hl { background: var(--brand-hover); }
+.spark .b.hot { background: var(--hot); }
+.spark .b.warm { background: var(--warm); }
+</style>

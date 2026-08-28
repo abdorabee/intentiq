@@ -1,0 +1,76 @@
+<!--@meta
+group: Foundations
+title: Elevation & glass
+subtitle: Depth comes from a hairline ring plus a soft drop — not from a heavy shadow. In dark mode the ring is a white alpha; in light mode it is an ink alpha. The glow shadow is the only coloured one.
+source: app/theme-overrides.css + app/globals.css @layer utilities
+layout: split
+-->
+
+<div class="ds-section">Shadow scale</div>
+<div class="ds-col" style="gap:14px; width:100%">
+  <div class="elev" style="box-shadow: var(--shadow-sm)"><b>--shadow-sm</b><i>hover lift, chips</i></div>
+  <div class="elev" style="box-shadow: var(--shadow-md)"><b>--shadow-md</b><i>dropdowns, popovers</i></div>
+  <div class="elev" style="box-shadow: var(--shadow-lg)"><b>--shadow-lg</b><i>dialogs, command palette</i></div>
+</div>
+
+<div class="ds-section">Composite — ring + drop</div>
+<div class="ds-col" style="gap:14px; width:100%">
+  <div class="elev" style="box-shadow: var(--shadow-card)"><b>--shadow-card</b><i>resting card</i></div>
+  <div class="elev" style="box-shadow: var(--shadow-elevated)"><b>--shadow-elevated</b><i>raised panel</i></div>
+  <div class="elev" style="box-shadow: var(--shadow-screen)"><b>--shadow-screen</b><i>landing hero mock</i></div>
+</div>
+
+<div class="ds-section">Brand glow — sparingly</div>
+<div class="ds-col" style="gap:14px; width:100%">
+  <div class="elev" style="box-shadow: var(--shadow-glow)"><b>--shadow-glow</b><i>focus / active brand surface</i></div>
+</div>
+<div class="ds-note">
+  The only coloured shadow in the system. Reserve it for a brand-filled element that needs to read
+  as active — never as ambient decoration on neutral surfaces.
+</div>
+
+<div class="ds-section">Glass</div>
+<div class="glass-demo">
+  <div class="g glass"><span>.glass</span><em>blur(16px)</em></div>
+  <div class="g glass-strong"><span>.glass-strong</span><em>blur(24px)</em></div>
+</div>
+<div class="ds-note">
+  Utilities from <code>globals.css</code>, with light-mode values restored in
+  <code>theme-overrides.css</code>. <code>.glass-nav</code> is the sidebar variant.
+  Glass needs something behind it — on a flat page background it just reads as a slightly
+  lighter box.
+</div>
+
+<style>
+.elev {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 15px 17px; border-radius: var(--r-md);
+  background: var(--bg-elevated);
+}
+.elev b {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11.5px; font-weight: 500; color: var(--text-primary);
+}
+.elev i { font-style: normal; font-size: 11px; color: var(--text-tertiary); margin-left: auto; }
+.glass-demo {
+  position: relative; padding: 20px; border-radius: var(--r-lg); overflow: hidden;
+  display: flex; gap: 12px;
+  background:
+    radial-gradient(circle at 22% 18%, var(--brand-soft), transparent 58%),
+    radial-gradient(circle at 82% 76%, var(--hot-bg), transparent 55%),
+    var(--surface-2);
+}
+.glass-demo .g {
+  flex: 1; border-radius: var(--r-md); padding: 16px 14px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.glass-demo .g span {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; color: var(--text-primary);
+}
+.glass-demo .g em {
+  font-style: normal;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; color: var(--text-tertiary);
+}
+</style>

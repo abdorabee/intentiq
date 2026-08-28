@@ -1,0 +1,76 @@
+<!--@meta
+group: Components
+title: Select
+subtitle: The one primitive still on stock shadcn geometry — md radius, 36px trigger, transparent background. It reads a step tighter than Input and Button, which is a known inconsistency rather than a deliberate contrast.
+source: components/ui/select.tsx (radix-ui Select)
+layout: split
+-->
+
+<div class="ds-section">Trigger</div>
+<div class="ds-col" style="gap:12px; align-items:stretch">
+  <button class="sel"><span>All bands</span><span class="chev">▾</span></button>
+  <button class="sel is-placeholder"><span>Select a list…</span><span class="chev">▾</span></button>
+  <button class="sel is-focus"><span>HOT only</span><span class="chev">▾</span></button>
+  <button class="sel sm"><span>size="sm" · 32px</span><span class="chev">▾</span></button>
+  <button class="sel" disabled><span>Disabled</span><span class="chev">▾</span></button>
+</div>
+
+<div class="ds-section">Open content</div>
+<div class="sel-content">
+  <div class="sel-label">Intent band</div>
+  <div class="sel-item is-active"><span class="tick">✓</span>All bands</div>
+  <div class="sel-item"><span class="tick"></span>HOT — score ≥ 75</div>
+  <div class="sel-item"><span class="tick"></span>WARM — score ≥ 50</div>
+  <div class="sel-item"><span class="tick"></span>COLD — score &lt; 50</div>
+  <div class="sel-sep"></div>
+  <div class="sel-item is-disabled"><span class="tick"></span>Custom range</div>
+</div>
+
+<table class="ds-spec" style="margin-top:20px">
+  <tr><td class="k">trigger</td><td class="v">rounded-md, border-input, bg-transparent, px-3 py-2</td></tr>
+  <tr><td class="k">size</td><td class="v">default h-9 (36px) · sm h-8 (32px)</td></tr>
+  <tr><td class="k">content</td><td class="v">bg-popover, rounded-md, shadow-md, min-w-[8rem]</td></tr>
+  <tr><td class="k">item focus</td><td class="v">bg-accent + text-accent-foreground</td></tr>
+  <tr><td class="k">focus ring</td><td class="v">ring-[3px] ring-ring/50</td></tr>
+  <tr><td class="k">placeholder</td><td class="v">data-[placeholder] → text-muted-foreground</td></tr>
+</table>
+
+<div class="ds-note">
+  Note the ring here is <code>ring-ring/50</code> while Button and Input use
+  <code>ring-ring/30</code> — another stock-shadcn leftover. Match the surrounding form when it
+  matters; don't fix it in isolation.
+</div>
+
+<style>
+.sel {
+  font: inherit; font-size: 13px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  height: 36px; padding: 8px 12px; border-radius: var(--radius-md);
+  background: transparent; border: 1px solid var(--input);
+  color: var(--text-primary); cursor: pointer; width: 100%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.theme-dark .sel { background: color-mix(in srgb, var(--input) 30%, transparent); }
+.sel.sm { height: 32px; }
+.sel.is-placeholder { color: var(--muted-foreground); }
+.sel.is-focus { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 50%, transparent); }
+.sel[disabled] { opacity: 0.5; cursor: not-allowed; }
+.sel .chev { color: var(--muted-foreground); font-size: 11px; }
+.sel-content {
+  border-radius: var(--radius-md); padding: 4px;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); box-shadow: var(--shadow-md);
+  min-width: 200px; max-width: 260px;
+}
+.sel-label { padding: 6px 8px; font-size: 11px; color: var(--muted-foreground); }
+.sel-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 32px 6px 8px; border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text-primary); cursor: default;
+}
+.sel-item .tick { width: 12px; font-size: 11px; color: var(--muted-foreground); flex-shrink: 0; }
+.sel-item.is-active { background: var(--accent); color: var(--accent-foreground); }
+.sel-item.is-disabled { opacity: 0.5; }
+.sel-sep { height: 1px; margin: 4px -4px; background: var(--border); }
+</style>

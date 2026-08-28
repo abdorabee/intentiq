@@ -1,0 +1,117 @@
+<!--@meta
+group: App patterns
+title: Topbar & page head
+subtitle: A 44px breadcrumb bar pinned above the scroll area, then the page head inside it. The topbar holds navigation and one primary action; the page head holds the title and its filters.
+source: app/globals.css (.topbar, .crumb, .tb-btn, .page-head)
+layout: stack
+-->
+
+<div class="frame">
+  <div class="topbar">
+    <span class="crumb"><span class="ic">▦</span>Workspace<span class="sep">/</span><span class="current">Watchlist</span></span>
+    <span class="spacer"></span>
+    <span class="tb-btn"><span class="ic">⌕</span>Search<span class="kbd">⌘K</span></span>
+    <span class="tb-btn outlined">Export</span>
+    <span class="notif">◔<i class="dot"></i></span>
+    <span class="btn-primary"><span class="ic">+</span>Score company</span>
+  </div>
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Watchlist</div>
+        <div class="page-sub">42 hot · 118 warm · 604 cold</div>
+      </div>
+      <div class="page-actions">
+        <span class="range-tabs">
+          <span class="range-tab">24H</span>
+          <span class="range-tab active">7D</span>
+          <span class="range-tab">30D</span>
+        </span>
+        <span class="tb-btn outlined">Filters</span>
+      </div>
+    </div>
+    <div class="ghost-rows"><i></i><i></i><i class="short"></i></div>
+  </div>
+</div>
+
+<table class="ds-spec" style="margin-top:20px">
+  <tr><td class="k">.topbar</td><td class="v">height 44px, padding 0 20px, gap 10px, 1px bottom --border</td></tr>
+  <tr><td class="k">.crumb</td><td class="v">13px --text-secondary; .current 500 --text-primary</td></tr>
+  <tr><td class="k">.tb-btn</td><td class="v">13px, 4px 10px, --r-md, transparent border; .outlined shows --border</td></tr>
+  <tr><td class="k">.btn-primary</td><td class="v">--brand fill, black text, 4px 12px, --r-md</td></tr>
+  <tr><td class="k">.notif</td><td class="v">28px square, --hot dot ringed against the bar</td></tr>
+  <tr><td class="k">.page</td><td class="v">padding 20px 28px 40px, the only scroll container</td></tr>
+  <tr><td class="k">.page-title</td><td class="v">22px/500, -0.024em</td></tr>
+  <tr><td class="k">.range-tab</td><td class="v">12px mono; .active gets a white-7% wash</td></tr>
+</table>
+
+<div class="ds-note">
+  Exactly one <code>.btn-primary</code> per topbar, always rightmost. Note it is
+  <em>not</em> the <code>Button</code> component — it is square-ish (<code>--r-md</code>) where
+  <code>Button</code> is <code>rounded-full</code>. The ported topbar and the React primitives
+  have not been reconciled; use the ported class inside dashboard chrome and
+  <code>Button</code> inside page content.
+</div>
+
+<style>
+.frame { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; background: var(--bg); }
+.topbar {
+  height: 44px; display: flex; align-items: center; gap: 10px;
+  padding: 0 20px; border-bottom: 1px solid var(--border);
+}
+.crumb { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); letter-spacing: -0.011em; }
+.crumb .ic { color: var(--text-tertiary); font-size: 12px; }
+.crumb .sep { color: var(--text-quaternary); }
+.crumb .current { color: var(--text-primary); font-weight: 500; }
+.spacer { flex: 1; }
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  padding: 4px 10px; border-radius: var(--r-md);
+  border: 1px solid transparent; cursor: pointer; letter-spacing: -0.006em;
+}
+.tb-btn .ic { font-size: 11px; opacity: 0.85; }
+.tb-btn.outlined { border-color: var(--border); }
+.tb-btn .kbd {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; padding: 1px 5px; border-radius: 3px;
+  background: var(--secondary); color: var(--text-tertiary);
+}
+.notif {
+  position: relative; width: 28px; height: 28px; flex-shrink: 0;
+  display: grid; place-items: center; color: var(--text-tertiary);
+  border-radius: var(--r-sm); cursor: pointer; font-size: 13px;
+}
+.notif .dot {
+  position: absolute; top: 5px; right: 6px; width: 6px; height: 6px; border-radius: 999px;
+  background: var(--hot); box-shadow: 0 0 6px var(--hot), 0 0 0 2px var(--bg);
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--brand); color: #000000;
+  padding: 4px 12px; border-radius: var(--r-md);
+  font-size: 13px; font-weight: 500; cursor: pointer; letter-spacing: -0.006em;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary .ic { font-size: 12px; }
+.page { padding: 20px 28px 32px; }
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border-subtle);
+}
+.page-title { font-size: 22px; font-weight: 500; letter-spacing: -0.024em; line-height: 1.2; color: var(--text-primary); margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--text-tertiary); letter-spacing: -0.006em; }
+.page-actions { display: flex; align-items: center; gap: 8px; }
+.range-tabs {
+  display: inline-flex; align-items: center; padding: 2px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+}
+.range-tab {
+  padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; color: var(--text-tertiary);
+}
+.range-tab.active { background: var(--surface-active); color: var(--text-primary); }
+.ghost-rows i { display: block; height: 34px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border-subtle); margin-bottom: 8px; }
+.ghost-rows i.short { width: 58%; }
+</style>

@@ -1,0 +1,96 @@
+# VesperWise design system — Claude Design bundle
+
+Generated preview cards describing VesperWise's real visual system, ready to push into a
+[Claude Design](https://claude.ai/design) design-system project so design work starts from the
+shipped system instead of re-deriving it from 9,000 lines of CSS.
+
+```
+design-system/
+  build.mjs          generator — parses tokens from the app, renders the cards
+  templates/         the page shell every card is rendered into
+  fragments/         hand-authored card bodies (edit these)
+  claude/            generated output (do not edit — push this)
+```
+
+## Regenerating
+
+```bash
+node design-system/build.mjs
+```
+
+No dependencies, no build step, no network. It re-reads the app's own CSS every run, so the
+bundle cannot drift from what ships.
+
+The build **fails** if any hex literal in the output does not trace back to a token in
+`app/theme-overrides.css`, to the preview chrome, or to the short allowlist of colours the app
+itself hardcodes. Use `var(--token)` in fragments; if you genuinely need a new literal, add it to
+`APP_HARDCODED` in `build.mjs` with a note saying where it comes from.
+
+## Pushing to Claude Design
+
+`DesignSync` needs a one-time authorization that can only be granted from an **interactive**
+Claude Code session on your own machine — it cannot run in a cloud/web session.
+
+```bash
+git pull
+/design-login                                        # one time
+/design-sync design-system/claude --create "VesperWise"
+```
+
+The target must be a project of type `PROJECT_TYPE_DESIGN_SYSTEM`. That type is fixed at
+creation: pushing into an ordinary project will not convert it. Cards register themselves from
+the `<!-- @dsCard group="…" -->` marker on line 1 of each file, so nothing needs registering by
+hand. Re-syncing later is the same command and is incremental.
+
+## What's in the bundle
+
+| Group | Cards |
+|---|---|
+| Foundations | Brand · Semantic tokens · Typography · Spacing & radius · Elevation & glass |
+| Components | Button · Badge · Card · Input & Label · Select · Dialog · Toast |
+| App patterns | Sidebar · Topbar & page head · KPI tile · Intent bands & scores · Data rows |
+
+Every card renders the dark and light palettes side by side. Dark is the app default
+(`<html class="dark">` in `app/layout.tsx`).
+
+## Where the tokens come from
+
+`app/theme-overrides.css` is the **effective source of truth**. `app/layout.tsx` imports it after
+`globals.css`, so it wins by source order. Editing the `:root` / `.dark` blocks near the top of
+`globals.css` has no visible effect — those still hold a stale violet oklch palette from before
+the brand moved to yellow.
+
+The build additionally reads `--radius` and the `@theme inline` ramp from `globals.css`.
+
+## Known debt, documented rather than fixed
+
+These are real and are called out on the cards that touch them. None is fixed here — a design
+system sync is the wrong change to bundle them into.
+
+1. **Three `--r-*` radius scales.** `globals.css` ~L533 declares 4/6/8/12/16; ~L8446 re-declares
+   the same names as 6/8/12/16/22/28 inside `@layer base`. The second shadows the first, so
+   `--r-sm` is 8px. Ported CSS written against the old numbers renders one step rounder than
+   intended.
+2. **Contradictory `--primary-foreground`.** `globals.css` `.dark` sets `#ffffff`, which fails
+   contrast on yellow. `theme-overrides.css` corrects it to `#000000` and wins.
+3. **Brand-as-text fails contrast in light mode.** `#dfff00` is used as a *foreground* colour in
+   the `link` variants of Button and Badge, the KPI credits/velocity icon tints, and the sidebar
+   credits "Top up" link. That measures **1.14:1** on white against a 4.5:1 AA floor. The cards
+   reproduce it rather than quietly correcting it. No point on the current ramp fixes this —
+   `--brand-active` `#c8e600` is still only 1.42:1. It needs either a new dark-olive token (around
+   `#6b7a00`, 4.76:1) or the treatment the primary button already uses: brand as a *background*
+   with black text, 18.4:1.
+4. **Brand yellow hardcoded past `var(--brand)`** in `components/ui/button.tsx:12` (glow shadow),
+   `.text-gradient`, `::selection`, and the `.app` radial gradients. Changing the brand token
+   alone will not move them.
+5. **Two card components and two primary buttons.** `components/ui/card.tsx` (18px, translucent,
+   blurred) and the ported `.card` (solid, `--r-lg`); `Button` (`rounded-full`) and `.btn-primary`
+   (`--r-md`). Match whichever surface surrounds your work.
+6. **Naming split.** The package is `intentiq`, tokens are `--iq-*`, the theme storage key is
+   `intentiq-theme` — the product is **VesperWise**.
+
+## Related
+
+- `design-reference/DESIGN-DIRECTION.md` — layout, density and anti-pattern guidance
+- `design-reference/FIGMA.md` — the Figma source file
+- Root `IntentIQ *.html` mocks — the original visual source of truth

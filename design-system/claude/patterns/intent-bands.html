@@ -1,0 +1,503 @@
+<!-- @dsCard group="App patterns" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VesperWise — Intent bands & scores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   GENERATED FILE — do not edit by hand.
+   Source: design-system/fragments/patterns/intent-bands.html
+   Rebuild: node design-system/build.mjs
+   Tokens parsed from app/theme-overrides.css + app/globals.css
+   =========================================================== */
+
+/* --- Font shims: next/font provides these at runtime --- */
+:root {
+  --font-inter: "Inter";
+  --font-jetbrains: "JetBrains Mono";
+}
+
+/* --- Theme-independent tokens (radius ramps, motion) --- */
+.ds-pane {
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-2xl: 28px;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+/* --- Dark palette (app default: <html class="dark">) --- */
+.theme-dark {
+  --brand: #dfff00;
+  --brand-hover: #e8ff40;
+  --brand-active: #c8e600;
+  --brand-soft: rgba(223, 255, 0, 0.12);
+  --brand-border: rgba(223, 255, 0, 0.28);
+  --brand-glow: rgba(223, 255, 0, 0.38);
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #181818;
+  --popover-foreground: #ffffff;
+  --primary: var(--brand);
+  --primary-foreground: #000000;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #8a8f98;
+  --accent: var(--brand-soft);
+  --accent-foreground: var(--brand);
+  --destructive: #f87171;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: var(--brand-active);
+  --chart-1: var(--brand);
+  --chart-2: #4ade80;
+  --chart-3: #f5b544;
+  --chart-4: #8a8f98;
+  --chart-5: #ffffff;
+  --sidebar: #000000;
+  --sidebar-foreground: #a0a0a0;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--brand-active);
+  --bg: #000000;
+  --bg-elevated: #111111;
+  --bg-overlay: #181818;
+  --surface: #111111;
+  --surface-hover: #181818;
+  --surface-active: #202020;
+  --accent-2: var(--brand-hover);
+  --accent-glow: var(--brand-glow);
+  --accent-soft: var(--brand-soft);
+  --accent-border: var(--brand-border);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #666666;
+  --text-quaternary: #4a4a4a;
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.12);
+  --warning: #f5b544;
+  --warning-bg: rgba(245, 181, 68, 0.12);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --info: #8a8f98;
+  --hot: #4ade80;
+  --hot-bg: rgba(74, 222, 128, 0.1);
+  --hot-glow: rgba(74, 222, 128, 0.3);
+  --hot-border: rgba(74, 222, 128, 0.25);
+  --warm: #f5b544;
+  --warm-bg: rgba(245, 181, 68, 0.1);
+  --warm-border: rgba(245, 181, 68, 0.25);
+  --cold: #8a8f98;
+  --cold-bg: rgba(138, 143, 152, 0.1);
+  --cold-border: rgba(138, 143, 152, 0.22);
+  --cool: #8a8f98;
+  --cool-bg: rgba(138, 143, 152, 0.08);
+  --cyan: var(--brand);
+  --cyan-soft: var(--brand-soft);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --surface-2: #181818;
+  --bg-translucent: rgba(0, 0, 0, 0.55);
+  --red: #f87171;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px rgba(223, 255, 0, 0.3);
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  --shadow-screen: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 50px 100px -20px rgba(0, 0, 0, 0.5), 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Light palette --- */
+.theme-light {
+  --brand: #dfff00;
+  --brand-hover: #e8ff40;
+  --brand-active: #c8e600;
+  --brand-soft: rgba(223, 255, 0, 0.14);
+  --brand-border: rgba(223, 255, 0, 0.32);
+  --brand-glow: rgba(223, 255, 0, 0.28);
+  --background: #f7f8fa;
+  --foreground: #0a0e1a;
+  --card: #ffffff;
+  --card-foreground: #0a0e1a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0e1a;
+  --primary: var(--brand);
+  --primary-foreground: #000000;
+  --secondary: #eef1f6;
+  --secondary-foreground: #0a0e1a;
+  --muted: #eef1f6;
+  --muted-foreground: #5b6472;
+  --accent: var(--brand-soft);
+  --accent-foreground: #111111;
+  --destructive: #dc2626;
+  --border: rgba(10, 14, 26, 0.10);
+  --input: rgba(10, 14, 26, 0.12);
+  --ring: var(--brand-active);
+  --chart-1: var(--brand);
+  --chart-2: #16a34a;
+  --chart-3: #b45309;
+  --chart-4: #8a8f98;
+  --chart-5: #0a0e1a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #3a4150;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #eef1f6;
+  --sidebar-accent-foreground: #0a0e1a;
+  --sidebar-border: rgba(10, 14, 26, 0.10);
+  --sidebar-ring: var(--brand-active);
+  --bg: #f7f8fa;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f1f3f7;
+  --surface-active: #e9edf3;
+  --accent-2: var(--brand-hover);
+  --accent-glow: var(--brand-glow);
+  --accent-soft: var(--brand-soft);
+  --accent-border: var(--brand-border);
+  --text-primary: #0a0e1a;
+  --text-secondary: #3a4150;
+  --text-tertiary: #5b6472;
+  --text-quaternary: #8b94a3;
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.10);
+  --warning: #b45309;
+  --warning-bg: rgba(180, 83, 9, 0.10);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.10);
+  --info: #8a8f98;
+  --hot: #16a34a;
+  --hot-bg: rgba(22, 163, 74, 0.10);
+  --hot-glow: rgba(22, 163, 74, 0.22);
+  --hot-border: rgba(22, 163, 74, 0.25);
+  --warm: #b45309;
+  --warm-bg: rgba(180, 83, 9, 0.10);
+  --warm-border: rgba(180, 83, 9, 0.25);
+  --cold: #8a8f98;
+  --cold-bg: rgba(138, 143, 152, 0.10);
+  --cold-border: rgba(138, 143, 152, 0.22);
+  --cool: #8a8f98;
+  --cool-bg: rgba(138, 143, 152, 0.10);
+  --cyan: var(--brand);
+  --cyan-soft: var(--brand-soft);
+  --border-strong: rgba(10, 14, 26, 0.16);
+  --border-subtle: rgba(10, 14, 26, 0.06);
+  --surface-2: #e9edf3;
+  --bg-translucent: rgba(255, 255, 255, 0.7);
+  --red: #dc2626;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 8px 32px rgba(16, 24, 40, 0.12);
+  --shadow-glow: 0 0 24px rgba(223, 255, 0, 0.18);
+  --shadow-card: 0 0 0 1px rgba(10, 14, 26, 0.06), 0 1px 2px rgba(16, 24, 40, 0.08);
+  --shadow-elevated: 0 0 0 1px rgba(10, 14, 26, 0.08), 0 24px 48px -12px rgba(16, 24, 40, 0.18);
+  --shadow-screen: 0 0 0 1px rgba(10, 14, 26, 0.06), 0 50px 100px -20px rgba(16, 24, 40, 0.18), 0 30px 60px -30px rgba(16, 24, 40, 0.2);
+}
+
+/* ================= preview chrome ================= */
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body {
+  margin: 0;
+  padding: 28px;
+  background: #17181a;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  color: #e6e7e9;
+}
+.ds-header { margin-bottom: 20px; }
+.ds-title {
+  font-size: 20px; font-weight: 600; letter-spacing: -0.024em;
+  color: #ffffff; margin: 0 0 5px;
+}
+.ds-sub {
+  font-size: 13px; color: #9ba0a6; margin: 0;
+  letter-spacing: -0.006em; max-width: 78ch; line-height: 1.5;
+}
+.ds-source {
+  display: inline-block; margin-top: 9px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px; color: #7e838a;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px; padding: 3px 9px;
+}
+.ds-panes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.ds-panes.stack { grid-template-columns: 1fr; }
+.ds-pane {
+  position: relative;
+  border-radius: 14px;
+  padding: 34px 22px 22px;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.09);
+  font-size: 13px;
+  letter-spacing: -0.011em;
+}
+.theme-light.ds-pane { border-color: rgba(10,14,26,0.16); }
+.ds-pane::before {
+  content: attr(data-label);
+  position: absolute; top: 0; left: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  color: var(--text-tertiary);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 14px 0 8px 0;
+}
+.ds-section {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-quaternary);
+  margin: 24px 0 11px;
+}
+.ds-section:first-child { margin-top: 0; }
+.ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ds-col { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.ds-note {
+  font-size: 11.5px; color: var(--text-tertiary);
+  line-height: 1.55; margin-top: 12px; letter-spacing: -0.006em;
+}
+.ds-note code, .ds-mono {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.92em;
+}
+.ds-note code {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 4px; color: var(--text-secondary);
+}
+.ds-warn {
+  margin-top: 14px; padding: 9px 11px;
+  border-radius: 8px; font-size: 11.5px; line-height: 1.5;
+  background: var(--warm-bg); border: 1px solid var(--warm-border);
+  color: var(--warm);
+}
+/* spec table */
+.ds-spec { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.ds-spec th {
+  text-align: left; font-weight: 500; padding: 5px 10px 5px 0;
+  color: var(--text-quaternary); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
+}
+.ds-spec td {
+  padding: 6px 10px 6px 0; vertical-align: middle;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.ds-spec td.k {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  color: var(--text-primary); white-space: nowrap;
+}
+.ds-spec td.v {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  color: var(--text-tertiary); white-space: nowrap;
+}
+/* swatches */
+.ds-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 9px; }
+.ds-swatch { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.ds-chip {
+  height: 40px; border-radius: 8px;
+  border: 1px solid var(--border-strong);
+}
+.ds-swatch .n {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ds-swatch .h {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; color: var(--text-quaternary);
+}
+@media (max-width: 900px) { .ds-panes { grid-template-columns: 1fr; } }
+.band {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.band .dot { width: 5px; height: 5px; border-radius: 999px; }
+.band-hot { background: var(--hot-bg); border-color: var(--hot-border); color: var(--hot); }
+.band-hot .dot { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+.band-warm { background: var(--warm-bg); border-color: var(--warm-border); color: var(--warm); }
+.band-warm .dot { background: var(--warm); }
+.band-cold { background: var(--cold-bg); border-color: var(--cold-border); color: var(--cold); }
+.band-cold .dot { background: var(--cold); }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid transparent;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.02em; cursor: pointer;
+}
+.chip .dot { width: 6px; height: 6px; border-radius: 999px; }
+.chip.hot { background: var(--hot-bg); border-color: var(--hot-border); color: var(--hot); }
+.chip.hot .dot { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+.chip.warm { background: var(--warm-bg); border-color: var(--warm-border); color: var(--warm); }
+.chip.warm .dot { background: var(--warm); }
+.chip.cold { background: var(--cold-bg); border-color: var(--cold-border); color: var(--text-secondary); }
+.chip.cold .dot { background: var(--cold); }
+.chip.inactive { opacity: 0.45; }
+.sc { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.sc .v {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 42px; font-weight: 500; line-height: 1;
+  letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+}
+.sc .v.hot { color: var(--hot); }
+.sc .v.warm { color: var(--warm); }
+.sc .v.cold { color: var(--cold); }
+</style>
+</head>
+<body>
+<div class="ds-header">
+  <h1 class="ds-title">Intent bands & scores</h1>
+  <p class="ds-sub">The core VesperWise vocabulary. Every company carries a 0–100 intent score and one of three bands. Bands are always mono, uppercase, dot-prefixed and pill-shaped — never a plain Badge.</p>
+  <span class="ds-source">app/globals.css (.band, .band-chip) + lib/scorer.ts</span>
+</div>
+<div class="ds-panes ">
+  <div class="ds-pane theme-dark" data-label="Dark — default">
+    <div class="ds-section">Bands — .band</div>
+    <div class="ds-row">
+      <span class="band band-hot"><i class="dot"></i>Hot</span>
+      <span class="band band-warm"><i class="dot"></i>Warm</span>
+      <span class="band band-cold"><i class="dot"></i>Cold</span>
+    </div>
+    <table class="ds-spec" style="margin-top:12px">
+      <tr><th>Band</th><th>Score</th><th>Token</th></tr>
+      <tr><td class="k">HOT</td><td class="v">≥ 75</td><td class="v" data-token="--hot">--hot</td></tr>
+      <tr><td class="k">WARM</td><td class="v">≥ 50</td><td class="v" data-token="--warm">--warm</td></tr>
+      <tr><td class="k">COLD</td><td class="v">&lt; 50</td><td class="v" data-token="--cold">--cold</td></tr>
+    </table>
+
+    <div class="ds-section">Filter chips — .band-chip</div>
+    <div class="ds-row">
+      <span class="chip hot"><i class="dot"></i>HOT 42</span>
+      <span class="chip warm"><i class="dot"></i>WARM 118</span>
+      <span class="chip cold inactive"><i class="dot"></i>COLD 604</span>
+    </div>
+    <div class="ds-note" style="margin-top:8px">
+      Larger and interactive: 11px mono, <code>filter: brightness(1.2)</code> on hover,
+      <code>.inactive</code> drops to 45% opacity. COLD chips use <code>--text-secondary</code> for
+      the label so an unselected filter never looks disabled.
+    </div>
+
+    <div class="ds-section">Score display</div>
+    <div class="ds-row" style="gap:26px; align-items:flex-end">
+      <div class="sc"><span class="v hot">87</span><span class="band band-hot"><i class="dot"></i>Hot</span></div>
+      <div class="sc"><span class="v warm">61</span><span class="band band-warm"><i class="dot"></i>Warm</span></div>
+      <div class="sc"><span class="v cold">23</span><span class="band band-cold"><i class="dot"></i>Cold</span></div>
+    </div>
+    <div class="ds-note">
+      <code>.score-display</code> sets <code>tabular-nums</code> and <code>-0.03em</code> tracking so a
+      column of scores stays aligned. The number takes the band colour; never render a score in
+      <code>--text-primary</code>.
+    </div>
+
+    <div class="ds-warn">
+      HOT is <strong>green</strong>, not the brand yellow. The accent belongs to actions, not to
+      status — a yellow score would read as a button. The dot inside HOT carries a matching glow;
+      WARM and COLD dots are flat.
+    </div>
+  </div>
+  <div class="ds-pane theme-light" data-label="Light">
+    <div class="ds-section">Bands — .band</div>
+    <div class="ds-row">
+      <span class="band band-hot"><i class="dot"></i>Hot</span>
+      <span class="band band-warm"><i class="dot"></i>Warm</span>
+      <span class="band band-cold"><i class="dot"></i>Cold</span>
+    </div>
+    <table class="ds-spec" style="margin-top:12px">
+      <tr><th>Band</th><th>Score</th><th>Token</th></tr>
+      <tr><td class="k">HOT</td><td class="v">≥ 75</td><td class="v" data-token="--hot">--hot</td></tr>
+      <tr><td class="k">WARM</td><td class="v">≥ 50</td><td class="v" data-token="--warm">--warm</td></tr>
+      <tr><td class="k">COLD</td><td class="v">&lt; 50</td><td class="v" data-token="--cold">--cold</td></tr>
+    </table>
+
+    <div class="ds-section">Filter chips — .band-chip</div>
+    <div class="ds-row">
+      <span class="chip hot"><i class="dot"></i>HOT 42</span>
+      <span class="chip warm"><i class="dot"></i>WARM 118</span>
+      <span class="chip cold inactive"><i class="dot"></i>COLD 604</span>
+    </div>
+    <div class="ds-note" style="margin-top:8px">
+      Larger and interactive: 11px mono, <code>filter: brightness(1.2)</code> on hover,
+      <code>.inactive</code> drops to 45% opacity. COLD chips use <code>--text-secondary</code> for
+      the label so an unselected filter never looks disabled.
+    </div>
+
+    <div class="ds-section">Score display</div>
+    <div class="ds-row" style="gap:26px; align-items:flex-end">
+      <div class="sc"><span class="v hot">87</span><span class="band band-hot"><i class="dot"></i>Hot</span></div>
+      <div class="sc"><span class="v warm">61</span><span class="band band-warm"><i class="dot"></i>Warm</span></div>
+      <div class="sc"><span class="v cold">23</span><span class="band band-cold"><i class="dot"></i>Cold</span></div>
+    </div>
+    <div class="ds-note">
+      <code>.score-display</code> sets <code>tabular-nums</code> and <code>-0.03em</code> tracking so a
+      column of scores stays aligned. The number takes the band colour; never render a score in
+      <code>--text-primary</code>.
+    </div>
+
+    <div class="ds-warn">
+      HOT is <strong>green</strong>, not the brand yellow. The accent belongs to actions, not to
+      status — a yellow score would read as a button. The dot inside HOT carries a matching glow;
+      WARM and COLD dots are flat.
+    </div>
+  </div>
+</div>
+<script>
+/* 1. Expand [data-swatches="--a,--b"] into swatch tiles. */
+document.querySelectorAll("[data-swatches]").forEach(function (host) {
+  host.getAttribute("data-swatches").split(",").forEach(function (name) {
+    name = name.trim();
+    if (!name) return;
+    var el = document.createElement("div");
+    el.className = "ds-swatch";
+    el.innerHTML =
+      '<div class="ds-chip" style="background:var(' + name + ')"></div>' +
+      '<div class="n">' + name + '</div>' +
+      '<div class="h" data-token="' + name + '">' + name + '</div>';
+    host.appendChild(el);
+  });
+});
+
+/* 2. Resolve token names to their computed value per pane, so no value in
+      this bundle is ever hand-typed. Falls back to the name if JS is blocked. */
+document.querySelectorAll("[data-token]").forEach(function (el) {
+  var pane = el.closest(".ds-pane");
+  if (!pane) return;
+  var v = getComputedStyle(pane).getPropertyValue(el.getAttribute("data-token")).trim();
+  if (v) el.textContent = v;
+});
+</script>
+
+</body>
+</html>

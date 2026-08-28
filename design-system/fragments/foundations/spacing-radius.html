@@ -1,0 +1,91 @@
+<!--@meta
+group: Foundations
+title: Spacing & radius
+subtitle: Spacing is a 4px grid. Radius is the one genuinely messy part of the system — three scales are declared and only two of them are live. This card documents which ones win.
+source: app/globals.css @theme inline + @layer base
+layout: split
+-->
+
+<div class="ds-section">Spacing — 4px grid</div>
+<div class="ds-col" style="gap:5px">
+  <div class="sp-row"><span class="sp-lbl">4</span><span class="sp-bar" style="width:4px"></span><span class="sp-use">icon gaps, chip dots</span></div>
+  <div class="sp-row"><span class="sp-lbl">6</span><span class="sp-bar" style="width:6px"></span><span class="sp-use">inline label gaps</span></div>
+  <div class="sp-row"><span class="sp-lbl">8</span><span class="sp-bar" style="width:8px"></span><span class="sp-use">nav item gap, button gap</span></div>
+  <div class="sp-row"><span class="sp-lbl">12</span><span class="sp-bar" style="width:12px"></span><span class="sp-use">grid gutters, KPI gap</span></div>
+  <div class="sp-row"><span class="sp-lbl">16</span><span class="sp-bar" style="width:16px"></span><span class="sp-use">card padding, section gap</span></div>
+  <div class="sp-row"><span class="sp-lbl">20</span><span class="sp-bar" style="width:20px"></span><span class="sp-use">topbar inline padding</span></div>
+  <div class="sp-row"><span class="sp-lbl">28</span><span class="sp-bar" style="width:28px"></span><span class="sp-use">page inline padding</span></div>
+</div>
+<div class="ds-note">
+  Page body is <code>padding: 20px 28px 40px</code>. Cards are <code>14px 18px</code> for heads and
+  <code>16px 18px</code> for bodies. Rows inside tables are <code>10px 16px</code>.
+</div>
+
+<div class="ds-section">Radius — the live scale</div>
+<div class="ds-row">
+  <div class="rad-box" style="border-radius:var(--r-xs)"><span>xs</span><em data-token="--r-xs">--r-xs</em></div>
+  <div class="rad-box" style="border-radius:var(--r-sm)"><span>sm</span><em data-token="--r-sm">--r-sm</em></div>
+  <div class="rad-box" style="border-radius:var(--r-md)"><span>md</span><em data-token="--r-md">--r-md</em></div>
+  <div class="rad-box" style="border-radius:var(--r-lg)"><span>lg</span><em data-token="--r-lg">--r-lg</em></div>
+  <div class="rad-box" style="border-radius:var(--r-xl)"><span>xl</span><em data-token="--r-xl">--r-xl</em></div>
+  <div class="rad-box" style="border-radius:var(--r-2xl)"><span>2xl</span><em data-token="--r-2xl">--r-2xl</em></div>
+</div>
+
+<div class="ds-section">Radius — the Tailwind ramp</div>
+<div class="ds-row">
+  <div class="rad-box" style="border-radius:var(--radius-sm)"><span>sm</span><em data-token="--radius-sm">--radius-sm</em></div>
+  <div class="rad-box" style="border-radius:var(--radius-md)"><span>md</span><em data-token="--radius-md">--radius-md</em></div>
+  <div class="rad-box" style="border-radius:var(--radius-lg)"><span>lg</span><em data-token="--radius-lg">--radius-lg</em></div>
+  <div class="rad-box" style="border-radius:var(--radius-xl)"><span>xl</span><em data-token="--radius-xl">--radius-xl</em></div>
+  <div class="rad-box" style="border-radius:var(--radius-2xl)"><span>2xl</span><em data-token="--radius-2xl">--radius-2xl</em></div>
+</div>
+<div class="ds-note">
+  Derived from <code data-token="--radius">--radius</code> via <code>@theme inline</code>, so these
+  are what <code>rounded-md</code> / <code>rounded-xl</code> resolve to in Tailwind classes.
+</div>
+
+<div class="ds-warn">
+  <strong>Three <code>--r-*</code> scales are declared; the last one wins.</strong>
+  <code>globals.css</code> ~L533 declares 4/6/8/12/16 and ~L8446 re-declares the same names as
+  6/8/12/16/22/28 inside <code>@layer base</code>. The second shadows the first, so
+  <code>--r-sm</code> is 8px, not 4px. Ported dashboard CSS written against the old numbers now
+  renders one step rounder than intended. Consolidating these is open debt — read the live values
+  above, don't trust the declarations.
+</div>
+
+<div class="ds-section">Fully round</div>
+<div class="ds-row">
+  <span class="pill">Buttons</span><span class="pill">Badges</span><span class="pill">Bands</span><span class="pill">Avatars</span>
+</div>
+<div class="ds-note" style="margin-top:8px">
+  These use <code>999px</code>, not a token — the pill shape is intentional and size-independent.
+</div>
+
+<style>
+.sp-row { display: flex; align-items: center; gap: 10px; }
+.sp-lbl {
+  flex: 0 0 22px; text-align: right;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; color: var(--text-quaternary);
+}
+.sp-bar { height: 13px; background: var(--brand); border-radius: 2px; flex-shrink: 0; }
+.sp-use { font-size: 11.5px; color: var(--text-tertiary); letter-spacing: -0.006em; }
+.rad-box {
+  width: 66px; height: 60px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  background: var(--surface); border: 1px solid var(--border-strong);
+}
+.rad-box span {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px; color: var(--text-secondary);
+}
+.rad-box em {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px; font-style: normal; color: var(--text-quaternary);
+}
+.pill {
+  padding: 4px 12px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 11.5px; color: var(--text-secondary);
+}
+</style>

@@ -1,0 +1,96 @@
+<!--@meta
+group: Foundations
+title: Typography
+subtitle: Inter for prose and UI, JetBrains Mono for every number, domain, and identifier. Two body sizes — 13px inside the app, 16px on the landing page. Anything numeric is mono and tabular.
+source: app/layout.tsx (next/font) + app/globals.css
+layout: split
+-->
+
+<div class="ds-section">Inter — UI &amp; prose</div>
+<div class="type-row"><span class="lbl">22 / 500 / -0.024em</span><span class="s page-title">Intent dashboard</span></div>
+<div class="type-row"><span class="lbl">15 / 600 / -0.011em</span><span class="s card-title-lg">Card title</span></div>
+<div class="type-row"><span class="lbl">13 / 500 / -0.011em</span><span class="s s13m">Section heading</span></div>
+<div class="type-row"><span class="lbl">13 / 400 / -0.011em</span><span class="s s13">App body — the dashboard default</span></div>
+<div class="type-row"><span class="lbl">12 / 400 / -0.006em</span><span class="s s12">Secondary / metadata</span></div>
+<div class="type-row"><span class="lbl">11 / 500 / 0.04em</span><span class="s s11u">Eyebrow label</span></div>
+
+<div class="ds-section">JetBrains Mono — numerics &amp; identifiers</div>
+<div class="type-row"><span class="lbl">30 / 500 / tabular</span><span class="s kpi-num">1,284</span></div>
+<div class="type-row"><span class="lbl">13 / 500 / tabular</span><span class="s mono13">stripe.com</span></div>
+<div class="type-row"><span class="lbl">11 / 500 / 0.04em</span><span class="s mono11u">API-KEY · SIGNAL · BAND</span></div>
+
+<div class="ds-section">Why mono for numbers</div>
+<div class="ds-row" style="gap:24px">
+  <div class="ds-col" style="gap:2px">
+    <span class="cmp-lbl good">tabular</span>
+    <span class="cmp mono-tab">92<br>78<br>104</span>
+  </div>
+  <div class="ds-col" style="gap:2px">
+    <span class="cmp-lbl bad">proportional</span>
+    <span class="cmp prop">92<br>78<br>104</span>
+  </div>
+</div>
+<div class="ds-note">
+  Scores, credits, deltas and counts sit in scannable columns. Every numeric surface sets
+  <code>font-variant-numeric: tabular-nums</code> — the <code>.score-display</code> and
+  <code>.kpi-num</code> utilities do this for you.
+</div>
+
+<div class="ds-section">Rules</div>
+<table class="ds-spec">
+  <tr><td class="k">App body</td><td>13px</td><td>dashboard, tables, sidebar, forms</td></tr>
+  <tr><td class="k">Landing body</td><td>16px</td><td>marketing pages only</td></tr>
+  <tr><td class="k">Weights</td><td class="v">400 500 600 700</td><td>no 300, no 800+</td></tr>
+  <tr><td class="k">Tracking</td><td class="v">-0.006 → -0.035em</td><td>tightens as size grows</td></tr>
+  <tr><td class="k">Features</td><td class="v">"ss01", "cv11"</td><td>set on body, globally</td></tr>
+</table>
+
+<style>
+.type-row {
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 7px 0; border-bottom: 1px solid var(--border-subtle);
+}
+.type-row .lbl {
+  flex: 0 0 118px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; color: var(--text-quaternary);
+  letter-spacing: 0.03em; white-space: nowrap;
+}
+.type-row .s { color: var(--text-primary); min-width: 0; }
+.page-title { font-size: 22px; font-weight: 500; letter-spacing: -0.024em; line-height: 1.2; }
+.card-title-lg { font-size: 15px; font-weight: 600; letter-spacing: -0.011em; }
+.s13m { font-size: 13px; font-weight: 500; letter-spacing: -0.011em; }
+.s13 { font-size: 13px; letter-spacing: -0.011em; }
+.s12 { font-size: 12px; color: var(--text-tertiary); letter-spacing: -0.006em; }
+.s11u {
+  font-size: 11px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--text-quaternary);
+}
+.kpi-num {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 30px; font-weight: 500; letter-spacing: -0.035em;
+  line-height: 1; font-variant-numeric: tabular-nums;
+}
+.mono13 {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 13px; font-weight: 500;
+}
+.mono11u {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+.cmp {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 19px; line-height: 1.35; color: var(--text-primary);
+}
+.cmp.mono-tab { font-variant-numeric: tabular-nums; }
+.cmp.prop { font-family: var(--font-inter), sans-serif; font-variant-numeric: proportional-nums; }
+.cmp-lbl {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.07em;
+}
+.cmp-lbl.good { color: var(--hot); }
+.cmp-lbl.bad { color: var(--text-quaternary); }
+</style>

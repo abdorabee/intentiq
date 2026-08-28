@@ -1,0 +1,81 @@
+<!--@meta
+group: Components
+title: Card
+subtitle: An 18px-radius frosted panel with an inset top highlight. Heavily customised away from stock shadcn — in dark mode it floats on a white alpha rather than a solid surface, so it needs something behind it.
+source: components/ui/card.tsx
+layout: split
+-->
+
+<div class="ds-section">Anatomy</div>
+<div class="c">
+  <div class="c-head">
+    <div class="c-title">Intent score</div>
+    <div class="c-desc">Last computed 4 hours ago</div>
+    <div class="c-action"><button class="mini">Rescore</button></div>
+  </div>
+  <div class="c-content">
+    <div class="c-score">87</div>
+    <div class="c-desc">Series B raised 3 weeks ago; 14 open engineering roles.</div>
+  </div>
+  <div class="c-foot">
+    <span class="c-desc">1 credit</span>
+    <span class="c-link">View signals</span>
+  </div>
+</div>
+
+<div class="ds-section">Slots</div>
+<table class="ds-spec">
+  <tr><td class="k">Card</td><td>rounded-[18px], border-border/80, bg-card/85, backdrop-blur-xl, py-6</td></tr>
+  <tr><td class="k">CardHeader</td><td>grid, px-6, gap-2 — grows a second column when CardAction is present</td></tr>
+  <tr><td class="k">CardTitle</td><td class="v">text-[15px] font-semibold</td></tr>
+  <tr><td class="k">CardDescription</td><td class="v">text-muted-foreground</td></tr>
+  <tr><td class="k">CardAction</td><td>top-right slot, auto-detected by the header grid</td></tr>
+  <tr><td class="k">CardContent</td><td class="v">px-6</td></tr>
+  <tr><td class="k">CardFooter</td><td class="v">px-6, [.border-t]:pt-6</td></tr>
+</table>
+
+<div class="ds-note">
+  In dark mode the surface is <code>bg-white/[0.055]</code> with a <code>border-white/[0.09]</code>
+  hairline — deliberately translucent. On a flat black background it nearly disappears; the app
+  body carries radial brand gradients that give it something to sit on.
+</div>
+<div class="ds-warn">
+  This is <strong>not</strong> the ported <code>.card</code> class from globals.css, which the
+  dashboard pages actually use (solid <code>--bg-elevated</code>, <code>--r-lg</code> radius, no
+  blur). Two different cards coexist — match whichever surface surrounds your work.
+</div>
+
+<style>
+.c {
+  display: flex; flex-direction: column; gap: 20px;
+  padding: 22px 0; border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  color: var(--card-foreground);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 18px 50px -34px rgba(0,0,0,0.75);
+  backdrop-filter: blur(20px);
+}
+.theme-dark .c { border-color: rgba(255,255,255,0.09); background: rgba(255,255,255,0.055); }
+.c-head { display: grid; grid-template-columns: 1fr auto; gap: 6px; padding: 0 22px; align-items: start; }
+.c-title { font-size: 15px; font-weight: 600; letter-spacing: -0.011em; }
+.c-desc { font-size: 12px; color: var(--muted-foreground); grid-column: 1; letter-spacing: -0.006em; }
+.c-action { grid-row: 1 / span 2; grid-column: 2; }
+.c-content { padding: 0 22px; display: flex; flex-direction: column; gap: 5px; }
+.c-score {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 38px; font-weight: 500; line-height: 1;
+  letter-spacing: -0.035em; font-variant-numeric: tabular-nums;
+  color: var(--hot);
+}
+.c-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px;
+}
+.c-link { font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
+.mini {
+  font: inherit; font-size: 11.5px; font-weight: 600;
+  height: 28px; padding: 0 10px; border-radius: 999px; cursor: pointer;
+  background: transparent; color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+</style>

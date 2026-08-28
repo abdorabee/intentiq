@@ -1,0 +1,43 @@
+<!--@meta
+group: Foundations
+title: Semantic tokens
+subtitle: Two token families sit side by side. shadcn semantics drive components/ui; the design-system family (--surface, --text-*, --hot/--warm/--cold) drives the ported dashboard classes. Both are defined in the same file and flip together.
+source: app/theme-overrides.css — :root and .dark
+layout: stack
+-->
+
+<div class="ds-section">Surfaces &amp; text — shadcn semantics</div>
+<div class="ds-swatches" data-swatches="--background,--foreground,--card,--card-foreground,--popover,--popover-foreground,--secondary,--muted,--muted-foreground"></div>
+
+<div class="ds-section">Action &amp; state</div>
+<div class="ds-swatches" data-swatches="--primary,--primary-foreground,--accent,--accent-foreground,--destructive,--ring,--border,--input"></div>
+
+<div class="ds-section">Sidebar</div>
+<div class="ds-swatches" data-swatches="--sidebar,--sidebar-foreground,--sidebar-primary,--sidebar-accent,--sidebar-accent-foreground,--sidebar-border,--sidebar-ring"></div>
+
+<div class="ds-section">Charts — --chart-1 is the brand</div>
+<div class="ds-swatches" data-swatches="--chart-1,--chart-2,--chart-3,--chart-4,--chart-5"></div>
+
+<div class="ds-section">Design-system surfaces — the ported dashboard family</div>
+<div class="ds-swatches" data-swatches="--bg,--bg-elevated,--bg-overlay,--surface,--surface-hover,--surface-active,--surface-2,--border-strong,--border-subtle"></div>
+
+<div class="ds-section">Design-system text ramp</div>
+<div class="ds-swatches" data-swatches="--text-primary,--text-secondary,--text-tertiary,--text-quaternary"></div>
+
+<div class="ds-section">Intent &amp; status</div>
+<div class="ds-swatches" data-swatches="--hot,--warm,--cold,--success,--warning,--danger,--info"></div>
+
+<div class="ds-note">
+  The two families overlap on purpose: <code>--card</code> and <code>--bg-elevated</code> resolve to
+  the same value, as do <code>--background</code>/<code>--bg</code> and
+  <code>--foreground</code>/<code>--text-primary</code>. New React work should prefer the shadcn
+  names (they are what <code>@theme inline</code> maps to Tailwind utilities like
+  <code>bg-card</code>); the design-system names exist for the ~8,000 lines of ported
+  semantic CSS in <code>globals.css</code>.
+</div>
+<div class="ds-warn">
+  <strong>Do not edit the <code>:root</code> / <code>.dark</code> blocks near the top of
+  globals.css.</strong> They still carry a stale violet oklch palette. theme-overrides.css is
+  imported after globals.css in <code>app/layout.tsx</code> and wins by source order — edits
+  upstream of it are silently discarded.
+</div>

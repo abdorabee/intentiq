@@ -1,0 +1,65 @@
+<!--@meta
+group: Components
+title: Toast
+subtitle: Sonner, wired to the app's own theme provider rather than next-themes. All four intent icons come from lucide and the surface reads from --popover, so toasts flip with the rest of the app.
+source: components/ui/sonner.tsx
+layout: split
+-->
+
+<div class="ds-section">Types</div>
+<div class="ds-col" style="gap:10px; width:100%">
+  <div class="tst"><span class="ti ok">✓</span><span class="tt">Score complete — stripe.com is HOT (87)</span></div>
+  <div class="tst"><span class="ti info">i</span><span class="tt">Bulk job queued · 240 companies</span></div>
+  <div class="tst"><span class="ti warn">!</span><span class="tt">12 credits remaining on the Growth plan</span></div>
+  <div class="tst"><span class="ti err">×</span><span class="tt">Scoring failed — signal provider timed out</span></div>
+  <div class="tst"><span class="ti load">◍</span><span class="tt">Enriching signals…</span></div>
+</div>
+
+<div class="ds-section">With an action</div>
+<div class="tst">
+  <span class="ti ok">✓</span>
+  <span class="tt">Added 3 companies to Watchlist</span>
+  <button class="ta">Undo</button>
+</div>
+
+<table class="ds-spec" style="margin-top:20px">
+  <tr><td class="k">--normal-bg</td><td class="v">var(--popover)</td></tr>
+  <tr><td class="k">--normal-text</td><td class="v">var(--popover-foreground)</td></tr>
+  <tr><td class="k">--normal-border</td><td class="v">var(--border)</td></tr>
+  <tr><td class="k">--border-radius</td><td class="v" data-token="--radius">var(--radius)</td></tr>
+  <tr><td class="k">theme</td><td class="v">useTheme() from components/theme-provider</td></tr>
+  <tr><td class="k">icons</td><td class="v">size-4 lucide; loading spins</td></tr>
+</table>
+
+<div class="ds-note">
+  The theme comes from VesperWise's own <code>useTheme()</code> hook (a
+  <code>useSyncExternalStore</code> provider keyed on <code>intentiq-theme</code>), not
+  <code>next-themes</code> — that package is not installed. A toast passed a hardcoded
+  <code>theme</code> prop will not flip with the app.
+</div>
+
+<style>
+.tst {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-lg);
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); box-shadow: var(--shadow-md);
+  font-size: 13px; width: 100%;
+}
+.ti {
+  width: 18px; height: 18px; flex-shrink: 0;
+  display: grid; place-items: center; border-radius: 999px;
+  font-size: 11px; font-weight: 700; line-height: 1;
+}
+.ti.ok { background: var(--success-bg); color: var(--success); }
+.ti.info { background: var(--cold-bg); color: var(--info); }
+.ti.warn { background: var(--warning-bg); color: var(--warning); }
+.ti.err { background: var(--danger-bg); color: var(--danger); }
+.ti.load { background: var(--secondary); color: var(--popover-foreground); }
+.tt { flex: 1; letter-spacing: -0.006em; }
+.ta {
+  font: inherit; font-size: 11.5px; font-weight: 600; flex-shrink: 0;
+  height: 26px; padding: 0 10px; border-radius: 999px; cursor: pointer;
+  background: var(--secondary); color: var(--secondary-foreground); border: 0;
+}
+</style>

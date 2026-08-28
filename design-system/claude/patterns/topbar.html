@@ -1,0 +1,534 @@
+<!-- @dsCard group="App patterns" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VesperWise — Topbar & page head</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   GENERATED FILE — do not edit by hand.
+   Source: design-system/fragments/patterns/topbar.html
+   Rebuild: node design-system/build.mjs
+   Tokens parsed from app/theme-overrides.css + app/globals.css
+   =========================================================== */
+
+/* --- Font shims: next/font provides these at runtime --- */
+:root {
+  --font-inter: "Inter";
+  --font-jetbrains: "JetBrains Mono";
+}
+
+/* --- Theme-independent tokens (radius ramps, motion) --- */
+.ds-pane {
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-2xl: 28px;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+/* --- Dark palette (app default: <html class="dark">) --- */
+.theme-dark {
+  --brand: #dfff00;
+  --brand-hover: #e8ff40;
+  --brand-active: #c8e600;
+  --brand-soft: rgba(223, 255, 0, 0.12);
+  --brand-border: rgba(223, 255, 0, 0.28);
+  --brand-glow: rgba(223, 255, 0, 0.38);
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #181818;
+  --popover-foreground: #ffffff;
+  --primary: var(--brand);
+  --primary-foreground: #000000;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #8a8f98;
+  --accent: var(--brand-soft);
+  --accent-foreground: var(--brand);
+  --destructive: #f87171;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: var(--brand-active);
+  --chart-1: var(--brand);
+  --chart-2: #4ade80;
+  --chart-3: #f5b544;
+  --chart-4: #8a8f98;
+  --chart-5: #ffffff;
+  --sidebar: #000000;
+  --sidebar-foreground: #a0a0a0;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--brand-active);
+  --bg: #000000;
+  --bg-elevated: #111111;
+  --bg-overlay: #181818;
+  --surface: #111111;
+  --surface-hover: #181818;
+  --surface-active: #202020;
+  --accent-2: var(--brand-hover);
+  --accent-glow: var(--brand-glow);
+  --accent-soft: var(--brand-soft);
+  --accent-border: var(--brand-border);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #666666;
+  --text-quaternary: #4a4a4a;
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.12);
+  --warning: #f5b544;
+  --warning-bg: rgba(245, 181, 68, 0.12);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --info: #8a8f98;
+  --hot: #4ade80;
+  --hot-bg: rgba(74, 222, 128, 0.1);
+  --hot-glow: rgba(74, 222, 128, 0.3);
+  --hot-border: rgba(74, 222, 128, 0.25);
+  --warm: #f5b544;
+  --warm-bg: rgba(245, 181, 68, 0.1);
+  --warm-border: rgba(245, 181, 68, 0.25);
+  --cold: #8a8f98;
+  --cold-bg: rgba(138, 143, 152, 0.1);
+  --cold-border: rgba(138, 143, 152, 0.22);
+  --cool: #8a8f98;
+  --cool-bg: rgba(138, 143, 152, 0.08);
+  --cyan: var(--brand);
+  --cyan-soft: var(--brand-soft);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --surface-2: #181818;
+  --bg-translucent: rgba(0, 0, 0, 0.55);
+  --red: #f87171;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px rgba(223, 255, 0, 0.3);
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  --shadow-screen: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 50px 100px -20px rgba(0, 0, 0, 0.5), 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Light palette --- */
+.theme-light {
+  --brand: #dfff00;
+  --brand-hover: #e8ff40;
+  --brand-active: #c8e600;
+  --brand-soft: rgba(223, 255, 0, 0.14);
+  --brand-border: rgba(223, 255, 0, 0.32);
+  --brand-glow: rgba(223, 255, 0, 0.28);
+  --background: #f7f8fa;
+  --foreground: #0a0e1a;
+  --card: #ffffff;
+  --card-foreground: #0a0e1a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0e1a;
+  --primary: var(--brand);
+  --primary-foreground: #000000;
+  --secondary: #eef1f6;
+  --secondary-foreground: #0a0e1a;
+  --muted: #eef1f6;
+  --muted-foreground: #5b6472;
+  --accent: var(--brand-soft);
+  --accent-foreground: #111111;
+  --destructive: #dc2626;
+  --border: rgba(10, 14, 26, 0.10);
+  --input: rgba(10, 14, 26, 0.12);
+  --ring: var(--brand-active);
+  --chart-1: var(--brand);
+  --chart-2: #16a34a;
+  --chart-3: #b45309;
+  --chart-4: #8a8f98;
+  --chart-5: #0a0e1a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #3a4150;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #eef1f6;
+  --sidebar-accent-foreground: #0a0e1a;
+  --sidebar-border: rgba(10, 14, 26, 0.10);
+  --sidebar-ring: var(--brand-active);
+  --bg: #f7f8fa;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f1f3f7;
+  --surface-active: #e9edf3;
+  --accent-2: var(--brand-hover);
+  --accent-glow: var(--brand-glow);
+  --accent-soft: var(--brand-soft);
+  --accent-border: var(--brand-border);
+  --text-primary: #0a0e1a;
+  --text-secondary: #3a4150;
+  --text-tertiary: #5b6472;
+  --text-quaternary: #8b94a3;
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.10);
+  --warning: #b45309;
+  --warning-bg: rgba(180, 83, 9, 0.10);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.10);
+  --info: #8a8f98;
+  --hot: #16a34a;
+  --hot-bg: rgba(22, 163, 74, 0.10);
+  --hot-glow: rgba(22, 163, 74, 0.22);
+  --hot-border: rgba(22, 163, 74, 0.25);
+  --warm: #b45309;
+  --warm-bg: rgba(180, 83, 9, 0.10);
+  --warm-border: rgba(180, 83, 9, 0.25);
+  --cold: #8a8f98;
+  --cold-bg: rgba(138, 143, 152, 0.10);
+  --cold-border: rgba(138, 143, 152, 0.22);
+  --cool: #8a8f98;
+  --cool-bg: rgba(138, 143, 152, 0.10);
+  --cyan: var(--brand);
+  --cyan-soft: var(--brand-soft);
+  --border-strong: rgba(10, 14, 26, 0.16);
+  --border-subtle: rgba(10, 14, 26, 0.06);
+  --surface-2: #e9edf3;
+  --bg-translucent: rgba(255, 255, 255, 0.7);
+  --red: #dc2626;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 8px 32px rgba(16, 24, 40, 0.12);
+  --shadow-glow: 0 0 24px rgba(223, 255, 0, 0.18);
+  --shadow-card: 0 0 0 1px rgba(10, 14, 26, 0.06), 0 1px 2px rgba(16, 24, 40, 0.08);
+  --shadow-elevated: 0 0 0 1px rgba(10, 14, 26, 0.08), 0 24px 48px -12px rgba(16, 24, 40, 0.18);
+  --shadow-screen: 0 0 0 1px rgba(10, 14, 26, 0.06), 0 50px 100px -20px rgba(16, 24, 40, 0.18), 0 30px 60px -30px rgba(16, 24, 40, 0.2);
+}
+
+/* ================= preview chrome ================= */
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body {
+  margin: 0;
+  padding: 28px;
+  background: #17181a;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  color: #e6e7e9;
+}
+.ds-header { margin-bottom: 20px; }
+.ds-title {
+  font-size: 20px; font-weight: 600; letter-spacing: -0.024em;
+  color: #ffffff; margin: 0 0 5px;
+}
+.ds-sub {
+  font-size: 13px; color: #9ba0a6; margin: 0;
+  letter-spacing: -0.006em; max-width: 78ch; line-height: 1.5;
+}
+.ds-source {
+  display: inline-block; margin-top: 9px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px; color: #7e838a;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px; padding: 3px 9px;
+}
+.ds-panes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.ds-panes.stack { grid-template-columns: 1fr; }
+.ds-pane {
+  position: relative;
+  border-radius: 14px;
+  padding: 34px 22px 22px;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.09);
+  font-size: 13px;
+  letter-spacing: -0.011em;
+}
+.theme-light.ds-pane { border-color: rgba(10,14,26,0.16); }
+.ds-pane::before {
+  content: attr(data-label);
+  position: absolute; top: 0; left: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  color: var(--text-tertiary);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 14px 0 8px 0;
+}
+.ds-section {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-quaternary);
+  margin: 24px 0 11px;
+}
+.ds-section:first-child { margin-top: 0; }
+.ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ds-col { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.ds-note {
+  font-size: 11.5px; color: var(--text-tertiary);
+  line-height: 1.55; margin-top: 12px; letter-spacing: -0.006em;
+}
+.ds-note code, .ds-mono {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.92em;
+}
+.ds-note code {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 4px; color: var(--text-secondary);
+}
+.ds-warn {
+  margin-top: 14px; padding: 9px 11px;
+  border-radius: 8px; font-size: 11.5px; line-height: 1.5;
+  background: var(--warm-bg); border: 1px solid var(--warm-border);
+  color: var(--warm);
+}
+/* spec table */
+.ds-spec { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.ds-spec th {
+  text-align: left; font-weight: 500; padding: 5px 10px 5px 0;
+  color: var(--text-quaternary); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
+}
+.ds-spec td {
+  padding: 6px 10px 6px 0; vertical-align: middle;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.ds-spec td.k {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  color: var(--text-primary); white-space: nowrap;
+}
+.ds-spec td.v {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  color: var(--text-tertiary); white-space: nowrap;
+}
+/* swatches */
+.ds-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 9px; }
+.ds-swatch { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.ds-chip {
+  height: 40px; border-radius: 8px;
+  border: 1px solid var(--border-strong);
+}
+.ds-swatch .n {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ds-swatch .h {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px; color: var(--text-quaternary);
+}
+@media (max-width: 900px) { .ds-panes { grid-template-columns: 1fr; } }
+.frame { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; background: var(--bg); }
+.topbar {
+  height: 44px; display: flex; align-items: center; gap: 10px;
+  padding: 0 20px; border-bottom: 1px solid var(--border);
+}
+.crumb { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); letter-spacing: -0.011em; }
+.crumb .ic { color: var(--text-tertiary); font-size: 12px; }
+.crumb .sep { color: var(--text-quaternary); }
+.crumb .current { color: var(--text-primary); font-weight: 500; }
+.spacer { flex: 1; }
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  padding: 4px 10px; border-radius: var(--r-md);
+  border: 1px solid transparent; cursor: pointer; letter-spacing: -0.006em;
+}
+.tb-btn .ic { font-size: 11px; opacity: 0.85; }
+.tb-btn.outlined { border-color: var(--border); }
+.tb-btn .kbd {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; padding: 1px 5px; border-radius: 3px;
+  background: var(--secondary); color: var(--text-tertiary);
+}
+.notif {
+  position: relative; width: 28px; height: 28px; flex-shrink: 0;
+  display: grid; place-items: center; color: var(--text-tertiary);
+  border-radius: var(--r-sm); cursor: pointer; font-size: 13px;
+}
+.notif .dot {
+  position: absolute; top: 5px; right: 6px; width: 6px; height: 6px; border-radius: 999px;
+  background: var(--hot); box-shadow: 0 0 6px var(--hot), 0 0 0 2px var(--bg);
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--brand); color: #000000;
+  padding: 4px 12px; border-radius: var(--r-md);
+  font-size: 13px; font-weight: 500; cursor: pointer; letter-spacing: -0.006em;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary .ic { font-size: 12px; }
+.page { padding: 20px 28px 32px; }
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border-subtle);
+}
+.page-title { font-size: 22px; font-weight: 500; letter-spacing: -0.024em; line-height: 1.2; color: var(--text-primary); margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--text-tertiary); letter-spacing: -0.006em; }
+.page-actions { display: flex; align-items: center; gap: 8px; }
+.range-tabs {
+  display: inline-flex; align-items: center; padding: 2px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+}
+.range-tab {
+  padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; color: var(--text-tertiary);
+}
+.range-tab.active { background: var(--surface-active); color: var(--text-primary); }
+.ghost-rows i { display: block; height: 34px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border-subtle); margin-bottom: 8px; }
+.ghost-rows i.short { width: 58%; }
+</style>
+</head>
+<body>
+<div class="ds-header">
+  <h1 class="ds-title">Topbar & page head</h1>
+  <p class="ds-sub">A 44px breadcrumb bar pinned above the scroll area, then the page head inside it. The topbar holds navigation and one primary action; the page head holds the title and its filters.</p>
+  <span class="ds-source">app/globals.css (.topbar, .crumb, .tb-btn, .page-head)</span>
+</div>
+<div class="ds-panes stack">
+  <div class="ds-pane theme-dark" data-label="Dark — default">
+    <div class="frame">
+      <div class="topbar">
+        <span class="crumb"><span class="ic">▦</span>Workspace<span class="sep">/</span><span class="current">Watchlist</span></span>
+        <span class="spacer"></span>
+        <span class="tb-btn"><span class="ic">⌕</span>Search<span class="kbd">⌘K</span></span>
+        <span class="tb-btn outlined">Export</span>
+        <span class="notif">◔<i class="dot"></i></span>
+        <span class="btn-primary"><span class="ic">+</span>Score company</span>
+      </div>
+      <div class="page">
+        <div class="page-head">
+          <div>
+            <div class="page-title">Watchlist</div>
+            <div class="page-sub">42 hot · 118 warm · 604 cold</div>
+          </div>
+          <div class="page-actions">
+            <span class="range-tabs">
+              <span class="range-tab">24H</span>
+              <span class="range-tab active">7D</span>
+              <span class="range-tab">30D</span>
+            </span>
+            <span class="tb-btn outlined">Filters</span>
+          </div>
+        </div>
+        <div class="ghost-rows"><i></i><i></i><i class="short"></i></div>
+      </div>
+    </div>
+
+    <table class="ds-spec" style="margin-top:20px">
+      <tr><td class="k">.topbar</td><td class="v">height 44px, padding 0 20px, gap 10px, 1px bottom --border</td></tr>
+      <tr><td class="k">.crumb</td><td class="v">13px --text-secondary; .current 500 --text-primary</td></tr>
+      <tr><td class="k">.tb-btn</td><td class="v">13px, 4px 10px, --r-md, transparent border; .outlined shows --border</td></tr>
+      <tr><td class="k">.btn-primary</td><td class="v">--brand fill, black text, 4px 12px, --r-md</td></tr>
+      <tr><td class="k">.notif</td><td class="v">28px square, --hot dot ringed against the bar</td></tr>
+      <tr><td class="k">.page</td><td class="v">padding 20px 28px 40px, the only scroll container</td></tr>
+      <tr><td class="k">.page-title</td><td class="v">22px/500, -0.024em</td></tr>
+      <tr><td class="k">.range-tab</td><td class="v">12px mono; .active gets a white-7% wash</td></tr>
+    </table>
+
+    <div class="ds-note">
+      Exactly one <code>.btn-primary</code> per topbar, always rightmost. Note it is
+      <em>not</em> the <code>Button</code> component — it is square-ish (<code>--r-md</code>) where
+      <code>Button</code> is <code>rounded-full</code>. The ported topbar and the React primitives
+      have not been reconciled; use the ported class inside dashboard chrome and
+      <code>Button</code> inside page content.
+    </div>
+  </div>
+  <div class="ds-pane theme-light" data-label="Light">
+    <div class="frame">
+      <div class="topbar">
+        <span class="crumb"><span class="ic">▦</span>Workspace<span class="sep">/</span><span class="current">Watchlist</span></span>
+        <span class="spacer"></span>
+        <span class="tb-btn"><span class="ic">⌕</span>Search<span class="kbd">⌘K</span></span>
+        <span class="tb-btn outlined">Export</span>
+        <span class="notif">◔<i class="dot"></i></span>
+        <span class="btn-primary"><span class="ic">+</span>Score company</span>
+      </div>
+      <div class="page">
+        <div class="page-head">
+          <div>
+            <div class="page-title">Watchlist</div>
+            <div class="page-sub">42 hot · 118 warm · 604 cold</div>
+          </div>
+          <div class="page-actions">
+            <span class="range-tabs">
+              <span class="range-tab">24H</span>
+              <span class="range-tab active">7D</span>
+              <span class="range-tab">30D</span>
+            </span>
+            <span class="tb-btn outlined">Filters</span>
+          </div>
+        </div>
+        <div class="ghost-rows"><i></i><i></i><i class="short"></i></div>
+      </div>
+    </div>
+
+    <table class="ds-spec" style="margin-top:20px">
+      <tr><td class="k">.topbar</td><td class="v">height 44px, padding 0 20px, gap 10px, 1px bottom --border</td></tr>
+      <tr><td class="k">.crumb</td><td class="v">13px --text-secondary; .current 500 --text-primary</td></tr>
+      <tr><td class="k">.tb-btn</td><td class="v">13px, 4px 10px, --r-md, transparent border; .outlined shows --border</td></tr>
+      <tr><td class="k">.btn-primary</td><td class="v">--brand fill, black text, 4px 12px, --r-md</td></tr>
+      <tr><td class="k">.notif</td><td class="v">28px square, --hot dot ringed against the bar</td></tr>
+      <tr><td class="k">.page</td><td class="v">padding 20px 28px 40px, the only scroll container</td></tr>
+      <tr><td class="k">.page-title</td><td class="v">22px/500, -0.024em</td></tr>
+      <tr><td class="k">.range-tab</td><td class="v">12px mono; .active gets a white-7% wash</td></tr>
+    </table>
+
+    <div class="ds-note">
+      Exactly one <code>.btn-primary</code> per topbar, always rightmost. Note it is
+      <em>not</em> the <code>Button</code> component — it is square-ish (<code>--r-md</code>) where
+      <code>Button</code> is <code>rounded-full</code>. The ported topbar and the React primitives
+      have not been reconciled; use the ported class inside dashboard chrome and
+      <code>Button</code> inside page content.
+    </div>
+  </div>
+</div>
+<script>
+/* 1. Expand [data-swatches="--a,--b"] into swatch tiles. */
+document.querySelectorAll("[data-swatches]").forEach(function (host) {
+  host.getAttribute("data-swatches").split(",").forEach(function (name) {
+    name = name.trim();
+    if (!name) return;
+    var el = document.createElement("div");
+    el.className = "ds-swatch";
+    el.innerHTML =
+      '<div class="ds-chip" style="background:var(' + name + ')"></div>' +
+      '<div class="n">' + name + '</div>' +
+      '<div class="h" data-token="' + name + '">' + name + '</div>';
+    host.appendChild(el);
+  });
+});
+
+/* 2. Resolve token names to their computed value per pane, so no value in
+      this bundle is ever hand-typed. Falls back to the name if JS is blocked. */
+document.querySelectorAll("[data-token]").forEach(function (el) {
+  var pane = el.closest(".ds-pane");
+  if (!pane) return;
+  var v = getComputedStyle(pane).getPropertyValue(el.getAttribute("data-token")).trim();
+  if (v) el.textContent = v;
+});
+</script>
+
+</body>
+</html>

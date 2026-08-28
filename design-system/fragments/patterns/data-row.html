@@ -1,0 +1,154 @@
+<!--@meta
+group: App patterns
+title: Data rows
+subtitle: How scored companies are listed. A fixed grid header, mono identifiers, band-coloured scores, and a date group separator. Density is the point — 13px text, 10px vertical padding, hairline separators.
+source: app/globals.css (.hist-table, .ht-head, .date-group, .ap-row)
+layout: stack
+-->
+
+<div class="date-group"><span>Today</span><span class="line"></span><span class="count">8</span></div>
+
+<div class="tbl">
+  <div class="th">
+    <span>Score</span><span>Company</span><span>Band</span><span>Signals</span><span>Top driver</span><span>Scored</span>
+  </div>
+  <div class="tr">
+    <span class="score hot">87</span>
+    <span class="co">stripe.com<em>Stripe, Inc.</em></span>
+    <span><span class="band band-hot"><i class="dot"></i>Hot</span></span>
+    <span class="sig"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>
+    <span class="drv">Series B · $180M</span>
+    <span class="ago">4h ago</span>
+  </div>
+  <div class="tr">
+    <span class="score warm">61</span>
+    <span class="co">linear.app<em>Linear Orbit, Inc.</em></span>
+    <span><span class="band band-warm"><i class="dot"></i>Warm</span></span>
+    <span class="sig"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i></span>
+    <span class="drv">14 open eng roles</span>
+    <span class="ago">6h ago</span>
+  </div>
+  <div class="tr">
+    <span class="score cold">23</span>
+    <span class="co">example.org<em>Example Foundation</em></span>
+    <span><span class="band band-cold"><i class="dot"></i>Cold</span></span>
+    <span class="sig"><i class="on"></i><i></i><i></i><i></i><i></i></span>
+    <span class="drv">No recent signals</span>
+    <span class="ago">1d ago</span>
+  </div>
+</div>
+
+<div class="ds-section">Status rows — .ap-row</div>
+<div class="tbl">
+  <div class="ap"><i class="pulse"></i><span class="apn">daily-hot-sweep<em>Rescore watchlist every 24h</em></span><span class="apc">1,284<i>runs</i></span><span class="apc">42<i>hot</i></span></div>
+  <div class="ap"><i class="pulse paused"></i><span class="apn">funding-watch<em>Paused 3 days ago</em></span><span class="apc">318<i>runs</i></span><span class="apc">7<i>hot</i></span></div>
+</div>
+
+<table class="ds-spec" style="margin-top:20px">
+  <tr><td class="k">container</td><td class="v">--bg-elevated, 1px --border, --r-lg, overflow hidden</td></tr>
+  <tr><td class="k">header</td><td class="v">34px tall, 11px/500 uppercase 0.04em --text-tertiary</td></tr>
+  <tr><td class="k">row</td><td class="v">fixed grid columns, 10px 16px, 1px --border-subtle</td></tr>
+  <tr><td class="k">hover</td><td class="v">white 2% — a hint, not a highlight</td></tr>
+  <tr><td class="k">identifiers</td><td class="v">mono 12–13px --text-primary; company name 11px below</td></tr>
+  <tr><td class="k">score</td><td class="v">mono, tabular-nums, band-coloured</td></tr>
+  <tr><td class="k">date group</td><td class="v">11px mono uppercase 0.06em + hairline + pill count</td></tr>
+  <tr><td class="k">last row</td><td class="v">border-bottom removed</td></tr>
+</table>
+
+<div class="ds-note">
+  Columns are fixed-width, not auto — scores stay aligned across date groups so the eye can run
+  down the column. The signal dots are the five sources from the scoring pipeline (funding,
+  hiring, news, technology, web) in fixed order, so an unlit position always means the same
+  missing source.
+</div>
+
+<style>
+.date-group {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 0 4px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.date-group .line { flex: 1; height: 1px; background: var(--border-subtle); }
+.date-group .count {
+  padding: 1px 7px; border-radius: 999px; font-size: 10px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-tertiary);
+}
+.tbl {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden; margin-bottom: 4px;
+}
+.th, .tr {
+  display: grid; grid-template-columns: 56px minmax(150px, 1.3fr) 78px 76px 1fr 74px;
+  gap: 14px; align-items: center; padding: 0 16px;
+}
+.th {
+  height: 34px; font-size: 11px; font-weight: 500;
+  color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border); background: var(--surface);
+}
+.tr { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); font-size: 13px; cursor: pointer; }
+.tr:last-child { border-bottom: none; }
+.tr:hover { background: var(--surface-hover); }
+.score {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 17px; font-weight: 500; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+}
+.score.hot { color: var(--hot); }
+.score.warm { color: var(--warm); }
+.score.cold { color: var(--cold); }
+.co {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 12.5px; font-weight: 500; color: var(--text-primary); min-width: 0;
+}
+.co em {
+  display: block; font-style: normal; font-weight: 400;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px; color: var(--text-tertiary); margin-top: 1px;
+}
+.sig { display: flex; gap: 3px; }
+.sig i { width: 6px; height: 6px; border-radius: 999px; background: var(--border-strong); }
+.sig i.on { background: var(--hot); }
+.drv { font-size: 12px; color: var(--text-secondary); letter-spacing: -0.006em; }
+.ago {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; color: var(--text-quaternary); text-align: right;
+}
+.ap {
+  display: grid; grid-template-columns: 16px 1fr 84px 84px; gap: 12px; align-items: center;
+  padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); font-size: 13px;
+}
+.ap:last-child { border-bottom: none; }
+.ap .pulse { width: 8px; height: 8px; border-radius: 999px; background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.ap .pulse.paused { background: var(--text-quaternary); box-shadow: none; }
+.apn {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 12px; font-weight: 500; color: var(--text-primary); min-width: 0;
+}
+.apn em {
+  display: block; font-style: normal; font-family: var(--font-inter), sans-serif;
+  font-size: 11px; color: var(--text-tertiary); margin-top: 1px;
+}
+.apc {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 13px; font-weight: 500; color: var(--text-primary);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.apc i {
+  display: block; font-style: normal; font-size: 9.5px; font-weight: 400;
+  color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1px;
+}
+.band {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.band .dot { width: 5px; height: 5px; border-radius: 999px; }
+.band-hot { background: var(--hot-bg); border-color: var(--hot-border); color: var(--hot); }
+.band-hot .dot { background: var(--hot); box-shadow: 0 0 4px var(--hot); }
+.band-warm { background: var(--warm-bg); border-color: var(--warm-border); color: var(--warm); }
+.band-warm .dot { background: var(--warm); }
+.band-cold { background: var(--cold-bg); border-color: var(--cold-border); color: var(--cold); }
+.band-cold .dot { background: var(--cold); }
+</style>

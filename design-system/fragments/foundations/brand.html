@@ -1,0 +1,48 @@
+<!--@meta
+group: Foundations
+title: Brand
+subtitle: VesperWise runs on a single acid-yellow accent. Every interactive surface chains off --brand; there is no secondary brand hue. The ramp is identical in both themes — only the alpha-based soft/border/glow tints shift.
+source: app/theme-overrides.css
+layout: split
+-->
+
+<div class="ds-section">Brand ramp</div>
+<div class="ds-swatches" data-swatches="--brand,--brand-hover,--brand-active,--brand-soft,--brand-border,--brand-glow"></div>
+
+<div class="ds-section">The one pairing that matters</div>
+<div class="ds-row">
+  <button class="brand-btn">Score company</button>
+  <button class="brand-btn ghost">Cancel</button>
+</div>
+<table class="ds-spec" style="margin-top:14px">
+  <tr><td class="k">--primary</td><td class="v" data-token="--primary">--primary</td><td>filled action background</td></tr>
+  <tr><td class="k">--primary-foreground</td><td class="v" data-token="--primary-foreground">--primary-foreground</td><td>text on that background</td></tr>
+</table>
+<div class="ds-note">
+  <code>--primary-foreground</code> is <strong>black</strong>, not white. Yellow is a high-luminance
+  hue: white text on <code>#dfff00</code> lands near 1.1:1 and is unreadable. Never override this pairing.
+</div>
+
+<div class="ds-section">Where the accent is allowed</div>
+<div class="ds-note" style="margin-top:0">
+  Primary buttons, focus rings (<code>--ring</code> uses <code>--brand-active</code>),
+  the active nav indicator, <code>--chart-1</code>, and credit meters. It is <em>not</em> a
+  status colour — intent bands own HOT/WARM/COLD, and success/warning/danger are separate tokens.
+</div>
+
+<style>
+.brand-btn {
+  font: inherit; font-size: 13px; font-weight: 600; letter-spacing: -0.006em;
+  padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  background: var(--primary); color: var(--primary-foreground);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 28px -18px var(--brand-glow);
+  transition: background 0.2s, transform 0.2s;
+}
+.brand-btn:hover { background: var(--brand-hover); transform: translateY(-1px); }
+.brand-btn.ghost {
+  background: transparent; color: var(--text-secondary);
+  border-color: var(--border); box-shadow: none;
+}
+.brand-btn.ghost:hover { background: var(--accent); color: var(--accent-foreground); }
+</style>

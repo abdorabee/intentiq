@@ -2,6 +2,10 @@
 
 Reference document for agents and engineers building UI in this repo. When in doubt, **match the HTML prototypes** and the patterns below — not generic shadcn defaults.
 
+For a rendered view of the system — every token, component and app pattern shown in both themes —
+see `design-system/claude/` (regenerate with `node design-system/build.mjs`). Those cards are
+generated from the app's own CSS, so where this document and a card disagree, the card is right.
+
 ---
 
 ## 1. What changed
@@ -12,7 +16,7 @@ IntentIQ is moving from a **generic shadcn card-grid dashboard** to a **Linear-i
 |--------|--------|
 | Tailwind + shadcn as primary UI | **CSS token system** + semantic class names from HTML |
 | Padded pages with Card components | **Full-bleed or tight chrome** matching reference layouts |
-| Cyan-forward glass aesthetic | **Near-flat dark** surfaces, **violet primary**, cyan as accent |
+| Cyan-forward glass aesthetic | **Near-flat dark** surfaces, a single **acid-yellow brand** (`#dfff00`), no secondary hue |
 | One-off page styling | **Per-page `*-view.tsx`** clients + shared shell |
 
 **Goal:** Dashboard pages should feel like one product — same sidebar, topbar, typography, borders, and band semantics — whether you're on Score, History, or People.
@@ -46,12 +50,16 @@ When implementing a page:
 
 ## 3. Design tokens
 
-All tokens live in `app/globals.css` `:root`. **Use CSS variables**, not hardcoded hex, in new code.
+Tokens are declared in two places and **`app/theme-overrides.css` wins** — `app/layout.tsx`
+imports it after `globals.css`, so it overrides by source order. Edit tokens there. The `:root`
+and `.dark` blocks near the top of `globals.css` still carry a stale violet oklch palette and have
+no visible effect. **Use CSS variables**, not hardcoded hex, in new code.
 
-### Surfaces
-- `--bg` `#08090a` — app background, canvas dot-grids
-- `--bg-elevated` `#0e1011` — cards, panes, inputs
-- `--surface` / `--surface-2` — nested panels, pills
+### Surfaces (dark — the app default)
+- `--bg` `#000000` — app background, canvas dot-grids
+- `--bg-elevated` `#111111` — cards, panes, inputs
+- `--surface` `#111111` / `--surface-2` `#181818` — nested panels, pills
+- Light mode mirrors all of these; never assume a `rgba(255,255,255,…)` wash will be visible.
 
 ### Text
 - `--text-primary` → headings, values
@@ -63,8 +71,15 @@ All tokens live in `app/globals.css` `:root`. **Use CSS variables**, not hardcod
 - `--border`, `--border-strong`, `--border-subtle` — white at 8% / 13% / 4% opacity
 
 ### Brand
-- `--accent` / `--accent-2` — **violet** primary actions (`btn-primary`, links)
-- `--cyan` — signal accents, funding, secondary highlights
+- `--brand` `#dfff00` — the single accent. Primary actions (`btn-primary`, `Button` default),
+  focus rings, the active nav indicator, `--chart-1`, credit meters.
+- `--brand-hover` `#e8ff40`, `--brand-active` `#c8e600` — the interaction ramp.
+- `--brand-soft` / `--brand-border` / `--brand-glow` — alpha tints for washes, hairlines, glow.
+- `--primary-foreground` is **black**. White on yellow lands near 1.1:1 and is unreadable.
+- `--accent` / `--accent-2` / `--cyan` are **aliases of the brand**, kept so the ported CSS keeps
+  working. There is no violet and no cyan in the product any more; treat those names as legacy.
+- The brand is not a status colour — intent bands own HOT/WARM/COLD, and success/warning/danger
+  are their own tokens.
 
 ### Intent bands (core product language)
 - **HOT** `--hot` green — high intent, active, positive delta
@@ -210,7 +225,7 @@ When adding a new major page, **use a unique prefix** (e.g. `.scr-*` for Score) 
 - Shared `.ap-flow` / `.ap-canvas` without parent scope (breaks landing vs dashboard)
 - `ANY` / logic keywords in user-facing workflow descriptions — use ` · ` separators like HTML
 - Double `.page` padding (wrapper + inner padded container)
-- Replacing violet primary with cyan for main CTAs
+- Introducing a second brand hue — there is exactly one accent, `--brand`
 - Emoji as icons — use Lucide or inline SVG from HTML references
 - Removing band semantics (HOT/WARM/COLD) from score UI
 

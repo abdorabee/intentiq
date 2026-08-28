@@ -1,0 +1,67 @@
+<!--@meta
+group: Components
+title: Input & Label
+subtitle: A 40px-tall xl-radius field on a translucent background, paired with a plain medium-weight label. The focus ring is the brand's active tint at 30% — the same ring every control uses.
+source: components/ui/input.tsx, components/ui/label.tsx
+layout: split
+-->
+
+<div class="ds-section">States</div>
+<div class="ds-col" style="width:100%; gap:14px">
+  <div class="f"><label class="l">Company domain</label><input class="in" value="stripe.com"></div>
+  <div class="f"><label class="l">Placeholder</label><input class="in" placeholder="acme.com" ></div>
+  <div class="f"><label class="l">Focused</label><input class="in is-focus" value="linear.app"></div>
+  <div class="f"><label class="l">Invalid</label><input class="in is-invalid" value="not a domain"><span class="err">Enter a bare domain, no protocol.</span></div>
+  <div class="f"><label class="l">Disabled</label><input class="in" value="vercel.com" disabled></div>
+</div>
+
+<div class="ds-section">With an action</div>
+<div class="f">
+  <label class="l">Bulk list</label>
+  <div class="ds-row" style="flex-wrap:nowrap; gap:8px">
+    <input class="in" placeholder="Paste domains, one per line">
+    <button class="go">Score</button>
+  </div>
+</div>
+
+<table class="ds-spec" style="margin-top:20px">
+  <tr><td class="k">height</td><td class="v">h-10 (40px)</td></tr>
+  <tr><td class="k">radius</td><td class="v">rounded-xl</td></tr>
+  <tr><td class="k">background</td><td class="v">bg-background/70 · dark bg-white/[0.045]</td></tr>
+  <tr><td class="k">border</td><td class="v">border-input · dark border-white/[0.09]</td></tr>
+  <tr><td class="k">text</td><td class="v">text-base, md:text-sm</td></tr>
+  <tr><td class="k">focus</td><td class="v">border-ring + ring-[3px] ring-ring/30</td></tr>
+  <tr><td class="k">invalid</td><td class="v">aria-invalid → border-destructive</td></tr>
+  <tr><td class="k">label</td><td class="v">text-sm font-medium, dims with peer-disabled</td></tr>
+</table>
+
+<div class="ds-note">
+  <code>text-base</code> below the <code>md</code> breakpoint is deliberate — anything under 16px
+  makes iOS Safari zoom on focus. Selection inside the field inverts to the brand
+  (<code>selection:bg-primary</code>).
+</div>
+
+<style>
+.f { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+.l { font-size: 13px; font-weight: 500; line-height: 1; color: var(--text-primary); }
+.in {
+  font: inherit; font-size: 13px; width: 100%;
+  height: 40px; padding: 8px 14px; border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+  border: 1px solid var(--input); color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.theme-dark .in { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.09); }
+.in::placeholder { color: var(--muted-foreground); }
+.in.is-focus { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 30%, transparent); }
+.in.is-invalid { border-color: var(--destructive); box-shadow: 0 0 0 3px color-mix(in srgb, var(--destructive) 20%, transparent); }
+.in[disabled] { opacity: 0.5; cursor: not-allowed; }
+.err { font-size: 11.5px; color: var(--destructive); }
+.go {
+  font: inherit; font-size: 13px; font-weight: 600; flex-shrink: 0;
+  height: 40px; padding: 0 18px; border-radius: 999px; cursor: pointer;
+  background: var(--primary); color: var(--primary-foreground);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+</style>

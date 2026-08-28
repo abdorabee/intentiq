@@ -1,0 +1,148 @@
+<!--@meta
+group: App patterns
+title: Sidebar
+subtitle: 232px of workspace nav, hidden entirely under 1100px. Items are 13px with a 5px/10px hit area; hover and active are both white-alpha washes one step apart, never the brand.
+source: app/globals.css (.sidebar, .sb-*)
+layout: split
+-->
+
+<div class="sb">
+  <div class="sb-head">
+    <span class="ws-logo"></span>
+    <span class="ws-name">VesperWise<em class="role">Growth · 1,284 cr</em></span>
+    <span class="ws-chev">▾</span>
+  </div>
+  <button class="sb-search"><span class="ic">⌕</span>Search<span class="kbd">⌘K</span></button>
+
+  <div class="sb-section">Workspace<span class="add">+</span></div>
+  <div class="sb-item active"><span class="ic">▦</span>Dashboard</div>
+  <div class="sb-item"><span class="ic">◎</span>Score<span class="count">12</span></div>
+  <div class="sb-item"><span class="ic">☰</span>Watchlist<span class="count hot">42</span></div>
+  <div class="sb-item"><span class="ic">⇈</span>Bulk<span class="indicator"></span></div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Settings</div>
+  <div class="sb-item"><span class="ic">⚿</span>API keys</div>
+  <div class="sb-item"><span class="ic">◇</span>Billing</div>
+
+  <div class="sb-credits">
+    <div class="label">Credits</div>
+    <div class="row"><span class="val">1,284<span class="of">/2,000</span></span><span class="topup">Top up</span></div>
+    <div class="bar"><span class="fill" style="width:64%"></span></div>
+  </div>
+  <div class="sb-user">
+    <span class="av">AR</span>
+    <span class="info"><span class="name">Abdo R.</span><span class="email">abdo@vesperwise.com</span></span>
+  </div>
+</div>
+
+<table class="ds-spec" style="margin-top:18px">
+  <tr><td class="k">width</td><td class="v">232px · 56px collapsed · hidden &lt; 1100px</td></tr>
+  <tr><td class="k">surface</td><td class="v">--sidebar, 1px --border right edge, padding 12px 8px</td></tr>
+  <tr><td class="k">item</td><td class="v">13px, padding 5px 10px, --r-sm, --text-secondary</td></tr>
+  <tr><td class="k">hover</td><td class="v">white 4% → --text-primary</td></tr>
+  <tr><td class="k">active</td><td class="v">white 6% → --text-primary</td></tr>
+  <tr><td class="k">count</td><td class="v">11px mono, --text-tertiary; .hot → --hot</td></tr>
+  <tr><td class="k">indicator</td><td class="v">6px --hot dot with a matching glow</td></tr>
+  <tr><td class="k">section</td><td class="v">11px/500 uppercase, 0.04em, --text-quaternary</td></tr>
+</table>
+
+<div class="ds-note">
+  The active item is a <em>wash</em>, not a brand fill — with a dozen rows on screen a yellow
+  block would dominate the page. Attention is carried by the counts and the HOT dot instead.
+  In light mode <code>theme-overrides.css</code> replaces each white-alpha wash with an ink
+  equivalent; a hardcoded <code>rgba(255,255,255,…)</code> in new sidebar CSS will be invisible
+  on white.
+</div>
+
+<div class="ds-warn">
+  <strong>Brand-as-text fails contrast in light mode.</strong> The credits <em>Top up</em> link uses
+  <code>#dfff00</code> as a foreground colour: <strong>1.14:1</strong> on white and 1.07:1 on the
+  light <code>--background</code>, against a 4.5:1 AA floor for body text. Reproduced faithfully
+  rather than corrected — it is a real bug in the app. Note that no point on the current ramp
+  fixes it: <code>--brand-active</code> <code>#c8e600</code> still only reaches 1.42:1. Light mode
+  needs either a dark olive token (around <code>#6b7a00</code>, which measures 4.76:1) or the
+  treatment the primary button already uses — brand as a <em>background</em> with black text,
+  which measures 18.4:1.
+</div>
+
+<style>
+.sb {
+  width: 232px; padding: 12px 8px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--sidebar); border: 1px solid var(--border);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.sb-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px 12px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer;
+}
+.ws-logo { width: 24px; height: 24px; border-radius: 6px; background: var(--brand); flex-shrink: 0; }
+.ws-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 500; letter-spacing: -0.011em; color: var(--text-primary); }
+.ws-name .role { display: block; font-size: 11px; font-style: normal; font-weight: 400; color: var(--text-tertiary); }
+.ws-chev { color: var(--text-tertiary); font-size: 10px; }
+.sb-search {
+  font: inherit; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; margin: 4px 4px 8px; width: calc(100% - 8px);
+  background: var(--surface-hover); border: 1px solid var(--border);
+  border-radius: var(--r-md); font-size: 13px; color: var(--text-tertiary); cursor: pointer;
+}
+.sb-search .ic { font-size: 12px; opacity: 0.7; }
+.sb-search .kbd {
+  margin-left: auto;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px; padding: 1px 5px; border-radius: 3px;
+  background: var(--secondary); color: var(--text-tertiary);
+}
+.sb-section {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 10px 4px; font-size: 11px; font-weight: 500;
+  color: var(--text-quaternary); text-transform: uppercase; letter-spacing: 0.04em;
+}
+.sb-section .add { color: var(--text-tertiary); cursor: pointer; }
+.sb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px; border-radius: var(--r-sm);
+  color: var(--text-secondary); font-size: 13px; letter-spacing: -0.011em; cursor: pointer;
+}
+.sb-item .ic { font-size: 12px; opacity: 0.75; flex-shrink: 0; width: 14px; }
+.sb-item:hover { background: var(--surface-hover); color: var(--text-primary); }
+.sb-item.active { background: var(--surface-active); color: var(--text-primary); }
+.sb-item .count {
+  margin-left: auto;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px; color: var(--text-tertiary);
+}
+.sb-item .count.hot { color: var(--hot); }
+.sb-item .indicator {
+  margin-left: auto; width: 6px; height: 6px; border-radius: 999px;
+  background: var(--hot); box-shadow: 0 0 6px var(--hot);
+}
+.sb-divider { height: 1px; background: var(--border); margin: 8px 4px; }
+.sb-credits {
+  margin: 12px 4px 4px; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface);
+}
+.sb-credits .label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.sb-credits .row { display: flex; align-items: baseline; justify-content: space-between; }
+.sb-credits .val {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 16px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em;
+}
+.sb-credits .of { font-size: 11px; font-weight: 400; color: var(--text-tertiary); margin-left: 2px; }
+.sb-credits .topup { font-size: 11px; font-weight: 500; color: var(--accent-2); }
+.sb-credits .bar { margin-top: 6px; height: 3px; border-radius: 999px; overflow: hidden; background: var(--secondary); }
+.sb-credits .fill { display: block; height: 100%; background: linear-gradient(90deg, var(--brand) 0%, var(--brand-hover) 100%); }
+.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin: 4px 4px 0; border-radius: var(--r-sm); cursor: pointer; }
+.sb-user .av {
+  width: 22px; height: 22px; border-radius: 999px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 9px; font-weight: 700; color: #0a0b0f;
+  background: linear-gradient(135deg, var(--warm), var(--cold));
+}
+.sb-user .info { min-width: 0; }
+.sb-user .name { display: block; font-size: 12px; font-weight: 500; color: var(--text-primary); }
+.sb-user .email { display: block; font-size: 11px; color: var(--text-tertiary); }
+</style>
