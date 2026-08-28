@@ -2,8 +2,18 @@ import type { CalibrationState } from "./calibration-state";
 
 const TAU = Math.PI * 2;
 
+/**
+ * Math.sin/cos results may differ in the last bit between server and browser
+ * JS engines, which would break hydration of server-rendered coordinates —
+ * so every computed value is rounded to a stable precision.
+ */
+const round = (value: number) => Math.round(value * 100) / 100;
+
 function polar(cx: number, cy: number, r: number, angle: number) {
-  return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
+  return {
+    x: round(cx + Math.cos(angle) * r),
+    y: round(cy + Math.sin(angle) * r),
+  };
 }
 
 /**
