@@ -61,6 +61,12 @@ no visible effect. **Use CSS variables**, not hardcoded hex, in new code.
 - `--surface` `#111111` / `--surface-2` `#181818` — nested panels, pills
 - Light mode mirrors all of these; never assume a `rgba(255,255,255,…)` wash will be visible.
 
+### Tailwind utilities vs. ported classes
+The ported reset lives in `@layer base`, so Tailwind utilities (`p-4`, `bg-primary`, `text-*`)
+apply normally to every element including `<a>` and `<button>`. But the **ported semantic classes
+are unlayered and still beat utilities** — inside ported markup use `.btn-primary` / `.tb-btn` /
+`.sb-item`, not a Tailwind utility, or your utility will silently lose.
+
 ### Text
 - `--text-primary` → headings, values
 - `--text-secondary` → body

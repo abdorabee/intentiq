@@ -398,7 +398,6 @@ body {
       <tr><td class="k">size</td><td class="v">fixed — min-h-[22px], px-2.5 py-0.5</td></tr>
       <tr><td class="k">type</td><td class="v">text-xs font-semibold</td></tr>
       <tr><td class="k">element</td><td class="v">span, or asChild for an anchor</td></tr>
-      <tr><td class="k">link colour</td><td class="v">text-brand-ink! — the <code>!</code> is required</td></tr>
     </table>
 
     <div class="ds-note">
@@ -414,14 +413,6 @@ body {
       (<code data-token="--brand-ink">--brand-ink</code>) in light, where its worst case across every
       light surface is 5.05:1. Rule of thumb: <code>--brand</code> fills, borders and glows;
       <code>--brand-ink</code> text and icons.
-    </div>
-
-    <div class="ds-note">
-      The <code>!</code> on <code>text-brand-ink!</code> is load-bearing.
-      <code>globals.css:568-569</code> declares <code>a</code> and <code>button { color: inherit }</code>
-      outside any <code>@layer</code>, and unlayered CSS beats layered CSS whatever the specificity —
-      so a plain colour utility never reaches an anchor or a button in this app. Verified by
-      measurement, not assumed.
     </div>
   </div>
   <div class="ds-pane theme-light" data-label="Light">
@@ -448,7 +439,6 @@ body {
       <tr><td class="k">size</td><td class="v">fixed — min-h-[22px], px-2.5 py-0.5</td></tr>
       <tr><td class="k">type</td><td class="v">text-xs font-semibold</td></tr>
       <tr><td class="k">element</td><td class="v">span, or asChild for an anchor</td></tr>
-      <tr><td class="k">link colour</td><td class="v">text-brand-ink! — the <code>!</code> is required</td></tr>
     </table>
 
     <div class="ds-note">
@@ -464,14 +454,6 @@ body {
       (<code data-token="--brand-ink">--brand-ink</code>) in light, where its worst case across every
       light surface is 5.05:1. Rule of thumb: <code>--brand</code> fills, borders and glows;
       <code>--brand-ink</code> text and icons.
-    </div>
-
-    <div class="ds-note">
-      The <code>!</code> on <code>text-brand-ink!</code> is load-bearing.
-      <code>globals.css:568-569</code> declares <code>a</code> and <code>button { color: inherit }</code>
-      outside any <code>@layer</code>, and unlayered CSS beats layered CSS whatever the specificity —
-      so a plain colour utility never reaches an anchor or a button in this app. Verified by
-      measurement, not assumed.
     </div>
   </div>
 </div>

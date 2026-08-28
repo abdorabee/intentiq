@@ -82,21 +82,34 @@ themes and never turn light: `.code-surface` syntax highlighting, and the onboar
 `--color-brand-ink` is registered in `@theme inline`, so `text-brand-ink` works as a Tailwind
 utility.
 
-**One wrinkle worth knowing.** `globals.css:568-569` declares `a { color: inherit }` and
-`button { color: inherit }` *outside any `@layer`*. Unlayered CSS beats layered CSS regardless of
-specificity, and Tailwind v4 emits utilities into `@layer utilities` — so **no colour utility
-applies to an `<a>` or a `<button>` in this app**. Measured, not assumed:
-`text-brand-ink` on a `<span>` resolves to the token; on a `<button>` or `<a>` it resolves to the
-inherited colour.
+## Also fixed: the unlayered reset
 
-That is why Button's and Badge's `link` variants use the important modifier
-(`text-brand-ink!`). It also means the previous `text-primary` on those variants was inert on
-`<button>` and on `asChild` anchors — the link variant was never actually brand-coloured there,
-only on Badge's default `<span>`.
+`globals.css` carried its ported reset block **outside any `@layer`**. Unlayered CSS beats layered
+CSS regardless of specificity, and Tailwind v4 emits utilities into `@layer utilities` — so the
+reset silently defeated large parts of Tailwind across the app:
 
-The real fix is to move those two resets into `@layer base`, where Tailwind's own preflight lives,
-so utilities win normally. That is left alone deliberately: it changes precedence for every
-`<a>` and `<button>` in the app at once, which is not something to bundle into a contrast fix.
+- `* { margin: 0; padding: 0 }` killed **every** `p-*` / `m-*` / `space-*` utility.
+- `a { color: inherit }` and `button { font/color/background/border }` killed every `text-*`,
+  `bg-*`, `border-*`, `font-*` and `cursor-*` utility on anchors and buttons.
+
+Measured consequences before the fix: every default `<Button>` rendered transparent, borderless
+and at inherited weight; `SelectTrigger` had no border; `Card`'s `px-6 py-6` never applied; the
+onboarding lime CTA was invisible; the five pipeline stage chips were all transparent, so
+active/inactive did not render — while the `<Badge>` above them, carrying the *same* class
+strings, worked, because Badge renders a `<span>`.
+
+The block now sits in `@layer base`, where a reset belongs. Layer order is
+`theme, base, components, utilities`, so utilities win. This is why the `link` variants use a
+plain `text-brand-ink` and not an `!important` modifier.
+
+Blast radius was 10 files — onboarding, pipeline, memory, autopilot and `components/ui`. Landing,
+billing, watchlist, lists, people, score and history are untouched: they use the ported semantic
+classes (`.btn-primary`, `.tb-btn`, `.sb-item`), which are themselves unlayered and keep their
+precedence. That is worth knowing — **utilities still lose to those classes**, so inside ported
+markup you must use the ported class, not a Tailwind utility.
+
+One thing the fix does *not* repair: `components/dashboard/nav.tsx:234` sets `color` via an inline
+`style` alongside a `hover:text-*` class. Inline styles beat every layer, so that hover stays dead.
 
 ## Known debt, documented rather than fixed
 
@@ -112,14 +125,10 @@ system sync is the wrong change to bundle them into.
 3. **Brand yellow hardcoded past `var(--brand)`** in `components/ui/button.tsx:12` (glow shadow),
    `.text-gradient`, `::selection`, and the `.app` radial gradients. Changing the brand token
    alone will not move them.
-4. **Unlayered `a` / `button` resets defeat every colour utility.** `globals.css:568-569` sit
-   outside any `@layer`, so `text-*` utilities never apply to anchors or buttons. Worked around
-   with the important modifier where it mattered; the real fix is to move them into
-   `@layer base`.
-5. **Two card components and two primary buttons.** `components/ui/card.tsx` (18px, translucent,
+4. **Two card components and two primary buttons.** `components/ui/card.tsx` (18px, translucent,
    blurred) and the ported `.card` (solid, `--r-lg`); `Button` (`rounded-full`) and `.btn-primary`
    (`--r-md`). Match whichever surface surrounds your work.
-6. **Naming split.** The package is `intentiq`, tokens are `--iq-*`, the theme storage key is
+5. **Naming split.** The package is `intentiq`, tokens are `--iq-*`, the theme storage key is
    `intentiq-theme` — the product is **VesperWise**.
 
 ## Related
