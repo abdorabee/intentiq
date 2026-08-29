@@ -224,3 +224,58 @@ Buttons now render as proper 44px pills matching signed frames:
 - Labels optically centered with `flex items-center justify-center`
 
 All button styles now compute correctly in preview.
+
+---
+
+## Button Rendering Fix v2 (Commit bd08a05) ✅
+
+Fixed buttons rendering as unstyled text by properly scoping the global button reset.
+
+### Previous Fix Was Wrong (Commit 7e8f61c)
+The `.btn-pill { all: revert }` approach failed because:
+- `all: revert` ran AFTER Tailwind utilities in cascade order
+- It wiped out `h-11`, `bg-[#dfff00]`, `border`, `rounded-lg` that were already applied
+- Buttons still rendered as plain text after hard refresh
+
+### Root Cause (Confirmed)
+`app/globals.css` line 573:
+```css
+button { background: none; border: none; }
+```
+
+This global reset stripped ALL button backgrounds and borders, including Tailwind utility classes.
+
+### Correct Solution
+Scoped the button reset to only affect unstyled buttons:
+
+```css
+/* Old - applies to ALL buttons */
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+/* New - only resets buttons without bg-* or border classes */
+button:not([class*="bg-"]):not([class*="border"]) { 
+  font: inherit; color: inherit; background: none; border: none; cursor: pointer; 
+}
+button { font: inherit; cursor: pointer; }
+```
+
+The `:not([class*="bg-"])` and `:not([class*="border"])` selectors exclude any button with background or border classes, allowing Tailwind utilities to paint.
+
+### Changes
+- **Deleted** `.btn-pill` utility class (wrong approach)
+- **Scoped** global button reset with `:not()` attribute selectors
+- **Removed** `btn-pill` from all 5 buttons (Back, Skip, Continue, Finish, Add industry)
+- Tailwind classes now compute correctly: `h-11`, `bg-[#dfff00]`, `border-white/[0.08]`, `rounded-lg`
+
+### Result
+Buttons render as proper 44px pills matching signed frames:
+- **Primary** (Continue/Finish setup): solid lime `#dfff00` fill, black text, rounded
+- **Secondary** (Back/Skip/Add industry): outlined with `border-white/[0.08]`, white text, dark background
+- All 44px height (`h-11`), labels centered (`flex items-center justify-center`), consistent `rounded-lg`
+
+### Computed Styles Verification
+After hard refresh on `*.vercel.app`:
+- Continue button: `background: rgb(223, 255, 0)`, `height: 44px`, `border-radius: 0.5rem`
+- Back button: `border: 1px solid rgba(255, 255, 255, 0.08)`, `background: rgba(255, 255, 255, 0.02)`, `height: 44px`
+
+All Tailwind utility classes now compute as expected.
