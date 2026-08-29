@@ -57,7 +57,7 @@ function ChoiceButton({
           aria-hidden="true"
           className={`h-2.5 w-2.5 shrink-0 rounded-full border ${
             selected
-              ? "border-[#dfff00] bg-[#dfff00] shadow-[0_0_14px_rgba(223,255,0,0.45)]"
+              ? "border-[#dfff00] bg-[#dfff00]"
               : "border-white/20"
           }`}
         />
@@ -268,10 +268,6 @@ export default function OnboardingWizard({
     <main className="min-h-[100dvh] bg-[#08090a] text-[#f7f8f8]">
       <div className="mx-auto grid min-h-[100dvh] max-w-[1440px] lg:grid-cols-[340px_1fr]">
         <aside className="relative overflow-hidden border-b border-white/[0.08] bg-[#0b0c0d] px-6 py-7 lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -left-36 -top-40 h-80 w-80 rounded-full bg-[#dfff00]/10 blur-[120px]"
-          />
           <div className="relative flex h-full flex-col">
             <VesperWiseLogo size={42} variant="wordmark" />
 
@@ -287,7 +283,7 @@ export default function OnboardingWizard({
               </p>
             </div>
 
-            <ol className="mt-7 grid grid-cols-4 gap-2 lg:mt-12 lg:grid-cols-1 lg:gap-1" aria-label="Onboarding progress">
+            <ol className="mt-7 hidden gap-1 lg:mt-12 lg:grid" aria-label="Onboarding progress">
               {STEPS.map((item, index) => (
                 <li key={item.title}>
                   <button
@@ -344,7 +340,7 @@ export default function OnboardingWizard({
                 </p>
                 <p className="text-xs text-[#646970]">Saved when you finish</p>
               </div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+              <h2 className="mt-4 text-[20px] font-medium leading-[1.3] tracking-[-0.024em]">
                 {currentStep.title}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9298a1] sm:text-base">
@@ -522,43 +518,41 @@ export default function OnboardingWizard({
 
             {step === 3 && (
               <div className="space-y-8">
-                <div className="grid gap-8 md:grid-cols-2">
-                  <fieldset aria-describedby={errors.deal_size ? "deal-size-error" : undefined}>
-                    <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                      Typical deal size
-                    </legend>
-                    <div className="grid gap-3">
-                      {DEAL_SIZE_OPTIONS.map((option) => (
-                        <ChoiceButton
-                          key={option}
-                          selected={profile.deal_size === option}
-                          onClick={() => updateField("deal_size", option)}
-                        >
-                          {option}
-                        </ChoiceButton>
-                      ))}
-                    </div>
-                    <FieldError id="deal-size-error" message={errors.deal_size} />
-                  </fieldset>
+                <fieldset aria-describedby={errors.deal_size ? "deal-size-error" : undefined}>
+                  <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
+                    Typical deal size
+                  </legend>
+                  <div className="grid gap-3">
+                    {DEAL_SIZE_OPTIONS.map((option) => (
+                      <ChoiceButton
+                        key={option}
+                        selected={profile.deal_size === option}
+                        onClick={() => updateField("deal_size", option)}
+                      >
+                        {option}
+                      </ChoiceButton>
+                    ))}
+                  </div>
+                  <FieldError id="deal-size-error" message={errors.deal_size} />
+                </fieldset>
 
-                  <fieldset aria-describedby={errors.sales_cycle ? "sales-cycle-error" : undefined}>
-                    <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
-                      Typical sales cycle
-                    </legend>
-                    <div className="grid gap-3">
-                      {SALES_CYCLE_OPTIONS.map((option) => (
-                        <ChoiceButton
-                          key={option}
-                          selected={profile.sales_cycle === option}
-                          onClick={() => updateField("sales_cycle", option)}
-                        >
-                          {option}
-                        </ChoiceButton>
-                      ))}
-                    </div>
-                    <FieldError id="sales-cycle-error" message={errors.sales_cycle} />
-                  </fieldset>
-                </div>
+                <fieldset aria-describedby={errors.sales_cycle ? "sales-cycle-error" : undefined}>
+                  <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
+                    Typical sales cycle
+                  </legend>
+                  <div className="grid gap-3">
+                    {SALES_CYCLE_OPTIONS.map((option) => (
+                      <ChoiceButton
+                        key={option}
+                        selected={profile.sales_cycle === option}
+                        onClick={() => updateField("sales_cycle", option)}
+                      >
+                        {option}
+                      </ChoiceButton>
+                    ))}
+                  </div>
+                  <FieldError id="sales-cycle-error" message={errors.sales_cycle} />
+                </fieldset>
 
                 <section aria-labelledby="profile-review" className="rounded-2xl border border-white/[0.09] bg-white/[0.025] px-5 py-3 sm:px-6">
                   <h3 id="profile-review" className="py-3 text-base font-semibold">
