@@ -19,7 +19,7 @@ const COMPLETE_DRAFT = {
 };
 
 describe("validateOnboardingStep", () => {
-  it("requires every field and at least one target industry", () => {
+  it("requires product category and industries/company_size; steps 2-3 are optional", () => {
     const state = createOnboardingState();
 
     expect(validateOnboardingStep(0, state.profile)).toEqual({
@@ -29,14 +29,8 @@ describe("validateOnboardingStep", () => {
       target_industries: "Choose at least one target industry.",
       company_size: "Choose an ideal company size.",
     });
-    expect(validateOnboardingStep(2, state.profile)).toEqual({
-      buyer_role: "Choose the primary buyer role.",
-      sales_motion: "Choose your sales motion.",
-    });
-    expect(validateOnboardingStep(3, state.profile)).toEqual({
-      deal_size: "Choose a typical deal size.",
-      sales_cycle: "Choose a typical sales cycle.",
-    });
+    expect(validateOnboardingStep(2, state.profile)).toEqual({});
+    expect(validateOnboardingStep(3, state.profile)).toEqual({});
   });
 });
 
@@ -64,15 +58,32 @@ describe("buildBusinessProfile", () => {
     });
   });
 
-  it("returns null when any required value is missing", () => {
+  it("returns null when required values are missing (only product_category, target_industries, company_size)", () => {
     expect(buildBusinessProfile({
       ...COMPLETE_DRAFT,
       target_industries: [],
     })).toBeNull();
     expect(buildBusinessProfile({
       ...COMPLETE_DRAFT,
-      sales_cycle: "   ",
+      product_category: "   ",
     })).toBeNull();
+  });
+
+  it("allows optional commercial fields (buyer_role, sales_motion, deal_size, sales_cycle) to be empty", () => {
+    const minimalProfile = {
+      product_category: "SaaS / Software",
+      target_industries: ["Technology"],
+      company_size: "Enterprise (1000+)",
+      buyer_role: "",
+      sales_motion: "",
+      deal_size: "",
+      sales_cycle: "",
+    };
+    const result = buildBusinessProfile(minimalProfile);
+    expect(result).not.toBeNull();
+    expect(result?.product_category).toBe("SaaS / Software");
+    expect(result?.target_industries).toEqual(["Technology"]);
+    expect(result?.company_size).toBe("Enterprise (1000+)");
   });
 });
 

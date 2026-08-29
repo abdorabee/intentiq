@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
+const basePublicRoutes = [
   "/",
   "/login(.*)",
   "/signup(.*)",
@@ -15,7 +15,13 @@ const isPublicRoute = createRouteMatcher([
   "/api/v1/(.*)",
   "/api/billing/webhook",
   "/api/contact",
-]);
+];
+
+const previewPublicRoutes = [...basePublicRoutes, "/onboarding(.*)"];
+
+const isPublicRoute = createRouteMatcher(
+  process.env.VERCEL_ENV === "production" ? basePublicRoutes : previewPublicRoutes
+);
 
 const clerk = clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
