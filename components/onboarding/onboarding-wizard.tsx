@@ -260,6 +260,48 @@ export default function OnboardingWizard({
     }
   }
 
+  async function skipDealProfile() {
+    const stepErrors = validateOnboardingStep(0, profile);
+    const step1Errors = validateOnboardingStep(1, profile);
+    const allErrors = { ...stepErrors, ...step1Errors };
+    setErrors(allErrors);
+    if (Object.keys(allErrors).length > 0) return;
+
+    const payload = buildBusinessProfile(profile);
+    if (!payload) {
+      dispatch({
+        type: "save_failed",
+        message: "Some profile details are incomplete. Review each step and try again.",
+      });
+      return;
+    }
+
+    dispatch({ type: "save_started" });
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ business_profile: payload }),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(body?.error ?? "We could not save your profile.");
+      }
+
+      router.replace("/score");
+      router.refresh();
+    } catch (error) {
+      dispatch({
+        type: "save_failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "We could not save your profile. Check your connection and try again.",
+      });
+    }
+  }
+
   const customIndustries = profile.target_industries.filter(
     (industry) => !includesOption(INDUSTRY_OPTIONS, industry)
   );
@@ -546,7 +588,13 @@ export default function OnboardingWizard({
                 {(step === 2 || step === 3) && (
                   <button
                     type="button"
-                    onClick={() => dispatch({ type: "next_step" })}
+                    onClick={() => {
+                      if (step === 2) {
+                        dispatch({ type: "next_step" });
+                      } else {
+                        void skipDealProfile();
+                      }
+                    }}
                     disabled={saveStatus === "saving"}
                     className="min-h-11 rounded-xl border border-white/10 px-5 text-sm font-medium text-[#b8bec8] hover:border-white/20 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
                   >
