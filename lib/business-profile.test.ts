@@ -65,4 +65,21 @@ describe("profileUpdateSchema", () => {
       });
     }
   });
+
+  it("accepts profiles with optional commercial fields omitted (Skip behavior)", () => {
+    const minimalProfile = {
+      product_category: "Sales Intelligence",
+      target_industries: ["Technology"],
+      company_size: "Enterprise (1000+)",
+    };
+
+    const result = profileUpdateSchema.safeParse({
+      business_profile: minimalProfile,
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.business_profile).toMatchObject(minimalProfile);
+    }
+  });
 });

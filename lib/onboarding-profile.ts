@@ -154,24 +154,6 @@ export function validateOnboardingStep(
     }
   }
 
-  if (step === 2) {
-    if (!cleanText(profile.buyer_role)) {
-      errors.buyer_role = "Choose the primary buyer role.";
-    }
-    if (!cleanText(profile.sales_motion)) {
-      errors.sales_motion = "Choose your sales motion.";
-    }
-  }
-
-  if (step === 3) {
-    if (!cleanText(profile.deal_size)) {
-      errors.deal_size = "Choose a typical deal size.";
-    }
-    if (!cleanText(profile.sales_cycle)) {
-      errors.sales_cycle = "Choose a typical sales cycle.";
-    }
-  }
-
   return errors;
 }
 
