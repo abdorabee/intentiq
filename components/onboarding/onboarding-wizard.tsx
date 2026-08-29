@@ -386,7 +386,7 @@ export default function OnboardingWizard({
                     <button
                       type="button"
                       onClick={addCustomIndustry}
-                      className="btn-pill flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+                      className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
                     >
                       Add industry
                     </button>
@@ -531,7 +531,7 @@ export default function OnboardingWizard({
               type="button"
               onClick={() => dispatch({ type: "previous_step" })}
               disabled={step === 0 || saveStatus === "saving"}
-              className="btn-pill flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+              className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
             >
               Back
             </button>
@@ -542,7 +542,7 @@ export default function OnboardingWizard({
                   type="button"
                   onClick={step === 3 ? () => void saveProfile() : skipStep}
                   disabled={saveStatus === "saving"}
-                  className="btn-pill flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+                  className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
                 >
                   Skip
                 </button>
@@ -552,7 +552,7 @@ export default function OnboardingWizard({
                 <button
                   type="button"
                   onClick={continueToNextStep}
-                  className="btn-pill flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  className="flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
                 >
                   Continue
                 </button>
@@ -560,7 +560,7 @@ export default function OnboardingWizard({
                 <button
                   type="submit"
                   disabled={saveStatus === "saving"}
-                  className="btn-pill flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  className="flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
                 >
                   {saveStatus === "saving" ? "Saving..." : "Finish setup"}
                 </button>
