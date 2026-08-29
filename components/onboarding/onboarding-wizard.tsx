@@ -266,87 +266,31 @@ export default function OnboardingWizard({
 
   return (
     <main className="min-h-[100dvh] bg-[#08090a] text-[#f7f8f8]">
-      <div className="mx-auto grid min-h-[100dvh] max-w-[1440px] lg:grid-cols-[340px_1fr]">
-        <aside className="relative overflow-hidden border-b border-white/[0.08] bg-[#0b0c0d] px-6 py-7 lg:border-b-0 lg:border-r lg:px-9 lg:py-10">
-          <div className="relative flex h-full flex-col">
-            <VesperWiseLogo size={42} variant="wordmark" />
-
-            <div className="mt-10 hidden lg:block">
-              <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#dfff00]">
-                Profile setup
-              </p>
-              <h1 className="mt-4 max-w-[250px] text-3xl font-semibold leading-tight tracking-[-0.03em]">
-                Make every intent score relevant to your sales motion.
-              </h1>
-              <p className="mt-4 max-w-[260px] text-sm leading-6 text-[#9298a1]">
-                Your answers help VesperWise frame evidence and next actions around the accounts you actually sell to.
-              </p>
+      <div className="mx-auto flex min-h-[100dvh] max-w-[1440px] items-center justify-center px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
+        <form
+          className="w-full max-w-[560px]"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveProfile();
+          }}
+        >
+          <header className="mb-8 border-b border-white/[0.08] pb-7">
+            <div className="mb-6">
+              <VesperWiseLogo size={36} variant="wordmark" />
             </div>
-
-            <ol className="mt-7 hidden gap-1 lg:mt-12 lg:grid" aria-label="Onboarding progress">
-              {STEPS.map((item, index) => (
-                <li key={item.title}>
-                  <button
-                    type="button"
-                    disabled={index > step}
-                    onClick={() => dispatch({ type: "go_to_step", step: index })}
-                    aria-current={index === step ? "step" : undefined}
-                    className={`group flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors lg:px-3 lg:py-3 ${
-                      index === step
-                        ? "bg-white/[0.055] text-white"
-                        : index < step
-                          ? "text-[#aeb4bd] hover:bg-white/[0.035]"
-                          : "cursor-default text-[#50545a]"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border font-mono text-[10px] ${
-                        index <= step
-                          ? "border-[#dfff00]/45 bg-[#dfff00]/[0.08] text-[#dfff00]"
-                          : "border-white/[0.08] text-[#50545a]"
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
-                    <span className="hidden min-w-0 lg:block">
-                      <span className="block text-sm font-medium">{item.title}</span>
-                      <span className="mt-0.5 block truncate text-xs text-[#62676f]">
-                        {item.description}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-
-            <p className="mt-auto hidden pt-8 font-mono text-[10px] uppercase tracking-[0.13em] text-[#555a61] lg:block">
-              Seven answers · about two minutes
-            </p>
-          </div>
-        </aside>
-
-        <section className="flex min-w-0 items-center justify-center px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
-          <form
-            className="w-full max-w-[560px]"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void saveProfile();
-            }}
-          >
-            <header className="mb-8 border-b border-white/[0.08] pb-7">
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#8a9098]">
-                  {step + 1} of {STEPS.length}
-                </p>
-                <p className="text-xs text-[#646970]">Saved when you finish</p>
-              </div>
-              <h2 className="mt-4 text-[20px] font-medium leading-[1.3] tracking-[-0.024em]">
-                {currentStep.title}
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9298a1] sm:text-base">
-                {currentStep.description}
+            <div className="flex items-center justify-between gap-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#8a9098]">
+                {step + 1} of {STEPS.length}
               </p>
-            </header>
+              <p className="text-xs text-[#646970]">Saved when you finish</p>
+            </div>
+            <h2 className="mt-4 text-[20px] font-medium leading-[1.3] tracking-[-0.024em]">
+              {currentStep.title}
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9298a1] sm:text-base">
+              {currentStep.description}
+            </p>
+          </header>
 
             {step === 0 && (
               <fieldset aria-describedby={errors.product_category ? "product-error" : undefined}>
@@ -598,27 +542,39 @@ export default function OnboardingWizard({
                 Back
               </button>
 
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={continueToNextStep}
-                  className="min-h-11 rounded-xl bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
-                >
-                  Continue
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={saveStatus === "saving"}
-                  className="min-h-11 rounded-xl bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
-                >
-                  {saveStatus === "saving" ? "Saving profile..." : "Finish setup"}
-                </button>
-              )}
+              <div className="flex items-center gap-3">
+                {(step === 2 || step === 3) && (
+                  <button
+                    type="button"
+                    onClick={() => dispatch({ type: "next_step" })}
+                    disabled={saveStatus === "saving"}
+                    className="min-h-11 rounded-xl border border-white/10 px-5 text-sm font-medium text-[#b8bec8] hover:border-white/20 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+                  >
+                    Skip
+                  </button>
+                )}
+
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={continueToNextStep}
+                    className="min-h-11 rounded-xl bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  >
+                    Continue
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={saveStatus === "saving"}
+                    className="min-h-11 rounded-xl bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  >
+                    {saveStatus === "saving" ? "Saving profile..." : "Finish setup"}
+                  </button>
+                )}
+              </div>
             </footer>
           </form>
-        </section>
-      </div>
-    </main>
-  );
+        </div>
+      </main>
+    );
 }
