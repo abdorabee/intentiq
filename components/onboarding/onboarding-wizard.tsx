@@ -45,21 +45,27 @@ function RadioButton({
       role="radio"
       aria-checked={selected}
       onClick={onClick}
-      className={`flex h-11 items-center justify-between rounded-lg border px-4 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] ${
+      className={`relative flex h-11 items-center gap-3 rounded-lg border px-4 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] ${
         selected
           ? "border-[#dfff00]/60 bg-[#dfff00]/[0.08] text-white"
           : "border-white/[0.08] bg-white/[0.02] text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04]"
       }`}
     >
-      <span className="font-medium">{children}</span>
+      {selected && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-0 h-full w-0.5 rounded-l-lg bg-[#dfff00]"
+        />
+      )}
       <span
         aria-hidden="true"
         className={`h-2.5 w-2.5 shrink-0 rounded-full border ${
           selected
-            ? "border-[#dfff00] bg-[#dfff00] shadow-[0_0_12px_rgba(223,255,0,0.4)]"
+            ? "border-[#dfff00] bg-[#dfff00]"
             : "border-white/[0.25]"
         }`}
       />
+      <span className="font-medium">{children}</span>
     </button>
   );
 }
@@ -79,13 +85,18 @@ function CheckboxButton({
       role="checkbox"
       aria-checked={selected}
       onClick={onClick}
-      className={`flex h-11 items-center justify-between rounded-lg border px-4 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] ${
+      className={`relative flex h-11 items-center gap-3 rounded-lg border px-4 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] ${
         selected
           ? "border-[#dfff00]/60 bg-[#dfff00]/[0.08] text-white"
           : "border-white/[0.08] bg-white/[0.02] text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04]"
       }`}
     >
-      <span className="font-medium">{children}</span>
+      {selected && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-0 h-full w-0.5 rounded-l-lg bg-[#dfff00]"
+        />
+      )}
       <span
         aria-hidden="true"
         className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
@@ -106,6 +117,7 @@ function CheckboxButton({
           </svg>
         )}
       </span>
+      <span className="font-medium">{children}</span>
     </button>
   );
 }
@@ -261,13 +273,15 @@ export default function OnboardingWizard({
   return (
     <main className="min-h-[100dvh] bg-[#08090a] text-[#f7f8f8]">
       <div className="mx-auto flex min-h-[100dvh] max-w-[600px] flex-col px-5 py-8">
-        <header className="mb-10 flex items-start justify-between">
-          <h1 className="text-lg font-semibold tracking-tight">VESPERWISE.</h1>
-          <div className="text-right">
-            <p className="text-xs text-[#7a7f87]">
+        <header className="mb-10">
+          <h1 className="text-lg font-semibold tracking-tight">
+            VESPERWISE<span className="text-[#dfff00]">.</span>
+          </h1>
+          <div className="mt-3 flex items-start justify-between text-xs">
+            <p className="text-[#7a7f87]">
               {step + 1} OF {STEPS.length}
             </p>
-            <p className="mt-1 text-xs text-[#5a5f67]">Saved when you finish</p>
+            <p className="text-[#5a5f67]">Saved when you finish</p>
           </div>
         </header>
 
@@ -279,7 +293,7 @@ export default function OnboardingWizard({
           }}
         >
           <div className="mb-8">
-            <h2 className="text-xl font-normal text-white">
+            <h2 className="text-xl font-medium text-white">
               {currentStep.title}
             </h2>
             <p className="mt-1.5 text-sm text-[#9298a1]">
@@ -372,26 +386,11 @@ export default function OnboardingWizard({
                     <button
                       type="button"
                       onClick={addCustomIndustry}
-                      className="h-11 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+                      className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
                     >
                       Add industry
                     </button>
                   </div>
-                  {customIndustries.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2" aria-label="Custom target industries">
-                      {customIndustries.map((industry) => (
-                        <button
-                          key={industry}
-                          type="button"
-                          onClick={() => toggleIndustry(industry)}
-                          className="rounded-lg border border-[#dfff00]/25 bg-[#dfff00]/[0.06] px-3 py-2 text-xs text-[#dfe6a8] hover:border-red-300/40 hover:text-red-200"
-                          aria-label={`Remove ${industry}`}
-                        >
-                          {industry} <span aria-hidden="true">×</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                   <FieldError id="industries-error" message={errors.target_industries} />
                 </fieldset>
 
@@ -532,7 +531,7 @@ export default function OnboardingWizard({
               type="button"
               onClick={() => dispatch({ type: "previous_step" })}
               disabled={step === 0 || saveStatus === "saving"}
-              className="h-11 rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+              className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
             >
               Back
             </button>
@@ -543,7 +542,7 @@ export default function OnboardingWizard({
                   type="button"
                   onClick={step === 3 ? () => void saveProfile() : skipStep}
                   disabled={saveStatus === "saving"}
-                  className="h-11 rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
+                  className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
                 >
                   Skip
                 </button>
@@ -553,7 +552,7 @@ export default function OnboardingWizard({
                 <button
                   type="button"
                   onClick={continueToNextStep}
-                  className="h-11 rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  className="flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
                 >
                   Continue
                 </button>
@@ -561,7 +560,7 @@ export default function OnboardingWizard({
                 <button
                   type="submit"
                   disabled={saveStatus === "saving"}
-                  className="h-11 rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
+                  className="flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
                 >
                   {saveStatus === "saving" ? "Saving..." : "Finish setup"}
                 </button>
