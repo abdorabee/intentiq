@@ -65,4 +65,47 @@ describe("profileUpdateSchema", () => {
       });
     }
   });
+
+  it("accepts profile with skipped commercial fields (buyer_role, sales_motion, deal_size, sales_cycle)", () => {
+    const result = profileUpdateSchema.safeParse({
+      business_profile: {
+        product_category: "SaaS / Software",
+        target_industries: ["Technology"],
+        company_size: "Mid-Market (201-1000)",
+        buyer_role: "",
+        sales_motion: "",
+        deal_size: "",
+        sales_cycle: "",
+      },
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.business_profile).toMatchObject({
+        product_category: "SaaS / Software",
+        target_industries: ["Technology"],
+        company_size: "Mid-Market (201-1000)",
+        buyer_role: "",
+        sales_motion: "",
+        deal_size: "",
+        sales_cycle: "",
+      });
+    }
+  });
+
+  it("accepts profile with skipped buying motion (step 2)", () => {
+    const result = profileUpdateSchema.safeParse({
+      business_profile: {
+        product_category: "Consulting / Services",
+        target_industries: ["Financial Services"],
+        company_size: "Enterprise (1000+)",
+        buyer_role: "",
+        sales_motion: "",
+        deal_size: "$100K+",
+        sales_cycle: "3+ months",
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
 });

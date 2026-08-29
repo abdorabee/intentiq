@@ -3,16 +3,17 @@ import { z } from "zod";
 import type { BusinessProfile } from "@/lib/types";
 
 const requiredText = z.string().trim().min(1);
+const optionalText = z.string().trim().default("");
 
 /** Validation contract used by profile writes. Unknown fields are retained. */
 export const businessProfileSchema = z.object({
   product_category: requiredText,
   target_industries: z.array(requiredText).min(1),
   company_size: requiredText,
-  buyer_role: requiredText,
-  sales_motion: requiredText,
-  deal_size: requiredText,
-  sales_cycle: requiredText,
+  buyer_role: optionalText,
+  sales_motion: optionalText,
+  deal_size: optionalText,
+  sales_cycle: optionalText,
 }).passthrough();
 
 export const profileUpdateSchema = z.object({
