@@ -177,6 +177,12 @@
     border-right: 1px solid rgba(255, 255, 255, 0.06);
   }
 
+  /* Button reset override for onboarding pills */
+  .btn-pill {
+    all: revert;
+    box-sizing: border-box;
+  }
+
   /* Glow effects */
   .glow-cyan {
     box-shadow: 0 0 40px rgba(6, 182, 212, 0.22), 0 0 80px rgba(6, 182, 212, 0.08);
