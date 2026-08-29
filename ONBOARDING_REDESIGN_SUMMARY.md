@@ -89,3 +89,42 @@
 5. Approve merge or request changes
 
 **Do not merge** until founder click-through is complete.
+
+---
+
+## Design QA Fixes (Commit c5b63eb)
+
+All six issues from design QA have been fixed to match the signed frames:
+
+### ✅ 1. Choice Rows - Indicator on Left
+- Radio/checkbox indicator now on LEFT side (not right)
+- Selected row shows 2px lime inset bar on left edge
+- Gap-3 between indicator and label text
+- No more detached orbs floating right
+
+### ✅ 2. Removed Glow Effect
+- Killed `shadow-[0_0_12px_rgba(223,255,0,0.4)]` on selected indicators
+- Selected rows now have: thin lime border + left inset bar only
+- Clean, minimal selection state
+
+### ✅ 3. Button Label Centering
+- All buttons use `flex items-center justify-center`
+- Labels optically centered horizontally and vertically
+- Back, Skip, Continue, Finish setup, Add industry all ~44px height
+- Even padding, consistent radius
+
+### ✅ 4. Header Chrome Fixed
+- Wordmark: "VESPERWISE" with lime period `<span className="text-[#dfff00]">.</span>`
+- Next row (mt-3): "n OF 4" on LEFT, "Saved when you finish" on RIGHT
+- No stacking step + persist on right of logo
+
+### ✅ 5. Title Typography
+- Changed from `text-xl font-normal` (400)
+- Now `text-xl font-medium` (500) as signed
+
+### ✅ 6. Custom Industries
+- Input + "Add industry" button only
+- Removed lime wrap chips display
+- Custom industries silently added to selection (visible in recap)
+
+All changes pushed to PR #34. Preview will rebuild automatically.
