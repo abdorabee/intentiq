@@ -45,14 +45,14 @@ function ChoiceButton({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`min-h-12 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0c0d] ${
+      className={`h-11 w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0c0d] ${
         selected
           ? "border-[#dfff00]/70 bg-[#dfff00]/10 text-[#f7f8f8]"
           : "border-white/10 bg-white/[0.025] text-[#b8bec8] hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
       }`}
     >
       <span className="flex items-center justify-between gap-3">
-        <span>{children}</span>
+        <span className="flex-1 truncate">{children}</span>
         <span
           aria-hidden="true"
           className={`h-2.5 w-2.5 shrink-0 rounded-full border ${
@@ -61,6 +61,60 @@ function ChoiceButton({
               : "border-white/20"
           }`}
         />
+      </span>
+    </button>
+  );
+}
+
+function CheckboxButton({
+  checked,
+  children,
+  onClick,
+}: {
+  checked: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      onClick={onClick}
+      className={`h-11 w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0c0d] ${
+        checked
+          ? "border-[#dfff00]/70 bg-[#dfff00]/10 text-[#f7f8f8]"
+          : "border-white/10 bg-white/[0.025] text-[#b8bec8] hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
+      }`}
+    >
+      <span className="flex items-center justify-between gap-3">
+        <span className="flex-1 truncate">{children}</span>
+        <span
+          aria-hidden="true"
+          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+            checked
+              ? "border-[#dfff00] bg-[#dfff00]"
+              : "border-white/20"
+          }`}
+        >
+          {checked && (
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 3L4.5 8.5L2 6"
+                stroke="#090a0b"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </span>
       </span>
     </button>
   );
@@ -193,7 +247,7 @@ export default function OnboardingWizard({
         throw new Error(body?.error ?? "We could not save your profile.");
       }
 
-      router.replace("/dashboard");
+      router.replace("/score");
       router.refresh();
     } catch (error) {
       dispatch({
@@ -277,7 +331,7 @@ export default function OnboardingWizard({
 
         <section className="flex min-w-0 items-center justify-center px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
           <form
-            className="w-full max-w-[760px]"
+            className="w-full max-w-[560px]"
             onSubmit={(event) => {
               event.preventDefault();
               void saveProfile();
@@ -303,7 +357,7 @@ export default function OnboardingWizard({
                 <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
                   What does your company sell?
                 </legend>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3">
                   {PRODUCT_CATEGORY_OPTIONS.map((option) => (
                     <ChoiceButton
                       key={option}
@@ -352,15 +406,15 @@ export default function OnboardingWizard({
                     Which industries do you sell into?
                   </legend>
                   <p className="mb-4 text-xs text-[#6f747c]">Select every industry that fits.</p>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3">
                     {INDUSTRY_OPTIONS.map((option) => (
-                      <ChoiceButton
+                      <CheckboxButton
                         key={option}
-                        selected={profile.target_industries.includes(option)}
+                        checked={profile.target_industries.includes(option)}
                         onClick={() => toggleIndustry(option)}
                       >
                         {option}
-                      </ChoiceButton>
+                      </CheckboxButton>
                     ))}
                   </div>
                   <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -410,7 +464,7 @@ export default function OnboardingWizard({
                   <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
                     What is your ideal customer size?
                   </legend>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3">
                     {COMPANY_SIZE_OPTIONS.map((option) => (
                       <ChoiceButton
                         key={option}
@@ -432,7 +486,7 @@ export default function OnboardingWizard({
                   <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
                     Who is your primary buyer?
                   </legend>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3">
                     {BUYER_ROLE_OPTIONS.map((option) => (
                       <ChoiceButton
                         key={option}
@@ -450,7 +504,7 @@ export default function OnboardingWizard({
                   <legend className="mb-4 text-sm font-medium text-[#d7dbe0]">
                     How does your team sell?
                   </legend>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3">
                     {SALES_MOTION_OPTIONS.map((option) => (
                       <ChoiceButton
                         key={option}
@@ -516,6 +570,8 @@ export default function OnboardingWizard({
                     <ReviewRow label="Company size" value={profile.company_size || "Not selected"} />
                     <ReviewRow label="Buyer" value={profile.buyer_role || "Not selected"} />
                     <ReviewRow label="Sales motion" value={profile.sales_motion || "Not selected"} />
+                    <ReviewRow label="Deal size" value={profile.deal_size || "Not selected"} />
+                    <ReviewRow label="Sales cycle" value={profile.sales_cycle || "Not selected"} />
                   </dl>
                 </section>
 
