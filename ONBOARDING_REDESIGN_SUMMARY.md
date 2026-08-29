@@ -176,3 +176,51 @@ Once the Vercel deployment completes:
 5. Form validates but won't save without auth (expected)
 
 No production Clerk signup required for visual review.
+
+---
+
+## Button Rendering Fix (Commit 7e8f61c)
+
+Fixed buttons rendering as unstyled text instead of proper 44px pills.
+
+### Problem (Live Pixel QA)
+Preview showed Back / Skip / Continue / Finish setup as plain white text labels, not styled pills:
+- No lime fill on primary buttons
+- No outlined borders on secondary buttons
+- No 44px height enforcement
+- Labels not visually centered
+
+### Root Cause
+`app/globals.css` line 567 contains aggressive button reset:
+```css
+button { background: none; border: none; }
+```
+
+This global reset stripped all Tailwind utility classes (`bg-[#dfff00]`, `border`, `h-11`, etc.) from computing in the final rendered styles.
+
+### Solution
+Added `.btn-pill` utility class in `@layer utilities`:
+```css
+.btn-pill {
+  all: revert;
+  box-sizing: border-box;
+}
+```
+
+Applied `btn-pill` class to all buttons:
+- Back button
+- Skip button  
+- Continue button
+- Finish setup button
+- Add industry button
+
+The `all: revert` restores browser button defaults, then Tailwind utilities apply correctly on top.
+
+### Result
+Buttons now render as proper 44px pills matching signed frames:
+- **Primary** (Continue/Finish setup): solid lime `#dfff00` fill, black text, rounded corners
+- **Secondary** (Back/Skip/Add industry): quiet outlined dark pill with `border-white/[0.08]`, white text
+- Equal height (h-11 = 44px), even padding, consistent border-radius
+- Labels optically centered with `flex items-center justify-center`
+
+All button styles now compute correctly in preview.
