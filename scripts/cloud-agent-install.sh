@@ -24,10 +24,10 @@ SCORING_V2_ENABLED=true
 SCORING_V3_ENABLED=false
 SCORING_V3_SHADOW_ENABLED=false
 
-# Placeholder Clerk dev keys (public example key format) so the app can boot.
-# Real auth flows require genuine Clerk keys supplied via Secrets.
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk
-CLERK_SECRET_KEY=sk_test_clerkplaceholderdevsecretkey000000000000
+# Clerk keys intentionally unset. In development @clerk/nextjs runs in "keyless
+# mode", auto-provisioning a temporary dev instance so the app renders in a
+# browser without any account. Provide real keys via Cloud Agent Secrets to use
+# a claimed instance (process env vars take precedence over this file).
 
 # Supabase / OpenRouter / Upstash left unset in keyless dev.
 NEXT_PUBLIC_SUPABASE_URL=
