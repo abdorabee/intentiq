@@ -128,3 +128,51 @@ All six issues from design QA have been fixed to match the signed frames:
 - Custom industries silently added to selection (visible in recap)
 
 All changes pushed to PR #34. Preview will rebuild automatically.
+
+---
+
+## Clerk Authentication Fix (Commit 27eade3)
+
+Fixed the preview deployment redirect issue that was bouncing users to production.
+
+### Problem
+Preview deployments at `*.vercel.app` were unusable because:
+1. Production Clerk at `accounts.vesperwise.com` redirected to `www.vesperwise.com` after auth
+2. `/onboarding` required authentication via `clerkMiddleware`
+3. Reviewers couldn't access preview onboarding without production account
+
+### Solution: Preview-Only Escape Hatch
+
+**For Preview Environments (VERCEL_ENV !== "production"):**
+- `/onboarding` is public (added to proxy.ts public routes)
+- Page renders `OnboardingWizard` without auth check
+- Allows visual QA without Clerk sign-in
+
+**For Production:**
+- `/onboarding` remains fully auth-protected
+- Normal authentication flow via Clerk
+- No security changes to production
+
+### Additional Improvements
+- Changed `signInFallbackRedirectUrl` → `afterSignInUrl` in ClerkProvider
+- Changed `signUpFallbackRedirectUrl` → `afterSignUpUrl` in ClerkProvider
+- Added `allowedRedirectOrigins` for preview URLs in ClerkProvider
+- Made redirect handling origin-relative
+
+### Root Cause Documentation
+The complete fix requires **Clerk Dashboard configuration** that cannot be done in code:
+- Whitelist `*.vercel.app` as allowed redirect origins
+- Add preview URLs as satellite domains
+- Configure production Clerk to allow preview redirects
+
+This escape hatch allows founder visual QA on preview deployments without modifying production Clerk settings.
+
+### Preview Access
+Once the Vercel deployment completes:
+1. Navigate to `https://<preview-url>/onboarding`
+2. Page loads without authentication (preview only)
+3. All 6 design fixes visible
+4. Skip buttons work on steps 3 & 4
+5. Form validates but won't save without auth (expected)
+
+No production Clerk signup required for visual review.
