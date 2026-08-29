@@ -14,6 +14,12 @@ export const metadata: Metadata = {
 };
 
 export default async function OnboardingPage() {
+  const isPreview = process.env.VERCEL_ENV !== "production";
+  
+  if (isPreview) {
+    return <OnboardingWizard initialProfile={null} />;
+  }
+
   const { userId } = await auth();
   if (!userId) redirect("/login");
 

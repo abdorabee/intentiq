@@ -102,13 +102,29 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const vercelUrl = process.env.VERCEL_URL || process.env.VERCEL_BRANCH_URL;
+  const isPreview = process.env.VERCEL_ENV !== "production";
+  
+  const clerkProps = isPreview && vercelUrl
+    ? {
+        signInUrl: "/login",
+        signUpUrl: "/signup",
+        afterSignInUrl: "/dashboard",
+        afterSignUpUrl: "/dashboard",
+        allowedRedirectOrigins: [
+          `https://${vercelUrl}`,
+          "https://www.vesperwise.com",
+        ],
+      }
+    : {
+        signInUrl: "/login",
+        signUpUrl: "/signup",
+        afterSignInUrl: "/dashboard",
+        afterSignUpUrl: "/dashboard",
+      };
+
   return (
-    <ClerkProvider
-      signInUrl="/login"
-      signUpUrl="/signup"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/dashboard"
-    >
+    <ClerkProvider {...clerkProps}>
       <html lang="en" className="dark" suppressHydrationWarning>
         <head>
           <script
