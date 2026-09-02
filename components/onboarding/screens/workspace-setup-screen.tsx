@@ -71,7 +71,7 @@ export function WorkspaceSetupScreen({
                 id="product-category"
                 value={profile.product_category}
                 onChange={(event) => onUpdateField("product_category", event.target.value)}
-                placeholder="B2B analytics for finance teams"
+                placeholder="e.g. B2B analytics for finance teams"
                 aria-describedby={errors.product_category ? "product-category-error" : undefined}
                 className="mt-2 h-10 w-full rounded-lg border border-white/[0.08] bg-[#111] px-3 font-sans text-[15px] font-medium text-white placeholder:text-[#555b63] focus:border-[#dfff00]/60 focus:outline-none focus:ring-2 focus:ring-[#dfff00]/20"
               />
