@@ -168,6 +168,16 @@ export interface BusinessProfile {
   sales_motion: string;
   deal_size: string;
   sales_cycle: string;
+  /** Wrapping chip multi-select, onboarding ICP screen. */
+  geography?: string[];
+  /** Tech-stack chips the user says their ICP already runs. */
+  tech_stack_include?: string[];
+  /** Tech-stack chips that disqualify a candidate account. */
+  tech_stack_exclude?: string[];
+  /** 1-5 domains the user actually cares about, scored live during onboarding. */
+  seed_domains?: string[];
+  /** Editable, persisted workspace display name captured on the first onboarding screen. */
+  workspace_name?: string;
 }
 
 // ─── DB Row Types ─────────────────────────────────────────────────────────────
@@ -183,6 +193,7 @@ export interface DbUser {
   credits_remaining: number;
   product_category: string | null;
   business_profile: BusinessProfile | null;
+  workspace_name: string | null;
   onboarding_completed: boolean;
   role: UserRole;
   created_at: string;

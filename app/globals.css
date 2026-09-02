@@ -549,7 +549,19 @@ details.nav-dd[open] .nav-chevron {
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Reset
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/*
+ * Scoped exclusion: this reset is unlayered, so per CSS Cascade Layers it
+ * always wins over Tailwind's own (layered) utility classes site-wide —
+ * every `p-*`/`px-*`/`m-*` etc. utility is silently nullified everywhere.
+ * The rest of this app avoids the problem by using bespoke classes with
+ * their own explicit padding/margin (also unlayered, so they still win via
+ * normal specificity/order). The onboarding redesign at .onboarding-shell
+ * is built with Tailwind spacing utilities throughout, so it's excluded
+ * here rather than changing behavior for the whole app in one sweep.
+ */
+*:not(.onboarding-shell, .onboarding-shell *),
+*:not(.onboarding-shell, .onboarding-shell *)::before,
+*:not(.onboarding-shell, .onboarding-shell *)::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
@@ -564,8 +576,15 @@ body {
   overflow-x: hidden;
 }
 a { color: inherit; text-decoration: none; }
-button:not([class*="bg-"]):not([class*="border"]) { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
-button { font: inherit; cursor: pointer; }
+/*
+ * `font: inherit` is a shorthand, so it also resets font-size/weight/line-height
+ * — and because these rules are unlayered they beat Tailwind's layered text-*
+ * utilities on every button. Onboarding is excluded (see the reset note above)
+ * so its buttons can size their own type.
+ */
+button:not([class*="bg-"]):not([class*="border"]):not(.onboarding-shell button) { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+button:not(.onboarding-shell button) { font: inherit; cursor: pointer; }
+.onboarding-shell button { cursor: pointer; }
 img, svg { display: block; max-width: 100%; }
 
 ::selection { background: rgba(223,255,0,0.45); color: var(--text-primary); }

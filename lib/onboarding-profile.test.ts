@@ -4,6 +4,7 @@ import {
   buildBusinessProfile,
   createOnboardingState,
   getOnboardingRedirect,
+  MAX_STEP,
   onboardingReducer,
   validateOnboardingStep,
 } from "./onboarding-profile";
@@ -16,26 +17,46 @@ const COMPLETE_DRAFT = {
   sales_motion: "Outbound (cold outreach)",
   deal_size: "$25K - $100K",
   sales_cycle: "1-3 months",
+  geography: ["United States", "United Kingdom"],
+  tech_stack_include: ["Salesforce", "Snowflake"],
+  tech_stack_exclude: ["HubSpot"],
+  seed_domains: ["ledgerloop.com", "crestmark.io"],
+  workspace_name: "Northwind Analytics",
 };
 
 describe("validateOnboardingStep", () => {
-  it("requires product category and industries/company_size; steps 2-3 are optional", () => {
+  it("step 0 requires a workspace name", () => {
     const state = createOnboardingState();
-
     expect(validateOnboardingStep(0, state.profile)).toEqual({
-      product_category: "Choose what your company sells.",
+      workspace_name: "Name your workspace to continue.",
     });
+  });
+
+  it("step 1 requires industries, company size, and at least one seed domain", () => {
+    const state = createOnboardingState();
     expect(validateOnboardingStep(1, state.profile)).toEqual({
       target_industries: "Choose at least one target industry.",
       company_size: "Choose an ideal company size.",
+      seed_domains: "Add at least one domain you want to see scored.",
     });
+  });
+
+  it("steps 2-4 (signals, run, outcome) have no field validation", () => {
+    const state = createOnboardingState(COMPLETE_DRAFT);
     expect(validateOnboardingStep(2, state.profile)).toEqual({});
     expect(validateOnboardingStep(3, state.profile)).toEqual({});
+    expect(validateOnboardingStep(4, state.profile)).toEqual({});
+  });
+
+  it("a complete draft passes both required steps", () => {
+    const state = createOnboardingState(COMPLETE_DRAFT);
+    expect(validateOnboardingStep(0, state.profile)).toEqual({});
+    expect(validateOnboardingStep(1, state.profile)).toEqual({});
   });
 });
 
 describe("buildBusinessProfile", () => {
-  it("builds the exact BusinessProfile payload with multiple industries", () => {
+  it("builds the exact BusinessProfile payload with multiple industries and the new ICP fields", () => {
     expect(buildBusinessProfile(COMPLETE_DRAFT)).toEqual(COMPLETE_DRAFT);
   });
 
@@ -69,6 +90,41 @@ describe("buildBusinessProfile", () => {
     })).toBeNull();
   });
 
+  it("returns null for a malformed seed domain", () => {
+    expect(buildBusinessProfile({
+      ...COMPLETE_DRAFT,
+      seed_domains: ["not a domain"],
+    })).toBeNull();
+  });
+
+  it("omits the new optional fields entirely when unset, round-tripping the legacy 7-field shape", () => {
+    const legacyProfile = {
+      product_category: "SaaS / Software",
+      target_industries: ["Technology"],
+      company_size: "Enterprise (1000+)",
+      buyer_role: "",
+      sales_motion: "",
+      deal_size: "",
+      sales_cycle: "",
+      geography: [],
+      tech_stack_include: [],
+      tech_stack_exclude: [],
+      seed_domains: [],
+      workspace_name: "",
+    };
+    const result = buildBusinessProfile(legacyProfile);
+    expect(result).not.toBeNull();
+    expect(result).toEqual({
+      product_category: "SaaS / Software",
+      target_industries: ["Technology"],
+      company_size: "Enterprise (1000+)",
+      buyer_role: "",
+      sales_motion: "",
+      deal_size: "",
+      sales_cycle: "",
+    });
+  });
+
   it("allows optional commercial fields (buyer_role, sales_motion, deal_size, sales_cycle) to be empty", () => {
     const minimalProfile = {
       product_category: "SaaS / Software",
@@ -78,12 +134,14 @@ describe("buildBusinessProfile", () => {
       sales_motion: "",
       deal_size: "",
       sales_cycle: "",
+      seed_domains: ["example.com"],
     };
     const result = buildBusinessProfile(minimalProfile);
     expect(result).not.toBeNull();
     expect(result?.product_category).toBe("SaaS / Software");
     expect(result?.target_industries).toEqual(["Technology"]);
     expect(result?.company_size).toBe("Enterprise (1000+)");
+    expect(result?.seed_domains).toEqual(["example.com"]);
   });
 });
 
@@ -92,14 +150,68 @@ describe("onboardingReducer", () => {
     let state = createOnboardingState();
     state = onboardingReducer(state, {
       type: "update_field",
-      field: "product_category",
-      value: "SaaS / Software",
+      field: "workspace_name",
+      value: "Northwind Analytics",
     });
     state = onboardingReducer(state, { type: "next_step" });
     state = onboardingReducer(state, { type: "previous_step" });
 
     expect(state.step).toBe(0);
-    expect(state.profile.product_category).toBe("SaaS / Software");
+    expect(state.profile.workspace_name).toBe("Northwind Analytics");
+  });
+
+  it("clamps navigation between step 0 and MAX_STEP", () => {
+    let state = createOnboardingState();
+    for (let i = 0; i < 10; i++) state = onboardingReducer(state, { type: "next_step" });
+    expect(state.step).toBe(MAX_STEP);
+
+    state = onboardingReducer(state, { type: "go_to_step", step: -5 });
+    expect(state.step).toBe(0);
+
+    state = onboardingReducer(state, { type: "go_to_step", step: 99 });
+    expect(state.step).toBe(MAX_STEP);
+  });
+
+  it("accumulates rapid successive toggles instead of clobbering earlier ones", () => {
+    // Two dispatches derived from the same starting state — the shape React
+    // produces when it batches two fast chip clicks. Both must survive.
+    let state = createOnboardingState();
+    state = onboardingReducer(state, { type: "toggle_industry", industry: "Technology" });
+    state = onboardingReducer(state, { type: "toggle_industry", industry: "Financial Services" });
+    expect(state.profile.target_industries).toEqual(["Technology", "Financial Services"]);
+
+    state = onboardingReducer(state, { type: "toggle_geography", geo: "United States" });
+    state = onboardingReducer(state, { type: "toggle_geography", geo: "United Kingdom" });
+    expect(state.profile.geography).toEqual(["United States", "United Kingdom"]);
+  });
+
+  it("toggles a selected value back off, case-insensitively", () => {
+    let state = createOnboardingState();
+    state = onboardingReducer(state, { type: "toggle_industry", industry: "Technology" });
+    state = onboardingReducer(state, { type: "toggle_industry", industry: "technology" });
+    expect(state.profile.target_industries).toEqual([]);
+  });
+
+  it("updates geography, tech stack, and seed domains independently", () => {
+    let state = createOnboardingState();
+    state = onboardingReducer(state, { type: "set_geography", geography: ["United States"] });
+    state = onboardingReducer(state, { type: "set_tech_stack_include", tools: ["Salesforce"] });
+    state = onboardingReducer(state, { type: "set_tech_stack_exclude", tools: ["HubSpot"] });
+    state = onboardingReducer(state, { type: "set_seed_domains", domains: ["ledgerloop.com"] });
+
+    expect(state.profile.geography).toEqual(["United States"]);
+    expect(state.profile.tech_stack_include).toEqual(["Salesforce"]);
+    expect(state.profile.tech_stack_exclude).toEqual(["HubSpot"]);
+    expect(state.profile.seed_domains).toEqual(["ledgerloop.com"]);
+  });
+
+  it("caps seed domains at MAX_SEED_DOMAINS even if the action carries more", () => {
+    let state = createOnboardingState();
+    state = onboardingReducer(state, {
+      type: "set_seed_domains",
+      domains: ["a.com", "b.com", "c.com", "d.com", "e.com", "f.com"],
+    });
+    expect(state.profile.seed_domains).toHaveLength(5);
   });
 
   it("preserves the complete draft after a save error and supports retry", () => {

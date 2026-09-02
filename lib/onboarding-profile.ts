@@ -24,6 +24,27 @@ export const COMPANY_SIZE_OPTIONS = [
   "Enterprise (1000+)",
 ] as const;
 
+/**
+ * Display-only labels for the onboarding segmented control. The stored values
+ * above are unchanged so existing `business_profile.company_size` rows keep
+ * matching an option; only the rendered text differs.
+ */
+export const COMPANY_SIZE_LABELS: Record<string, string> = {
+  "Startups (1-50)": "Startups 1–50",
+  "SMB (51-200)": "SMB 51–200",
+  "Mid-Market (201-1000)": "Mid-Market 201–1,000",
+  "Enterprise (1000+)": "Enterprise 1,000+",
+};
+
+export const GEOGRAPHY_OPTIONS = [
+  "United States",
+  "United Kingdom",
+  "Canada",
+  "DACH",
+  "Nordics",
+  "ANZ",
+] as const;
+
 export const BUYER_ROLE_OPTIONS = [
   "C-Suite / Founders",
   "VP / Director",
@@ -52,6 +73,12 @@ export const SALES_CYCLE_OPTIONS = [
   "3+ months",
 ] as const;
 
+/** Screen 2 requires at least one, allows up to this many. */
+export const MAX_SEED_DOMAINS = 5;
+
+/** 0=Workspace, 1=ICP, 2=Signals, 3=Run, 4=Outcome (results or empty-state, chosen by data). */
+export const MAX_STEP = 4;
+
 export const EMPTY_BUSINESS_PROFILE: BusinessProfile = {
   product_category: "",
   target_industries: [],
@@ -60,9 +87,17 @@ export const EMPTY_BUSINESS_PROFILE: BusinessProfile = {
   sales_motion: "",
   deal_size: "",
   sales_cycle: "",
+  geography: [],
+  tech_stack_include: [],
+  tech_stack_exclude: [],
+  seed_domains: [],
+  workspace_name: "",
 };
 
-type TextProfileField = Exclude<keyof BusinessProfile, "target_industries">;
+type TextProfileField = Exclude<
+  keyof BusinessProfile,
+  "target_industries" | "geography" | "tech_stack_include" | "tech_stack_exclude" | "seed_domains"
+>;
 
 export type OnboardingFieldErrors = Partial<Record<keyof BusinessProfile, string>>;
 
@@ -76,19 +111,30 @@ export interface OnboardingState {
 export type OnboardingAction =
   | { type: "update_field"; field: TextProfileField; value: string }
   | { type: "set_industries"; industries: string[] }
+  | { type: "toggle_industry"; industry: string }
+  | { type: "set_geography"; geography: string[] }
+  | { type: "toggle_geography"; geo: string }
+  | { type: "set_tech_stack_include"; tools: string[] }
+  | { type: "set_tech_stack_exclude"; tools: string[] }
+  | { type: "set_seed_domains"; domains: string[] }
   | { type: "next_step" }
   | { type: "previous_step" }
   | { type: "go_to_step"; step: number }
   | { type: "save_started" }
   | { type: "save_failed"; message: string };
 
-function cleanIndustries(industries: unknown): string[] {
-  if (!Array.isArray(industries)) return [];
+function cleanText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/** Trims, drops blanks, and case-insensitively dedupes a free-form chip list. */
+function cleanStringList(list: unknown): string[] {
+  if (!Array.isArray(list)) return [];
 
   const seen = new Set<string>();
-  return industries.flatMap((industry) => {
-    if (typeof industry !== "string") return [];
-    const value = industry.trim();
+  return list.flatMap((item) => {
+    if (typeof item !== "string") return [];
+    const value = item.trim();
     const key = value.toLocaleLowerCase();
     if (!value || seen.has(key)) return [];
     seen.add(key);
@@ -96,8 +142,23 @@ function cleanIndustries(industries: unknown): string[] {
   });
 }
 
-function cleanText(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
+/**
+ * Case-insensitively adds or removes one value. Computed from reducer state
+ * (not from a render-time closure) so two rapid toggles can't clobber each
+ * other when React batches the dispatches.
+ */
+function toggleInList(list: string[], value: string): string[] {
+  const key = value.toLocaleLowerCase();
+  return list.some((item) => item.toLocaleLowerCase() === key)
+    ? list.filter((item) => item.toLocaleLowerCase() !== key)
+    : [...list, value];
+}
+
+/** Lowercases and dedupes candidate seed domains; leaves shape validation to businessProfileSchema. */
+function cleanDomainList(list: unknown): string[] {
+  return cleanStringList(list)
+    .map((domain) => domain.toLowerCase())
+    .slice(0, MAX_SEED_DOMAINS);
 }
 
 export function createOnboardingState(
@@ -107,12 +168,17 @@ export function createOnboardingState(
     step: 0,
     profile: {
       product_category: cleanText(profile?.product_category),
-      target_industries: cleanIndustries(profile?.target_industries),
+      target_industries: cleanStringList(profile?.target_industries),
       company_size: cleanText(profile?.company_size),
       buyer_role: cleanText(profile?.buyer_role),
       sales_motion: cleanText(profile?.sales_motion),
       deal_size: cleanText(profile?.deal_size),
       sales_cycle: cleanText(profile?.sales_cycle),
+      geography: cleanStringList(profile?.geography),
+      tech_stack_include: cleanStringList(profile?.tech_stack_include),
+      tech_stack_exclude: cleanStringList(profile?.tech_stack_exclude),
+      seed_domains: cleanDomainList(profile?.seed_domains),
+      workspace_name: cleanText(profile?.workspace_name),
     },
     saveStatus: "idle",
     saveError: null,
@@ -122,17 +188,30 @@ export function createOnboardingState(
 export function buildBusinessProfile(
   profile: BusinessProfile
 ): BusinessProfile | null {
+  const geography = cleanStringList(profile.geography);
+  const techInclude = cleanStringList(profile.tech_stack_include);
+  const techExclude = cleanStringList(profile.tech_stack_exclude);
+  const seedDomains = cleanDomainList(profile.seed_domains);
+  const workspaceName = cleanText(profile.workspace_name);
+
   const parsed = businessProfileSchema.safeParse({
     product_category: cleanText(profile.product_category),
-    target_industries: cleanIndustries(profile.target_industries),
+    target_industries: cleanStringList(profile.target_industries),
     company_size: cleanText(profile.company_size),
     buyer_role: cleanText(profile.buyer_role),
     sales_motion: cleanText(profile.sales_motion),
     deal_size: cleanText(profile.deal_size),
     sales_cycle: cleanText(profile.sales_cycle),
+    // Only include the new optional fields when they carry a real value, so a
+    // profile built without them round-trips to exactly its original shape.
+    ...(geography.length > 0 ? { geography } : {}),
+    ...(techInclude.length > 0 ? { tech_stack_include: techInclude } : {}),
+    ...(techExclude.length > 0 ? { tech_stack_exclude: techExclude } : {}),
+    ...(seedDomains.length > 0 ? { seed_domains: seedDomains } : {}),
+    ...(workspaceName ? { workspace_name: workspaceName } : {}),
   });
 
-  return parsed.success ? parsed.data as BusinessProfile : null;
+  return parsed.success ? (parsed.data as BusinessProfile) : null;
 }
 
 export function validateOnboardingStep(
@@ -141,16 +220,19 @@ export function validateOnboardingStep(
 ): OnboardingFieldErrors {
   const errors: OnboardingFieldErrors = {};
 
-  if (step === 0 && !cleanText(profile.product_category)) {
-    errors.product_category = "Choose what your company sells.";
+  if (step === 0 && !cleanText(profile.workspace_name)) {
+    errors.workspace_name = "Name your workspace to continue.";
   }
 
   if (step === 1) {
-    if (cleanIndustries(profile.target_industries).length === 0) {
+    if (cleanStringList(profile.target_industries).length === 0) {
       errors.target_industries = "Choose at least one target industry.";
     }
     if (!cleanText(profile.company_size)) {
       errors.company_size = "Choose an ideal company size.";
+    }
+    if (cleanDomainList(profile.seed_domains).length === 0) {
+      errors.seed_domains = "Add at least one domain you want to see scored.";
     }
   }
 
@@ -189,12 +271,60 @@ export function onboardingReducer(
         saveStatus: "idle",
         saveError: null,
       };
+    case "toggle_industry":
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          target_industries: toggleInList(state.profile.target_industries, action.industry),
+        },
+        saveStatus: "idle",
+        saveError: null,
+      };
+    case "toggle_geography":
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          geography: toggleInList(state.profile.geography ?? [], action.geo),
+        },
+        saveStatus: "idle",
+        saveError: null,
+      };
+    case "set_geography":
+      return {
+        ...state,
+        profile: { ...state.profile, geography: action.geography },
+        saveStatus: "idle",
+        saveError: null,
+      };
+    case "set_tech_stack_include":
+      return {
+        ...state,
+        profile: { ...state.profile, tech_stack_include: action.tools },
+        saveStatus: "idle",
+        saveError: null,
+      };
+    case "set_tech_stack_exclude":
+      return {
+        ...state,
+        profile: { ...state.profile, tech_stack_exclude: action.tools },
+        saveStatus: "idle",
+        saveError: null,
+      };
+    case "set_seed_domains":
+      return {
+        ...state,
+        profile: { ...state.profile, seed_domains: action.domains.slice(0, MAX_SEED_DOMAINS) },
+        saveStatus: "idle",
+        saveError: null,
+      };
     case "next_step":
-      return { ...state, step: Math.min(3, state.step + 1) };
+      return { ...state, step: Math.min(MAX_STEP, state.step + 1) };
     case "previous_step":
       return { ...state, step: Math.max(0, state.step - 1) };
     case "go_to_step":
-      return { ...state, step: Math.min(3, Math.max(0, action.step)) };
+      return { ...state, step: Math.min(MAX_STEP, Math.max(0, action.step)) };
     case "save_started":
       return { ...state, saveStatus: "saving", saveError: null };
     case "save_failed":

@@ -5,6 +5,19 @@ import type { BusinessProfile } from "@/lib/types";
 const requiredText = z.string().trim().min(1);
 const optionalText = z.string().trim().optional();
 
+/**
+ * Approximates the acceptance rules of lib/score-service.ts's canonicalizeDomain
+ * without importing it (that module pulls in server-only Supabase/env code that
+ * must not enter the client bundle this schema also validates in).
+ */
+const domainShape = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(1)
+  .max(253)
+  .regex(/^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))+$/, "Enter a valid domain, like example.com");
+
 /** Validation contract used by profile writes. Unknown fields are retained. */
 export const businessProfileSchema = z.object({
   product_category: requiredText,
@@ -14,6 +27,11 @@ export const businessProfileSchema = z.object({
   sales_motion: optionalText,
   deal_size: optionalText,
   sales_cycle: optionalText,
+  geography: z.array(requiredText).optional(),
+  tech_stack_include: z.array(requiredText).optional(),
+  tech_stack_exclude: z.array(requiredText).optional(),
+  seed_domains: z.array(domainShape).min(1).max(5).optional(),
+  workspace_name: z.string().trim().min(1).max(120).optional(),
 }).passthrough();
 
 export const profileUpdateSchema = z.object({
