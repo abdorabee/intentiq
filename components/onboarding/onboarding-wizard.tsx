@@ -15,7 +15,9 @@ import { useScoringRun } from "@/lib/onboarding-run";
 import {
   buildBusinessProfile,
   createOnboardingState,
+  findIncompleteStep,
   onboardingReducer,
+  STEP_LABELS,
   validateOnboardingStep,
   type OnboardingFieldErrors,
 } from "@/lib/onboarding-profile";
@@ -134,7 +136,23 @@ export default function OnboardingWizard({
   async function persistProfile(): Promise<boolean> {
     const payload = buildBusinessProfile(profile);
     if (!payload) {
-      dispatch({ type: "save_failed", message: "Some profile details are incomplete. Review the ICP step and try again." });
+      // Send the user to the screen that actually needs attention and surface
+      // the field-level errors there, rather than leaving them on the results
+      // screen with a message they can't act on.
+      const incompleteStep = findIncompleteStep(profile);
+      if (incompleteStep !== null) {
+        setErrors(validateOnboardingStep(incompleteStep, profile));
+        dispatch({ type: "go_to_step", step: incompleteStep });
+        dispatch({
+          type: "save_failed",
+          message: `Something's missing on the ${STEP_LABELS[incompleteStep]} step — we've taken you back to it.`,
+        });
+      } else {
+        dispatch({
+          type: "save_failed",
+          message: "We couldn't save your profile. Please check your answers and try again.",
+        });
+      }
       return false;
     }
     dispatch({ type: "save_started" });

@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildBusinessProfile,
   createOnboardingState,
+  findIncompleteStep,
   getOnboardingRedirect,
   MAX_STEP,
+  normalizeDomainInput,
   onboardingReducer,
   validateOnboardingStep,
 } from "./onboarding-profile";
@@ -25,11 +27,34 @@ const COMPLETE_DRAFT = {
 };
 
 describe("validateOnboardingStep", () => {
-  it("step 0 requires a workspace name", () => {
+  it("step 0 requires a workspace name and what the company sells", () => {
     const state = createOnboardingState();
     expect(validateOnboardingStep(0, state.profile)).toEqual({
       workspace_name: "Name your workspace to continue.",
+      product_category: "Tell us what you sell to continue.",
     });
+  });
+
+  // Regression: product_category is required by businessProfileSchema, so if no
+  // step validates it the user completes every screen and only the final save
+  // fails — with nothing on screen explaining which field is missing.
+  it("blocks a profile that only omits product_category, before the final save", () => {
+    const profile = { ...COMPLETE_DRAFT, product_category: "" };
+    expect(validateOnboardingStep(0, profile)).toEqual({
+      product_category: "Tell us what you sell to continue.",
+    });
+    expect(buildBusinessProfile(profile)).toBeNull();
+    expect(findIncompleteStep(profile)).toBe(0);
+  });
+
+  it("rejects a malformed seed domain at the ICP step rather than on save", () => {
+    const profile = { ...COMPLETE_DRAFT, seed_domains: ["not a domain"] };
+    expect(validateOnboardingStep(1, profile).seed_domains).toMatch(/not a valid domain/i);
+    expect(findIncompleteStep(profile)).toBe(1);
+  });
+
+  it("reports no incomplete step for a complete profile", () => {
+    expect(findIncompleteStep(COMPLETE_DRAFT)).toBeNull();
   });
 
   it("step 1 requires industries, company size, and at least one seed domain", () => {
@@ -52,6 +77,22 @@ describe("validateOnboardingStep", () => {
     const state = createOnboardingState(COMPLETE_DRAFT);
     expect(validateOnboardingStep(0, state.profile)).toEqual({});
     expect(validateOnboardingStep(1, state.profile)).toEqual({});
+  });
+});
+
+describe("normalizeDomainInput", () => {
+  it("reduces pasted URLs to the bare host the scoring pipeline expects", () => {
+    expect(normalizeDomainInput("https://Stripe.com/pricing?ref=x")).toBe("stripe.com");
+    expect(normalizeDomainInput("www.stripe.com")).toBe("stripe.com");
+    expect(normalizeDomainInput("http://sub.example.co.uk/a/b#frag")).toBe("sub.example.co.uk");
+    expect(normalizeDomainInput("  stripe.com:443  ")).toBe("stripe.com");
+    expect(normalizeDomainInput("stripe.com.")).toBe("stripe.com");
+  });
+
+  it("keeps a pasted URL usable end to end instead of failing the final save", () => {
+    const profile = { ...COMPLETE_DRAFT, seed_domains: ["https://stripe.com/pricing"] };
+    expect(validateOnboardingStep(1, profile)).toEqual({});
+    expect(buildBusinessProfile(profile)?.seed_domains).toEqual(["stripe.com"]);
   });
 });
 

@@ -9,14 +9,19 @@ const optionalText = z.string().trim().optional();
  * Approximates the acceptance rules of lib/score-service.ts's canonicalizeDomain
  * without importing it (that module pulls in server-only Supabase/env code that
  * must not enter the client bundle this schema also validates in).
+ *
+ * Exported so onboarding can check a domain at entry time rather than letting
+ * a bad one pass every step and only fail on the final save.
  */
+export const DOMAIN_PATTERN = /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))+$/;
+
 const domainShape = z
   .string()
   .trim()
   .toLowerCase()
   .min(1)
   .max(253)
-  .regex(/^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))+$/, "Enter a valid domain, like example.com");
+  .regex(DOMAIN_PATTERN, "Enter a valid domain, like example.com");
 
 /** Validation contract used by profile writes. Unknown fields are retained. */
 export const businessProfileSchema = z.object({

@@ -1,4 +1,4 @@
-import { businessProfileSchema } from "./business-profile";
+import { businessProfileSchema, DOMAIN_PATTERN } from "./business-profile";
 import type { BusinessProfile } from "./types";
 
 export const PRODUCT_CATEGORY_OPTIONS = [
@@ -154,10 +154,32 @@ function toggleInList(list: string[], value: string): string[] {
     : [...list, value];
 }
 
-/** Lowercases and dedupes candidate seed domains; leaves shape validation to businessProfileSchema. */
+/**
+ * Reduces what someone realistically pastes — "https://Stripe.com/pricing",
+ * "www.stripe.com", "stripe.com:443" — down to the bare host the scoring
+ * pipeline expects, so a copied URL isn't rejected as a malformed domain.
+ */
+export function normalizeDomainInput(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-z][a-z\d+.-]*:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/[/?#].*$/, "")
+    .replace(/:\d+$/, "")
+    .replace(/\.$/, "");
+}
+
+/** Normalizes and dedupes candidate seed domains; shape is checked by DOMAIN_PATTERN. */
 function cleanDomainList(list: unknown): string[] {
+  const seen = new Set<string>();
   return cleanStringList(list)
-    .map((domain) => domain.toLowerCase())
+    .map(normalizeDomainInput)
+    .filter((domain) => {
+      if (!domain || seen.has(domain)) return false;
+      seen.add(domain);
+      return true;
+    })
     .slice(0, MAX_SEED_DOMAINS);
 }
 
@@ -220,8 +242,16 @@ export function validateOnboardingStep(
 ): OnboardingFieldErrors {
   const errors: OnboardingFieldErrors = {};
 
-  if (step === 0 && !cleanText(profile.workspace_name)) {
-    errors.workspace_name = "Name your workspace to continue.";
+  if (step === 0) {
+    if (!cleanText(profile.workspace_name)) {
+      errors.workspace_name = "Name your workspace to continue.";
+    }
+    // businessProfileSchema requires this, so it must be caught here rather
+    // than at the final save — otherwise the whole flow completes and only
+    // the last click fails.
+    if (!cleanText(profile.product_category)) {
+      errors.product_category = "Tell us what you sell to continue.";
+    }
   }
 
   if (step === 1) {
@@ -231,13 +261,33 @@ export function validateOnboardingStep(
     if (!cleanText(profile.company_size)) {
       errors.company_size = "Choose an ideal company size.";
     }
-    if (cleanDomainList(profile.seed_domains).length === 0) {
+    const domains = cleanDomainList(profile.seed_domains);
+    if (domains.length === 0) {
       errors.seed_domains = "Add at least one domain you want to see scored.";
+    } else {
+      const invalid = domains.filter((domain) => !DOMAIN_PATTERN.test(domain));
+      if (invalid.length > 0) {
+        errors.seed_domains = `Not a valid domain: ${invalid.join(", ")}. Use a form like example.com.`;
+      }
     }
   }
 
   return errors;
 }
+
+/**
+ * The first step that still has a validation error, or null when the profile
+ * is complete. Lets the finish action send someone back to the screen that
+ * actually needs attention instead of stranding them on the results page.
+ */
+export function findIncompleteStep(profile: BusinessProfile): number | null {
+  for (const step of [0, 1]) {
+    if (Object.keys(validateOnboardingStep(step, profile)).length > 0) return step;
+  }
+  return null;
+}
+
+export const STEP_LABELS = ["Workspace", "ICP", "Signals"] as const;
 
 export function getOnboardingRedirect(
   onboardingCompleted: boolean,
