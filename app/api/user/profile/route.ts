@@ -10,7 +10,7 @@ export async function GET() {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("users")
-    .select("business_profile, onboarding_completed, product_category")
+    .select("business_profile, onboarding_completed, product_category, workspace_name")
     .eq("id", userId)
     .single();
 
@@ -19,6 +19,7 @@ export async function GET() {
   return NextResponse.json({
     business_profile: data?.business_profile ?? null,
     onboarding_completed: data?.onboarding_completed ?? false,
+    workspace_name: data?.workspace_name ?? null,
   });
 }
 
@@ -55,6 +56,7 @@ export async function PUT(req: NextRequest) {
     .update({
       business_profile: profile,
       product_category: profile.product_category,
+      workspace_name: profile.workspace_name ?? null,
       onboarding_completed: true,
     })
     .eq("id", userId);

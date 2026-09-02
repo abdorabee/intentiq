@@ -3,167 +3,104 @@
 import { useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { EmptyStateScreen } from "@/components/onboarding/screens/empty-state-screen";
+import { IcpDefinitionScreen } from "@/components/onboarding/screens/icp-definition-screen";
+import { ResultsScreen } from "@/components/onboarding/screens/results-screen";
+import { ScoringRunScreen } from "@/components/onboarding/screens/scoring-run-screen";
+import { SignalSourcesScreen } from "@/components/onboarding/screens/signal-sources-screen";
+import { WorkspaceSetupScreen } from "@/components/onboarding/screens/workspace-setup-screen";
+import { OnboardingFooter, OnboardingShell, PrimaryButton, SecondaryButton } from "@/components/onboarding/onboarding-shell";
+import { scoredAccountsFromEntries, topDriver, type ScoredAccount } from "@/components/onboarding/results-shared";
+import { useScoringRun } from "@/lib/onboarding-run";
 import {
   buildBusinessProfile,
-  BUYER_ROLE_OPTIONS,
-  COMPANY_SIZE_OPTIONS,
-  DEAL_SIZE_OPTIONS,
-  INDUSTRY_OPTIONS,
-  onboardingReducer,
-  PRODUCT_CATEGORY_OPTIONS,
-  SALES_CYCLE_OPTIONS,
-  SALES_MOTION_OPTIONS,
   createOnboardingState,
+  onboardingReducer,
   validateOnboardingStep,
   type OnboardingFieldErrors,
 } from "@/lib/onboarding-profile";
 import type { BusinessProfile } from "@/lib/types";
 
-const STEPS = [
-  { title: "Your offer", description: "Tell us what you sell." },
-  { title: "Ideal accounts", description: "Define the companies you want to reach." },
-  { title: "Buying motion", description: "Show us who buys and how you sell." },
-  { title: "Deal profile", description: "Set your commercial context and review." },
-] as const;
-
-function includesOption(options: readonly string[], value: string) {
-  return options.includes(value);
+/**
+ * `fetch` rejects with a bare `TypeError: Failed to fetch` when the request
+ * never reaches the server (offline, dev server down, CORS). Surfacing that
+ * string tells the user nothing, so translate it; everything else is already
+ * a message we wrote ourselves.
+ */
+function describeRequestError(error: unknown): string {
+  if (error instanceof TypeError) {
+    return "Couldn't reach the server. Check your connection and try again.";
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return "Something went wrong. Please try again.";
 }
 
-function RadioButton({
-  selected,
-  children,
-  onClick,
-}: {
-  selected: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      onClick={onClick}
-      className={`relative flex h-11 items-center gap-3 rounded-lg border px-4 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] ${
-        selected
-          ? "border-[#dfff00]/60 bg-[#dfff00]/[0.08] text-white"
-          : "border-white/[0.08] bg-white/[0.02] text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04]"
-      }`}
-    >
-      {selected && (
-        <span
-          aria-hidden="true"
-          className="absolute left-0 top-0 h-full w-0.5 rounded-l-lg bg-[#dfff00]"
-        />
-      )}
-      <span
-        aria-hidden="true"
-        className={`h-2.5 w-2.5 shrink-0 rounded-full border ${
-          selected
-            ? "border-[#dfff00] bg-[#dfff00]"
-            : "border-white/[0.25]"
-        }`}
-      />
-      <span className="font-medium">{children}</span>
-    </button>
-  );
+function csvEscape(value: string | number): string {
+  const s = String(value);
+  return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-function CheckboxButton({
-  selected,
-  children,
-  onClick,
-}: {
-  selected: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={selected}
-      onClick={onClick}
-      className={`relative flex h-11 items-center gap-3 rounded-lg border px-4 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] ${
-        selected
-          ? "border-[#dfff00]/60 bg-[#dfff00]/[0.08] text-white"
-          : "border-white/[0.08] bg-white/[0.02] text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04]"
-      }`}
-    >
-      {selected && (
-        <span
-          aria-hidden="true"
-          className="absolute left-0 top-0 h-full w-0.5 rounded-l-lg bg-[#dfff00]"
-        />
-      )}
-      <span
-        aria-hidden="true"
-        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-          selected
-            ? "border-[#dfff00] bg-[#dfff00]"
-            : "border-white/[0.25]"
-        }`}
-      >
-        {selected && (
-          <svg className="h-2.5 w-2.5 text-black" fill="none" viewBox="0 0 10 8">
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M1 4l2.5 2.5L9 1"
-            />
-          </svg>
-        )}
-      </span>
-      <span className="font-medium">{children}</span>
-    </button>
+function downloadCsv(accounts: ScoredAccount[]) {
+  const header = "domain,company,score,band,top_driver";
+  const rows = accounts.map((a) =>
+    [a.domain, a.result.company, a.result.intent_score ?? "", a.result.score_band ?? "", topDriver(a.result)]
+      .map(csvEscape)
+      .join(",")
   );
+  const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "vesperwise-icp-preview.csv";
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
-function FieldError({ id, message }: { id: string; message?: string }) {
-  if (!message) return null;
-  return (
-    <p id={id} className="mt-2 text-sm text-red-300">
-      {message}
-    </p>
+async function addToWatchlist(
+  accounts: ScoredAccount[]
+): Promise<{ added: number; total: number; hitLimit: boolean }> {
+  const outcomes = await Promise.allSettled(
+    accounts.map((a) =>
+      fetch("/api/dashboard/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: a.domain, company_name: a.result.company }),
+      })
+    )
   );
-}
-
-function ReviewRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between border-b border-white/[0.06] py-3.5 last:border-0">
-      <dt className="text-xs font-medium uppercase tracking-[0.1em] text-[#6f747c]">
-        {label}
-      </dt>
-      <dd className="text-sm text-[#d4d8dc]">{value}</dd>
-    </div>
-  );
+  const added = outcomes.filter((o) => o.status === "fulfilled" && o.value.ok).length;
+  // /api/dashboard/watchlist answers 403 specifically when PLAN_WATCHLIST_LIMIT
+  // is reached, so only that status justifies blaming the plan limit.
+  const hitLimit = outcomes.some((o) => o.status === "fulfilled" && o.value.status === 403);
+  return { added, total: accounts.length, hitLimit };
 }
 
 export default function OnboardingWizard({
   initialProfile,
+  emailDomain,
+  email,
+  creditsRemaining,
+  readOnlyPreview = false,
 }: {
   initialProfile: Partial<BusinessProfile> | null;
+  emailDomain: string | null;
+  email: string;
+  creditsRemaining: number;
+  /** Signed-out preview deploy: layout is browsable but nothing can be saved
+   *  or scored, so say so up front instead of failing on a 401 later. */
+  readOnlyPreview?: boolean;
 }) {
   const router = useRouter();
-  const [state, dispatch] = useReducer(
-    onboardingReducer,
-    initialProfile,
-    (profile) => createOnboardingState(profile)
-  );
+  const [state, dispatch] = useReducer(onboardingReducer, initialProfile, (profile) => createOnboardingState(profile));
   const [errors, setErrors] = useState<OnboardingFieldErrors>({});
-  const [customProduct, setCustomProduct] = useState(
-    Boolean(
-      initialProfile?.product_category &&
-        !includesOption(PRODUCT_CATEGORY_OPTIONS, initialProfile.product_category.trim())
-    )
-  );
-  const [customIndustry, setCustomIndustry] = useState("");
+  const [threshold, setThreshold] = useState(75);
+  const [notice, setNotice] = useState<string | null>(null);
+  // Set when a finish attempt partially succeeded, so we can offer an escape
+  // hatch rather than trapping the user on the last screen.
+  const [finishAttempted, setFinishAttempted] = useState(false);
+  const run = useScoringRun();
 
   const { profile, step, saveStatus, saveError } = state;
-  const currentStep = STEPS[step];
 
   function clearError(field: keyof BusinessProfile) {
     setErrors((current) => {
@@ -174,72 +111,32 @@ export default function OnboardingWizard({
     });
   }
 
-  function updateField(
-    field: Exclude<keyof BusinessProfile, "target_industries">,
-    value: string
-  ) {
+  function updateField(field: "workspace_name" | "product_category", value: string) {
     dispatch({ type: "update_field", field, value });
     clearError(field);
   }
 
   function toggleIndustry(industry: string) {
-    const exists = profile.target_industries.some(
-      (item) => item.toLocaleLowerCase() === industry.toLocaleLowerCase()
-    );
-    dispatch({
-      type: "set_industries",
-      industries: exists
-        ? profile.target_industries.filter(
-            (item) => item.toLocaleLowerCase() !== industry.toLocaleLowerCase()
-          )
-        : [...profile.target_industries, industry],
-    });
+    dispatch({ type: "toggle_industry", industry });
     clearError("target_industries");
   }
 
-  function addCustomIndustry() {
-    const value = customIndustry.trim();
-    if (!value) return;
-    if (
-      !profile.target_industries.some(
-        (industry) => industry.toLocaleLowerCase() === value.toLocaleLowerCase()
-      )
-    ) {
-      dispatch({
-        type: "set_industries",
-        industries: [...profile.target_industries, value],
-      });
-    }
-    setCustomIndustry("");
-    clearError("target_industries");
+  function toggleGeography(geo: string) {
+    dispatch({ type: "toggle_geography", geo });
   }
 
-  function continueToNextStep() {
-    const stepErrors = validateOnboardingStep(step, profile);
+  function goNext(validateStep: number) {
+    const stepErrors = validateOnboardingStep(validateStep, profile);
     setErrors(stepErrors);
-    if (Object.keys(stepErrors).length === 0) {
-      dispatch({ type: "next_step" });
-    }
+    if (Object.keys(stepErrors).length === 0) dispatch({ type: "next_step" });
   }
 
-  function skipStep() {
-    dispatch({ type: "next_step" });
-  }
-
-  async function saveProfile() {
-    const stepErrors = validateOnboardingStep(1, profile);
-    setErrors(stepErrors);
-    if (Object.keys(stepErrors).length > 0) return;
-
+  async function persistProfile(): Promise<boolean> {
     const payload = buildBusinessProfile(profile);
     if (!payload) {
-      dispatch({
-        type: "save_failed",
-        message: "Some profile details are incomplete. Review each step and try again.",
-      });
-      return;
+      dispatch({ type: "save_failed", message: "Some profile details are incomplete. Review the ICP step and try again." });
+      return false;
     }
-
     dispatch({ type: "save_started" });
     try {
       const response = await fetch("/api/user/profile", {
@@ -247,328 +144,217 @@ export default function OnboardingWizard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ business_profile: payload }),
       });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => null) as { error?: string } | null;
-        throw new Error(body?.error ?? "We could not save your profile.");
+      if (response.status === 401) {
+        throw new Error("Your session expired. Sign in again to save your workspace.");
       }
-
-      router.replace("/score");
-      router.refresh();
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? "We could not save your profile. Please try again.");
+      }
+      return true;
     } catch (error) {
-      dispatch({
-        type: "save_failed",
-        message:
-          error instanceof Error
-            ? error.message
-            : "We could not save your profile. Check your connection and try again.",
-      });
+      dispatch({ type: "save_failed", message: describeRequestError(error) });
+      return false;
     }
   }
 
-  const customIndustries = profile.target_industries.filter(
-    (industry) => !includesOption(INDUSTRY_OPTIONS, industry)
-  );
+  async function finishWithWatchlist(accounts: ScoredAccount[]) {
+    const saved = await persistProfile();
+    if (!saved) return;
+    if (accounts.length > 0) {
+      const { added, total, hitLimit } = await addToWatchlist(accounts);
+      if (added < total) {
+        // Stay put so the message is actually readable — navigating here would
+        // unmount it instantly. The watchlist POST upserts on (user_id, domain),
+        // so pressing the button again is safe and won't duplicate rows.
+        setNotice(
+          hitLimit
+            ? `Added ${added} of ${total} — your plan's watchlist limit is full. Upgrade to track the rest, or continue.`
+            : `Added ${added} of ${total} — the others couldn't be saved. Try again, or continue and add them later.`
+        );
+        setFinishAttempted(true);
+        return;
+      }
+    }
+    router.replace("/dashboard");
+    router.refresh();
+  }
+
+  const scoredAccounts = scoredAccountsFromEntries(run.entries);
+  const visibleAccounts = scoredAccounts.filter((a) => (a.result.intent_score ?? -1) >= threshold);
+  const hasCleared = visibleAccounts.length > 0;
+  // Ledger phases: 0 Workspace, 1 ICP, 2 Signals, 3 Results. The run (step 3)
+  // and outcome (step 4) screens both sit under the "Results" phase.
+  const phase = Math.min(step, 3);
+
+  let content: React.ReactNode;
+  let footer: React.ReactNode;
+
+  if (step === 0) {
+    content = (
+      <WorkspaceSetupScreen profile={profile} emailDomain={emailDomain} errors={errors} onUpdateField={updateField} />
+    );
+    footer = (
+      <OnboardingFooter
+        caption="Step 1 of 3 · about 40 seconds"
+        primary={<PrimaryButton onClick={() => goNext(0)}>Define your ICP</PrimaryButton>}
+      />
+    );
+  } else if (step === 1) {
+    content = (
+      <IcpDefinitionScreen
+        profile={profile}
+        errors={errors}
+        onToggleIndustry={toggleIndustry}
+        onSetIndustries={(industries) => dispatch({ type: "set_industries", industries })}
+        onSetCompanySize={(size) => {
+          dispatch({ type: "update_field", field: "company_size", value: size });
+          clearError("company_size");
+        }}
+        onToggleGeography={toggleGeography}
+        onSetTechInclude={(tools) => dispatch({ type: "set_tech_stack_include", tools })}
+        onSetTechExclude={(tools) => dispatch({ type: "set_tech_stack_exclude", tools })}
+        onSetSeedDomains={(domains) => {
+          dispatch({ type: "set_seed_domains", domains });
+          clearError("seed_domains");
+        }}
+      />
+    );
+    footer = (
+      <OnboardingFooter
+        caption="Step 2 of 3"
+        back={{ label: "Back", onClick: () => dispatch({ type: "previous_step" }) }}
+        primary={<PrimaryButton onClick={() => goNext(1)}>Choose signals</PrimaryButton>}
+      />
+    );
+  } else if (step === 2) {
+    const seedCount = (profile.seed_domains ?? []).length;
+    content = <SignalSourcesScreen seedCount={seedCount} />;
+    footer = (
+      <OnboardingFooter
+        caption={`Step 3 of 3 · first run included in your ${creditsRemaining} credits`}
+        back={{ label: "Back", onClick: () => dispatch({ type: "previous_step" }) }}
+        primary={
+          <PrimaryButton
+            disabled={seedCount === 0}
+            onClick={() => {
+              dispatch({ type: "next_step" });
+              void run.start(profile.seed_domains ?? []);
+            }}
+          >
+            Score {seedCount} {seedCount === 1 ? "account" : "accounts"}
+          </PrimaryButton>
+        }
+      />
+    );
+  } else if (step === 3) {
+    const anyDone = run.entries.some((e) => e.status === "done" || e.status === "error");
+    content = <ScoringRunScreen entries={run.entries} />;
+    footer = (
+      <OnboardingFooter
+        caption="Scoring your ICP preview"
+        back={{ label: "Back", onClick: () => dispatch({ type: "previous_step" }), disabled: run.running }}
+        secondary={<SecondaryButton inert>Email me instead</SecondaryButton>}
+        primary={
+          <PrimaryButton disabled={!anyDone} onClick={() => dispatch({ type: "next_step" })}>
+            See the {run.entries.filter((e) => e.status === "done").length} ready now
+          </PrimaryButton>
+        }
+      />
+    );
+  } else {
+    content = hasCleared ? (
+      <ResultsScreen accounts={scoredAccounts} visible={visibleAccounts} threshold={threshold} onThresholdChange={setThreshold} />
+    ) : (
+      <EmptyStateScreen
+        accounts={scoredAccounts}
+        threshold={threshold}
+        onLowerThreshold={setThreshold}
+        onWidenIcp={() => dispatch({ type: "go_to_step", step: 1 })}
+      />
+    );
+    footer = (
+      <OnboardingFooter
+        caption={`Run complete · ${scoredAccounts.length} scored`}
+        secondary={
+          finishAttempted ? (
+            <SecondaryButton
+              onClick={() => {
+                router.replace("/dashboard");
+                router.refresh();
+              }}
+            >
+              Continue anyway
+            </SecondaryButton>
+          ) : scoredAccounts.length > 0 ? (
+            <SecondaryButton onClick={() => downloadCsv(hasCleared ? visibleAccounts : scoredAccounts)}>
+              Export CSV
+            </SecondaryButton>
+          ) : undefined
+        }
+        primary={
+          <PrimaryButton disabled={saveStatus === "saving"} onClick={() => void finishWithWatchlist(hasCleared ? visibleAccounts : [])}>
+            {saveStatus === "saving"
+              ? "Saving..."
+              : hasCleared
+                ? `Take these ${visibleAccounts.length} into my workspace`
+                : "Continue to dashboard"}
+          </PrimaryButton>
+        }
+      />
+    );
+  }
+
+  const banner = readOnlyPreview ? (
+    <div
+      role="status"
+      className="flex flex-none items-center gap-2 border-b border-white/[0.08] bg-white/[0.03] px-12 py-3 text-[13px] text-[#a0a0a0]"
+    >
+      <span className="font-mono text-[11px] uppercase tracking-[0.07em] text-[#666]">Preview</span>
+      <span>Layout preview only — sign in to score accounts or save a workspace.</span>
+    </div>
+  ) : (saveError ?? notice) ? (
+    <div
+      role="alert"
+      aria-live="assertive"
+      className={`flex flex-none items-center justify-between gap-3 border-b px-12 py-3 text-[13px] ${
+        saveError
+          ? "border-[#f87171]/25 bg-[#f87171]/[0.08] text-[#fca5a5]"
+          : "border-[#f5b544]/25 bg-[#f5b544]/[0.08] text-[#f5b544]"
+      }`}
+    >
+      <p>{saveError ?? notice}</p>
+      {saveError ? (
+        <button
+          type="button"
+          onClick={() => void finishWithWatchlist(hasCleared ? visibleAccounts : [])}
+          className="shrink-0 rounded-lg border border-[#f87171]/30 px-3 py-1.5 font-medium hover:bg-[#f87171]/10"
+        >
+          Try again
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setNotice(null)}
+          aria-label="Dismiss"
+          className="shrink-0 px-2 text-[#f5b544]/70 hover:text-[#f5b544]"
+        >
+          ×
+        </button>
+      )}
+    </div>
+  ) : null;
 
   return (
-    <main className="min-h-[100dvh] bg-[#08090a] text-[#f7f8f8]">
-      <div className="mx-auto flex min-h-[100dvh] max-w-[600px] flex-col px-5 py-8">
-        <header className="mb-10">
-          <h1 className="text-lg font-semibold tracking-tight">
-            VESPERWISE<span className="text-[#dfff00]">.</span>
-          </h1>
-          <div className="mt-3 flex items-start justify-between text-xs">
-            <p className="text-[#7a7f87]">
-              {step + 1} OF {STEPS.length}
-            </p>
-            <p className="text-[#5a5f67]">Saved when you finish</p>
-          </div>
-        </header>
-
-        <form
-          className="flex-1"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void saveProfile();
-          }}
-        >
-          <div className="mb-8">
-            <h2 className="text-xl font-medium text-white">
-              {currentStep.title}
-            </h2>
-            <p className="mt-1.5 text-sm text-[#9298a1]">
-              {currentStep.description}
-            </p>
-          </div>
-
-            {step === 0 && (
-              <fieldset aria-describedby={errors.product_category ? "product-error" : undefined}>
-                <legend className="mb-4 text-sm font-medium text-[#c5c9cf]">
-                  What does your company sell?
-                </legend>
-                <div className="grid gap-2.5">
-                  {PRODUCT_CATEGORY_OPTIONS.map((option) => (
-                    <RadioButton
-                      key={option}
-                      selected={!customProduct && profile.product_category === option}
-                      onClick={() => {
-                        setCustomProduct(false);
-                        updateField("product_category", option);
-                      }}
-                    >
-                      {option}
-                    </RadioButton>
-                  ))}
-                  <RadioButton
-                    selected={customProduct}
-                    onClick={() => {
-                      if (!customProduct) updateField("product_category", "");
-                      setCustomProduct(true);
-                    }}
-                  >
-                    Something else
-                  </RadioButton>
-                </div>
-                {customProduct && (
-                  <div className="mt-4">
-                    <label htmlFor="custom-product" className="sr-only">
-                      Describe your product or service
-                    </label>
-                    <input
-                      id="custom-product"
-                      autoFocus
-                      value={profile.product_category}
-                      onChange={(event) => updateField("product_category", event.target.value)}
-                      placeholder="Describe your product or service"
-                      className="h-11 w-full rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm text-white placeholder:text-[#555b63] focus:border-[#dfff00]/60 focus:outline-none focus:ring-2 focus:ring-[#dfff00]/20"
-                    />
-                  </div>
-                )}
-                <FieldError id="product-error" message={errors.product_category} />
-              </fieldset>
-            )}
-
-            {step === 1 && (
-              <div className="space-y-8">
-                <fieldset aria-describedby={errors.target_industries ? "industries-error" : undefined}>
-                  <legend className="mb-2 text-sm font-medium text-[#c5c9cf]">
-                    Which industries do you sell into?
-                  </legend>
-                  <p className="mb-4 text-xs text-[#6f747c]">Select every industry that fits.</p>
-                  <div className="grid gap-2.5">
-                    {INDUSTRY_OPTIONS.map((option) => (
-                      <CheckboxButton
-                        key={option}
-                        selected={profile.target_industries.includes(option)}
-                        onClick={() => toggleIndustry(option)}
-                      >
-                        {option}
-                      </CheckboxButton>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <label htmlFor="custom-industry" className="sr-only">
-                      Add another target industry
-                    </label>
-                    <input
-                      id="custom-industry"
-                      value={customIndustry}
-                      onChange={(event) => setCustomIndustry(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          addCustomIndustry();
-                        }
-                      }}
-                      placeholder="Add another industry"
-                      className="h-11 flex-1 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm text-white placeholder:text-[#555b63] focus:border-[#dfff00]/60 focus:outline-none focus:ring-2 focus:ring-[#dfff00]/20"
-                    />
-                    <button
-                      type="button"
-                      onClick={addCustomIndustry}
-                      className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
-                    >
-                      Add industry
-                    </button>
-                  </div>
-                  <FieldError id="industries-error" message={errors.target_industries} />
-                </fieldset>
-
-                <fieldset aria-describedby={errors.company_size ? "company-size-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#c5c9cf]">
-                    What is your ideal customer size?
-                  </legend>
-                  <div className="grid gap-2.5">
-                    {COMPANY_SIZE_OPTIONS.map((option) => (
-                      <RadioButton
-                        key={option}
-                        selected={profile.company_size === option}
-                        onClick={() => updateField("company_size", option)}
-                      >
-                        {option}
-                      </RadioButton>
-                    ))}
-                  </div>
-                  <FieldError id="company-size-error" message={errors.company_size} />
-                </fieldset>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-8">
-                <fieldset aria-describedby={errors.buyer_role ? "buyer-role-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#c5c9cf]">
-                    Who is your primary buyer?
-                  </legend>
-                  <div className="grid gap-2.5">
-                    {BUYER_ROLE_OPTIONS.map((option) => (
-                      <RadioButton
-                        key={option}
-                        selected={profile.buyer_role === option}
-                        onClick={() => updateField("buyer_role", option)}
-                      >
-                        {option}
-                      </RadioButton>
-                    ))}
-                  </div>
-                  <FieldError id="buyer-role-error" message={errors.buyer_role} />
-                </fieldset>
-
-                <fieldset aria-describedby={errors.sales_motion ? "sales-motion-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#c5c9cf]">
-                    How does your team sell?
-                  </legend>
-                  <div className="grid gap-2.5">
-                    {SALES_MOTION_OPTIONS.map((option) => (
-                      <RadioButton
-                        key={option}
-                        selected={profile.sales_motion === option}
-                        onClick={() => updateField("sales_motion", option)}
-                      >
-                        {option}
-                      </RadioButton>
-                    ))}
-                  </div>
-                  <FieldError id="sales-motion-error" message={errors.sales_motion} />
-                </fieldset>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-8">
-                <fieldset aria-describedby={errors.deal_size ? "deal-size-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#c5c9cf]">
-                    Typical deal size
-                  </legend>
-                  <div className="grid gap-2.5">
-                    {DEAL_SIZE_OPTIONS.map((option) => (
-                      <RadioButton
-                        key={option}
-                        selected={profile.deal_size === option}
-                        onClick={() => updateField("deal_size", option)}
-                      >
-                        {option}
-                      </RadioButton>
-                    ))}
-                  </div>
-                  <FieldError id="deal-size-error" message={errors.deal_size} />
-                </fieldset>
-
-                <fieldset aria-describedby={errors.sales_cycle ? "sales-cycle-error" : undefined}>
-                  <legend className="mb-4 text-sm font-medium text-[#c5c9cf]">
-                    Typical sales cycle
-                  </legend>
-                  <div className="grid gap-2.5">
-                    {SALES_CYCLE_OPTIONS.map((option) => (
-                      <RadioButton
-                        key={option}
-                        selected={profile.sales_cycle === option}
-                        onClick={() => updateField("sales_cycle", option)}
-                      >
-                        {option}
-                      </RadioButton>
-                    ))}
-                  </div>
-                  <FieldError id="sales-cycle-error" message={errors.sales_cycle} />
-                </fieldset>
-
-                <section aria-labelledby="profile-review" className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 py-2">
-                  <h3 id="profile-review" className="py-3 text-base font-medium">
-                    Review your profile
-                  </h3>
-                  <dl>
-                    <ReviewRow label="Offer" value={profile.product_category || "Not selected"} />
-                    <ReviewRow label="Industries" value={profile.target_industries.join(", ") || "Not selected"} />
-                    <ReviewRow label="Company size" value={profile.company_size || "Not selected"} />
-                    <ReviewRow label="Buyer" value={profile.buyer_role || "Not selected"} />
-                    <ReviewRow label="Sales motion" value={profile.sales_motion || "Not selected"} />
-                    <ReviewRow label="Deal size" value={profile.deal_size || "Not selected"} />
-                    <ReviewRow label="Sales cycle" value={profile.sales_cycle || "Not selected"} />
-                  </dl>
-                </section>
-
-                {saveError && (
-                  <div
-                    role="alert"
-                    aria-live="assertive"
-                    className="flex flex-col gap-3 rounded-lg border border-red-300/20 bg-red-400/[0.07] p-4 text-sm text-red-100 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <p>{saveError}</p>
-                    <button
-                      type="button"
-                      onClick={() => void saveProfile()}
-                      className="shrink-0 rounded-lg border border-red-200/25 px-3 py-2 font-medium hover:bg-red-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
-                    >
-                      Try again
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-          <footer className="mt-10 flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "previous_step" })}
-              disabled={step === 0 || saveStatus === "saving"}
-              className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
-            >
-              Back
-            </button>
-
-            <div className="flex gap-3">
-              {(step === 2 || step === 3) && (
-                <button
-                  type="button"
-                  onClick={step === 3 ? () => void saveProfile() : skipStep}
-                  disabled={saveStatus === "saving"}
-                  className="flex h-11 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] px-5 text-sm font-medium text-[#b8bec8] hover:border-white/[0.15] hover:bg-white/[0.04] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00]"
-                >
-                  Skip
-                </button>
-              )}
-
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={continueToNextStep}
-                  className="flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
-                >
-                  Continue
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={saveStatus === "saving"}
-                  className="flex h-11 items-center justify-center rounded-lg bg-[#dfff00] px-6 text-sm font-semibold text-[#090a0b] hover:bg-[#e8ff40] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090a]"
-                >
-                  {saveStatus === "saving" ? "Saving..." : "Finish setup"}
-                </button>
-              )}
-            </div>
-          </footer>
-        </form>
-      </div>
-    </main>
+    <OnboardingShell
+      phase={phase}
+      showLedger
+      credits={creditsRemaining}
+      email={email}
+      banner={banner}
+      footer={footer}
+    >
+      {content}
+    </OnboardingShell>
   );
 }
