@@ -1,4 +1,5 @@
 import LandingNav from "@/components/landing/LandingNav";
+import BloubMascot from "@/components/mascot/bloub-mascot";
 import SiteFooter from "@/components/site-footer";
 import VesperWiseLogo from "@/components/vesperwise-logo";
 
@@ -23,6 +24,9 @@ export default function LandingPage() {
         <div className="grid-overlay"></div>
 
         <div className="hero-inner">
+          <div className="hero-mascot" aria-hidden="true">
+            <BloubMascot size={200} color="#dfff00" paper="#08090a" follow playing />
+          </div>
           <div className="hero-eyebrow">
             <span className="badge">Spring &apos;26</span>
             <span>People scoring + warm-account routing →</span>
